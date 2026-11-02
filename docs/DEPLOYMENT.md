@@ -71,6 +71,7 @@ Run that command manually first. Verify successful runs and arrange cron failure
 ## HTTPS, routing and caches
 
 - Enable HTTPS with your provider. Redirect HTTP to HTTPS at the hosting account/proxy level. Keep `APP_ORIGIN` and `NEXT_PUBLIC_SITE_URL` equal to the public HTTPS origin.
+- For a public instance intended to be indexed, set `NEXT_PUBLIC_INDEXABLE=true` and the real `NEXT_PUBLIC_SITE_URL` before building. Staging builds should remain non-indexable. After upload, follow the [search-engine setup checklist](SEO.md).
 - Upload `.htaccess`; File Manager may hide dotfiles by default. Apache must allow `mod_rewrite`, `mod_headers` and the supplied override directives.
 - Unknown pages return a real not-found status and the friendly custom page. `/baranhq_admin` is not served as admin.
 - Bypass CDN/shared caches for `/admin`, `/api/*` and the server-rendered privacy-policy routes. Never cache responses with admin or preference cookies. Static hashed assets can be cached normally.

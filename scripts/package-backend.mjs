@@ -1,10 +1,11 @@
-import {route} from '../lib/routes.ts';
-import {cpSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import nextEnv from '@next/env';
+import {cpSync, mkdirSync, writeFileSync} from 'node:fs';
+const {loadEnvConfig}=nextEnv;
+loadEnvConfig(process.cwd(), false);
 mkdirSync('out/api/_lib', {recursive:true});
 for (const file of ['config.php','security.php','analytics.php','admin.php','policy.php']) cpSync(`backend/${file}`, `out/api/_lib/${file}`);
 writeFileSync('out/api/_lib/.htaccess', 'Require all denied\n');
 cpSync('LICENSE','out/LICENSE.txt');
-const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-const indexable = process.env.NEXT_PUBLIC_INDEXABLE === 'true';
-writeFileSync('out/robots.txt', `User-agent: *\n${indexable ? 'Allow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /baranhq_admin\nDisallow: /bg/zapazeni-igri/\nDisallow: /tr/kayitli-oyunlar/\nDisallow: /en/scoreboards/' : 'Disallow: /'}\n${indexable ? `Sitemap: ${origin}/sitemap.xml\n` : ''}`);
-writeFileSync('out/sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'+['home','privacy','licenses','help'].flatMap(page=>['bg','tr','en'].map(lang=>`<url><loc>${origin}${route(lang,page)}</loc>${['bg','tr','en'].map(l=>`<xhtml:link rel="alternate" hreflang="${l}" href="${origin}${route(l,page)}"/>`).join('')}<xhtml:link rel="alternate" hreflang="x-default" href="${origin}${route('bg',page)}"/></url>`)).join('')+'</urlset>');
+const key=process.env.INDEXNOW_KEY||'';
+if(key&&!/^[A-Za-z0-9-]{8,128}$/.test(key))throw new Error('INDEXNOW_KEY must contain 8–128 letters, numbers or hyphens.');
+if(key&&process.env.NEXT_PUBLIC_INDEXABLE==='true'&&process.env.NEXT_PUBLIC_SITE_URL?.startsWith('https://'))writeFileSync(`out/${key}.txt`,key+'\n',{flag:'w'});

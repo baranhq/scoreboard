@@ -42,6 +42,7 @@ services:
         NEXT_PUBLIC_OPERATOR_NAME: ${NEXT_PUBLIC_OPERATOR_NAME:-}
         NEXT_PUBLIC_CONTACT_EMAIL: ${NEXT_PUBLIC_CONTACT_EMAIL:-}
         NEXT_PUBLIC_OPERATOR_COUNTRY: ${NEXT_PUBLIC_OPERATOR_COUNTRY:-}
+        INDEXNOW_KEY: ${INDEXNOW_KEY:-}
         SOURCE_COMMIT: ${SOURCE_COMMIT:-unrecorded}
     restart: unless-stopped
     environment: *app-environment

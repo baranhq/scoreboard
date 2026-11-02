@@ -4,7 +4,9 @@
 
 # Baran's Scoreboard
 
-A free, open-source scoreboard for classrooms, games and competitions. No player accounts, cloud database or external analytics service is needed to keep score.
+A free, open-source online scoreboard for classroom teams, games and friendly competitions. Customise team names and colours, use the built-in timer, and put the scores on a classroom display or projector in fullscreen. The scoreboard works without an account; games are saved locally in the browser.
+
+[Open Baran's Scoreboard](https://scoreboard.baranhq.com) · [English](README.md) · [Български](README.bg.md) · [Türkçe](README.tr.md)
 
 [Quick start](#run-locally) · [Self-hosting](#self-hosting) · [Administration](#administration-and-privacy) · [Backups](#backups-recovery-and-updates) · [Licences](#licences-and-contributions)
 
@@ -48,6 +50,14 @@ npm run preview
 
 PHP's built-in server is for local development, not public production hosting.
 
+## Search engine setup
+
+Search indexing is off in `.env.example` to protect previews and staging sites. For your public HTTPS site, set `NEXT_PUBLIC_SITE_URL` to its origin and `NEXT_PUBLIC_INDEXABLE=true` in `.env.local` before building. The exported site includes a sitemap with the canonical English, Bulgarian and Turkish public pages, reciprocal language alternates, and a matching `robots.txt`. Saved games stay `noindex`; they are deliberately omitted from the sitemap.
+
+After deployment, verify your domain in [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters/about), submit `https://your-domain.example/sitemap.xml` in both, and inspect one homepage and one help page in each language. Check that the reported canonical is the matching HTTPS language URL and that the pages are crawlable. Sitemap submission helps discovery but does not guarantee indexing or rankings.
+
+IndexNow is optional. To use it, set a unique 8–128 character `INDEXNOW_KEY` while building, deploy the generated `/<key>.txt` verification file, then run `npm run indexnow` from the source checkout after deployment. The key is a public verification value, not a password. `OAI-SearchBot` has an explicit rule on indexable builds; model-training crawlers follow the general rule and are not given a separate policy here. See [Search and AI discovery](docs/SEO.md) for the deployment checklist and crawler notes.
+
 ## Self-hosting
 
 You can run Baran's Scoreboard on your own domain or subdomain without changing application source code. Install it at the **root of that domain**, rather than a URL subfolder. The frontend is a static Next.js export; the same small PHP backend is used on shared hosting and in Docker. A persistent Next.js server is not required.
@@ -82,6 +92,8 @@ NEXT_PUBLIC_OPERATOR_COUNTRY="Your Country"
 ```
 
 Replace the examples with real information. `NEXT_PUBLIC_SITE_URL` must be the origin only: no path, query, credentials or trailing page name. Set `NEXT_PUBLIC_INDEXABLE=true` only for the real public site. Rebuild whenever public build settings change. Anything beginning `NEXT_PUBLIC_` is public: never put passwords, keys or database credentials there.
+
+`INDEXNOW_KEY` is optional and public by protocol. If you configure it, the production build adds its verification file to `out/`; deploy that file before running the IndexNow command. Search engines can still discover the site through the sitemap without IndexNow.
 
 Backend settings belong in a **private environment file outside every public directory**, or in the server's environment. `.env.example` explains every setting. The backend and frontend origins must match.
 
