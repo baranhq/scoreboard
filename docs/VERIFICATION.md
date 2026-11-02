@@ -20,6 +20,10 @@ python3 tests/http-security.py /absolute/private/test.env
 
 PHP must have PDO MySQL enabled. For a local Unix socket, set `TEST_MYSQL_SOCKET`.
 
+## Browser checks
+
+The public preview was checked at widths 375, 768, 1024 and 1440px. No document-level horizontal overflow was observed; the navbar remained 64px tall. The admin sign-in, authenticated sidebar/dashboard and mobile navigation were inspected. These are targeted checks, not a complete visual or WCAG audit.
+
 ## Deployment checks still required
 
 No production hosting account was accessed or deployed. Docker is not available in this development environment, so the Compose installation has not been executed. Verify Docker/cPanel installation, Apache `.htaccess` behaviour, production HTTPS and Secure cookies, current proxy CIDRs and header overwriting, automatic Cloudflare beacon injection being disabled, cron execution, backup restoration, hosting/AWStats retention, and public deployment provenance on the actual host.

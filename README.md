@@ -1,8 +1,14 @@
+<p align="center">
+  <img src="public/wordmark.png" alt="Baran's Scoreboard" width="360">
+</p>
+
 # Baran's Scoreboard
 
 A free, open-source scoreboard for classrooms, games and competitions. No player accounts, cloud database or external analytics service is needed to keep score.
 
-[Source code](https://github.com/baranhq/scoreboard) · [MIT License](LICENSE) · [Third-party licences](LICENSES.md)
+[Quick start](#run-locally) · [Self-hosting](#self-hosting) · [Administration](#administration-and-privacy) · [Backups](#backups-recovery-and-updates) · [Licences](#licences-and-contributions)
+
+[Source code](https://github.com/baranhq/scoreboard) · [MIT License](LICENSE) · [Third-party notices](LICENSES.md)
 
 - Multiple saved games and teams, automatic local saving, JSON backups and shareable snapshots.
 - Per-game colours, icons, layouts and score increments.
