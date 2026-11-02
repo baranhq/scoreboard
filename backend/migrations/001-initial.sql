@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS preferences (
+ token_hash CHAR(64) CHARACTER SET ascii PRIMARY KEY,
+ usage_allowed BOOLEAN NOT NULL DEFAULT 0, cloud_allowed BOOLEAN NOT NULL DEFAULT 0,
+ expires_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
+ INDEX preferences_cleanup (updated_at)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS visits (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, token_hash CHAR(64) CHARACTER SET ascii NOT NULL,
+ started_at DATETIME NOT NULL, last_seen DATETIME NOT NULL, active_seconds INT UNSIGNED NOT NULL DEFAULT 0,
+ FOREIGN KEY (token_hash) REFERENCES preferences(token_hash) ON DELETE CASCADE,
+ INDEX visit_lookup (token_hash, last_seen), INDEX visit_cleanup (started_at)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS pageviews (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, visit_id BIGINT UNSIGNED NOT NULL,
+ path VARCHAR(64) CHARACTER SET ascii NOT NULL, occurred_at DATETIME NOT NULL,
+ FOREIGN KEY (visit_id) REFERENCES visits(id) ON DELETE CASCADE,
+ INDEX pageview_cleanup (occurred_at)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS events (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, visit_id BIGINT UNSIGNED NOT NULL,
+ label VARCHAR(32) CHARACTER SET ascii NOT NULL, occurred_at DATETIME NOT NULL,
+ FOREIGN KEY (visit_id) REFERENCES visits(id) ON DELETE CASCADE, INDEX event_cleanup (occurred_at)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS login_limits (
+ bucket CHAR(64) CHARACTER SET ascii PRIMARY KEY, attempts INT UNSIGNED NOT NULL DEFAULT 0, expires_at DATETIME NOT NULL
+) ENGINE=InnoDB;

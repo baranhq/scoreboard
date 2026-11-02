@@ -1,0 +1,36 @@
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+RewriteEngine On
+# The static / page remembers a local language choice; Bulgarian is its no-script default.
+# PHP is the only administrator implementation. Old /baranhq_admin returns 404.
+RewriteRule ^admin/?$ api/index.php [L]
+RewriteRule ^(bg/poveritelnost|tr/gizlilik|en/privacy)/?$ api/index.php [L]
+<IfModule mod_headers.c>
+ Header always set X-Content-Type-Options "nosniff"
+ Header always set Referrer-Policy "strict-origin-when-cross-origin"
+ Header always set X-Frame-Options "DENY"
+ Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+ # Next static HTML contains framework bootstrap scripts; block remote code except optional Cloudflare.
+ Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; style-src 'self'; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+</IfModule>
+<FilesMatch "^(\.env.*|.*\.(sql|log|bak|key|pem))$">
+ Require all denied
+</FilesMatch>
+# Preserve old links while canonical public navigation uses localized slugs.
+RewriteRule ^bg/scoreboards/?$ /bg/zapazeni-igri/ [R=301,L]
+RewriteRule ^tr/scoreboards/?$ /tr/kayitli-oyunlar/ [R=301,L]
+RewriteRule ^bg/privacy/?$ /bg/poveritelnost/ [R=301,L]
+RewriteRule ^tr/privacy/?$ /tr/gizlilik/ [R=301,L]
+RewriteRule ^bg/licenses/?$ /bg/licenzi/ [R=301,L]
+RewriteRule ^tr/licenses/?$ /tr/lisanslar/ [R=301,L]
+# Never serve private source, VCS metadata or environment files. Allow ACME renewal.
+RewriteRule ^\.well-known/acme-challenge/ - [L]
+RewriteRule (^|/)\. - [F,L]
+<IfModule mod_headers.c>
+ <FilesMatch "\.(woff2|png|svg)$">
+  Header set Cache-Control "public, max-age=86400"
+ </FilesMatch>
+</IfModule>
+
+RewriteRule ^tr/kayitli-tabelalar/?$ /tr/kayitli-oyunlar/ [R=301,L]

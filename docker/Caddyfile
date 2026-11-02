@@ -1,0 +1,6 @@
+{$PUBLIC_HOST} {
+    reverse_proxy app:80 {
+        # Overwrite this header; never trust a value supplied by a public client.
+        header_up CF-Connecting-IP {remote_host}
+    }
+}

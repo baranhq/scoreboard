@@ -1,0 +1,10 @@
+import {route} from '../lib/routes.ts';
+import {cpSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+mkdirSync('out/api/_lib', {recursive:true});
+for (const file of ['config.php','security.php','analytics.php','admin.php','policy.php']) cpSync(`backend/${file}`, `out/api/_lib/${file}`);
+writeFileSync('out/api/_lib/.htaccess', 'Require all denied\n');
+cpSync('LICENSE','out/LICENSE.txt');
+const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const indexable = process.env.NEXT_PUBLIC_INDEXABLE === 'true';
+writeFileSync('out/robots.txt', `User-agent: *\n${indexable ? 'Allow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /baranhq_admin\nDisallow: /bg/zapazeni-igri/\nDisallow: /tr/kayitli-oyunlar/\nDisallow: /en/scoreboards/' : 'Disallow: /'}\n${indexable ? `Sitemap: ${origin}/sitemap.xml\n` : ''}`);
+writeFileSync('out/sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'+['home','privacy','licenses'].flatMap(page=>['bg','tr','en'].map(lang=>`<url><loc>${origin}${route(lang,page)}</loc>${['bg','tr','en'].map(l=>`<xhtml:link rel="alternate" hreflang="${l}" href="${origin}${route(l,page)}"/>`).join('')}<xhtml:link rel="alternate" hreflang="x-default" href="${origin}${route('bg',page)}"/></url>`)).join('')+'</urlset>');

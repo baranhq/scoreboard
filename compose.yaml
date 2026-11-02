@@ -1,0 +1,91 @@
+x-app-environment: &app-environment
+  APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN in .env}
+  APP_ALLOW_HTTP: ${APP_ALLOW_HTTP:-false}
+  APP_KEY: ${APP_KEY:-}
+  ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+  POLICY_PATH: /var/lib/scoreboard/policies
+  ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+  DB_HOST: database
+  DB_PORT: 3306
+  DB_NAME: ${DB_NAME:-scoreboard}
+  DB_USER: ${DB_USER:-scoreboard}
+  DB_PASSWORD: ${DB_PASSWORD:?Choose DB_PASSWORD in .env}
+  SESSION_PATH: /var/lib/scoreboard/sessions
+  ANALYTICS_ENABLED: ${ANALYTICS_ENABLED:-false}
+  CLOUDFLARE_ANALYTICS_TOKEN: ${CLOUDFLARE_ANALYTICS_TOKEN:-}
+  CLOUDFLARE_MANUAL_CONFIRMED: ${CLOUDFLARE_MANUAL_CONFIRMED:-false}
+  # Only this isolated Docker network is trusted to supply the overwritten header.
+  TRUSTED_PROXY_CIDRS: ${DOCKER_NETWORK_SUBNET:-172.30.47.0/24}
+services:
+  database:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-scoreboard}
+      MARIADB_USER: ${DB_USER:-scoreboard}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Choose DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Choose DB_ROOT_PASSWORD in .env}
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  app:
+    image: scoreboard-local
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?Set NEXT_PUBLIC_SITE_URL in .env}
+        NEXT_PUBLIC_INDEXABLE: ${NEXT_PUBLIC_INDEXABLE:-false}
+        NEXT_PUBLIC_OPERATOR_NAME: ${NEXT_PUBLIC_OPERATOR_NAME:-}
+        NEXT_PUBLIC_CONTACT_EMAIL: ${NEXT_PUBLIC_CONTACT_EMAIL:-}
+        NEXT_PUBLIC_OPERATOR_COUNTRY: ${NEXT_PUBLIC_OPERATOR_COUNTRY:-}
+        SOURCE_COMMIT: ${SOURCE_COMMIT:-unrecorded}
+    restart: unless-stopped
+    environment: *app-environment
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - sessions:/var/lib/scoreboard/sessions
+      - policies:/var/lib/scoreboard/policies
+    ports:
+      - 127.0.0.1:8080:80
+  cleanup:
+    image: scoreboard-local
+    restart: unless-stopped
+    environment: *app-environment
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - sessions:/var/lib/scoreboard/sessions
+      - policies:/var/lib/scoreboard/policies
+    entrypoint: [sh, -c, 'while true; do php /opt/scoreboard/backend/manage.php cleanup; sleep 3600; done']
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    profiles: [https]
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - certificates:/data
+      - caddy_config:/config
+    ports:
+      - 80:80
+      - 443:443
+    depends_on: [app]
+volumes:
+  database:
+  sessions:
+  policies:
+  certificates:
+  caddy_config:
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${DOCKER_NETWORK_SUBNET:-172.30.47.0/24}
