@@ -2,7 +2,7 @@
 import {Plus,Minus} from "lucide-react";
 import type { CSSProperties } from "react";
 import { type Team } from "@/lib/boards";
-import { teamPalette, readableText, buttonColors } from "@/lib/colors";
+import { teamPalette, readableText, buttonColors, themePaletteColor } from "@/lib/colors";
 import type { Appearance } from "@/lib/appearance";
 import type { Messages } from "@/lib/i18n";
 import { Button } from "./ui";
@@ -10,14 +10,15 @@ type Props = {className?:string;paused?:boolean;team: Team; color?: string; text
 export function TeamPanel({className='',paused=false,team,color,textColor,appearance,controlsVisible,index,count,full,t,edit,rename,change,move,remove,manual}: Props) {
  const palette=teamPalette[index%teamPalette.length];
  const bg=team.color||color||palette.background;
- const darkBg=team.color||color||palette.dark;
+ const darkBg=themePaletteColor(bg,'dark');
+ const matchingPalette=teamPalette.find(item=>item.background.toLowerCase()===bg.toLowerCase());
  const lightButtons=buttonColors(bg),darkButtons=buttonColors(darkBg);
  const digits=String(team.score).length;
  const regularSize=digits>6?"text-[13cqw]":digits>4?"text-[20cqw]":digits>2?"text-[30cqw]":appearance.scoreSize==='small'?"text-[min(38cqw,8rem)]":appearance.scoreSize==='large'?"text-[min(60cqw,15rem)]":count>2?"text-[min(48cqw,22vw,9rem)]":"text-[min(48cqw,11rem)]";
  const fullSize=digits>6?"text-[min(13cqw,16dvh)]":digits>4?"text-[min(20cqw,20dvh)]":count<=2?"text-[min(48cqw,32dvh)]":count<=4?"text-[min(42cqw,24dvh)]":"text-[min(36cqw,16dvh)]";
  const ScoreTag=full?'div':'button';
  const size=full?fullSize:regularSize;
- return <article style={{"--button-bg":lightButtons.primary,"--button-text":lightButtons.text,"--button-hover":lightButtons.hover,"--button-border":lightButtons.border,"--secondary-text":lightButtons.secondaryText,"--button-bg-dark":darkButtons.primary,"--button-text-dark":darkButtons.text,"--button-hover-dark":darkButtons.hover,"--button-border-dark":darkButtons.border,"--secondary-text-dark":darkButtons.secondaryText,"--team-bg":bg,"--team-fg":readableText(bg,team.textColor||textColor||(!team.color&&!color?palette.text:undefined)),"--team-bg-dark":darkBg,"--team-fg-dark":readableText(darkBg,team.textColor||textColor||(!team.color&&!color?palette.darkText:undefined))} as CSSProperties} className={`relative flex min-h-0 min-w-0 [container-type:inline-size] flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-2 text-[var(--team-fg)] focus-visible:outline-[var(--secondary-text)] dark:focus-visible:outline-[var(--secondary-text-dark)] disabled:cursor-not-allowed disabled:border-dashed transition-colors duration-150 dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] motion-reduce:transition-none ${className} ${full?'gap-2 py-3':appearance.density==='spacious'?'py-8 sm:py-10':'py-4 sm:py-4'}`}>
+ return <article style={{"--button-bg":lightButtons.primary,"--button-text":lightButtons.text,"--button-hover":lightButtons.hover,"--button-border":lightButtons.border,"--secondary-text":lightButtons.secondaryText,"--button-bg-dark":darkButtons.primary,"--button-text-dark":darkButtons.text,"--button-hover-dark":darkButtons.hover,"--button-border-dark":darkButtons.border,"--secondary-text-dark":darkButtons.secondaryText,"--team-bg":bg,"--team-fg":readableText(bg,team.textColor||textColor||matchingPalette?.text),"--team-bg-dark":darkBg,"--team-fg-dark":readableText(darkBg,team.textColor||textColor||matchingPalette?.darkText)} as CSSProperties} className={`relative flex min-h-0 min-w-0 [container-type:inline-size] flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-2 text-[var(--team-fg)] focus-visible:outline-[var(--secondary-text)] dark:focus-visible:outline-[var(--secondary-text-dark)] disabled:cursor-not-allowed disabled:border-dashed transition-colors duration-150 dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] motion-reduce:transition-none ${className} ${full?'gap-2 py-3':appearance.density==='spacious'?'py-8 sm:py-10':'py-4 sm:py-4'}`}>
   <h3 className={`max-w-full break-words rounded px-2 py-1 font-display text-center font-semibold ${full||appearance.teamSize==='large' ? "text-2xl sm:text-3xl" : "text-2xl sm:text-3xl"}`}>{team.name}</h3>
   <ScoreTag onClick={full?undefined:manual} aria-label={`${team.name}: ${t.score} ${team.score}`} title={full?undefined:t.score} className={`font-display my-0 w-full overflow-hidden rounded-lg bg-transparent py-1 text-center font-bold tabular-nums leading-[1.15] tracking-[-0.06em] ${full?"flex min-h-0 flex-1 items-center justify-center":""} ${size}`}><span key={team.score} className="inline-block motion-safe:animate-[score-change_120ms_ease-out]">{team.score}</span></ScoreTag>
   <span className="sr-only" aria-live="polite">{team.name}: {team.score}</span>

@@ -16,6 +16,10 @@ export const teamPalette = [
  {background:'#f3e2e1',text:'#843d39',dark:'#3e2829',darkText:'#f0ccca',accent:'#8a423c'},
  {background:'#f5efd5',text:'#67551c',dark:'#38331f',darkText:'#efe3ab',accent:'#6d5a1d'}
 ];
+export function themePaletteColor(color:string,theme:'light'|'dark'):string {
+ const palette=teamPalette.find(item=>item.background.toLowerCase()===color.toLowerCase());
+ return palette?(theme==='dark'?palette.dark:palette.background):color;
+}
 function toHsl(hex:string):[number,number,number] {
  const [r,g,b]=hex.slice(1).match(/../g)!.map(v=>parseInt(v,16)/255);const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min,l=(max+min)/2;
  if(d===0)return[135,0,l];const s=d/(1-Math.abs(2*l-1));let h=max===r?((g-b)/d)%6:max===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360;return[h,s,l];

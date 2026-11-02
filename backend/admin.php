@@ -34,6 +34,11 @@ function admin_page(PDO $db,array $c): never {
         }else{
             if(!authorized())fail(401);
             if($action==='logout'){$_SESSION=[];session_destroy();setcookie('score_admin','',['expires'=>1,'path'=>'/','secure'=>$c['secure_cookies'],'httponly'=>true,'samesite'=>'Strict']);header('Location: /admin',true,303);exit;}
+            if($action==='delete_analytics'){
+                if(($_POST['confirm_delete']??null)!=='yes')fail(400);
+                $db->beginTransaction();$db->exec('DELETE FROM visits');$db->commit();
+                $_SESSION['notice']='Analytics records deleted. Consent choices and security limits were kept.';header('Location: /admin?view=overview',true,303);exit;
+            }
             if($action==='save_policy'||$action==='restore_policy'){
                 $lang=$_POST['language']??'';$revision=filter_var($_POST['revision']??'',FILTER_VALIDATE_INT);
                 if(!in_array($lang,['bg','tr','en'],true)||$revision===false)fail(400);
@@ -67,6 +72,7 @@ function admin_page(PDO $db,array $c): never {
         $v=$query('SELECT COUNT(*) AS n,COALESCE(SUM(active_seconds),0) AS seconds FROM visits WHERE started_at >= ? AND started_at < ? AND started_at > UTC_TIMESTAMP() - INTERVAL 365 DAY',[$start,$end])[0];$pages=$query('SELECT COUNT(*) AS n FROM pageviews WHERE occurred_at >= ? AND occurred_at < ? AND occurred_at > UTC_TIMESTAMP() - INTERVAL 365 DAY',[$start,$end])[0]['n'];
         echo '<dl class="grid gap-3 sm:grid-cols-3">';foreach(['Recorded visits'=>$v['n'],'Page views'=>$pages,'Active minutes'=>round((int)$v['seconds']/60)] as $label=>$number)echo '<div class="rounded-xl border border-forest/20 bg-surface p-5"><dt class="text-base">'.h($label).'</dt><dd class="mt-2 font-display text-4xl font-bold tabular-nums text-forest">'.h($number).'</dd></div>';echo '</dl><h2 class="mt-7 mb-3 font-display text-xl font-bold">Recent daily activity</h2>';
         admin_table($query('SELECT DATE(started_at) AS day,COUNT(*) AS visits FROM visits WHERE started_at >= ? AND started_at < ? AND started_at > UTC_TIMESTAMP() - INTERVAL 365 DAY GROUP BY day ORDER BY day DESC LIMIT 14',[$start,$end]));
+        ?><section class="mt-8 border-t border-forest/20 pt-6"><h2 class="font-display text-xl font-bold">Delete analytics data</h2><p class="mt-2 max-w-3xl text-base leading-7 text-forest/90">Permanently delete all recorded visits, page views and button clicks, including records outside the selected date range. Visitor consent choices and security/login-limit data will remain. New analytics can be recorded later when enabled and consented to.</p><form method="post" action="/admin?view=overview" class="mt-4 flex flex-wrap items-center gap-4"><?=$csrf?><input type="hidden" name="action" value="delete_analytics"><label class="inline-flex min-h-11 items-center gap-3 text-base"><input type="checkbox" name="confirm_delete" value="yes" required class="size-5 accent-forest">I understand this cannot be undone.</label><button class="min-h-11 rounded-lg border border-red-700/50 px-4 text-base font-semibold text-red-800 transition-colors duration-150 hover:bg-red-700/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 dark:text-red-300 motion-reduce:transition-none">Delete all analytics data</button></form></section><?php
     }elseif($view==='activity'){
         $period=$_GET['period']??'day';$periods=['day'=>['DATE(started_at)','Daily'],'week'=>['YEARWEEK(started_at,3)','Weekly'],'month'=>["DATE_FORMAT(started_at,'%Y-%m')",'Monthly']];if(!is_string($period)||!isset($periods[$period]))fail(400);
         echo '<nav aria-label="Activity grouping" class="mb-4 flex flex-wrap gap-2">';foreach($periods as $key=>$details)echo '<a class="min-h-11 rounded-lg border border-forest/25 px-4 py-2 text-base" href="/admin?view=activity&amp;period='.h($key).'&amp;from='.h($from).'&amp;to='.h($to).'">'.h($details[1]).'</a>';echo '</nav>';
