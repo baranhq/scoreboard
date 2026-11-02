@@ -5,7 +5,7 @@ import { type Team } from "@/lib/boards";
 import { teamPalette, readableText, buttonColors, themePaletteColor } from "@/lib/colors";
 import type { Appearance } from "@/lib/appearance";
 import type { Messages } from "@/lib/i18n";
-import { Button } from "./ui";
+import { Button } from "../ui/ui";
 type Props = {className?:string;paused?:boolean;team: Team; color?: string; textColor?: string; appearance: Appearance; controlsVisible:boolean; index: number; count: number; full: boolean; t: Messages; edit: (change: Partial<Team>) => void; rename: () => void; change: (amount: number) => void; move: (offset: number) => void; remove: () => void; manual: () => void};
 export function TeamPanel({className='',paused=false,team,color,textColor,appearance,controlsVisible,index,count,full,t,edit,rename,change,move,remove,manual}: Props) {
  const palette=teamPalette[index%teamPalette.length];

@@ -17,7 +17,7 @@ coverage/
 *.tsbuildinfo
 
 /public/fonts/
-/app/font-faces.css
+/src/app/font-faces.css
 
 *.sql
 !backend/migrations/*.sql

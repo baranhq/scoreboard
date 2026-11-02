@@ -13,4 +13,4 @@ for(const [family,weights] of [['inter',[400,500,600]],['inter-tight',[500,600,7
   css+=`@font-face { font-family: '${family==='inter'?'Inter':'Inter Tight'}'; font-style: normal; font-display: swap; font-weight: ${weight}; src: url('/fonts/${file}') format('woff2'); unicode-range: ${range}; }\n`;
  }
 }
-writeFileSync('app/font-faces.css',css);
+writeFileSync('src/app/font-faces.css',css);

@@ -2,6 +2,7 @@
 // Local development only; PHP's built-in web server is not a production server.
 declare(strict_types=1);
 $path=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
+if($path==='/api/index.php')return false;
 require_once __DIR__.'/config.php';
 $adminPath=configuration()['admin_path'];
 if(in_array($path,[$adminPath,$adminPath.'/','/bg/poveritelnost/','/tr/gizlilik/','/en/privacy/'],true)){require dirname(__DIR__).'/public/api/index.php';return true;}

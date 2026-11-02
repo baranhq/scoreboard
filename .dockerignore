@@ -24,4 +24,4 @@ id_rsa
 id_ed25519
 *.tsbuildinfo
 public/fonts
-app/font-faces.css
+src/app/font-faces.css
