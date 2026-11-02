@@ -11,10 +11,11 @@ RewriteRule ^(bg/poveritelnost|tr/gizlilik|en/privacy)/?$ api/index.php [L]
  Header always set Referrer-Policy "strict-origin-when-cross-origin"
  Header always set X-Frame-Options "DENY"
  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+ Header always set Strict-Transport-Security "max-age=31536000"
  # Next static HTML contains framework bootstrap scripts; block remote code except optional Cloudflare.
  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; style-src 'self'; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 </IfModule>
-<FilesMatch "^(\.env.*|.*\.(sql|log|bak|key|pem))$">
+<FilesMatch "(?i)^(\.env.*|.*\.(sql(\..*)?|sqlite([.-].*)?|db|log|bak|backup|dump|key|pem|p12|pfx|jks|keystore))$">
  Require all denied
 </FilesMatch>
 # Preserve old links while canonical public navigation uses localized slugs.

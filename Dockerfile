@@ -13,7 +13,7 @@ ARG SOURCE_COMMIT=unrecorded
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL NEXT_PUBLIC_INDEXABLE=$NEXT_PUBLIC_INDEXABLE NEXT_PUBLIC_OPERATOR_NAME=$NEXT_PUBLIC_OPERATOR_NAME NEXT_PUBLIC_CONTACT_EMAIL=$NEXT_PUBLIC_CONTACT_EMAIL NEXT_PUBLIC_OPERATOR_COUNTRY=$NEXT_PUBLIC_OPERATOR_COUNTRY INDEXNOW_KEY=$INDEXNOW_KEY SOURCE_COMMIT=$SOURCE_COMMIT
 RUN npm run build
 
-FROM php:8.4-apache AS runtime
+FROM php:8.4.27-apache-bookworm AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends libonig-dev && docker-php-ext-install pdo_mysql mbstring && rm -rf /var/lib/apt/lists/* && a2enmod rewrite headers && mkdir -p /var/lib/scoreboard/sessions /var/lib/scoreboard/policies && chown -R www-data:www-data /var/lib/scoreboard
 COPY docker/apache.conf /etc/apache2/conf-available/scoreboard.conf
 RUN a2enconf scoreboard

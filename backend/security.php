@@ -22,6 +22,18 @@ function same_origin(array $c): void {
 }
 function fail(int $status, string $message = 'Request unavailable'): never {http_response_code($status); header('Content-Type: application/json'); echo json_encode(['error' => $message]); exit;}
 function json_response(array $data): never {header('Content-Type: application/json'); echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR); exit;}
+function rate_limit_bucket(PDO $db, string $bucket, int $limit): bool {
+    $q=$db->prepare('INSERT INTO login_limits (bucket,attempts,expires_at) VALUES (?,1,UTC_TIMESTAMP() + INTERVAL 15 MINUTE) ON DUPLICATE KEY UPDATE attempts = IF(expires_at <= UTC_TIMESTAMP(),1,LEAST(attempts+1,4294967295)), expires_at = IF(expires_at <= UTC_TIMESTAMP(),UTC_TIMESTAMP() + INTERVAL 15 MINUTE,expires_at)');
+    $q->execute([$bucket]);$q=$db->prepare('SELECT attempts FROM login_limits WHERE bucket = ?');$q->execute([$bucket]);
+    return (int)$q->fetchColumn() <= $limit;
+}
+function request_rate_limit(PDO $db, array $c, string $purpose, int $limit): bool {
+    $ip=incoming_ip($c);
+    // If the server cannot establish a client address, fail open instead of creating a global lockout.
+    if ($ip === '') return true;
+    $bucket=hash_hmac('sha256','request:'.$purpose.':'.inet_pton($ip),$c['key']);
+    return rate_limit_bucket($db,$bucket,$limit);
+}
 function input(): array {
     if (!str_starts_with($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) fail(415);
     if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 4096) fail(413);
@@ -33,10 +45,14 @@ function input(): array {
 }
 function start_admin_session(array $c): void {
     if (!is_dir($c['session_path']) && !mkdir($c['session_path'], 0700, true) && !is_dir($c['session_path'])) throw new RuntimeException('Session storage unavailable');
-    session_save_path($c['session_path']); session_name('score_admin');
-    ini_set('session.use_strict_mode', '1'); ini_set('session.use_only_cookies', '1'); ini_set('session.gc_maxlifetime', '3600');
-    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => !$c['http'], 'httponly' => true, 'samesite' => 'Strict']);
-    session_start();
+    if (!is_dir($c['session_path']) || !is_writable($c['session_path']) || !chmod($c['session_path'],0700)) throw new RuntimeException('Session storage unavailable');
+    if (session_status() === PHP_SESSION_ACTIVE) throw new RuntimeException('Session was already started');
+    if (session_save_path($c['session_path']) === false) throw new RuntimeException('Session storage unavailable');
+    session_name('score_admin');
+    foreach (['session.use_cookies'=>'1','session.use_strict_mode'=>'1','session.use_only_cookies'=>'1','session.use_trans_sid'=>'0','session.cookie_httponly'=>'1','session.cookie_secure'=>$c['secure_cookies']?'1':'0','session.cookie_samesite'=>'Strict','session.gc_maxlifetime'=>'3600'] as $setting=>$value) {
+        if (ini_set($setting,$value) === false) throw new RuntimeException('Secure sessions are unavailable');
+    }
+    if (!session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $c['secure_cookies'], 'httponly' => true, 'samesite' => 'Strict']) || !session_start()) throw new RuntimeException('Session storage unavailable');
     if (($_SESSION['expires'] ?? PHP_INT_MAX) <= time()) {$_SESSION = []; session_regenerate_id(true);}
     $version=hash_hmac('sha256',$c['admin_username']."\0".$c['admin_hash'],$c['key']);
     if(isset($_SESSION['admin'])&&(!isset($_SESSION['auth_version'])||!hash_equals($version,$_SESSION['auth_version']))) {$_SESSION=[];session_regenerate_id(true);}

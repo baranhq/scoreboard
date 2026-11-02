@@ -1,5 +1,6 @@
 """Local integration checks. Requires an explicitly supplied disposable DB configuration."""
 import http.cookiejar
+import http.client
 import json
 import os
 import re
@@ -45,6 +46,17 @@ def request(path, data=None, json_body=False, source=origin):
     except urllib.error.HTTPError as error:
         response = error
     return response.status, response.read().decode(), response.headers
+
+def request_from_ip(path, data, client_ip):
+    body = urllib.parse.urlencode(data).encode()
+    cookies = '; '.join(f'{cookie.name}={cookie.value}' for cookie in jar)
+    headers = {'Origin': origin, 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': str(len(body)), 'Cookie': cookies}
+    connection = http.client.HTTPConnection('127.0.0.1', port, timeout=5, source_address=(client_ip, 0))
+    connection.request('POST', path, body=body, headers=headers)
+    response = connection.getresponse()
+    result = (response.status, response.read().decode(), response.headers)
+    connection.close()
+    return result
 
 def token(html):
     return re.search(r'name="csrf" value="([a-f0-9]+)"', html)[1]
@@ -109,6 +121,12 @@ try:
     csrf = token(request('/admin')[1])
     statuses = [request('/admin', {'action': 'login', 'csrf': csrf, 'username': 'integration-test', 'password': 'wrong'})[0] for _ in range(6)]
     assert 429 in statuses, statuses
+    api_statuses = [request('/api/index.php?action=consent', {'usage': True, 'cloud': False}, True)[0] for _ in range(299)]
+    assert api_statuses[:298] == [200] * 298 and api_statuses[-1] == 429, api_statuses[-3:]
+    for _ in range(95):
+        request('/admin', {'action': 'login', 'csrf': csrf, 'username': 'integration-test', 'password': 'wrong'})
+    status, _, headers = request_from_ip('/admin', {'action': 'login', 'csrf': csrf, 'username': 'integration-test', 'password': password}, '127.0.0.2')
+    assert status == 303 and headers['Location'] == '/admin', (status, headers.get('Location'))
     for language, path in [('bg', '/bg/poveritelnost/'), ('tr', '/tr/gizlilik/'), ('en', '/en/privacy/')]:
         status, html, _ = request(path)
         assert status == 200 and 'id="policy-document"' in html and "Baran" in html, language

@@ -406,5 +406,12 @@
     "source": "https://github.com/nodejs/undici",
     "development": true,
     "noticePath": "/licenses/undici-types-7.24.6.json"
+  },
+  {
+    "name": "PHP Docker runtime",
+    "version": "8.4.27",
+    "license": "PHP-3.01",
+    "source": "https://github.com/php/php-src/tree/php-8.4.27",
+    "noticePath": "/licenses/php-docker-runtime-8.4.27.json"
   }
 ]

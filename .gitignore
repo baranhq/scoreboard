@@ -25,7 +25,11 @@ coverage/
 *.p12
 *.pfx
 *.crt
+*.jks
+*.keystore
 *.dump
 *.sql.zip
 *.sqlite-journal
+id_rsa
+id_ed25519
 /tmp/

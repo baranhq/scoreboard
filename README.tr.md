@@ -29,6 +29,6 @@ npm run dev
 
 ## Kendi sunucunuzda barındırma
 
-Paylaşımlı hosting ve cPanel, Docker Compose, PHP/MySQL yönetimi, HTTPS, yedekleme ve güncelleme adımları İngilizce [self-hosting rehberinde](README.md#self-hosting) ve [deployment belgesinde](docs/DEPLOYMENT.md) açıklanır. Kendi alan adınızı ve özel yönetici bilgilerinizi yapılandırın; projede varsayılan yönetici parolası bulunmaz.
+Paylaşımlı hosting, Docker Compose, PHP/MySQL yönetimi, HTTPS, yedekleme ve güncelleme adımları İngilizce [self-hosting rehberinde](README.md#self-hosting) ve [deployment belgesinde](docs/DEPLOYMENT.md) açıklanır. Kendi alan adınızı ve özel yönetici bilgilerinizi yapılandırın; projede varsayılan yönetici parolası bulunmaz.
 
 [GitHub kaynak kodu](https://github.com/baranhq/scoreboard) · [MIT Lisansı](LICENSE) · [Gizlilik](https://scoreboard.baranhq.com/tr/gizlilik/)

@@ -44,12 +44,13 @@ function policy_metadata_html(string $html,array $p): string {
 function save_policy(array $c,string $lang,string $title,string $content,int $revision): void {
     if(!isset(policy_paths()[$lang])||strlen($title)<1||mb_strlen($title)>200||strlen($content)<50||mb_strlen($content)>100000)fail(400);
     $directory=$c['policy_path'];if(!is_dir($directory)&&!mkdir($directory,0700,true)&&!is_dir($directory))throw new RuntimeException('Policy storage unavailable');
-    $lock=fopen($directory.'/publish.lock','c');if(!$lock||!flock($lock,LOCK_EX))throw new RuntimeException('Policy lock unavailable');
+    if(!is_dir($directory)||!is_writable($directory)||!chmod($directory,0700))throw new RuntimeException('Policy storage unavailable');
+    $lock=fopen($directory.'/publish.lock','c');if(!$lock||!flock($lock,LOCK_EX))throw new RuntimeException('Policy lock unavailable');if(!chmod($directory.'/publish.lock',0600))throw new RuntimeException('Policy lock unavailable');
     try{
         $old=policy_document($c,$lang);if((int)$old['revision']!==$revision)fail(409,'The policy changed in another window. Reload before saving.');
         $p=['title'=>$title,'content'=>$content,'revision'=>$revision+1,'updatedAt'=>gmdate('c')];
-        $history=$directory.'/history';if(!is_dir($history))mkdir($history,0700);
-        $previous=$history.'/'.$lang.'-'.str_pad((string)$revision,8,'0',STR_PAD_LEFT).'.json';file_put_contents($previous,json_encode($old,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR));chmod($previous,0600);
+        $history=$directory.'/history';if(!is_dir($history)&&!mkdir($history,0700)&&!is_dir($history))throw new RuntimeException('Policy history unavailable');if(!is_writable($history)||!chmod($history,0700))throw new RuntimeException('Policy history unavailable');
+        $previous=$history.'/'.$lang.'-'.str_pad((string)$revision,8,'0',STR_PAD_LEFT).'.json';if(file_put_contents($previous,json_encode($old,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR))===false||!chmod($previous,0600))throw new RuntimeException('Policy history unavailable');
         $temp=tempnam($directory,'policy-');if(!$temp)throw new RuntimeException('Policy write unavailable');
         try{if(file_put_contents($temp,json_encode($p,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT|JSON_THROW_ON_ERROR))===false)throw new RuntimeException('Policy write unavailable');chmod($temp,0600);if(!rename($temp,$directory.'/'.$lang.'.json'))throw new RuntimeException('Policy publication unavailable');}finally{if(is_file($temp))unlink($temp);}
         $files=glob($history.'/'.$lang.'-*.json');sort($files);while(count($files)>20)unlink(array_shift($files));

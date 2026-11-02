@@ -16,15 +16,17 @@ try {
     if($publicPolicy!==false&&$method==='GET')serve_policy($c,$publicPolicy);
     if (!$admin && $path !== '/api/index.php') fail(404);
     if (!in_array($method,['GET','POST'],true)) fail(405);
-    $action = $_GET['action'] ?? 'state';
-    if(!$admin&&$method==='GET'&&$action==='policy')json_response(policy_document($c,(string)($_GET['lang']??'')));
+    $action = $_GET['action'] ?? 'state';if(!is_string($action))$action='';
+    if(!$admin&&$method==='GET'&&$action==='policy'){$language=$_GET['lang']??'';if(!is_string($language))fail(400);json_response(policy_document($c,$language));}
     if (!$admin && $method === 'GET' && $action === 'state' && (!$c['origin'] || strlen($c['key']) < 32 || !$c['db_name'])) json_response(consent_state(['analytics'=>false,'cloud_token'=>''],null));
     if (!$c['origin'] || strlen($c['key']) < 32 || !$c['db_name']) fail(503);
     if ($method === 'POST') same_origin($c);
     $db = database($c);
     if ($admin) admin_page($db,$c);
+    if(!request_rate_limit($db,$c,'public-api',2400))fail(429,'Too many requests. Try again later.');
     if ($method === 'GET' && $action === 'state') json_response(consent_state($c, preferences($db)));
     if ($method !== 'POST') fail(405);
+    if($action==='consent'&&!request_rate_limit($db,$c,'api-consent',300))fail(429,'Too many requests. Try again later.');
     $data = input();
     if ($action === 'consent') save_consent($db,$c,$data);
     if ($action === 'event') record_event($db,$c,$data);

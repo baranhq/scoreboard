@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import 'fake-indexeddb/auto';
 import {buttonColors,contrast,validColor} from '../lib/colors.ts';
 import {defaultTimer,pausedTimer,remainingTime,resetTimer,isGamePaused,parseTimer} from '../lib/timer.ts';
-import {newBoard,backup,parseBackup} from '../lib/boards.ts';
+import {newBoard,backup,parseBackup,parseBackupText} from '../lib/boards.ts';
 import {encodeGame,decodeGame} from '../lib/sharing.ts';
 import {writeBoards,loadBoards,loadOrCreateBoard} from '../store/database.ts';
 
@@ -29,6 +29,9 @@ test('backups and URL snapshots preserve customisation and treat markup as plain
  const shared=decodeGame(encodeGame(board));assert.equal(shared.sourceId,board.id);assert.equal(shared.board.accent,'#123456');
  assert.throws(()=>decodeGame('../malicious'));assert.throws(()=>parseBackup(backup([{...board,accent:'javascript:alert(1)'}])));
  assert.throws(()=>parseBackup({...backup([board]),boards:[{...board,icon:'not-an-icon'}]}));
+ assert.throws(()=>parseBackupText('['.repeat(40)+'0'+']'.repeat(40)));
+ assert.throws(()=>parseBackup({...backup([board]),boards:Array(1001).fill(board)}));
+ assert.throws(()=>parseBackup({...backup([board]),boards:[{...board,teams:Array(201).fill(board.teams[0])}]}));
 });
 test('IndexedDB initialisation is atomic and updates do not duplicate or erase other boards',async()=>{
  const [a,b]=await Promise.all([loadOrCreateBoard(()=>newBoard('First','Team')),loadOrCreateBoard(()=>newBoard('Other','Team'))]);

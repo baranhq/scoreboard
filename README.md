@@ -67,7 +67,7 @@ Choose your setup:
 | Setup | What you need |
 | --- | --- |
 | Scoreboard only | A static web host; build locally and upload `out/`. PHP/MySQL features are unavailable, but games, local saving, timers, sharing and backups work. |
-| Shared hosting / cPanel | Apache with `.htaccess`, PHP 8.3+ with PDO MySQL, mbstring and sessions, MySQL 8+ or MariaDB 10.11+, and hourly cron. Choose supported releases; MySQL 8.4 LTS is recommended. |
+| Shared hosting | Apache with `.htaccess`, PHP 8.3.36+, 8.4.27+ or 8.5.12+ with PDO MySQL, mbstring and sessions, MySQL 8+ or MariaDB 10.11+, and hourly cron. Use the latest security-patched PHP release; MySQL 8.4 LTS is recommended. |
 | Linux VPS / dedicated server | The Docker Compose setup below, or the same PHP/Apache files with your own MySQL/MariaDB server. |
 | Node.js hosting | Use Node to build the static frontend. Serve `out/` through your normal web server and route PHP requests to the same PHP backend. A Node-only host can run the frontend; it cannot execute the PHP admin backend. |
 
@@ -97,12 +97,12 @@ Replace the examples with real information. `NEXT_PUBLIC_SITE_URL` must be the o
 
 Backend settings belong in a **private environment file outside every public directory**, or in the server's environment. `.env.example` explains every setting. The backend and frontend origins must match.
 
-### Shared hosting / cPanel
+### Shared hosting
 
 A complete walkthrough, including file locations and troubleshooting, is in [Shared-hosting deployment](docs/DEPLOYMENT.md).
 
 1. Create a domain/subdomain and enable HTTPS with your host's certificate tool. Point its document root at an empty directory. Keep the source checkout and private configuration outside all public document roots.
-2. Create a MySQL database and database user in cPanel. Grant that user access only to this application's database. Use the full names, including any cPanel account prefix.
+2. Create a MySQL database and database user through your hosting provider. Grant that user access only to this application's database, using the database name and username required by your provider.
 3. Enable the required PHP extensions. The PHP version used by cron/SSH must also have PDO MySQL.
 4. Build locally or on the hosting account:
 
@@ -191,7 +191,7 @@ The Privacy Policy editor publishes one language at a time without rebuilding Ne
 | Shared snapshot | URL fragment chosen by the person sharing; imported into the recipient's browser |
 | Theme, language and interface preferences | Visitor's local browser storage |
 | Optional consented usage analytics | Your MySQL database; no visitor IP addresses or IP-derived visitor identifiers |
-| Login-abuse counters | Separate security table; no raw IP storage |
+| Security rate-limit counters | Separate short-lived security table; no raw IP storage |
 | Published privacy documents | Your private policy directory; served publicly as policy text |
 | Hosting access logs, AWStats, proxy/security logs | Provider/server configuration, independent of optional application analytics |
 

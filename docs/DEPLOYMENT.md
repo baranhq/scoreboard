@@ -14,13 +14,15 @@ For an account named `YOUR_ACCOUNT`, a typical arrangement is:
 /home/YOUR_ACCOUNT/public_html/scoreboard/     domain's document root: contents of out/
 ```
 
-The exact document root depends on cPanel Domains. A private directory must be outside **every** public document root, including the main domain's `public_html`. A sibling of a nested document root can still be publicly accessible through another domain; do not put secrets there.
+The exact document root depends on your hosting provider's domain settings. A private directory must be outside **every** public document root, including the main domain's `public_html`. A sibling of a nested document root can still be publicly accessible through another domain; do not put secrets there.
 
-Create the private directory through SSH or cPanel File Manager. Prefer permissions `700` on private directories and `600` on the environment file. PHP must run as a user able to read/write its private directories. If your provider uses another execution user, ask it for appropriate private ownership/group permissions; do not solve this with `777` permissions.
+Create the private directory through SSH or your hosting provider's file manager. Prefer permissions `700` on private directories and `600` on the environment file. PHP must run as a user able to read/write its private directories. If your provider uses another execution user, ask it for appropriate private ownership/group permissions; do not solve this with `777` permissions.
 
-The `.env` can contain both build settings and server settings, but build a frontend with only the needed public values where possible. Never prefix a secret with `NEXT_PUBLIC_`.
+Set the private environment file to mode `600` (`chmod 600 /home/YOUR_ACCOUNT/scoreboard-private/.env`). The backend rejects private configuration readable by group or other users. The `.env` can contain both build settings and server settings, but build a frontend with only the needed public values where possible. Never prefix a secret with `NEXT_PUBLIC_`.
 
 ## Backend configuration
+
+Use a maintained PHP branch with current security patches. At the time of this audit, the PHP security fixes require at least 8.3.36, 8.4.27 or 8.5.12 on the corresponding branch. Check both the web PHP runtime and the CLI interpreter used by cron/SSH; do not rely on a shared-hosting control-panel label alone. The Docker runtime is pinned to PHP 8.4.27. Update that patch tag and rebuild when PHP publishes later security releases.
 
 Copy `.env.example` to the private `.env` and supply at least:
 
@@ -58,9 +60,9 @@ SCOREBOARD_ENV_FILE=/home/YOUR_ACCOUNT/scoreboard-private/.env php backend/manag
 
 The password-setup command uses a hidden prompt in an interactive Linux SSH terminal. It requires POSIX terminal support. `migrate` is repeatable: applied migrations are recorded in `schema_migrations`, and the initial migration preserves existing tables. Back up before upgrades. Keep migration source files in the source checkout; they are not exposed by the deployed website.
 
-## Hourly cleanup in cPanel
+## Hourly cleanup on shared hosting
 
-In cPanel Cron Jobs, choose once per hour. Use the hosting account's real PHP CLI path. Example:
+In your hosting provider's scheduled-task settings, run the command once per hour. Use the account's real PHP CLI path. Example:
 
 ```cron
 17 * * * * SCOREBOARD_ENV_FILE=/home/YOUR_ACCOUNT/scoreboard-private/.env /usr/local/bin/php /home/YOUR_ACCOUNT/scoreboard-source/backend/manage.php cleanup >> /home/YOUR_ACCOUNT/scoreboard-private/cleanup.log 2>&1
@@ -83,7 +85,11 @@ Leave `TRUSTED_PROXY_CIDRS` empty for direct hosting. The application then ignor
 
 For a Cloudflare-proxied origin, add only the [current official Cloudflare CIDRs](https://www.cloudflare.com/ips/) after confirming the actual connection addresses your hosting setup presents. Restrict direct origin access where your provider supports it. The application reads `CF-Connecting-IP` only when `REMOTE_ADDR` is in that explicitly trusted list. Never use `0.0.0.0/0`, `::/0`, or arbitrary client-supplied headers as a trust shortcut.
 
-For Docker's optional Caddy proxy, the dedicated internal network is trusted and Caddy overwrites the connection-address header. With another proxy, overwrite that header and trust only the proxy's actual private address range. If Cloudflare sits in front of your own Caddy proxy, configure and verify that whole chain before relying on real-client address handling. Application analytics still never retain visitor IPs; proxy addresses are used only for login protection.
+For Docker's optional Caddy proxy, the dedicated internal network is trusted and Caddy overwrites the connection-address header. With another proxy, overwrite that header and trust only the proxy's actual private address range. If Cloudflare sits in front of your own Caddy proxy, configure and verify that whole chain before relying on real-client address handling. Application analytics still never retain visitor IPs; request addresses are used only for security rate limits.
+
+Login attempts are limited to five per client address per 15-minute window. Public API traffic is limited to 2,400 requests per address per 15 minutes, with consent changes capped at 300 in that window. The database stores only purpose-separated keyed hashes of the address in a separate security counter table; it does not store raw IPs there. A counter becomes inactive after 15 minutes and is physically deleted by hourly cleanup; if cleanup fails, the expired row remains until a later successful run. There is no global login counter, so traffic from unrelated addresses cannot lock out every administrator. These application limits reduce single-source abuse; they are not DDoS protection. If PHP cannot establish a trustworthy client address, application rate limiting fails open rather than grouping all visitors into a global lockout; configure edge/provider protections for that deployment.
+
+The configured database account is scoped to the Scoreboard database, never global server privileges. Runtime queries need data access; `manage.php migrate` also needs schema privileges on that database. Where the host permits it, revoke schema-changing privileges between upgrades and grant them temporarily for migrations. The current configuration uses one database identity for both runtime and CLI migrations, so a separate migration account is not yet supported.
 
 ## Optional analytics
 
