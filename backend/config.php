@@ -10,6 +10,11 @@ function normalise_absolute_path(string $path): ?string {
     }
     return '/'.implode('/', $parts);
 }
+function normalise_admin_path(string $path): ?string {
+    if (!preg_match('~^/[a-z0-9][a-z0-9_-]{0,63}$~D', $path)) return null;
+    if (in_array($path, ['/api', '/bg', '/en', '/tr'], true)) return null;
+    return $path;
+}
 function path_is_within(string $path, string $directory): bool {
     $path = normalise_absolute_path($path); $directory = normalise_absolute_path($directory);
     if ($path === null || $directory === null) return false;
@@ -52,7 +57,10 @@ function configuration(): array {
     $origin = rtrim($get('APP_ORIGIN'), '/');
     if ($origin && !preg_match('~^https?://[a-zA-Z0-9.:-]+$~D', $origin)) throw new RuntimeException('Invalid origin');
     if ($origin && !str_starts_with($origin, 'https://') && !$bool('APP_ALLOW_HTTP')) throw new RuntimeException('HTTPS required');
+    $adminPath = normalise_admin_path($get('ADMIN_PATH', '/admin'));
+    if ($adminPath === null) throw new RuntimeException('Invalid administrator path');
     return [
+        'admin_path' => $adminPath,
         'origin' => $origin, 'http' => str_starts_with($origin, 'http://'), 'secure_cookies' => str_starts_with($origin, 'https://'), 'key' => $get('APP_KEY'),
         'db_host' => $get('DB_HOST', 'localhost'), 'db_port' => $get('DB_PORT', '3306'),
         'db_name' => $get('DB_NAME'), 'db_user' => $get('DB_USER'), 'db_password' => $get('DB_PASSWORD'),

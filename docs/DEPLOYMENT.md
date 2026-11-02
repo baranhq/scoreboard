@@ -37,6 +37,7 @@ DB_PASSWORD="your own database password"
 APP_KEY="generated random key"
 ADMIN_USERNAME="your own username"
 ADMIN_PASSWORD_HASH="generated password hash"
+ADMIN_PATH=/admin
 SESSION_PATH=/home/YOUR_ACCOUNT/scoreboard-private/sessions
 POLICY_PATH=/home/YOUR_ACCOUNT/scoreboard-private/policies
 ANALYTICS_ENABLED=false
@@ -47,7 +48,11 @@ TRUSTED_PROXY_CIDRS=
 
 These are placeholders, not working credentials. Generate `APP_KEY` and `ADMIN_PASSWORD_HASH` with `backend/manage.php`. Supply the actual database names your host creates. Values may be quoted; literal password hashes must retain their `$` characters. Docker Compose `.env` files should use single quotes for hashes. The PHP reader supports those quotes too.
 
-Add `SetEnv SCOREBOARD_ENV_FILE /home/YOUR_ACCOUNT/scoreboard-private/.env` to the uploaded `.htaccess`. This is a deployment setting, not a source-code edit. If PHP-FPM does not receive `SetEnv` values on your provider, ask it to set `SCOREBOARD_ENV_FILE` in the PHP environment. Do not move the environment file into the public directory as a workaround.
+`ADMIN_PATH` defaults to `/admin`. To use another single-segment path, set the same value in the private PHP `.env` and the frontend build environment, for example `ADMIN_PATH=/manage`. Build with `ADMIN_PATH=/manage npm run build`, then upload the complete `out/` directory. The build writes the matching Apache route and `robots.txt`; PHP reads the path from the private `.env`. Keep the values identical or the route will not resolve. The path is not a security control: the server still requires the configured administrator username and password. The previous route will no longer open the admin panel after the new build is deployed.
+
+For shared-hosting builds, set `APACHE_ENV_FILE=/home/YOUR_ACCOUNT/scoreboard-private/.env` in the build environment (or prefix `npm run build` with it). The build adds `SetEnv SCOREBOARD_ENV_FILE ...` to the generated `.htaccess`, so replacing the full `out/` directory retains the private config pointer. If you leave `APACHE_ENV_FILE` blank, add that `SetEnv` line to the uploaded `.htaccess` yourself. This reveals only the filesystem path, not the file contents. If PHP-FPM does not receive `SetEnv` values on your provider, ask it to set `SCOREBOARD_ENV_FILE` in the PHP environment instead. Do not move the environment file into the public directory as a workaround.
+
+Keep the private directory and `.env` at a stable account-level path when replacing the built site. If you change the domain's document root, point it at the public build only and make sure PHP still receives the same absolute private config path. Never point the document root at the account home or a parent containing private files. If `/admin` returns the generic “Request unavailable” response after a move, the web PHP process is not loading a valid private configuration (or cannot reach the database); the CLI `manage.php check` alone does not verify the web server's environment.
 
 Check the CLI interpreter:
 
@@ -75,8 +80,8 @@ Run that command manually first. Verify successful runs and arrange cron failure
 - Enable HTTPS with your provider. Redirect HTTP to HTTPS at the hosting account/proxy level. Keep `APP_ORIGIN` and `NEXT_PUBLIC_SITE_URL` equal to the public HTTPS origin.
 - For a public instance intended to be indexed, set `NEXT_PUBLIC_INDEXABLE=true` and the real `NEXT_PUBLIC_SITE_URL` before building. Staging builds should remain non-indexable. After upload, follow the [search-engine setup checklist](SEO.md).
 - Upload `.htaccess`; File Manager may hide dotfiles by default. Apache must allow `mod_rewrite`, `mod_headers` and the supplied override directives.
-- Unknown pages return a real not-found status and the friendly custom page. `/baranhq_admin` is not served as admin.
-- Bypass CDN/shared caches for `/admin`, `/api/*` and the server-rendered privacy-policy routes. Never cache responses with admin or preference cookies. Static hashed assets can be cached normally.
+- Unknown pages return a real not-found status and the friendly custom page. Only the configured `ADMIN_PATH` serves the administrator interface.
+- Bypass CDN/shared caches for the configured administrator path, `/api/*` and the server-rendered privacy-policy routes. Never cache responses with admin or preference cookies. Static hashed assets can be cached normally.
 - Preserve the project's source directory outside the document root. Deploy the build from the same public Git revision used in production.
 
 ## Trusted reverse proxies
