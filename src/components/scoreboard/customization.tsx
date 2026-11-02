@@ -8,10 +8,10 @@ import type {Messages} from "@/lib/i18n";
 import {iconIds} from "@/lib/board-icons";
 import {BoardIcon} from "./board-icon";
 import {ColorChoice} from "./color-choice";
-import {Select} from "./select";
+import {Select} from "../ui/select";
 import {DurationInput} from "./duration-input";
-import {Checkbox} from "./checkbox";
-import {Button} from "./ui";
+import {Checkbox} from "../ui/checkbox";
+import {Button} from "../ui/ui";
 type Tab='teams'|'colors'|'appearance'|'controls'|'timer';
 const tabs:Tab[]=['teams','colors','appearance','controls','timer'];
 export function Customization({board,t,change,remove,renameBoard}:{board:Board;t:Messages;change:(update:(board:Board)=>Board)=>void;remove:(id:string)=>void;renameBoard:(value:string)=>void}){

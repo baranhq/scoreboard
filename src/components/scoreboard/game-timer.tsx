@@ -3,7 +3,7 @@ import {useEffect,useState} from 'react';
 import {Pause,Play,RotateCcw,PauseCircle,SkipForward} from 'lucide-react';
 import {type GameTimer,remainingTime,timeoutTime,formatTime,pausedTimer,resetTimer,isGamePaused} from '@/lib/timer';
 import type {Messages} from '@/lib/i18n';
-import {Button,Modal} from './ui';
+import {Button,Modal} from '../ui/ui';
 export function TimerDisplay({timer,t,change,full,controlsVisible}:{timer:GameTimer;t:Messages;change:(timer:GameTimer)=>void;full:boolean;controlsVisible:boolean}){
  const [now,setNow]=useState(()=>Date.now());const [ended,setEnded]=useState(false);const inTimeout=!!timer.timeoutActive;
  const left=inTimeout?timeoutTime(timer,now):remainingTime(timer,now);const started=inTimeout?timer.timeoutStartedAt:timer.startedAt;

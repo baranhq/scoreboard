@@ -5,7 +5,7 @@ import {type Board} from '@/lib/boards';
 import {encodeGame} from '@/lib/sharing';
 import type {Lang,Messages} from '@/lib/i18n';
 import {route} from '@/lib/routes';
-import {Button,Modal} from './ui';
+import {Button,Modal} from '../ui/ui';
 export function ShareDialog({board,t,lang,mode,save,close}:{board:Board;t:Messages;lang:Lang;mode:'save'|'share';save:(name:string)=>Promise<Board>;close:()=>void}){
  const [name,setName]=useState(board.name);const [saved,setSaved]=useState<Board>();const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [copied,setCopied]=useState(false);
  let url='';let tooLarge=false;try{url=`${location.origin}${route(lang)}#share=${encodeGame(saved||board)}`;}catch{tooLarge=true;}

@@ -1,4 +1,4 @@
-import {HelpPage} from '@/components/help-page';
+import {HelpPage} from '@/components/content/help-page';
 import {notFound} from 'next/navigation';
 import {isLang,type Lang} from '@/lib/i18n';
 import {slugs,type PageKey} from '@/lib/routes';

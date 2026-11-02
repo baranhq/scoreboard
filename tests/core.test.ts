@@ -1,11 +1,11 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import 'fake-indexeddb/auto';
-import {buttonColors,contrast,validColor} from '../lib/colors.ts';
-import {defaultTimer,pausedTimer,remainingTime,resetTimer,isGamePaused,parseTimer} from '../lib/timer.ts';
-import {newBoard,backup,parseBackup,parseBackupText} from '../lib/boards.ts';
-import {encodeGame,decodeGame} from '../lib/sharing.ts';
-import {writeBoards,loadBoards,loadOrCreateBoard} from '../store/database.ts';
+import {buttonColors,contrast,validColor} from '../src/lib/colors.ts';
+import {defaultTimer,pausedTimer,remainingTime,resetTimer,isGamePaused,parseTimer} from '../src/lib/timer.ts';
+import {newBoard,backup,parseBackup,parseBackupText} from '../src/lib/boards.ts';
+import {encodeGame,decodeGame} from '../src/lib/sharing.ts';
+import {writeBoards,loadBoards,loadOrCreateBoard} from '../src/store/database.ts';
 
 test('custom colours maintain readable controls across RGB colour space',()=>{
  for(let r=0;r<=255;r+=17)for(let g=0;g<=255;g+=17)for(let b=0;b<=255;b+=17){
@@ -42,14 +42,14 @@ test('IndexedDB initialisation is atomic and updates do not duplicate or erase o
 });
 
 test('star reminder respects first visits, a week away, dismissals and GitHub clicks',async()=>{
- const {shouldShowStar,readStarPreference,WEEK}=await import('../lib/star-prompt.ts');const now=2*WEEK;
+ const {shouldShowStar,readStarPreference,WEEK}=await import('../src/lib/star-prompt.ts');const now=2*WEEK;
  assert.equal(shouldShowStar({},now),true);assert.equal(shouldShowStar({lastVisit:now-1000},now),false);
  assert.equal(shouldShowStar({lastVisit:now-WEEK},now),true);assert.equal(shouldShowStar({dismissedUntil:now+WEEK},now),false);
  assert.equal(shouldShowStar({clicked:true},now+10*WEEK),false);assert.deepEqual(readStarPreference('broken'),{});
 });
 
 test('dates display day, month and year without changing stored timestamps',async()=>{
- const {europeanDateTime}=await import('../lib/dates.ts');const {policyDate}=await import('../lib/policy-document.ts');
+ const {europeanDateTime}=await import('../src/lib/dates.ts');const {policyDate}=await import('../src/lib/policy-document.ts');
  assert.equal(policyDate('2026-11-02','en'),'02.11.2026');
  assert.equal(europeanDateTime(new Date(2026,10,2,9,5).getTime()),'02.11.2026, 09:05');
 });

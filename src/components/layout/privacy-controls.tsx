@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { type Lang, messages } from "@/lib/i18n";
 import {pageForPath} from "@/lib/routes";
 import { events } from "@/lib/analytics";
-import { Button, Modal } from "./ui";
+import { Button, Modal } from "../ui/ui";
 type Choices = {usage: boolean; cloud: boolean};
 type State = Choices & {saved: boolean; capabilities: Choices; cloudToken: string | null};
 const off: Choices = {usage:false, cloud:false};

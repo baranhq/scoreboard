@@ -14,8 +14,8 @@ try{
 if(process.env.NEXT_PUBLIC_INDEXABLE!=='true')throw new Error('IndexNow is only available when NEXT_PUBLIC_INDEXABLE=true.');
 if(!/^[A-Za-z0-9-]{8,128}$/.test(key))throw new Error('Set INDEXNOW_KEY to a unique 8–128 character verification key before submitting URLs.');
 
-const{languages}=await import('../lib/i18n.ts');
-const{route}=await import('../lib/routes.ts');
+const{languages}=await import('../src/lib/i18n.ts');
+const{route}=await import('../src/lib/routes.ts');
 const urls=['home','privacy','licenses','help'].flatMap(page=>languages.map(lang=>origin+route(lang,page)));
 const response=await fetch('https://api.indexnow.org/indexnow',{
  method:'POST',

@@ -6,7 +6,7 @@ header('X-Content-Type-Options: nosniff'); header('Referrer-Policy: strict-origi
 header('X-Frame-Options: DENY');
 $library = __DIR__.'/_lib';
 if (!is_file($library.'/config.php')) $library = dirname(__DIR__,2).'/backend';
-require $library.'/config.php'; require $library.'/security.php'; require $library.'/analytics.php'; require $library.'/admin.php'; require $library.'/policy.php';
+require_once $library.'/config.php'; require_once $library.'/security.php'; require_once $library.'/analytics.php'; require_once $library.'/admin.php'; require_once $library.'/policy.php';
 try {
     $c = configuration();
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);

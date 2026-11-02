@@ -6,10 +6,10 @@ import {type Board,download,newBoard,parseBackupText,displayBoard,MAX_BACKUP_BYT
 import {foreground,validColor} from "@/lib/colors";
 import {loadBoards,writeBoards} from "@/store/database";
 import {track} from "@/lib/analytics";
-import {Frame} from "./frame";
-import {Button,Modal} from "./ui";
+import {Frame} from "../layout/frame";
+import {Button,Modal} from "../ui/ui";
 import {Pencil,Palette,Copy,Download,Trash2,ChevronDown,Share2} from "lucide-react";
-import {Dropdown,MenuItem} from "./dropdown";
+import {Dropdown,MenuItem} from "../ui/dropdown";
 import {MatchPreview} from "./match-preview";
 import {ShareDialog} from "./share-dialog";
 import {BoardIcon} from "./board-icon";

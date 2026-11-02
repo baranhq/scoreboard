@@ -2,7 +2,7 @@
 import {translatedPath} from "@/lib/routes";
 import {useEffect,useState} from "react";
 import {type Lang,isLang,messages} from "@/lib/i18n";
-import {Button,Modal} from "./ui";
+import {Button,Modal} from "../ui/ui";
 const copy={bg:{question:'Устройството ви е на български. Да отворим ли българската версия?',accept:'Към българската версия'},tr:{question:'Cihazınızın dili Türkçe. Türkçe sürüme geçmek ister misiniz?',accept:'Türkçe’ye geç'},en:{question:'Your device uses English. Would you like the English version?',accept:'Switch to English'}};
 export function LanguageSuggestion({lang,onComplete}:{lang:Lang;onComplete:()=>void}){
  const [suggested,setSuggested]=useState<Lang>();
