@@ -69,6 +69,9 @@ try:
     status, html, _ = request('/admin', {'action': 'login', 'csrf': csrf, 'username': 'integration-test', 'password': password})
     assert status == 200 and 'Recorded visits' in html and 'Administration' in html
     csrf = token(html)
+    assert request('/admin?from=02.11.2026&to=02.11.2026')[0] == 200
+    assert request('/admin?from=31.02.2026&to=02.11.2026')[0] == 400
+    assert request('/admin', {'action': 'logout', 'csrf[]': 'bad'})[0] == 403
     for view in ['activity', 'pages', 'clicks', 'privacy', 'settings']:
         assert request('/admin?view=' + view)[0] == 200, view
     assert request('/admin?view=activity&period%5B%5D=day')[0] == 400
