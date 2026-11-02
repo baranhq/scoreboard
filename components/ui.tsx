@@ -1,0 +1,10 @@
+"use client";
+import { useEffect, useRef, useId, type ReactNode, type ButtonHTMLAttributes } from "react";
+const base = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 py-2 text-base font-medium transition-[color,background-color,border-color,transform] duration-150 ease-out active:brightness-95 disabled:opacity-50 motion-reduce:transition-none motion-reduce:transform-none";
+export const buttonClass = `${base} border-forest/25 bg-transparent text-forest hover:bg-forest/5`;
+export function Button({className = "", primary = false, onDark = false, ...props}: ButtonHTMLAttributes<HTMLButtonElement> & {primary?: boolean; onDark?: boolean}) { return <button data-fullscreen-control {...props} className={`${base} ${onDark ? "border-white/35 bg-transparent text-white hover:bg-surface/10" : primary ? "border-action bg-action text-on-action hover:opacity-90" : "border-forest/25 bg-transparent text-forest hover:bg-forest/5"} ${className}`}/>; }
+export function Modal({title, close, children, closeLabel}: {title: string; close: () => void; children: ReactNode; closeLabel: string}) {
+ const ref = useRef<HTMLDialogElement>(null);const titleId=useId();
+ useEffect(() => {const d = ref.current; d?.showModal(); return () => d?.close();}, []);
+ return <dialog ref={ref} onCancel={close} onClick={e => {if (e.target === e.currentTarget) close();}} aria-labelledby={titleId} className="m-auto max-h-[90dvh] w-[min(94vw,36rem)] overflow-y-auto rounded-2xl border border-forest/25 bg-paper p-5 text-ink backdrop:bg-black/50 sm:p-7 motion-safe:animate-[appear_200ms_ease-out]"><div className="mb-5 flex items-start justify-between gap-4 border-b border-forest/25 pb-5"><h2 id={titleId} className="pt-2 text-2xl font-semibold tracking-tight">{title}</h2><Button aria-label={closeLabel} onClick={close} className="px-3">×</Button></div>{children}</dialog>;
+}

@@ -1,0 +1,39 @@
+{
+  "name": "barans-scoreboard",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev --webpack --hostname 0.0.0.0",
+    "build": "node scripts/fonts.mjs && node scripts/social.mjs && node scripts/licenses.mjs && node scripts/policies.mjs && next build --webpack && node scripts/package-backend.mjs",
+    "start": "php -S localhost:8080 -t out backend/dev-router.php",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "licenses": "node scripts/licenses.mjs",
+    "predev": "node scripts/fonts.mjs && node scripts/policies.mjs",
+    "test:php": "php tests/security.php",
+    "lint": "tsc --noEmit && php scripts/lint.php",
+    "preview": "php -S localhost:8080 -t out backend/dev-router.php"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/inter-tight": "^5.3.0",
+    "lucide-react": "^1.66.0",
+    "next": "16.4.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "fake-indexeddb": "^6.2.7",
+    "tailwindcss": "4.3.3",
+    "typescript": "~5.9.3"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

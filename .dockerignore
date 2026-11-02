@@ -1,0 +1,17 @@
+.git
+.env*
+!.env.example
+node_modules
+.next
+.next-preview
+out
+private
+backups
+*.log
+*.db
+*.sqlite*
+*.pem
+*.key
+*.tsbuildinfo
+public/fonts
+app/font-faces.css
