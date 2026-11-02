@@ -53,7 +53,7 @@ services:
       - sessions:/var/lib/scoreboard/sessions
       - policies:/var/lib/scoreboard/policies
     ports:
-      - 127.0.0.1:8080:80
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:8080:80"
   cleanup:
     image: scoreboard-local
     restart: unless-stopped

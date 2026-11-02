@@ -8,22 +8,23 @@ type Choices = {usage: boolean; cloud: boolean};
 type State = Choices & {saved: boolean; capabilities: Choices; cloudToken: string | null};
 const off: Choices = {usage:false, cloud:false};
 const initial: State = {...off, saved:false, capabilities:off, cloudToken:null};
-export function PrivacyControls({lang, fullscreen}: {lang: Lang; fullscreen?: boolean}) {
+export function PrivacyControls({lang, fullscreen, promptReady=false}: {lang: Lang; fullscreen?: boolean; promptReady?:boolean}) {
  const t = messages[lang]; const [linkReady,setLinkReady]=useState(false);
  useEffect(()=>{const ready=()=>setLinkReady(true);if(!/^#(?:share|board)=/.test(location.hash))ready();window.addEventListener('scoreboard-ready',ready);return()=>window.removeEventListener('scoreboard-ready',ready);},[]); const [state, setState] = useState<State>(initial); const [draft, setDraft] = useState<Choices>(off);
- const [open, setOpen] = useState(false); const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
+ const [open, setOpen] = useState(false); const [shouldAsk,setShouldAsk]=useState(false);const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
  const stateRef = useRef(state); stateRef.current = state; const channel = useRef<BroadcastChannel | null>(null);
  const read = useCallback(async () => {
   try {const response = await fetch("/api/index.php?action=state", {cache:"no-store", credentials:"same-origin"}); if (!response.ok) throw new Error(); const s: State = await response.json(); if (!s.capabilities || typeof s.usage !== "boolean" || typeof s.cloud !== "boolean") throw new Error(); setState(s); setDraft({usage:s.usage,cloud:s.cloud}); setError(""); return s;}
   catch {setState(initial); setError(t.unavailable); return null;}
  }, [t.unavailable]);
  useEffect(() => {
-  let alive = true; void read().then(s => {if (alive && s && !s.saved && (s.capabilities.usage || s.capabilities.cloud)) setOpen(true);});
+  let alive = true; void read().then(s => {if (alive && s && !s.saved && (s.capabilities.usage || s.capabilities.cloud)) setShouldAsk(true);});
   const show = () => {setOpen(true); void read();}; window.addEventListener("privacy-open",show);
   if (typeof BroadcastChannel !== "undefined") {channel.current = new BroadcastChannel("scoreboard-privacy"); channel.current.onmessage = () => {setState(initial); void read();};}
   const refresh = () => {if (document.visibilityState === "visible") void read();}; document.addEventListener("visibilitychange",refresh);
   return () => {alive=false; window.removeEventListener("privacy-open",show); document.removeEventListener("visibilitychange",refresh); channel.current?.close();};
  }, [read]);
+ useEffect(()=>{if(promptReady&&shouldAsk&&!fullscreen)setOpen(true);},[promptReady,shouldAsk,fullscreen]);
  useEffect(() => {
   if (!linkReady || !state.cloud || !state.cloudToken || !/^[a-f0-9]{32}$/.test(state.cloudToken)) return;
   const script = document.createElement("script"); script.src = "https://static.cloudflareinsights.com/beacon.min.js"; script.defer = true;

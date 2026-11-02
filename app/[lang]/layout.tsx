@@ -4,6 +4,7 @@ import { indexable, brand } from "@/lib/site";
 import { route } from "@/lib/routes";
 import { seoContent } from "@/lib/seo-content";
 import type { Metadata } from "next";
+import Script from "next/script";
 export const dynamicParams = false;
 export function generateStaticParams() {return languages.map(lang => ({lang}));}
 export async function generateMetadata({params}: {params: Promise<{lang: string}>}): Promise<Metadata> {
@@ -25,5 +26,5 @@ export async function generateMetadata({params}: {params: Promise<{lang: string}
 }
 export default async function Layout({children, params}: {children: React.ReactNode; params: Promise<{lang: string}>}) {
  const {lang} = await params; if (!isLang(lang)) notFound();
- return <html lang={lang==='en'?'en-GB':lang} suppressHydrationWarning><head><script src="/theme.js" /></head><body>{children}</body></html>;
+ return <html lang={lang==='en'?'en-GB':lang} suppressHydrationWarning><head><Script src="/theme.js" strategy="beforeInteractive" /></head><body>{children}</body></html>;
 }
