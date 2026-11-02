@@ -6,7 +6,7 @@ import type {PolicyDocument} from '@/lib/policy-document';
 import {Frame} from '@/components/frame';
 import {PolicyBody} from '@/components/policy-body';
 import {PrivacyButton} from '@/components/privacy-button';
-export async function generateMetadata({params}:{params:Promise<{lang:string}>}){const {lang}=await params;if(!isLang(lang))notFound();return pageMetadata(lang,'privacy');}
+export async function generateMetadata({params}:{params:Promise<{lang:string}>}){const {lang}=await params;if(!isLang(lang))notFound();return pageMetadata(lang,'privacy',`/${lang}/privacy/`);}
 export default async function Page({params}:{params:Promise<{lang:string}>}){
  const {lang}=await params;if(!isLang(lang))notFound();const policy=JSON.parse(readFileSync(`public/policies/${lang}.json`,'utf8')) as PolicyDocument;
  return <Frame lang={lang}><main id="main" className="mx-auto max-w-3xl px-5 py-7"><script id="policy-document" type="application/json" suppressHydrationWarning dangerouslySetInnerHTML={{__html:JSON.stringify(policy).replace(/</g,'\\u003c')}}/><PolicyBody initial={policy} lang={lang} updatedLabel={messages[lang].revised}/><PrivacyButton label={messages[lang].choices}/></main></Frame>;

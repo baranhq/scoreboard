@@ -5,7 +5,7 @@ import {brand} from '@/lib/site';
 import {pageMetadata} from '@/lib/page-metadata';
 import {Frame} from '@/components/frame';
 import {LicenceDisclosure,type Dependency} from '@/components/licence-disclosure';
-export async function generateMetadata({params}:{params:Promise<{lang:string}>}){const {lang}=await params;if(!isLang(lang))notFound();return pageMetadata(lang,'licenses');}
+export async function generateMetadata({params}:{params:Promise<{lang:string}>}){const {lang}=await params;if(!isLang(lang))notFound();return pageMetadata(lang,'licenses',`/${lang}/licenses/`);}
 export default async function Page({params}:{params:Promise<{lang:string}>}){
  const {lang}=await params;if(!isLang(lang))notFound();const t=messages[lang];
  const rows=JSON.parse(readFileSync('public/dependencies.json','utf8')) as Dependency[];

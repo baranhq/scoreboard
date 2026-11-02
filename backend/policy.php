@@ -20,6 +20,27 @@ function policy_article(array $p,string $lang='en'): string {
     foreach(preg_split('/\n\s*\n/u',str_replace("\r\n","\n",$p['content'])) as $block){if(!trim($block))continue;if(str_starts_with($block,'## '))$html.='<h2 class="mt-7 border-t border-forest/20 pt-5 font-display text-2xl font-bold">'.h(trim(substr($block,3))).'</h2>';else $html.='<p class="mt-3 whitespace-pre-line text-lg leading-8">'.policy_inline(trim($block)).'</p>';}
     return $html.'</article>';
 }
+function policy_summary(array $p): string {
+    foreach(preg_split('/\n\s*\n/u',str_replace("\r\n","\n",$p['content'])) as $block){
+        $block=trim($block);if($block===''||str_starts_with($block,'## '))continue;
+        $summary=preg_replace_callback('~\[([^\]]+)\]\((?:https://[^\s)]+|mailto:[^\s)]+)\)~u',static fn($m)=>$m[1],$block)??$block;
+        $summary=trim(preg_replace('/\s+/u',' ',$summary)??$summary);
+        if(mb_strlen($summary)>155)$summary=mb_substr($summary,0,152).'…';
+        return $summary;
+    }
+    return '';
+}
+function policy_metadata_html(string $html,array $p): string {
+    $html=preg_replace_callback('~<title>.*?</title>~s',static fn()=>'<title>'.h($p['title']).' | Baran&#39;s Scoreboard</title>',$html,1)??$html;
+    $summary=policy_summary($p);
+    $metadata=[['property','og:title',$p['title']],['name','twitter:title',$p['title']]];
+    if($summary!=='')array_push($metadata,['name','description',$summary],['property','og:description',$summary],['name','twitter:description',$summary]);
+    foreach($metadata as [$attribute,$name,$value]){
+        $pattern='~<meta(?=[^>]*\b'.preg_quote($attribute,'~').'="'.preg_quote($name,'~').'")[^>]*>~';
+        $html=preg_replace_callback($pattern,static fn($m)=>preg_replace_callback('~content="[^"]*"~',static fn()=> 'content="'.h($value).'"',$m[0],1)??$m[0],$html,1)??$html;
+    }
+    return $html;
+}
 function save_policy(array $c,string $lang,string $title,string $content,int $revision): void {
     if(!isset(policy_paths()[$lang])||strlen($title)<1||mb_strlen($title)>200||strlen($content)<50||mb_strlen($content)>100000)fail(400);
     $directory=$c['policy_path'];if(!is_dir($directory)&&!mkdir($directory,0700,true)&&!is_dir($directory))throw new RuntimeException('Policy storage unavailable');
@@ -39,6 +60,6 @@ function serve_policy(array $c,string $lang): never {
     $article=policy_article($p,$lang);$json=json_encode($p,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
     $html=preg_replace_callback('~<article\b[^>]*\bid="policy-content"[^>]*>.*?</article>~s',static fn()=>$article,$html,1,$count);if($count!==1)throw new RuntimeException('Policy template unavailable');
     $html=preg_replace_callback('~<script\b[^>]*\bid="policy-document"[^>]*>.*?</script>~s',static fn()=>'<script id="policy-document" type="application/json">'.$json.'</script>',$html,1,$count);if($count!==1)throw new RuntimeException('Policy data unavailable');
-    $html=preg_replace_callback('~<title>.*?</title>~s',static fn()=>'<title>'.h($p['title']).' | Baran&#39;s Scoreboard</title>',$html,1);
+    $html=policy_metadata_html($html,$p);
     header_remove('X-Robots-Tag');header('Content-Type: text/html; charset=UTF-8');header('Cache-Control: no-cache');echo $html;exit;
 }

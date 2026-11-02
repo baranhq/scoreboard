@@ -1,9 +1,23 @@
 import {help} from './help';
-import {brand} from './site';
+import {brand, indexable, siteOrigin} from './site';
 import type {Metadata} from 'next';
-import {type Lang,messages,origin} from './i18n';
+import {type Lang,languages,messages} from './i18n';
 import {route,type PageKey} from './routes';
-export function pageMetadata(lang:Lang,page:Exclude<PageKey,'home'>):Metadata {
- const title=page==='help'?help[lang].title:messages[lang][page];
- return {title:`${title} | ${brand}`,description:page==='privacy'?messages[lang].privacyIntro:page==='licenses'?messages[lang].licenseIntro:page==='help'?help[lang].sections[0][1]:messages[lang].saved,alternates:{canonical:origin+route(lang,page),languages:{bg:route('bg',page),tr:route('tr',page),en:route('en',page),'x-default':route('bg',page)}},openGraph:{title:`${title} | ${brand}`,url:route(lang,page)},...(page==='saved'?{robots:{index:false,follow:false}}:{})};
+import {seoContent} from './seo-content';
+export function pageMetadata(lang:Lang,page:Exclude<PageKey,'home'>,currentPath?:string):Metadata {
+ const heading=page==='help'?help[lang].title:messages[lang][page];
+ const title=`${heading} | ${brand}`;
+ const description=page==='privacy'?messages[lang].privacyIntro:page==='licenses'?seoContent[lang].pageDescriptions.licenses:page==='help'?seoContent[lang].pageDescriptions.help:seoContent[lang].description;
+ const url=siteOrigin+route(lang,page);
+ const languagesAlternate=Object.fromEntries(languages.map(language=>[language==='en'?'en-GB':language,siteOrigin+route(language,page)]));
+ const canonicalPath=currentPath===undefined||currentPath===route(lang,page);
+ const publicIndexable=indexable&&page!=='saved'&&canonicalPath;
+ return {
+  title,
+  description,
+  alternates:{canonical:url,languages:{...languagesAlternate,'x-default':siteOrigin+route('bg',page)}},
+  openGraph:{type:'website',siteName:brand,title,description,locale:seoContent[lang].openGraphLocale,url,images:[{url:`${siteOrigin}/social.png`,width:1200,height:630,alt:seoContent[lang].imageAlt}]},
+  twitter:{card:'summary_large_image',title,description,images:[{url:`${siteOrigin}/social.png`,alt:seoContent[lang].imageAlt}]},
+  robots:{index:publicIndexable,follow:indexable&&page!=='saved'},
+ };
 }

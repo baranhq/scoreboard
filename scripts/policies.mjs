@@ -1,5 +1,8 @@
 import{mkdirSync,writeFileSync}from'node:fs';
-import{privacy}from'../lib/privacy.ts';import{messages}from'../lib/i18n.ts';import{operator}from'../lib/operator.ts';
+import nextEnv from'@next/env';
+const{loadEnvConfig}=nextEnv;
+loadEnvConfig(process.cwd(),process.env.npm_lifecycle_event==='predev');
+const{privacy}=await import('../lib/privacy.ts');const{messages}=await import('../lib/i18n.ts');const{operator}=await import('../lib/operator.ts');
 mkdirSync('public/policies',{recursive:true});
 for(const lang of ['bg','tr','en']){
  const data=privacy[lang],t=messages[lang];let content=data.intro+'\n\n';

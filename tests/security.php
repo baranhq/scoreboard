@@ -18,6 +18,13 @@ $_SESSION=['admin'=>'true','expires'=>time()+60];check(!authorized(),'strict aut
 check(!str_contains(policy_inline('<script>alert(1)</script>'),' script>'),'rendering');
 $html=policy_inline('<img src=x onerror=alert(1)> [bad](javascript:alert(1)) [link](https://example.org/"onmouseover="x)');
 check(!str_contains($html,'<img'),'markup escaped');check(!str_contains($html,'href="javascript:'),'unsafe scheme rejected');check(str_contains($html,'&quot;'),'attribute quotes escaped');
+$policy=['title'=>'Privacy & <notice>','content'=>"## Overview\n\nUpdated policy text. [Contact](mailto:owner@example.org)"];
+check(policy_summary($policy)==='Updated policy text. Contact','policy description summary');
+$metadata=policy_metadata_html('<title>Old title</title><meta name="description" content="Old description"><meta property="og:title" content="Old social title"><meta property="og:description" content="Old social description"><meta name="twitter:title" content="Old card title"><meta name="twitter:description" content="Old card description">',$policy);
+check(str_contains($metadata,'<title>Privacy &amp; &lt;notice&gt; | Baran&#39;s Scoreboard</title>'),'policy title escaped in metadata');
+check(str_contains($metadata,'name="description" content="Updated policy text. Contact"'),'policy description updated');
+check(str_contains($metadata,'property="og:title" content="Privacy &amp; &lt;notice&gt;"'),'social title escaped in metadata');
+check(str_contains($metadata,'name="twitter:description" content="Updated policy text. Contact"'),'social description updated');
 $_SERVER['DOCUMENT_ROOT']=sys_get_temp_dir();
 try{private_directory(sys_get_temp_dir().'/exposed-sessions');throw new LogicException('public storage accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'public storage denied');}
 echo "PHP security regression checks passed.\n";
