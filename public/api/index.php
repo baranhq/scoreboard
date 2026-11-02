@@ -10,7 +10,7 @@ require $library.'/config.php'; require $library.'/security.php'; require $libra
 try {
     $c = configuration();
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
-    $admin = in_array($path,['/admin','/admin/'],true);
+    $admin = in_array($path,[$c['admin_path'],$c['admin_path'].'/'],true);
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     $publicPolicy=array_search($path,policy_paths(),true);
     if($publicPolicy!==false&&$method==='GET')serve_policy($c,$publicPolicy);
@@ -30,7 +30,7 @@ try {
     $data = input();
     if ($action === 'consent') save_consent($db,$c,$data);
     if ($action === 'event') record_event($db,$c,$data);
-    // There is no public analytics-read API. All reads are inside authenticated /admin.
+    // There is no public analytics-read API. All reads are inside the authenticated administrator page.
     fail(404);
 } catch (JsonException) {fail(400);} catch (Throwable) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();

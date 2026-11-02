@@ -3,8 +3,9 @@ DirectoryIndex index.html
 ErrorDocument 404 /404.html
 RewriteEngine On
 # The static / page remembers a local language choice; Bulgarian is its no-script default.
-# PHP is the only administrator implementation. Old /baranhq_admin returns 404.
-RewriteRule ^admin/?$ api/index.php [L]
+# PHP is the only administrator implementation. The build replaces this marker
+# with the route configured by ADMIN_PATH; PHP independently validates the same value.
+# ADMIN_ROUTE_REWRITE
 RewriteRule ^(bg/poveritelnost|tr/gizlilik|en/privacy)/?$ api/index.php [L]
 <IfModule mod_headers.c>
  Header always set X-Content-Type-Options "nosniff"
