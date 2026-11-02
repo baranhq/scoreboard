@@ -21,7 +21,7 @@ function save_consent(PDO $db, array $c, array $data): never {
     if (!$usage) { $q = $db->prepare('DELETE FROM visits WHERE token_hash = ?'); $q->execute([$hash]); }
     $q = $db->prepare('UPDATE preferences SET usage_allowed = ?, cloud_allowed = ?, expires_at = UTC_TIMESTAMP() + INTERVAL 180 DAY, updated_at = UTC_TIMESTAMP() WHERE token_hash = ?');
     $q->execute([(int)$usage, (int)$cloud, $hash]); $db->commit();
-    setcookie('score_preferences', $token, ['expires'=>time()+180*86400,'path'=>'/','secure'=>!$c['http'],'httponly'=>true,'samesite'=>'Lax']);
+    setcookie('score_preferences', $token, ['expires'=>time()+180*86400,'path'=>'/','secure'=>$c['secure_cookies'],'httponly'=>true,'samesite'=>'Lax']);
     json_response(consent_state($c, ['usage_allowed'=>$usage,'cloud_allowed'=>$cloud]));
 }
 function record_event(PDO $db, array $c, array $data): never {

@@ -1,18 +1,47 @@
 <?php
 declare(strict_types=1);
+function normalise_absolute_path(string $path): ?string {
+    if ($path === '' || $path[0] !== '/') return null;
+    $parts = [];
+    foreach (explode('/', $path) as $part) {
+        if ($part === '' || $part === '.') continue;
+        if ($part === '..') return null;
+        $parts[] = $part;
+    }
+    return '/'.implode('/', $parts);
+}
+function path_is_within(string $path, string $directory): bool {
+    $path = normalise_absolute_path($path); $directory = normalise_absolute_path($directory);
+    if ($path === null || $directory === null) return false;
+    return $path === $directory || str_starts_with($path, rtrim($directory, '/').'/');
+}
+function public_path(string $path): bool {
+    $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+    if ($documentRoot === '') return false;
+    $realRoot = realpath($documentRoot);
+    return path_is_within($path, $documentRoot) || ($realRoot !== false && path_is_within($path, $realRoot));
+}
 function private_directory(string $path): string {
     if ($path === '' || $path[0] !== '/') throw new RuntimeException('Private storage requires an absolute path');
+    if (normalise_absolute_path($path) === null) throw new RuntimeException('Invalid private storage path');
+    if (public_path($path)) throw new RuntimeException('Private storage must be outside the document root');
     $probe=$path;
     while(!file_exists($probe) && dirname($probe)!==$probe)$probe=dirname($probe);
-    $resolved=realpath($probe);$root=realpath($_SERVER['DOCUMENT_ROOT']??'');
-    if($root && $resolved && ($resolved===$root || str_starts_with($resolved,$root.'/')))throw new RuntimeException('Private storage must be outside the document root');
-    if(in_array('..',explode('/',$path),true))throw new RuntimeException('Invalid private storage path');
+    $resolved=realpath($probe);
+    if($resolved && public_path($resolved))throw new RuntimeException('Private storage must be outside the document root');
     return $path;
 }
 function configuration(): array {
     $file = getenv('SCOREBOARD_ENV_FILE') ?: ($_SERVER['SCOREBOARD_ENV_FILE'] ?? $_SERVER['REDIRECT_SCOREBOARD_ENV_FILE'] ?? '');
-    if ($file && isset($_SERVER['DOCUMENT_ROOT']) && realpath($file) && str_starts_with(realpath($file),rtrim(realpath($_SERVER['DOCUMENT_ROOT']) ?: $_SERVER['DOCUMENT_ROOT'],'/').'/')) throw new RuntimeException('Private configuration must be outside the document root');
-    $settings = $file && is_file($file) ? parse_ini_file($file, false, INI_SCANNER_RAW) : [];
+    $settings = [];
+    if ($file !== '') {
+        $resolved = realpath($file);
+        if (normalise_absolute_path($file) === null || $resolved === false || !is_file($resolved) || !is_readable($resolved)) throw new RuntimeException('Private configuration unavailable');
+        if (public_path($file) || public_path($resolved)) throw new RuntimeException('Private configuration must be outside the document root');
+        $permissions = fileperms($resolved);
+        if ($permissions === false || ($permissions & 0077) !== 0) throw new RuntimeException('Private configuration permissions must exclude group and other users');
+        $settings = parse_ini_file($resolved, false, INI_SCANNER_RAW);
+    }
     if ($settings === false) throw new RuntimeException('Configuration unavailable');
     $get = static function(string $key, string $default = '') use ($settings): string {
         $v = getenv($key); $value = $v !== false ? $v : (string)($settings[$key] ?? $default);
@@ -24,7 +53,7 @@ function configuration(): array {
     if ($origin && !preg_match('~^https?://[a-zA-Z0-9.:-]+$~D', $origin)) throw new RuntimeException('Invalid origin');
     if ($origin && !str_starts_with($origin, 'https://') && !$bool('APP_ALLOW_HTTP')) throw new RuntimeException('HTTPS required');
     return [
-        'origin' => $origin, 'http' => $bool('APP_ALLOW_HTTP'), 'key' => $get('APP_KEY'),
+        'origin' => $origin, 'http' => str_starts_with($origin, 'http://'), 'secure_cookies' => str_starts_with($origin, 'https://'), 'key' => $get('APP_KEY'),
         'db_host' => $get('DB_HOST', 'localhost'), 'db_port' => $get('DB_PORT', '3306'),
         'db_name' => $get('DB_NAME'), 'db_user' => $get('DB_USER'), 'db_password' => $get('DB_PASSWORD'),
         'admin_hash' => $get('ADMIN_PASSWORD_HASH'), 'admin_username' => $get('ADMIN_USERNAME'),

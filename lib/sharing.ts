@@ -1,4 +1,4 @@
-import {backup,parseBackup,type Board} from './boards.ts';
+import {backup,parseBackup,validateJsonDepth,type Board} from './boards.ts';
 import {pausedTimer} from './timer.ts';
 export const MAX_SHARE_LENGTH=32768;
 export function encodeGame(board:Board):string{
@@ -10,7 +10,7 @@ export function encodeGame(board:Board):string{
 export function decodeGame(encoded:string):{board:Board;sourceId:string;key:string}{
  if(!encoded||encoded.length>MAX_SHARE_LENGTH||!/^[A-Za-z0-9_-]+$/.test(encoded))throw new Error('invalid link');
  const binary=atob(encoded.replace(/-/g,'+').replace(/_/g,'/'));const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
- const raw=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));const boards=parseBackup(raw);if(boards.length!==1)throw new Error('one game required');
+ const text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);validateJsonDepth(text);const raw=JSON.parse(text);const boards=parseBackup(raw);if(boards.length!==1)throw new Error('one game required');
  return {board:boards[0],sourceId:raw.boards[0].id,key:encoded};
 }
 export function shareUrl(board:Board):string{return `${location.origin}${location.pathname}#share=${encodeGame(board)}`;}

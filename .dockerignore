@@ -12,6 +12,16 @@ backups
 *.sqlite*
 *.pem
 *.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.dump
+*.sql.*
+*.backup
+*.bak
+id_rsa
+id_ed25519
 *.tsbuildinfo
 public/fonts
 app/font-faces.css

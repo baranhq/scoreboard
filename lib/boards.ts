@@ -5,20 +5,38 @@ import { validColor } from "./colors.ts";
 export type Team = { id: string; name: string; score: number; automaticName?:boolean; color?: string; textColor?: string };
 export type Board = { id: string; name: string; teams: Team[]; automaticName?:boolean; icon?: BoardIconId; accent?: string; background?:string; timer?:GameTimer; shareKey?:string; updatedAt: number; color?: string; textColor?: string; appearance?: Partial<Appearance> };
 export const MAX_SCORE = 999999999;
+export const MAX_BACKUP_BYTES = 5 * 1024 * 1024;
+const MAX_BACKUP_BOARDS = 1000;
+const MAX_BACKUP_TEAMS = 200;
+const MAX_BACKUP_TOTAL_TEAMS = 5000;
 export function validScore(value: number): boolean { return Number.isSafeInteger(value) && Math.abs(value) <= MAX_SCORE; }
 export function newBoard(name: string, team: string): Board {
  return { id: crypto.randomUUID(), name, automaticName:true, icon:"scoreboard", accent:"#285b35", updatedAt: Date.now(), teams: [1, 2].map(n => ({id: crypto.randomUUID(), name: `${team} ${n}`, automaticName:true, score: 0})) };
 }
 export function backup(boards: Board[]) { return {format: "scoreboard", version: 2, boards}; }
+export function validateJsonDepth(text: string): void {
+ if(new TextEncoder().encode(text).byteLength>MAX_BACKUP_BYTES)throw new Error("backup too large");
+ let depth=0,quoted=false,escaped=false;
+ for(const character of text){
+  if(quoted){if(escaped)escaped=false;else if(character==="\\")escaped=true;else if(character==='"')quoted=false;continue;}
+  if(character==='"'){quoted=true;continue;}
+  if(character==='{'||character==='['){if(++depth>32)throw new Error("backup too deep");}
+  else if(character==='}'||character===']'){if(--depth<0)throw new Error("invalid backup");}
+ }
+ if(depth!==0||quoted)throw new Error("invalid backup");
+}
+export function parseBackupText(text:string):Board[]{validateJsonDepth(text);return parseBackup(JSON.parse(text));}
 export function parseBackup(input: unknown): Board[] {
  if (!input || typeof input !== "object") throw new Error("backup");
  const data = input as Record<string, unknown>;
- if (data.format !== "scoreboard" || ![1,2].includes(data.version as number) || !Array.isArray(data.boards)) throw new Error("format");
+ if (data.format !== "scoreboard" || ![1,2].includes(data.version as number) || !Array.isArray(data.boards) || data.boards.length>MAX_BACKUP_BOARDS) throw new Error("format");
  const text = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0 && v.length <= 200;
+ let totalTeams=0;
  return data.boards.map((value: unknown) => {
   if (!value || typeof value !== "object") throw new Error("board");
   const b = value as Record<string, unknown>;
-  if (!text(b.id) || !text(b.name) || !Array.isArray(b.teams) || b.teams.length < 1 || !Number.isSafeInteger(b.updatedAt) || (b.updatedAt as number) < 0) throw new Error("board");
+  if (!text(b.id) || !text(b.name) || !Array.isArray(b.teams) || b.teams.length < 1 || b.teams.length>MAX_BACKUP_TEAMS || !Number.isSafeInteger(b.updatedAt) || (b.updatedAt as number) < 0) throw new Error("board");
+  totalTeams+=b.teams.length;if(totalTeams>MAX_BACKUP_TOTAL_TEAMS)throw new Error("backup too large");
   if (b.automaticName !== undefined && typeof b.automaticName!=="boolean") throw new Error("name flag");
   if (b.background !== undefined && !validColor(b.background)) throw new Error("background");
   if (b.icon !== undefined && !isBoardIcon(b.icon)) throw new Error("icon");

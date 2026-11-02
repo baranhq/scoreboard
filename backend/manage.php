@@ -15,7 +15,7 @@ try {
         echo password_hash($password,defined('PASSWORD_ARGON2ID')?PASSWORD_ARGON2ID:PASSWORD_DEFAULT).PHP_EOL;exit;
     }
     $c=configuration();if(strlen($c['key'])<32||!$c['db_name'])throw new RuntimeException('Configure private environment settings first.');$db=database($c);
-    if($action==='check'){if(!$c['origin'] || !$c['admin_username'] || !password_get_info($c['admin_hash'])['algo'])throw new RuntimeException('Configure the origin and a real administrator password hash.');echo 'Configuration is ready.'.PHP_EOL;}elseif($action==='migrate'){
+    if($action==='check'){if(!$c['origin'] || strlen($c['admin_username'])<1 || strlen($c['admin_username'])>100 || !password_get_info($c['admin_hash'])['algo'])throw new RuntimeException('Configure the origin, a username of at most 100 bytes and a real administrator password hash.');echo 'Configuration is ready.'.PHP_EOL;}elseif($action==='migrate'){
         $db->exec('CREATE TABLE IF NOT EXISTS schema_migrations (version VARCHAR(100) PRIMARY KEY,applied_at DATETIME NOT NULL) ENGINE=InnoDB');
         $lock=$db->query("SELECT GET_LOCK('scoreboard_migrations',30)")->fetchColumn();if((int)$lock!==1)throw new RuntimeException('Another migration is running.');
         foreach(glob(__DIR__.'/migrations/*.sql') as $file){
