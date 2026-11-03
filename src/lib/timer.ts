@@ -27,3 +27,12 @@ export function parseTimer(input:unknown):GameTimer|undefined {
 export function formatTime(ms:number,showHours=true):string{const total=Math.ceil(ms/1000),hours=Math.floor(total/3600),minutes=showHours?Math.floor(total/60)%60:Math.floor(total/60),seconds=total%60;return showHours&&hours?`${hours}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`:`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;}
 
 export function isGamePaused(timer?:GameTimer):boolean{return !!timer?.enabled&&(!!timer.timeoutActive||timer.startedAt===null&&(timer.pausedAt!=null||(timer.mode==='stopwatch'?timer.remainingMs>0:timer.remainingMs<timer.durationMs)));}
+export function timerRefreshDelay(timer:GameTimer,now=Date.now()):number|undefined{
+ const down=(ms:number)=>ms<=0?1:ms%1000||1000;
+ const up=(ms:number)=>1000-(Math.max(0,ms)%1000)||1000;
+ const delays:number[]=[];
+ if(timer.timeoutActive&&timer.timeoutStartedAt!=null)delays.push(down(timeoutTime(timer,now)));
+ else if(timer.startedAt!==null){const value=remainingTime(timer,now);delays.push(timer.mode==='stopwatch'?up(value):down(value));}
+ if(timer.trackPausedTime&&timer.pausedAt!=null)delays.push(up(now-timer.pausedAt));
+ return delays.length?Math.max(1,Math.ceil(Math.min(...delays))):undefined;
+}
