@@ -1,0 +1,81 @@
+Bu bildirim, Bulgaristan merkezli Baran Ahmedov tarafından bu Baran's Scoreboard kurulumu için bilgilerin nasıl işlendiğini açıklar. İletişim: baran@baranhq.com.
+
+## Bu sitede kullanılan analiz hizmetleri
+
+Bu sitede **üç analiz sistemi etkin olarak kullanılmaktadır**: barındırma erişim günlüklerinden rapor hazırlayan **AWStats**, izin veren ziyaretçiler için **Baran's Scoreboard'un kendi kullanım analizi** ve izin veren ziyaretçiler için **Cloudflare Web Analytics**. Üç hizmet de yapılandırılmış, etkin ve kullanımdadır. Rıza, tarayıcı üzerinden çalışan iki analiz sisteminin belirli bir ziyaretçi hakkında veri toplamasını belirler; hizmetlerin site genelinde etkin olup olmadığını değil. AWStats barındırma günlüklerini bu tercihlerden bağımsız olarak işler.
+
+## Oyunlarınız tarayıcınızda kalır
+
+GitHub yıldız hatırlatması, son ziyaretinizi, kapatma zamanını ve GitHub bağlantısını seçip seçmediğinizi yalnızca tarayıcınızda saklar. Analiz isteği göndermez ve projenin GitHub bağlantısını seçtiğinizde kalıcı olarak kapanır.
+
+Paylaşım bağlantıları, sunucudaki bir paylaşım veritabanı yerine URL adresinin # bölümünde anlık kopya taşır. Bağlantıyı bilen herkes adları, skorları ve ayarları okuyup kopyalayabilir. Bu bölüm siteye gönderilen HTTP isteğine dahil edilmez. Alıcı bağımsız bir kopya açar. Yalnızca açıklamak istediğiniz bilgileri paylaşın.
+
+Hesap gerekmez. Adlar, takım adları, skorlar, simgeler ve görünüm ayarları scoreboard adlı IndexedDB veritabanında yerel olarak saklanır. Uygulama sunucusuna yüklenmez ve analizlere dahil edilmez. JSON yedekleri kendi seçiminizle indirdiğiniz dosyalardır; içe aktarma yerel olarak yapılır. Dosyaları nerede saklayacağınıza veya paylaşacağınıza siz karar verirsiniz.
+
+Tarayıcı depolaması kalıcı değildir. Site verilerini temizlemek, özel tarama, depolama sınırları, farklı tarayıcı veya alan adı erişimi kaldırabilir. Önemli sonuçları dışa aktarın. Aynı kökendeki normal uygulama güncellemeleri oyunları bilerek silmez.
+
+## Gerekli sunum ve güvenlik işlemleri
+
+Site, içerik sunumu ve güvenlik için Cloudflare'i ters proxy olarak kullanır. Cloudflare, IP adresleri ve istek bilgileri dahil teknik bağlantı verilerini işler; ağ trafiği ve güvenlikle ilgili istatistikler sağlar. Bu işlemler, isteğe bağlı iki analiz seçeneğine izin verip vermemenizden bağımsız olarak siteye eriştiğinizde gerçekleşir. Analizleri reddetmek Cloudflare'in ağ düzeyindeki sunum, koruma veya trafik istatistiklerini durdurmaz.
+
+Barındırma sağlayıcısı da sunucu erişim günlüklerini işler. Bu günlükler IP adreslerini, istek tarih ve saatlerini, istenen adresleri, tarayıcı ve cihaz bilgilerini, tarayıcının gönderdiği yönlendiren sayfa bilgilerini, yanıt durum kodlarını ve ilgili teknik bilgileri içerebilir. AWStats barındırma hesabında etkin durumdadır ve aktif olarak kullanılmaktadır. Bu günlüklerden oluşturulan ziyaretçi ve trafik raporlarını, günlüklerdeki IP adresi bilgileri dahil, site trafiğini anlamak için kullanıyorum. AWStats sitenin rıza panelinden bağımsız çalışır: her iki isteğe bağlı analizi reddetmeniz sunucu günlüklerini veya AWStats'ı durdurmaz. Uygulama barındırma sağlayıcısının günlük ayarlarını yönetmez.
+
+Bu işlemlerin amaçları siteyi sunmak, hizmet güvenilirliğini ve güvenliğini sağlamak, kötüye kullanımı önlemek ve trafik raporları oluşturmaktır. İlgili veri koruma gereklilikleri saklı kalmak üzere uygun durumlarda hukuki dayanak meşru menfaattir; hizmet sağlayıcılarının ayrı yasal yükümlülükleri de olabilir. Kaynak kod, barındırma günlükleri ile yedeklerin veya Cloudflare'in ayrı ağ verilerinin gerçek saklama sürelerini belirlemez. Bunlar kullanılan hizmetlere ve hesap ayarlarına bağlıdır.
+
+## Site kullanım analizi — etkin, rıza gerekli
+
+Baran's Scoreboard'un kendi site kullanım analizi sistemi etkindir ve bu sitede kullanılmaktadır. Belirli bir ziyaretçi hakkında kullanım verisi yalnızca o ziyaretçi “Site kullanım analizi” için izin verdikten sonra toplanır. Bu sistem rastgele oluşturulan bir tarayıcı tercih belirtecini (sunucuda özetlenmiş biçimde saklanır), ziyaret ve sayfa görüntüleme zamanlarını, sınırlı sayıdaki herkese açık sayfa yollarını ve tahmini aktif süreyi kaydeder. Ayrıca önceden tanımlanmış dört işlemi kaydeder: yeni skor tablosu oluşturma, tam ekrana geçme, yedek dışa aktarma ve yedek içe aktarma. Otuz dakikalık hareketsizlik ziyareti sonlandırır. Aktif süre yalnızca sayfanın görünür, odakta ve yakın zamanda kullanılmış olması durumunda tahmin edilir. Bu kayıtlar barındırma hizmetinin MySQL veritabanında tutulur ve yalnızca yetkili yönetim alanından görülebilir. Bu isteğe bağlı işlemenin hukuki dayanağı rızanızdır.
+
+Uygulamanın kendi analiz sistemi ziyaretçilerin IP adreslerini, IP'den türetilmiş kimlikleri, tarayıcı parmak izlerini, kesin konumları, URL sorgu parametrelerini, alanlara yazdığınız metinleri, skor tablosu isimlerini ve puanlarını, fare hareketlerini veya ekran kayıtlarını saklamaz. Barındırma, Cloudflare ağı ve güvenlikle ilgili ayrı işlemler yukarıda açıklandığı şekilde devam eder. Oturum açmış yöneticilerin ziyaretleri uygulamanın kendi kullanım analizlerinden çıkarılır.
+
+## Cloudflare Web Analytics — etkin, rıza gerekli
+
+Cloudflare Web Analytics bu sitede etkindir ve manuel yüklenen bir komut dosyasıyla aktif olarak kullanılmaktadır. Analiz kodu belirli bir ziyaretçi için yalnızca o ziyaretçi gizlilik tercihleri panelinde “Cloudflare Web Analytics” izni verdikten sonra yüklenir. Sitenin kendi kullanım analizlerinden bağımsız olarak izin verebilir veya reddedebilirsiniz. Bu izni vermediğinizde uygulama Cloudflare'in manuel analiz işaretçisini yüklemez. Bununla birlikte Cloudflare'in site sunumu ve güvenliği için trafik işlemesi devam eder.
+
+İzin verildiğinde işaretçi, tarayıcı zamanlama verileri ve Core Web Vitals dahil sayfa yüklemelerini ve performansı ölçer. Cloudflare raporları ziyaret edilen sayfa yollarını, yönlendiren siteleri, yaklaşık ülkeyi, tarayıcıyı, işletim sistemini ve cihaz türünü gösterebilir. Uygulama skor tablolarının içeriğini, yazılan metinleri, kendi işlem olaylarını veya tahmini aktif süreyi Cloudflare Web Analytics'e göndermez. Cloudflare, Web Analytics'in farklı müşterilerin siteleri arasında bireysel kullanıcıları takip etmediğini ve URL sorgu parametrelerini kaydetmediğini belirtir. Cloudflare belgelerine göre örneklenmemiş işaretçi verileri yedi gün saklanır, ardından uzun süreli saklama için yaklaşık %10 düzeyinde toplulaştırılır; panelde önceki altı aya ait veriler görüntülenebilir. Ayrıntılar: [Cloudflare Web Analytics SSS](https://developers.cloudflare.com/web-analytics/faq/), [veri toplama](https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/) ve [boyutlar](https://developers.cloudflare.com/web-analytics/data-metrics/dimensions/).
+
+Site, Cloudflare'in otomatik kod eklemesi yerine rızaya bağlı manuel yükleme kullanır. Rızanızı geri çektiğinizde uygulama yeni işaretçi yüklemelerini durdurur ve yüklenmiş entegrasyonu sonlandırmak için sayfayı yeniler. Başlamış olan bir istek tamamlanabilir.
+
+[Cloudflare Gizlilik Politikası](https://www.cloudflare.com/privacypolicy/)
+
+## Gizlilik ve tarayıcı tercihleri
+
+Sitenin kendi kullanım analizi ile Cloudflare Web Analytics site genelinde etkin ve kullanılan hizmetlerdir; ancak tarayıcınızdan analiz verisi toplanması siz izin verene kadar kapalıdır. İkisini birden reddedebilir, ikisine birden izin verebilir veya ayrı seçim yapabilirsiniz. Kaydetmeden pencereyi kapatmak rıza sayılmaz. Skor tablosu her iki hizmet olmadan da çalışır. Seçimlerinizi sitenin alt kısmındaki veya bu sayfadaki “Gizlilik tercihleri” üzerinden değiştirebilir ya da rızanızı geri çekebilirsiniz. Barındırma günlükleri, AWStats ve Cloudflare ağ güvenliği bu seçimlerden etkilenmez.
+
+score_preferences adlı birinci taraf çerezi rastgele ve anlaşılmaz bir rıza belirtecini 180 güne kadar tutar. HTTPS üzerinden Secure, HttpOnly ve SameSite=Lax özelliklerini kullanır. Sunucu, kendi analiz sistemine gelen her istekte kayıtlı izni kontrol eder; ilgili tercih kaydı en fazla bir yıl saklanır. Site kullanım analizi rızasının geri çekilmesi, bu tarayıcının belirteciyle ilişkili canlı analiz kayıtlarını siler. Cloudflare Web Analytics'in kapatılması sonraki işaretçi yüklemelerini durdurur ve sayfayı yeniler. Diğer açık sekmeler odaklandığında tercihleri yeniler ve site içi değişiklik bildirimleri alır. Cloudflare'de tamamlanmış işlemler veya barındırma günlükleri bu denetimlerle silinmez.
+
+Tarayıcı ayrıca arayüz temasını, seçilen dili, kapatılan dil önerisini ve etkin skor tablosunun kimliğini yerel olarak saklar. Bu ayarlar analiz rızası vermez. Çerezleri silmek eski analiz kayıtlarını sonraki silme isteğinizle ilişkilendirmeyi imkânsız hâle getirebilir. Yalnızca tercih çerezini silmek IndexedDB'de tutulan skor tablolarını silmez.
+
+## Yönetim ve saklama süreleri
+
+Herkese açık kayıt yoktur. Yönetici parolası açık kaynak deposunun dışında yapılandırılır. score_admin adlı Secure, HttpOnly, SameSite=Strict çerezi en fazla bir saatlik oturum sağlar. Geçici oturum açma ve herkese açık API kötüye kullanım sınırları bağlantı IP adresini geçici olarak işler. Anahtarlı bir özet ve sayaç, 15 dakikalık hız sınırı penceresi boyunca ve normalde saatlik çalışan planlı temizliğe kadar analizlerden ayrı bir güvenlik tablosunda tutulur; temizlik başarısız olursa süresi dolmuş kayıtlar başarıyla çalışana kadar kalabilir. Bu tabloda ham IP adresleri saklanmaz ve özetler ziyaretçi kimliği olarak kullanılmaz. Bu güvenlik işlemlerinin hukuki dayanağı, yetkisiz erişimi ve kötüye kullanımı önleme ve hizmetin erişilebilirliğini sürdürmeye yönelik meşru menfaattir.
+
+Oturum açmış yöneticinin ziyaretleri birinci taraf kullanım analizlerine dahil edilmez. Bu, barındırma günlüklerini, AWStats veya Cloudflare işlemlerini değiştirmez.
+
+Ziyaret, sayfa görüntüleme ve tıklamalar 365 gün içinde sona erer. Süresi dolan kayıtlar yönetim sorgularından hemen çıkarılır; zamanlanmış görev depolamadan siler. Operatör sessiz dönemler dahil saatlik temizliği planlamalı ve hataları izlemelidir. Tercih kayıtları en fazla bir yıl saklanır. Sunucu yedekleri ayrıdır; erişim ve saklama süreleri kurulum ayarlarına bağlıdır. Sağlanan yedekleme talimatları geçici kopyaları sınırlar ve geri yüklenen hizmet açılmadan önce analiz ve izinlerin temizlenmesini gerektirir. Canlı tablolardan silmek mevcut yedekleri hemen silmez.
+
+## Alıcılar, aktarımlar ve yazışmalar
+
+Site işletmecisi ve yetkili barındırma personeli, sitenin işletimi ve korunması için gerekli bilgilere erişebilir. Teknik hizmet sağlayıcılar arasında barındırma ve veritabanı sağlayıcısı ile ters proxy, güvenlik ve ağ istatistikleri sunan Cloudflare bulunur; ayrıca ayrı rıza verildiğinde Cloudflare Web Analytics kullanılır. Bize e-posta gönderdiğinizde e-posta hizmet sağlayıcıları da sürece dahil olur. Sitede iletişim formu yoktur. Mesajları ve eklerini taleplerinizi yanıtlamak ve ilgili yazışmaları saklamak için meşru menfaat temelinde işleriz. Yazışmalar makul ölçüde gerekli olduğu sürece saklanır.
+
+Sağlayıcı altyapısının konumu ve olası uluslararası veri aktarımları güncel barındırma ve Cloudflare düzenlemelerine bağlıdır. Kesin ülkeler, güvenceler, barındırma günlüğü ve yedek saklama süreleri bu düzenlemelerden doğrulanmalıdır; uygulama kaynak kodundan belirlenemez. GitHub dahil diğer sitelerin bağlantılarına tıkladığınızda bu sitelerin gizlilik politikaları geçerli olur. Kişisel bilgileri satmıyor ve reklam takipçileri kullanmıyoruz.
+
+## Haklarınız
+
+Uygulanabildiği ölçüde erişim, düzeltme, silme, kısıtlama veya taşınabilirlik talebi, meşru menfaate dayalı işlemeye itiraz veya rızayı geri çekmek için baran@baranhq.com adresine yazın. Kayıtları bulmak ve başkalarını korumak için makul doğrulama istenebilir. İlgili kurallar uyarınca talepler normalde bir ay içinde yanıtlanır; hukuki uzatma uygulanabilir. Önce operatöre başvurmadan Bulgaristan Kişisel Verileri Koruma Komisyonu (cpdp.bg/en/) dahil yetkili makama şikâyet edebilirsiniz.
+
+[КЗЛД / CPDP](https://cpdp.bg/en/)
+
+## Yaş ve gizlilik
+
+Baran's Scoreboard, öğrenci bilgisi gerektirmeden sınıflar dahil genel kullanım içindir. Takım adlarına veya yedeklere hassas kişisel bilgi koymayın. Yaş veya öğrenci profili toplanmaz. Bulgaristan kuralları 14 yaşından küçük çocukların rızaya dayalı çevrimiçi işlemesi için ebeveyn yetkilendirmesi gerektiriyorsa uygun bir izin süreci olmadan bu kullanımda isteğe bağlı analizler açılmamalıdır. Bu sitede rızaya bağlı iki analiz hizmeti etkin olsa da ziyaretçi izin vermeden isteğe bağlı analiz verisi toplanmaz. Okullar ve diğer işletmeciler kendi kullanıcı kitlelerini ve hukuki düzenlemelerini değerlendirmelidir.
+
+## Güvenlik
+
+Hiçbir internet hizmetinin tamamen güvenli olduğu garanti edilemez. Uygulama hukuki veya benzer önemli etkileri olan otomatik kararlar vermez.
+
+## Veri sorumlusu ve iletişim
+
+Baran Ahmedov
+
+[baran@baranhq.com](mailto:baran@baranhq.com)

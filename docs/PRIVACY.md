@@ -1,6 +1,6 @@
 # Privacy and deployment checks
 
-The supplied privacy text is scoped to this application's implemented behaviour. It is not a certification of a hosting account or a replacement for legal review. Operators must supply truthful identity/contact information and verify providers, access, logs, backups, transfers and their actual audience.
+The checked-in notices under src/lib/privacy describe the supplied Baran's Scoreboard instance and assert that Cloudflare delivery, AWStats and both consent-based analytics services are active. The source code can verify application behaviour, but not hosting-level logging, proxy configuration, account settings, provider transfers or retention. Confirm those deployment facts before publishing. Self-hosters must update all three notices for their own identity, services, audience, retention and legal arrangements. These notices are not a certification or a replacement for legal review.
 
 ## Processing boundaries
 
