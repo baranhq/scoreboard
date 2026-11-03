@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev --webpack --hostname 0.0.0.0",
-    "build": "node scripts/fonts.mjs && node scripts/social.mjs && node scripts/licenses.mjs && node scripts/policies.mjs && next build --webpack && node scripts/package-backend.mjs",
+    "build": "node scripts/build.mjs",
     "start": "php -S localhost:8080 -t out backend/dev-router.php",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",

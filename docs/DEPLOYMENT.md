@@ -28,6 +28,8 @@ Copy `.env.example` to the private `.env` and supply at least:
 
 ```dotenv
 APP_ORIGIN=https://scoreboard.example.org
+NEXT_PUBLIC_SITE_URL=https://scoreboard.example.org
+NEXT_PUBLIC_INDEXABLE=false
 APP_ALLOW_HTTP=false
 DB_HOST=localhost
 DB_PORT=3306
@@ -48,9 +50,18 @@ TRUSTED_PROXY_CIDRS=
 
 These are placeholders, not working credentials. Generate `APP_KEY` and `ADMIN_PASSWORD_HASH` with `backend/manage.php`. Supply the actual database names your host creates. Values may be quoted; literal password hashes must retain their `$` characters. Docker Compose `.env` files should use single quotes for hashes. The PHP reader supports those quotes too.
 
-`ADMIN_PATH` defaults to `/admin`. To use another single-segment path, set the same value in the private PHP `.env` and the frontend build environment, for example `ADMIN_PATH=/manage`. Build with `ADMIN_PATH=/manage npm run build`, then upload the complete `out/` directory. The build writes the matching Apache route and `robots.txt`; PHP reads the path from the private `.env`. Keep the values identical or the route will not resolve. The path is not a security control: the server still requires the configured administrator username and password. The previous route will no longer open the admin panel after the new build is deployed.
+The production build automatically checks `$HOME/scoreboard-private/.env` and then the sibling `../scoreboard-private/.env`. Keep this file outside every document root and set its permissions to `600`. It loads the file before generating the frontend and Apache configuration; no variables need to be prefixed to `npm run build`. With no external file, `ADMIN_PATH` defaults to `/admin`, `NEXT_PUBLIC_SITE_URL` defaults to `https://scoreboard.baranhq.com`, and indexing defaults off. Existing environment variables and project `.env.local` values remain supported; process environment values take precedence.
 
-For shared-hosting builds, set `APACHE_ENV_FILE=/home/YOUR_ACCOUNT/scoreboard-private/.env` in the build environment (or prefix `npm run build` with it). The build adds `SetEnv SCOREBOARD_ENV_FILE ...` to the generated `.htaccess`, so replacing the full `out/` directory retains the private config pointer. If you leave `APACHE_ENV_FILE` blank, add that `SetEnv` line to the uploaded `.htaccess` yourself. This reveals only the filesystem path, not the file contents. If PHP-FPM does not receive `SetEnv` values on your provider, ask it to set `SCOREBOARD_ENV_FILE` in the PHP environment instead. Do not move the environment file into the public directory as a workaround.
+For shared hosting, run the build from the source checkout using the same account that owns the private file:
+
+```sh
+npm ci
+npm run build
+```
+
+To customize the administrator URL, set the same single-segment path in the private `.env` and PHP configuration, for example `ADMIN_PATH=/baranhq_admin`. The build writes that route into `.htaccess` and generates matching public metadata. Keep `ADMIN_PATH`, `APP_ORIGIN`, and `NEXT_PUBLIC_SITE_URL` consistent with the backend and real site. The path is not a security control: the server still requires the configured administrator username and password. The previous route stops working after the new build is deployed.
+
+When the build discovers the external `.env`, it automatically writes `SetEnv SCOREBOARD_ENV_FILE /home/YOUR_ACCOUNT/scoreboard-private/.env` into the generated `.htaccess`. If `APACHE_ENV_FILE` is already set in the build environment or file, that value is preserved. Upload the complete `out/` contents, including `.htaccess` and `api/`; this retains the private config pointer and the PHP backend files. The pointer exposes only a filesystem path, never the file contents. If PHP-FPM does not receive `SetEnv` values on your provider, configure `SCOREBOARD_ENV_FILE` once in the PHP environment instead. Do not move the environment file into the public directory as a workaround.
 
 Keep the private directory and `.env` at a stable account-level path when replacing the built site. If you change the domain's document root, point it at the public build only and make sure PHP still receives the same absolute private config path. Never point the document root at the account home or a parent containing private files. If `/admin` returns the generic “Request unavailable” response after a move, the web PHP process is not loading a valid private configuration (or cannot reach the database); the CLI `manage.php check` alone does not verify the web server's environment.
 
@@ -78,7 +89,7 @@ Run that command manually first. Verify successful runs and arrange cron failure
 ## HTTPS, routing and caches
 
 - Enable HTTPS with your provider. Redirect HTTP to HTTPS at the hosting account/proxy level. Keep `APP_ORIGIN` and `NEXT_PUBLIC_SITE_URL` equal to the public HTTPS origin.
-- For a public instance intended to be indexed, set `NEXT_PUBLIC_INDEXABLE=true` and the real `NEXT_PUBLIC_SITE_URL` before building. Staging builds should remain non-indexable. After upload, follow the [search-engine setup checklist](SEO.md).
+- For a public instance intended to be indexed, set `NEXT_PUBLIC_INDEXABLE=true` and the real `NEXT_PUBLIC_SITE_URL` in the external `.env` (or the build environment) before running `npm run build`. Staging builds should remain non-indexable. After upload, follow the [search-engine setup checklist](SEO.md).
 - Upload `.htaccess`; File Manager may hide dotfiles by default. Apache must allow `mod_rewrite`, `mod_headers` and the supplied override directives.
 - Unknown pages return a real not-found status and the friendly custom page. Only the configured `ADMIN_PATH` serves the administrator interface.
 - Bypass CDN/shared caches for the configured administrator path, `/api/*` and the server-rendered privacy-policy routes. Never cache responses with admin or preference cookies. Static hashed assets can be cached normally.

@@ -35,6 +35,8 @@ You can run it privately at home, on a home server/NAS, or on a rented Linux ser
 
 ➡️ **[Read the self-hosting guide](SELF_HOSTING.md)**
 
+For PHP/Apache shared hosting, keep the source checkout outside the document root and store server settings in `$HOME/scoreboard-private/.env`. Run `npm ci` and `npm run build`; the build loads that file automatically, defaults the admin URL to `/admin`, and writes the matching Apache rewrite into `out/.htaccess`. Set `ADMIN_PATH` in the private file to use a different path. Upload the complete `out/` contents. See the [deployment guide](docs/DEPLOYMENT.md) for PHP, database, and one-time hosting setup.
+
 ## Project files
 
 - [Deployment details](docs/DEPLOYMENT.md) · [Backups and recovery](docs/BACKUPS.md) · [Privacy notes](docs/PRIVACY.md)

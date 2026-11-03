@@ -4,14 +4,14 @@ The site is a static Next.js export. Each public language has its own URL and pr
 
 ## Before a public build
 
-In `.env.local`, set the real origin and explicitly enable indexing:
+For Apache hosting, put the real public origin and indexing choice in the automatically loaded private `.env`. For other builds, use the supported project `.env.local` or build environment. Set:
 
 ```dotenv
 NEXT_PUBLIC_SITE_URL=https://your-domain.example
 NEXT_PUBLIC_INDEXABLE=true
 ```
 
-Keep indexing off on development, preview and staging builds. Then run `npm run build` and deploy the complete `out/` directory, including `robots.txt`, `sitemap.xml`, `.htaccess`, the social preview image, favicon and static language pages. A later build with a changed origin, indexing choice or `ADMIN_PATH` must replace the deployed build. The robots file is a crawl preference, never an access-control mechanism; the configured administrator route and `/api/` still rely on server-side authentication or authorization.
+Keep indexing off on development, preview and staging builds. Then run `npm run build` and deploy the complete `out/` directory, including `robots.txt`, `sitemap.xml`, `.htaccess`, the social preview image, favicon, API PHP files and static language pages. A later build with a changed origin, indexing choice or `ADMIN_PATH` must replace the deployed build. The robots file is a crawl preference, never an access-control mechanism; the configured administrator route and `/api/` still rely on server-side authentication or authorization.
 
 ## Google and Bing checklist
 
