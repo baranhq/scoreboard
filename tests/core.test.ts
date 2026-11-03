@@ -2,8 +2,10 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import 'fake-indexeddb/auto';
 import {buttonColors,contrast,validColor} from '../src/lib/colors.ts';
-import {defaultTimer,pausedTimer,remainingTime,resetTimer,isGamePaused,parseTimer} from '../src/lib/timer.ts';
+import {defaultTimer,pausedTimer,remainingTime,resetTimer,isGamePaused,parseTimer,durationFromParts,formatTime,MAX_TIMER_DURATION_MS} from '../src/lib/timer.ts';
 import {newBoard,backup,parseBackup,parseBackupText} from '../src/lib/boards.ts';
+import {teamGridClass} from '../src/lib/team-layout.ts';
+import {parseAppearance} from '../src/lib/appearance.ts';
 import {encodeGame,decodeGame} from '../src/lib/sharing.ts';
 import {writeBoards,loadBoards,loadOrCreateBoard} from '../src/store/database.ts';
 
@@ -22,6 +24,36 @@ test('pause and disable stop the timer, re-enable restores its configured time',
  const disabled=resetTimer(paused,false);assert.equal(disabled.startedAt,null);assert.equal(disabled.remainingMs,300000);
  assert.equal(isGamePaused(resetTimer(disabled,true)),false);
  assert.throws(()=>parseTimer({...defaultTimer,durationMs:-1}));
+ assert.equal(parseTimer({...defaultTimer,durationMs:MAX_TIMER_DURATION_MS,remainingMs:MAX_TIMER_DURATION_MS})?.durationMs,MAX_TIMER_DURATION_MS);
+ assert.throws(()=>parseTimer({...defaultTimer,durationMs:MAX_TIMER_DURATION_MS+1000}));
+ assert.equal(parseTimer({...defaultTimer,timeoutMs:MAX_TIMER_DURATION_MS,timeoutRemainingMs:MAX_TIMER_DURATION_MS})?.timeoutMs,MAX_TIMER_DURATION_MS);
+ assert.throws(()=>parseTimer({...defaultTimer,timeoutMs:MAX_TIMER_DURATION_MS+1000}));
+});
+test('duration fields carry extra minutes and seconds into larger units within configured limits',()=>{
+ assert.equal(durationFromParts(['00','90','00']),5400000);
+ assert.equal(durationFromParts(['00','00','90']),90000);
+ assert.equal(durationFromParts(['01','60','00']),7200000);
+ assert.equal(durationFromParts(['168','00','00']),MAX_TIMER_DURATION_MS);
+ assert.equal(durationFromParts(['168','00','01']),undefined);
+ assert.equal(durationFromParts(['00','90','00'],1800000),undefined);
+});
+test('timer display can show total minutes instead of hours',()=>{
+ assert.equal(formatTime(90*60_000),'1:30:00');assert.equal(formatTime(90*60_000,false),'90:00');
+ assert.equal(formatTime(MAX_TIMER_DURATION_MS,false),'10080:00');
+ assert.equal(parseTimer({...defaultTimer,showHours:false})?.showHours,false);
+});
+test('automatic and fullscreen scoreboard grids use the same team columns',()=>{
+ for(const count of [1,2,3,4,5,9,10]){
+  const columns=(classes:string)=>classes.split(/\s+/).filter(value=>value&&value!=='grid'&&value!=='auto-rows-fr');
+  assert.deepEqual(columns(teamGridClass(count,'auto',false)),columns(teamGridClass(count,'auto',true)));
+ }
+ assert.match(teamGridClass(1,'auto',true),/grid-cols-1/);
+ assert.match(teamGridClass(4,'auto',false),/grid-cols-2/);
+});
+test('appearance presets and text scaling validate and preserve larger settings',()=>{
+ assert.deepEqual(parseAppearance({scoreSize:'xlarge',teamSize:'xlarge',textScaleEnabled:true,textScale:160,showPausedNotice:false}),{scoreSize:'xlarge',teamSize:'xlarge',textScaleEnabled:true,textScale:160,showPausedNotice:false});
+ assert.throws(()=>parseAppearance({textScale:165}));assert.throws(()=>parseAppearance({textScale:75}));assert.throws(()=>parseAppearance({textScaleEnabled:'true'}));assert.throws(()=>parseAppearance({showPausedNotice:'true'}));
+ assert.throws(()=>parseAppearance({scoreSize:'huge'}));
 });
 test('backups and URL snapshots preserve customisation and treat markup as plain data',()=>{
  const board=newBoard('<img src=x onerror=alert(1)>','Takım');board.accent='#123456';board.icon='trophy';board.teams[0].color='#ffffff';board.teams[0].score=42;
