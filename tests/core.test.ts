@@ -2,12 +2,14 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import 'fake-indexeddb/auto';
 import {buttonColors,contrast,validColor} from '../src/lib/colors.ts';
-import {defaultTimer,pausedTimer,remainingTime,resetTimer,isGamePaused,parseTimer,durationFromParts,formatTime,MAX_TIMER_DURATION_MS} from '../src/lib/timer.ts';
+import {defaultTimer,pausedTimer,remainingTime,resetTimer,isGamePaused,parseTimer,durationFromParts,formatTime,MAX_TIMER_DURATION_MS,timerRefreshDelay} from '../src/lib/timer.ts';
 import {newBoard,backup,parseBackup,parseBackupText} from '../src/lib/boards.ts';
 import {teamGridClass} from '../src/lib/team-layout.ts';
 import {parseAppearance} from '../src/lib/appearance.ts';
 import {encodeGame,decodeGame} from '../src/lib/sharing.ts';
 import {writeBoards,loadBoards,loadOrCreateBoard} from '../src/store/database.ts';
+import {localizedAlternates} from '../src/lib/routes.ts';
+import {softwareSchema} from '../src/lib/seo-content.ts';
 
 test('custom colours maintain readable controls across RGB colour space',()=>{
  for(let r=0;r<=255;r+=17)for(let g=0;g<=255;g+=17)for(let b=0;b<=255;b+=17){
@@ -41,6 +43,30 @@ test('timer display can show total minutes instead of hours',()=>{
  assert.equal(formatTime(90*60_000),'1:30:00');assert.equal(formatTime(90*60_000,false),'90:00');
  assert.equal(formatTime(MAX_TIMER_DURATION_MS,false),'10080:00');
  assert.equal(parseTimer({...defaultTimer,showHours:false})?.showHours,false);
+});
+test('timer refreshes only at the next displayed second and stops when idle',()=>{
+ assert.equal(timerRefreshDelay(defaultTimer,10_000),undefined);
+ assert.equal(timerRefreshDelay({...defaultTimer,startedAt:100,remainingMs:5_300},100),300);
+ assert.equal(timerRefreshDelay({...defaultTimer,mode:'stopwatch',startedAt:100,remainingMs:5_300},100),700);
+ assert.equal(timerRefreshDelay({...defaultTimer,timeoutActive:true,timeoutMs:5_300,timeoutRemainingMs:5_300,timeoutStartedAt:100},100),300);
+ assert.equal(timerRefreshDelay({...defaultTimer,trackPausedTime:true,pausedAt:100},400),700);
+});
+test('localized alternates are reciprocal and provide both generic and British English',()=>{
+ const alternates=localizedAlternates('https://scoreboard.baranhq.com','help');
+ assert.equal(alternates.en,'https://scoreboard.baranhq.com/en/help/');
+ assert.equal(alternates['en-GB'],alternates.en);
+ assert.equal(alternates.bg,'https://scoreboard.baranhq.com/bg/pomosht/');
+ assert.equal(alternates.tr,'https://scoreboard.baranhq.com/tr/yardim/');
+ assert.equal(alternates['x-default'],alternates.en);
+});
+test('software schema uses stable multilingual entities and omits unsupported ratings',()=>{
+ const en=softwareSchema('en','https://scoreboard.baranhq.com',"Baran's Scoreboard")['@graph'] as Record<string,unknown>[];
+ const bg=softwareSchema('bg','https://scoreboard.baranhq.com',"Baran's Scoreboard")['@graph'] as Record<string,unknown>[];
+ assert.equal(en[0]['@id'],bg[0]['@id']);assert.equal(en[1]['@id'],bg[1]['@id']);
+ assert.deepEqual(en[0].inLanguage,['en-GB','bg','tr']);
+ assert.equal((en[1].offers as {price:number}).price,0);
+ assert.equal('aggregateRating' in en[1],false);assert.equal('review' in en[1],false);
+ assert.equal(en[1].image,'https://scoreboard.baranhq.com/social.png');
 });
 test('automatic and fullscreen scoreboard grids use the same team columns',()=>{
  for(const count of [1,2,3,4,5,9,10]){
