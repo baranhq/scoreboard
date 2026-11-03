@@ -1,53 +1,58 @@
 # Search engine and AI discovery
 
-The site is a static Next.js export. Each public language has its own URL and prerendered metadata; help, privacy and licence pages are static HTML. The live scoreboard hydrates in the browser because saved games use IndexedDB. Its product summary and application metadata are in the prerendered homepage metadata and structured data, while the localised help pages provide crawlable usage details. Production canonicals use the configured HTTPS origin; Bulgarian and Turkish pages remain self-canonical. The sitemap contains the home, help, privacy and licences pages in all three languages, with reciprocal alternates (`bg`, `tr`, `en-GB`, and the Bulgarian default). Browser-local saved games are `noindex` and are not included in the sitemap.
+The site is a static Next.js export. `/en/`, `/bg/` and `/tr/` each contain a prerendered title, description, stable H1 and concise product summary before JavaScript or IndexedDB starts. The summary describes team setup and scoring, countdowns and stopwatches, fullscreen display, local saves, snapshot sharing and the lack of account requirements. It does not contain locally saved board data. The scoreboard remains the primary interactive content; localized help pages provide fuller instructions.
+
+Every public page has a self-canonical URL on the configured origin. Localized pages link reciprocally using `bg`, `tr`, `en` and `en-GB`; both English codes map to the same `/en/` page because there is one English version. `x-default` points to that English fallback. The root `/` preference redirect is `noindex`, canonical to `/bg/`, and omitted from the sitemap. It does not replace the separately linked and listed language pages. Browser-local saved-scoreboard routes are `noindex` and excluded from the sitemap.
+
+The homepage JSON-LD describes one stable `WebSite` and `WebApplication` entity across locales. It contains the app name, free price, supported page languages, real features, browser requirements, MIT licence and social image. It does not include reviews or ratings. Google requires an app review or aggregate rating for its software-app rich result; none is fabricated, so the markup should not be expected to qualify for that result.
 
 ## Before a public build
 
-For Apache hosting, put the real public origin and indexing choice in the automatically loaded private `.env`. For other builds, use the supported project `.env.local` or build environment. Set:
+For Apache hosting, put the real public origin and indexing choice in the automatically loaded private `.env`. Other builds can use the supported project `.env.local` or build environment. Set:
 
 ```dotenv
 NEXT_PUBLIC_SITE_URL=https://your-domain.example
 NEXT_PUBLIC_INDEXABLE=true
 ```
 
-The official production origin defaults to indexable when no indexing setting is supplied. An explicit `NEXT_PUBLIC_INDEXABLE=false` still disables indexing, including on production. Keep indexing off on development, preview and staging builds. Then run `npm run build` and deploy the complete `out/` directory, including `robots.txt`, `sitemap.xml`, `.htaccess`, the social preview image, favicon, API PHP files and static language pages. A later build with a changed origin, indexing choice or `ADMIN_PATH` must replace the deployed build. The robots file is a crawl preference, never an access-control mechanism; the configured administrator route and `/api/` still rely on server-side authentication or authorization.
+The official production origin defaults to indexable when no indexing setting is supplied. An explicit `NEXT_PUBLIC_INDEXABLE=false` still disables indexing, including on production. Keep indexing off on development, preview and staging builds. Run `npm run build` and deploy the complete `out/` directory, including `robots.txt`, `sitemap.xml`, `.htaccess`, the social preview image, favicon, PHP API files and language pages. Rebuild when changing the origin, indexing choice or `ADMIN_PATH`. Robots rules express crawl preferences; they do not protect the administrator or API routes.
 
-## Google and Bing checklist
+The build and `npm run indexnow` use the same private environment loader and production defaults. IndexNow submits only the canonical home, help, privacy and licence routes when indexing is enabled. It does not submit saved-game routes or snapshot links. Set a random 8–128 character `INDEXNOW_KEY` in the private build environment, deploy the generated `/<key>.txt` verification file, and run the command only after the public site is reachable over HTTPS. The key is public by design, not a password.
 
-1. Verify ownership of the HTTPS domain in [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters/about), preferably using their DNS verification method.
-2. Confirm `https://your-domain.example/robots.txt` allows public pages and points to the deployed sitemap. Confirm the sitemap lists only canonical URLs and that it uses the configured domain, not localhost or an example domain.
-3. Submit `/sitemap.xml` in both webmaster tools. Inspect the English, Bulgarian and Turkish home and help pages; check rendered language, title, description, canonical and alternate URLs.
-4. Confirm saved-games routes remain `noindex`, administrator/API routes remain protected, and old English/Bulgarian/Turkish aliases redirect to their canonical localized routes on Apache deployments.
-5. Review indexing, crawl and structured-data reports after search engines revisit the site. Fix reported access or canonical mismatches; submission does not guarantee indexing or rankings.
+## Production verification
 
-## Optional IndexNow
+1. Verify the HTTPS domain in [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters/about).
+2. Submit `/sitemap.xml`. Confirm that it contains only canonical public pages on the production origin and that each localized set includes reciprocal `bg`, `tr`, `en`, `en-GB` and `x-default` alternatives.
+3. Inspect `/en/`, `/bg/`, `/tr/` and each localized help page. Check raw and rendered HTML for language, title, description, H1, canonical, alternates and readable content with JavaScript disabled.
+4. Use URL Inspection and Bing's URL inspection to check indexing, selected canonicals, crawl/rendering errors, language coverage and blocked assets. Confirm saved-scoreboard pages remain `noindex` and admin/API requests remain protected.
+5. Run Google's Rich Results Test on each language homepage. The markup is intentionally not eligible for the software-app review/rating result without real reviews; fix syntax or unrelated critical errors without inventing ratings.
+6. Review Search Console Core Web Vitals and mobile usability, then inspect Bing crawl reports and its AI Performance report if available. These reports require verified site access and enough real-user data.
+7. Confirm that Cloudflare, hosting bot controls and rate limits do not challenge Googlebot, Bingbot or OAI-SearchBot on public pages, sitemap, robots file or required static assets. Keep origin authentication and API protections intact.
 
-IndexNow can notify Bing and participating search engines when these small static pages change. It is optional and does not affect normal crawling. Generate a random 8–128 character key containing letters, numbers or hyphens, set `INDEXNOW_KEY` in the build environment, deploy the generated `/<key>.txt` file, then run `npm run indexnow` after the site is publicly reachable over HTTPS. The verification key is public by design, not a password. Do not submit user-generated URLs, shared snapshots or browser-local saved games.
+## Apache and Cloudflare delivery
+
+Apache sends a one-year immutable cache policy for fingerprinted files under `/_next/static/` and a one-day policy for stable public fonts and images. HTML is not given a long cache lifetime by this `.htaccess`, so a deployment can reference new hashed assets without broadly caching stale pages. Preserve these asset policies in Cloudflare and purge any custom-cached HTML after deployment. Do not apply a blanket “Cache Everything” rule to HTML, `/api/` or the configured admin path.
+
+Where available, enable Brotli compression and use the normal Cloudflare static-asset caching path. Check cache headers after deployment. Avoid JavaScript rewriting such as Rocket Loader unless the complete hydrated scoreboard has been checked with it; do not weaken CSP, origin protections or consent controls for a speed setting. Provider dashboards and actual edge behavior must be verified on the live domain.
 
 ## Search and AI crawler access
 
-Indexable builds allow general web crawlers and explicitly allow `OAI-SearchBot` for ChatGPT Search. No separate model-training crawler rule is added; those crawlers follow the general rule. Preview builds block crawling. The app's Apache configuration does not block public crawlers, but a CDN, WAF or hosting bot challenge can still do so. If one is configured, review its current rules and allow the documented search crawlers and their published network ranges without weakening origin access controls. Do not treat crawler user-agent strings as authentication.
+Indexable builds allow general crawlers and explicitly allow `OAI-SearchBot`. The existing `User-agent: *` rule also applies to GPTBot; this work leaves model-training crawler access unchanged. OpenAI documents OAI-SearchBot and GPTBot as independent controls. The robots file does not override Cloudflare/WAF challenges, and a crawler user-agent alone is not authentication. Use current official crawler details and published IP ranges when configuring verified-bot access.
 
-No AI assistant recommendation or citation is promised. Accurate descriptions, crawlable help content, real project links and complete licence/privacy information make the site easier to interpret, but independent services choose what to surface.
+No `llms.txt` is generated. There is no evidence that it improves search or recommendation eligibility; the product is represented in crawlable localized HTML, ordinary links, the sitemap and truthful structured data. AI services decide independently what to cite or recommend; there is no guaranteed inclusion mechanism.
 
-For monitoring, review Search Console and Bing Webmaster Tools crawl/index reports, and use Bing's AI Performance report if it is available for the verified site. Referral analytics can show some visits from AI services, but a referral is not proof of a citation and missing referrals do not prove the site was not cited. Keep measurement within the existing optional analytics controls; do not add third-party tracking for this purpose.
+## Search intent and off-site work
 
-## Search intent and wording
+The three language markets use their own natural wording: **online scoreboard**, **classroom scoreboard** and **team scoreboard** in English; **онлайн табло за резултати**, **табло за точки** and **табло за отбори** in Bulgarian; **online skor tablosu**, **puan tablosu** and **sınıf skor tablosu** in Turkish. These phrases describe actual product use; no search-volume or ranking data is available. The public copy avoids keyword lists and does not claim live synchronization, cloud storage or sport-specific official scoring rules.
 
-Use these phrases naturally in relevant descriptions and documentation, not as repeated lists on the public interface:
-
-- **English:** online scoreboard, classroom scoreboard, team scoreboard, scoreboard with timer.
-- **Bulgarian:** онлайн табло за резултати, табло за резултати за отбори, табло за класни игри.
-- **Turkish:** çevrim içi skor panosu, takım skor panosu, sınıf etkinlikleri için skor panosu.
-
-These are descriptive search-intent terms based on the product's real use; this project has no search-volume or ranking data. The homepage and help page explain the actual features without claiming live synchronisation, cloud storage or sport-specific official scoring rules.
+The English README and the Bulgarian and Turkish README files are available in the repository. Keep their product description and feature limits aligned with the live app. In GitHub's repository settings, use an accurate description such as “Free, open-source online scoreboard for classroom games, sports and team competitions, with multiple teams, timers, fullscreen display and local saves.” Relevant topics include `online-scoreboard`, `score-counter`, `classroom-tools`, `team-games`, `timer`, `typescript` and `nextjs`. Seek legitimate references from relevant open-source, teaching and community resources; do not buy links or use link farms, fake reviews or artificial traffic.
 
 ## Official references
 
-- [Google: Localised versions of pages](https://developers.google.com/search/docs/specialty/international/localized-versions)
+- [Google: Localized versions of pages](https://developers.google.com/search/docs/specialty/international/localized-versions)
 - [Google: Sitemap overview](https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview)
-- [Google: Canonicalisation](https://developers.google.com/search/docs/crawling-indexing/canonicalization)
+- [Google: Canonicalization](https://developers.google.com/search/docs/crawling-indexing/canonicalization)
 - [Google: Software app structured data](https://developers.google.com/search/docs/appearance/structured-data/software-app)
 - [Bing: IndexNow](https://www.bing.com/webmasters/help/indexnow-0z209wby)
-- [OpenAI: crawler guidance](https://developers.openai.com/api/docs/bots)
+- [OpenAI: Overview of crawlers](https://developers.openai.com/api/docs/bots)
+- [OpenAI: Publisher and developer FAQ](https://help.openai.com/en/articles/12627856-publishers-and-developers-faq)

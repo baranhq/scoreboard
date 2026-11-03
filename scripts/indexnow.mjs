@@ -1,6 +1,8 @@
-import nextEnv from '@next/env';
-const {loadEnvConfig}=nextEnv;
-loadEnvConfig(process.cwd(), false);
+import {dirname,resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {loadBuildEnv} from './build-env.mjs';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+loadBuildEnv(root);
 
 const key=process.env.INDEXNOW_KEY||'';
 let origin;
