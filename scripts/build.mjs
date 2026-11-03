@@ -43,7 +43,9 @@ if (privateEnvFile) {
 loadEnvConfig(root,false);
 process.env.ADMIN_PATH=process.env.ADMIN_PATH?.trim()||'/admin';
 process.env.NEXT_PUBLIC_SITE_URL=process.env.NEXT_PUBLIC_SITE_URL?.trim()||'https://scoreboard.baranhq.com';
-process.env.NEXT_PUBLIC_INDEXABLE=process.env.NEXT_PUBLIC_INDEXABLE?.trim()||'false';
+const productionSite=new URL(process.env.NEXT_PUBLIC_SITE_URL).origin==='https://scoreboard.baranhq.com';
+process.env.NEXT_PUBLIC_INDEXABLE=process.env.NEXT_PUBLIC_INDEXABLE?.trim()||(productionSite?'true':'false');
+console.log(`Search indexing: ${process.env.NEXT_PUBLIC_INDEXABLE==='true'?'enabled':'disabled'} (${process.env.NEXT_PUBLIC_SITE_URL}).`);
 
 const steps=[
   ['scripts/fonts.mjs'],

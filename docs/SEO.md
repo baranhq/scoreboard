@@ -11,7 +11,7 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.example
 NEXT_PUBLIC_INDEXABLE=true
 ```
 
-Keep indexing off on development, preview and staging builds. Then run `npm run build` and deploy the complete `out/` directory, including `robots.txt`, `sitemap.xml`, `.htaccess`, the social preview image, favicon, API PHP files and static language pages. A later build with a changed origin, indexing choice or `ADMIN_PATH` must replace the deployed build. The robots file is a crawl preference, never an access-control mechanism; the configured administrator route and `/api/` still rely on server-side authentication or authorization.
+The official production origin defaults to indexable when no indexing setting is supplied. An explicit `NEXT_PUBLIC_INDEXABLE=false` still disables indexing, including on production. Keep indexing off on development, preview and staging builds. Then run `npm run build` and deploy the complete `out/` directory, including `robots.txt`, `sitemap.xml`, `.htaccess`, the social preview image, favicon, API PHP files and static language pages. A later build with a changed origin, indexing choice or `ADMIN_PATH` must replace the deployed build. The robots file is a crawl preference, never an access-control mechanism; the configured administrator route and `/api/` still rely on server-side authentication or authorization.
 
 ## Google and Bing checklist
 
