@@ -9,7 +9,7 @@ function parts(ms: number): Parts {
  return [String(Math.floor(seconds / 3600)).padStart(2, "0"), String(Math.floor(seconds / 60) % 60).padStart(2, "0"), String(seconds % 60).padStart(2, "0")];
 }
 
-export function DurationInput({ label, value, change, t, max = MAX_TIMER_DURATION_MS }: { label: string; value: number; change: (ms: number) => void; t: Messages; max?: number }) {
+export function DurationInput({ label, value, change, t }: { label: string; value: number; change: (ms: number) => void; t: Messages }) {
  const [values, setValues] = useState<Parts>(() => parts(value));
  const emitted = useRef(value);
  const fields = useRef<(HTMLInputElement | null)[]>([]);
@@ -25,7 +25,7 @@ export function DurationInput({ label, value, change, t, max = MAX_TIMER_DURATIO
  }, [value]);
 
  const commit = (next: Parts, blur = false) => {
-  const ms = durationFromParts(next, max);
+  const ms = durationFromParts(next, MAX_TIMER_DURATION_MS);
   if (ms !== undefined) {
    emitted.current = ms;
    change(ms);
@@ -62,6 +62,5 @@ export function DurationInput({ label, value, change, t, max = MAX_TIMER_DURATIO
    </label>)}
   </div>
   {error && <p id={id} role="alert" className="mt-2 text-base text-red-800 dark:text-red-200">{t.invalidDuration}</p>}
-  <p className="mt-1 text-sm text-forest/75">{t.maxDuration}</p>
  </fieldset>;
 }
