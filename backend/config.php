@@ -36,8 +36,26 @@ function private_directory(string $path): string {
     if($resolved && public_path($resolved))throw new RuntimeException('Private storage must be outside the document root');
     return $path;
 }
+function discover_environment_file(): string {
+    $candidates = [];
+    $directory = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
+    while ($directory !== '' && $directory !== '/' && $directory !== '.') {
+        if (in_array(basename($directory), ['public_html', 'htdocs', 'www'], true)) {
+            $candidates[] = dirname($directory).'/scoreboard-private/.env';
+            break;
+        }
+        $directory = dirname($directory);
+    }
+    if (function_exists('posix_getpwuid') && function_exists('posix_geteuid')) {
+        $user = posix_getpwuid(posix_geteuid());
+        if ($user && !empty($user['dir'])) $candidates[] = $user['dir'].'/scoreboard-private/.env';
+    }
+    foreach (array_unique($candidates) as $candidate) if (is_file($candidate)) return $candidate;
+    return '';
+}
 function configuration(): array {
     $file = getenv('SCOREBOARD_ENV_FILE') ?: ($_SERVER['SCOREBOARD_ENV_FILE'] ?? $_SERVER['REDIRECT_SCOREBOARD_ENV_FILE'] ?? '');
+    if ($file === '') $file = discover_environment_file();
     $settings = [];
     if ($file !== '') {
         $resolved = realpath($file);
@@ -57,7 +75,7 @@ function configuration(): array {
     $origin = rtrim($get('APP_ORIGIN'), '/');
     if ($origin && !preg_match('~^https?://[a-zA-Z0-9.:-]+$~D', $origin)) throw new RuntimeException('Invalid origin');
     if ($origin && !str_starts_with($origin, 'https://') && !$bool('APP_ALLOW_HTTP')) throw new RuntimeException('HTTPS required');
-    $adminPath = normalise_admin_path($get('ADMIN_PATH', '/admin'));
+    $adminPath = normalise_admin_path(trim($get('ADMIN_PATH', '/admin')) ?: '/admin');
     if ($adminPath === null) throw new RuntimeException('Invalid administrator path');
     return [
         'admin_path' => $adminPath,

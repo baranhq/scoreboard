@@ -3,11 +3,18 @@ declare(strict_types=1);
 function h(mixed $value): string {return htmlspecialchars((string)$value,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');}
 function admin_assets(): void {
     $root=rtrim($_SERVER['DOCUMENT_ROOT'],'/');
+    if (!is_dir($root.'/_next/static')) return;
     foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root.'/_next/static',FilesystemIterator::SKIP_DOTS)) as $file)if($file->getExtension()==='css')echo '<link rel="stylesheet" href="'.h(substr($file->getPathname(),strlen($root))).'">';
 }
 function admin_head(string $title): void {
     header('Content-Type: text/html; charset=UTF-8');header("Content-Security-Policy: default-src 'none'; style-src 'self'; font-src 'self'; script-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>'.h($title).' | Baran&#39;s Scoreboard</title><link rel="icon" href="/icon.png"><script src="/theme.js"></script><script src="/admin-theme.js" defer></script>';admin_assets();echo '</head><body class="bg-paper text-ink">';
+}
+function admin_unavailable(): never {
+    http_response_code(503);
+    admin_head('Administration unavailable');
+    echo '<main class="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-6 py-12"><h1 class="font-display text-3xl font-bold">Administration is temporarily unavailable</h1><p class="mt-5 text-lg leading-8">The server could not load the private configuration, connect to the database, or open a secure session.</p><p class="mt-4 text-base leading-7">Check the hosting PHP error log and verify the private configuration, database setup, and session directory permissions. Reload this page after correcting the server settings.</p><a href="/" class="mt-6 underline">Return to Scoreboard</a></main></body></html>';
+    exit;
 }
 function admin_table(array $rows): void {
     if(!$rows){echo '<p class="py-4 text-base text-forest/90">No consented records in this period.</p>';return;}
