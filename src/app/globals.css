@@ -1,10 +1,18 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 @theme { --color-forest: #285b35; --color-action: #285b35; --color-on-action: #ffffff; --color-surface: #ffffff; --color-ink: #1d3024; --color-paper: #fafbf8; --font-display: "Inter Tight", Arial, Helvetica, sans-serif; }
+@property --color-paper { syntax: "<color>"; inherits: true; initial-value: #fafbf8; }
+@property --color-surface { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --color-ink { syntax: "<color>"; inherits: true; initial-value: #1d3024; }
+@property --color-forest { syntax: "<color>"; inherits: true; initial-value: #285b35; }
+@property --color-action { syntax: "<color>"; inherits: true; initial-value: #285b35; }
+@property --color-on-action { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
 :root { color-scheme: light; }
 :root.dark { color-scheme: dark; --color-paper: #17221b; --color-forest: #b1ccb7; --color-action: #abd0b1; --color-on-action: #15261a; --color-surface: #223027; --color-ink: #e1e9de; }
+@media (prefers-reduced-motion: no-preference) { :root { transition: --color-paper 180ms ease-out, --color-surface 180ms ease-out, --color-ink 180ms ease-out, --color-forest 180ms ease-out, --color-action 180ms ease-out, --color-on-action 180ms ease-out; } }
 body { font-size: 18px; margin: 0; background: var(--color-paper); color: var(--color-ink); font-family: "Inter", Arial, Helvetica, sans-serif; }
 @layer base { h1, h2, h3 { font-family: "Inter Tight", Arial, Helvetica, sans-serif; } button, a, input, select, summary { @apply focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest; } button, select { @apply cursor-pointer; } button:disabled { @apply cursor-not-allowed opacity-50; } }
 
-@keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes score-change { from { transform: translateY(1px); } to { transform: translateY(0); } }
+@keyframes appear { from { opacity: 0; transform: translateY(3px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes dismiss { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(2px) scale(.985); } }
+@keyframes score-change { from { opacity: .7; transform: translateY(.08em) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
