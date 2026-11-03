@@ -36,3 +36,8 @@ RewriteRule (^|/)\. - [F,L]
 </IfModule>
 
 RewriteRule ^tr/kayitli-tabelalar/?$ /tr/kayitli-oyunlar/ [R=301,L]
+
+# Resolve private ADMIN_PATH at request time; PHP returns 404 for other unknown paths.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^[a-z0-9][a-z0-9_-]{0,63}/?$ api/index.php [L]

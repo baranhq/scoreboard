@@ -13,7 +13,7 @@ const htaccessPath='out/.htaccess';
 const htaccess=readFileSync(htaccessPath,'utf8');
 if(!htaccess.includes('# ADMIN_ROUTE_REWRITE'))throw new Error('Missing administrator rewrite marker in public/.htaccess.');
 const privateConfigRule=apacheEnvFile?`SetEnv SCOREBOARD_ENV_FILE ${apacheEnvFile}\n`:'';
-writeFileSync(htaccessPath,htaccess.replace('# ADMIN_ROUTE_REWRITE',`${privateConfigRule}RewriteRule ^${adminPath.slice(1)}/?$ api/index.php [L]`));
+writeFileSync(htaccessPath,htaccess.replace('# ADMIN_ROUTE_REWRITE',`${privateConfigRule}RewriteRule ^(?:admin|${adminPath.slice(1)})/?$ api/index.php [L]`));
 cpSync('LICENSE','out/LICENSE.txt');
 const key=process.env.INDEXNOW_KEY||'';
 if(key&&!/^[A-Za-z0-9-]{8,128}$/.test(key))throw new Error('INDEXNOW_KEY must contain 8–128 letters, numbers or hyphens.');

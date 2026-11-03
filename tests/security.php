@@ -38,6 +38,29 @@ chmod($env,0644);try{configuration();throw new LogicException('readable private 
 file_put_contents($env,"APP_ORIGIN=http://localhost:8080\nAPP_ALLOW_HTTP=true\nSESSION_PATH=$private/sessions\nPOLICY_PATH=$private/policies\n");chmod($env,0600);$local=configuration();check($local['http']&&!$local['secure_cookies'],'local HTTP cookie mode follows the configured origin');check($local['admin_path']==='/admin','admin path defaults to /admin');
 if(symlink($private,$public.'/private-link')){try{private_directory($public.'/private-link/sessions');throw new LogicException('symlinked public storage accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'document-root symlink storage denied');}unlink($public.'/private-link');}
 if(symlink($env,$public.'/runtime.ini')){putenv('SCOREBOARD_ENV_FILE='.$public.'/runtime.ini');$_SERVER['SCOREBOARD_ENV_FILE']=$public.'/runtime.ini';try{configuration();throw new LogicException('symlinked public config accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'document-root symlink config denied');}unlink($public.'/runtime.ini');}
+// A cPanel deployment can discover the account-level file without Apache SetEnv.
+$accountPrivate=$root.'/scoreboard-private';$webRoot=$root.'/public_html/site';mkdir($accountPrivate,0700);mkdir($webRoot,0700,true);
+$accountEnv=$accountPrivate.'/.env';file_put_contents($accountEnv,"APP_ORIGIN=https://secure.example\nADMIN_PATH= /baranhq_admin \n");chmod($accountEnv,0600);
+putenv('SCOREBOARD_ENV_FILE');unset($_SERVER['SCOREBOARD_ENV_FILE'],$_SERVER['REDIRECT_SCOREBOARD_ENV_FILE']);$_SERVER['DOCUMENT_ROOT']=$webRoot;
+check(discover_environment_file()===$accountEnv,'account private environment discovered above public_html');
+check(configuration()['admin_path']==='/baranhq_admin','runtime administrator path loaded and trimmed without SetEnv');
+function admin_route_response(string $path, string $documentRoot): array {
+    $server=var_export(['DOCUMENT_ROOT'=>$documentRoot,'REQUEST_URI'=>$path,'REQUEST_METHOD'=>'GET'],true);
+    $entry=var_export(dirname(__DIR__).'/public/api/index.php',true);
+    $code='$_SERVER='.$server.';register_shutdown_function(function(){fwrite(STDERR,(string)http_response_code());});require '.$entry.';';
+    $process=proc_open([PHP_BINARY,'-r',$code],[1=>['pipe','w'],2=>['pipe','w']],$pipes);
+    if(!is_resource($process))throw new RuntimeException('Cannot start routing regression test');
+    $body=stream_get_contents($pipes[1]);$status=stream_get_contents($pipes[2]);fclose($pipes[1]);fclose($pipes[2]);
+    check(proc_close($process)===0,'routing request completed');
+    return [$body,$status];
+}
+[$body,$status]=admin_route_response('/admin',$webRoot);check($status==='302'&&$body==='','default admin entry redirects to custom private path');
+[$body,$status]=admin_route_response('/baranhq_admin',$webRoot);check(str_ends_with($status,'503')&&str_contains($body,'Administration is temporarily unavailable')&&!str_contains($body,'Request unavailable'),'admin configuration failure renders safe HTML');
+[$body,$status]=admin_route_response('/unknown-page',$webRoot);check($status==='404','unknown single-segment routes remain not found');
+file_put_contents($accountEnv,"ADMIN_PATH=\n");
+[$body,$status]=admin_route_response('/admin',$webRoot);check(str_ends_with($status,'503')&&str_contains($body,'Administration is temporarily unavailable'),'empty admin path defaults to admin');
+chmod($accountEnv,0644);try{configuration();throw new LogicException('insecure discovered config accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'discovered private config requires restrictive permissions');}
+unlink($accountEnv);rmdir($accountPrivate);rmdir($webRoot);rmdir($root.'/public_html');
 foreach($oldEnvironment as $name=>$value){if($value===false)putenv($name);else putenv($name.'='.$value);}
 if($oldServerFile===null)unset($_SERVER['SCOREBOARD_ENV_FILE']);else $_SERVER['SCOREBOARD_ENV_FILE']=$oldServerFile;if($oldRoot===null)unset($_SERVER['DOCUMENT_ROOT']);else $_SERVER['DOCUMENT_ROOT']=$oldRoot;
 unlink($env);rmdir($private);rmdir($public);rmdir($root);

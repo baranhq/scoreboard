@@ -7,21 +7,33 @@ header('X-Frame-Options: DENY');
 $library = __DIR__.'/_lib';
 if (!is_file($library.'/config.php')) $library = dirname(__DIR__,2).'/backend';
 require_once $library.'/config.php'; require_once $library.'/security.php'; require_once $library.'/analytics.php'; require_once $library.'/admin.php'; require_once $library.'/policy.php';
+$stage = 'configuration';
 try {
     $c = configuration();
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
     $admin = in_array($path,[$c['admin_path'],$c['admin_path'].'/'],true);
+    if (in_array($path, ['/admin', '/admin/'], true) && $c['admin_path'] !== '/admin' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {header('Location: '.$c['admin_path'], true, 302);exit;}
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     $publicPolicy=array_search($path,policy_paths(),true);
     if($publicPolicy!==false&&$method==='GET')serve_policy($c,$publicPolicy);
-    if (!$admin && $path !== '/api/index.php') fail(404);
+    if (!$admin && $path !== '/api/index.php') {
+        if (is_string($path) && preg_match('~^/[a-z0-9][a-z0-9_-]{0,63}/?$~D', $path)) {
+            http_response_code(404);header('Content-Type: text/html; charset=UTF-8');
+            $notFound = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/').'/404.html';
+            if (is_file($notFound)) readfile($notFound);else echo 'Page not found';
+            exit;
+        }
+        fail(404);
+    }
     if (!in_array($method,['GET','POST'],true)) fail(405);
     $action = $_GET['action'] ?? 'state';if(!is_string($action))$action='';
     if(!$admin&&$method==='GET'&&$action==='policy'){$language=$_GET['lang']??'';if(!is_string($language))fail(400);json_response(policy_document($c,$language));}
     if (!$admin && $method === 'GET' && $action === 'state' && (!$c['origin'] || strlen($c['key']) < 32 || !$c['db_name'])) json_response(consent_state(['analytics'=>false,'cloud_token'=>''],null));
-    if (!$c['origin'] || strlen($c['key']) < 32 || !$c['db_name']) fail(503);
+    if (!$c['origin'] || strlen($c['key']) < 32 || !$c['db_name']) throw new RuntimeException('Incomplete configuration');
     if ($method === 'POST') same_origin($c);
+    $stage = 'database';
     $db = database($c);
+    $stage = 'request';
     if ($admin) admin_page($db,$c);
     if(!request_rate_limit($db,$c,'public-api',2400))fail(429,'Too many requests. Try again later.');
     if ($method === 'GET' && $action === 'state') json_response(consent_state($c, preferences($db)));
@@ -35,5 +47,7 @@ try {
 } catch (JsonException) {fail(400);} catch (Throwable) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();
     // Log an error category only; never request bodies, IPs, credentials, or DB connection strings.
-    error_log('Scoreboard backend request failed'); fail(503);
+    error_log('Scoreboard backend request failed ('.$stage.')');
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && ((isset($admin) && $admin) || in_array(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), ['/admin', '/admin/'], true))) admin_unavailable();
+    fail(503);
 }
