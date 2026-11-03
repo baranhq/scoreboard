@@ -1,79 +1,136 @@
-This notice explains how Baran Ahmedov, based in Bulgaria, handles information for this Baran's Scoreboard instance. Contact: baran@baranhq.com.
+This Privacy Policy explains how Baran's Scoreboard (the **Website**) processes information when you visit or use the Website at **https://scoreboard.baranhq.com/**.
 
-## Analytics in use on this website
+**Data controller:** Baran Ahmedov, Bulgaria (operating the Website as an individual).
+**Privacy contact:** [baran@baranhq.com](mailto:baran@baranhq.com)
 
-This website actively uses three analytics systems: **AWStats** for reports based on hosting access logs, **Baran's Scoreboard site usage analytics** for consenting visitors, and **Cloudflare Web Analytics** for consenting visitors. All three services are configured and in use. Consent controls whether the two browser-based analytics systems collect data about a particular visitor; it does not enable or disable those services for the website as a whole. AWStats processes hosting logs independently of these consent choices.
+The Website does not require a visitor account. Most scoreboard information stays on your device. However, **technical data is processed automatically when you access the Website**, whether or not you accept optional analytics. This policy explains the difference.
 
-## Your scoreboards stay in your browser
+## 1. Information processed automatically when you visit
 
-The optional GitHub star reminder stores its last visit, dismissal time and whether you selected GitHub locally in your browser. It makes no analytics request and is hidden permanently after you select a project GitHub link.
+**Cloudflare network services.** The Website uses Cloudflare to deliver and protect its pages. When you connect, Cloudflare processes technical request and connection information that can include your IP address, requested page or resource, request time, browser or device information, network-related information, and security signals. Cloudflare also provides network traffic and security statistics. This processing takes place regardless of your optional analytics choices. Cloudflare may set technically necessary security cookies (for example, when bot detection or a security challenge applies).
 
-No account is required. Names, team names, scores, icons and appearance settings are saved locally in the IndexedDB database named scoreboard. They are not uploaded to the application server or included in analytics. Exported JSON backups are files you choose to download; imports are read locally. You control where you keep or share these files. Share links contain a snapshot directly in the URL fragment, not in a sharing database. Anyone with the link can read and copy its names, scores and settings. The fragment is not sent in the HTTP request to this site; recipients open their own independent copy. Share only information you intend to disclose.
+**Hosting access logs and AWStats.** The hosting provider automatically generates access logs for requests it receives. Depending on the server configuration, those records may include an IP address, time and date, requested URL or resource, HTTP status, browser/user-agent data, referrer, and other technical request details. **AWStats is provided by the hosting company and is enabled on this hosting account.** The operator actively uses its traffic reports, which are generated from the hosting access logs. AWStats is separate from the optional browser-based analytics described below. **Rejecting optional analytics does not stop hosting access logs or AWStats reporting.**
 
-Browser storage is not permanent: clearing site data, private browsing, storage limits, a different browser, or a changed domain can remove access. Export important results. A normal application update at the same origin does not intentionally delete scoreboards.
+**Why this happens.** Network delivery, troubleshooting, protection against attacks, and prevention of abuse are pursued on the basis of legitimate interests under Article 6(1)(f) GDPR, where applicable. The Website's use of access-log statistics through AWStats is also based on its legitimate interest in understanding overall traffic, subject to the necessary balancing of that interest against visitors' rights. Service providers may separately process data to comply with their legal obligations. You can object to processing based on legitimate interests as described below.
 
-## Necessary delivery and security processing
+These systems may receive or process IP addresses even though the Website does not require you to identify yourself or create an account.
 
-The website uses Cloudflare as a reverse proxy for delivery and protection. Cloudflare processes technical connection data, including IP addresses and request information, and provides network traffic and security statistics. This happens when the website is accessed, regardless of whether you accept either optional analytics choice. Refusing analytics does not disable Cloudflare's network-level delivery, security or traffic statistics.
+## 2. Optional analytics — only with your choice
 
-Our hosting provider also processes server access logs. These may contain IP addresses, request dates and times, requested addresses, browser and device information, referrer information supplied by the browser, response codes and related technical details. AWStats is enabled and actively used on the hosting account: I use its traffic reports, generated from these logs, to understand visits and website traffic, including IP-related information appearing in the logs. AWStats operates independently of the website's consent panel: rejecting both optional analytics services does not stop server logging or AWStats. The application does not control the hosting provider's logging settings.
+**Both optional analytics systems are enabled for the Website, but collection for your browser remains off until you consent to the corresponding service.** Each has its own choice in the privacy panel. You can accept either, both, or neither. The legal basis for the processing described in this section is your consent (Article 6(1)(a) GDPR).
 
-The purposes of this processing are website delivery, reliability, security, abuse prevention and traffic reporting. We rely on legitimate interests where applicable, subject to relevant data protection requirements; service providers may also have their own legal obligations. The source code does not determine the hosting provider's actual log and backup retention periods or Cloudflare's separate network-data retention. These depend on the services and account settings in use.
+**A. Baran's Scoreboard site usage analytics**
 
-## Site usage analytics — active, consent required
+When you consent to **Site usage analytics**, the Website records a randomly generated browser preference token (held as a hash on the server), visits and page-view times, limited public page paths, and estimated active time. It also records these predefined actions: creating a scoreboard, entering fullscreen, exporting a backup, and importing a backup. A visit ends after 30 minutes of inactivity. Active time is estimated only while the page is visible, focused, and recently used.
 
-The website actively operates its own site usage analytics. It collects usage data about a visitor only after that visitor consents to “Site usage analytics”. The system then records a randomly generated browser preference token (stored in hashed form on the server), visit and page-view times, a limited set of public page paths, and estimated active time. It also records four predefined events: creating a scoreboard, entering fullscreen, exporting a backup and importing a backup. A visit ends after 30 minutes of inactivity. Active time is estimated only while the page is visible, focused and recently used. These records are stored in the hosting MySQL database and are available through authenticated administration. The legal basis for this optional analytics processing is your consent.
+This information is stored in the Website's MySQL database and is accessible through the protected administration interface. Authenticated administrator visits are excluded from this analytics system. The system does not intentionally store IP addresses, IP-derived visitor IDs, browser fingerprints, precise location, URL query strings, field contents, scoreboard names, team names, scores, mouse recordings, or screen recordings. This statement concerns **the Website's own usage analytics only**; it does not describe hosting logs or Cloudflare's separate processing.
 
-This analytics system does not store visitors' IP addresses, IP-derived visitor identifiers, browser fingerprints, exact locations, URL query strings, information typed into fields, scoreboard names or scores, mouse movements or screen recordings. Separate hosting, Cloudflare network and security processing still takes place as described above. Authenticated administrators' visits are excluded from the site's own usage analytics.
+**B. Cloudflare Web Analytics**
 
-## Cloudflare Web Analytics — active, consent required
+When you separately consent to **Cloudflare Web Analytics**, the Website manually loads Cloudflare's analytics beacon. It measures page views, navigation and performance information, including browser timing and Core Web Vitals. Cloudflare's reports can show page paths, referrers, approximate country, device type, browser, and operating system. The Website does not intentionally send scoreboard contents, text entered in fields, its custom analytics events, or estimated active time to this beacon.
 
-Cloudflare Web Analytics is enabled and actively used on this website through a manually loaded script. Its analytics script loads for a visitor only after that visitor consents to “Cloudflare Web Analytics” in the privacy choices panel. You may accept or reject it independently of the site's own usage analytics. Without this consent, the application does not load its manual Cloudflare analytics beacon. This does not prevent Cloudflare from processing traffic for website delivery or security.
+Cloudflare documents that its Web Analytics service does not track individual visitors across customers' websites and does not log URL query strings. This service is distinct from the Cloudflare network delivery and security processing that occurs automatically.
 
-When allowed, the beacon measures page loads and performance (including browser timing and Core Web Vitals). Cloudflare's reports can include page paths, referring websites, approximate country, browser, operating system and device type. The application does not send scoreboard contents, entered text, its own action-event records or estimated active time to Cloudflare Web Analytics. Cloudflare says its Web Analytics does not follow individual users across customers' sites and does not log URL query strings. According to Cloudflare's documentation, unsampled beacon data is kept for seven days and then aggregated to approximately 10% for longer-term storage; dashboard data is available for the previous six months. See [Cloudflare Web Analytics FAQ](https://developers.cloudflare.com/web-analytics/faq/), [data collection](https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/) and [dimensions](https://developers.cloudflare.com/web-analytics/data-metrics/dimensions/).
+See [Cloudflare Web Analytics documentation](https://developers.cloudflare.com/web-analytics/about/) and [Cloudflare's Privacy Policy](https://www.cloudflare.com/privacypolicy/).
 
-The website uses manual, consent-controlled loading rather than automatic Cloudflare script injection. If you withdraw consent, the application stops future beacon loading and reloads the page to end the loaded integration. A request already in progress may still complete.
+## 3. Scoreboards, backups, and sharing
 
-[Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)
+No public account or automatic public login is required. Scoreboard names, team names, scores, icons, appearance settings, timer settings and state, and related scoreboard information are stored locally in your browser's **IndexedDB** database named scoreboard. The Website does not intentionally upload this information to its application server or include it in either analytics system.
 
-## Your privacy choices and browser preferences
+You may export a JSON backup to a file on your device or import a backup locally. You are responsible for deciding where to keep or share those files.
 
-Both site usage analytics and Cloudflare Web Analytics are active services on this website, but tracking for your browser is off until you consent. You can reject both, accept both, or choose either independently. Closing the panel without saving does not give consent. The scoreboard remains usable without either service. You can change or withdraw your choices through “Privacy choices” in the website footer or on this page. Hosting logs, AWStats and Cloudflare network protection are not controlled by those choices.
+If you generate a share link, the scoreboard snapshot is encoded in the **URL fragment** (the part after #), rather than stored in a server-side sharing database. The fragment is not sent as part of an ordinary HTTP request to the Website. The application also consumes incoming share fragments locally and removes them before the consent-controlled analytics beacon can load. **Anyone who receives the full share link can view and copy the scoreboard snapshot.** Changes made after the link is created are not synchronized; recipients open their own independent copy. Share links may also remain in your browser history or in messages where you paste them. Avoid putting confidential or sensitive personal information into scoreboards or links.
 
-A first-party cookie named score_preferences stores a random, opaque consent token for up to 180 days. On HTTPS it uses Secure, HttpOnly and SameSite=Lax. The server checks the saved permission on each first-party analytics request; the associated preference record is retained for no longer than one year. Withdrawing consent to site usage analytics removes live analytics records linked to that browser's preference token. Disabling Cloudflare Web Analytics stops new beacon loading and reloads the page. Other open website tabs refresh preferences when focused and receive same-site change notifications. Previously completed Cloudflare or hosting-log processing is not removed by these controls.
+Local data may disappear when you clear site data, use private browsing, switch devices or browsers, move to a different domain, or experience browser storage limits. A normal application update on the same origin does not intentionally delete scoreboards. Keep exported backups of information you want to preserve.
 
-Your browser also stores the interface theme, language, dismissed language suggestion and active scoreboard identifier locally. These settings do not give analytics consent. Removing cookies can make it impossible to link a later deletion request to older analytics records. Deleting only the preference cookie does not remove scoreboards stored in IndexedDB.
+## 4. Cookies and local storage
 
-## Administration and retention
+The following Website-controlled items are used:
 
-There is no public registration. The operator configures an administrator password outside the public repository. A Secure, HttpOnly, SameSite=Strict cookie named score_admin maintains an authenticated session for at most one hour. Temporary login and public API abuse limits process connection IP addresses transiently. A keyed hash and counter are kept in a separate security table during a 15-minute rate-limit window and until scheduled cleanup, which normally runs hourly; if cleanup fails, expired rows may remain until it succeeds. No raw IP addresses are stored in this table, and hashes are not used as visitor identifiers. This security processing relies on legitimate interests in preventing unauthorised access and abuse and maintaining service availability.
+**score_preferences cookie**: Remembers the privacy preferences associated with a random opaque token and permits server-side enforcement of the Site usage analytics choice. Up to **180 days**. On HTTPS it uses Secure, HttpOnly, and SameSite=Lax.
 
-Visits from an authenticated administrator are excluded from first-party usage analytics. This does not change hosting logs, AWStats or Cloudflare processing.
+This cookie is specific to this Website and is not shared with or reused by the separate portfolio site on another host.
 
-Application visits, page views and clicks expire within 365 days. Expired records are excluded from administration queries immediately; a scheduled cleanup removes them from storage. Operators must schedule cleanup hourly, including during quiet periods, and monitor failures. Preference records expire within one year. Server backups are separate; their access, retention and deletion depend on the deployment settings. The supplied backup guidance limits temporary copies and requires purging restored analytics and consents before reopening a restored service. Deletion from live tables does not immediately erase existing backups.
+**Server-side privacy preference record**: Holds the choices associated with the token; the token is hashed in the database. No more than **one year**.
 
-## Recipients, transfers and correspondence
+**score_admin cookie**: Authenticates the private administration session; this is **not** a visitor login. At most **one hour**; Secure, HttpOnly, and SameSite=Strict.
 
-The site operator and authorised hosting personnel may access information necessary to operate and protect the website. Technical service providers include the hosting and database provider and Cloudflare, which provides proxy, security and network statistics and, where separately consented to, Web Analytics. Email providers are involved when you email us. The site has no contact form. We use messages and any attachments to answer enquiries and retain relevant correspondence, on the basis of legitimate interests in handling communications. Correspondence is retained for as long as reasonably necessary.
+**Browser IndexedDB and local preferences**: Stores scoreboards, selected scoreboard, language, theme, dismissed language suggestion, and GitHub-star reminder state. Generally until you delete site data or your browser removes it; individual reminder values may be updated or cleared by Website behavior.
 
-Provider infrastructure and international data transfers depend on the current hosting and Cloudflare arrangements. Specific countries, safeguards, hosting-log retention and backup schedules should be verified against those arrangements; they cannot be established from this application's source code. Other websites, including GitHub, receive information under their own policies when you open their links. We do not sell personal information or use advertising trackers.
+The GitHub-star reminder stores its last visit, dismissal time, and whether a GitHub project link was selected locally. It does not make its own analytics request and is hidden permanently after you select a project GitHub link. Cloudflare may also use security cookies where its protection features require them; their presence and lifetimes depend on the security feature. See [Cloudflare's cookie documentation](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/).
 
-## Your rights
+The server checks stored consent on each first-party analytics request. A preference cookie may be needed to remember a rejection as well as an acceptance. Local functional settings and private administrator authentication are not permission to use optional analytics.
 
-Contact baran@baranhq.com to request access, correction, deletion, restriction or portability where applicable, to object to processing based on legitimate interests, or to withdraw consent. Reasonable verification may be needed to locate records and protect other people’s data. Requests are ordinarily handled within one month under applicable data protection rules; lawful extensions may apply. You may complain to your competent authority, including Bulgaria’s Commission for Personal Data Protection (cpdp.bg/en/), without first contacting the operator.
+## 5. Privacy choices and withdrawal
 
-[КЗЛД / CPDP](https://cpdp.bg/en/)
+You can manage **Site usage analytics** and **Cloudflare Web Analytics** separately through **Privacy choices** in the Website footer or the privacy page. Closing the choice panel without saving is not consent. You can use the scoreboard without accepting either option.
 
-## Age and privacy
+If you withdraw consent for Site usage analytics, the Website stops future collection under that choice and removes live analytics records linked to that browser's privacy token. If you disable Cloudflare Web Analytics, the Website stops new beacon loading and reloads the page to end the active integration; a request already in progress may finish. Withdrawal does not retroactively make previous lawful processing unlawful and does not automatically erase hosting logs, AWStats reports, Cloudflare network records, existing backups, or Cloudflare's previously processed analytics.
 
-The scoreboard is intended for general use, including classrooms, without requiring student information. Do not put sensitive personal information in team names or backups. No age or student profile is collected. Where Bulgarian rules require parental authorization for consent-based online processing of children under 14, optional analytics must not be enabled for such use without an appropriate authorization process. On this website, both consent-controlled analytics services are active but do not collect optional analytics data from a visitor before consent. Schools and other operators must assess their audience and their own legal arrangements.
+Other open Website tabs refresh privacy preferences when focused and receive same-site change notifications. Deleting the privacy cookie may prevent the Website from associating an earlier analytics record with your browser. Deleting that cookie does not delete the separately stored scoreboards in IndexedDB.
 
-## Security
+## 6. Private administration, security, and messages
 
-No internet service can be guaranteed entirely secure. This application does not make automated decisions with legal or similarly significant effects.
+The public Website has no registration or ordinary visitor sign-in. An authorized operator may sign in to the private administrator area. The operator configures an administrator password outside the public source repository. Authentication uses an administrator session cookie and security controls.
 
-## Data controller and contact
+To help limit login attempts and public API abuse, the Website temporarily processes connection IP addresses for rate-limiting. A keyed hash and counter are kept in a separate security table over a **15-minute** rate-limit window, with scheduled cleanup normally running hourly. The rate-limit table does not retain raw IP addresses, and those hashes are not used as visitor identifiers. Expired records may remain until delayed cleanup completes. Security processing is based on legitimate interests in preventing unauthorized access and keeping the service available.
 
-Baran Ahmedov
+If you email **baran@baranhq.com**, your email address, message, attachments, and related correspondence metadata are processed to respond to your enquiry and, where necessary, preserve relevant records or handle a dispute. The legal basis is legitimate interests in handling communications and protecting legal rights, or another applicable lawful basis where required. The Website does not provide a contact form.
 
-[baran@baranhq.com](mailto:baran@baranhq.com)
+## 7. Who can receive information
+
+The Website operator and authorized personnel of necessary service providers may access information within their roles. These providers include the **shared hosting/database provider**, which supplies access logs and AWStats reporting; **Cloudflare** (network delivery, security, traffic information, and, with consent, Web Analytics); and the **email provider** when you contact the operator. Hosting personnel may have access to logs and reports to operate, maintain, secure, or support the hosting service. Information may also be disclosed when legally required or when necessary to establish, exercise, or defend legal claims, subject to applicable law.
+
+The Website does **not** sell visitor personal data, use advertising tracking, or send marketing emails. When you choose to open an external link (including GitHub), that external website is responsible for its own processing, subject to its own privacy policy.
+
+## 8. Retention
+
+**Website usage analytics:** Visits, page views, and predefined events older than **365 days** are excluded from administration queries. Scheduled cleanup deletes expired live records. Expired records may remain in storage until cleanup completes successfully.
+
+**Privacy choices:** the preference cookie lasts up to **180 days**; its server-side record expires within **one year**.
+
+**Administrator sessions:** at most **one hour**. Temporary rate-limit records become inactive after a **15-minute** window and are removed by scheduled cleanup. Expired records may remain until cleanup completes.
+
+**Local scoreboards:** generally retained in your browser until you or the browser remove them; the server does not administer their retention.
+
+**Cloudflare Web Analytics:** Cloudflare says it keeps unsampled beacon data for **seven days**, then aggregates to approximately **10%** for longer-term storage; its dashboard displays up to **six months** of historical data. Provider policies may change.
+
+**Hosting access logs and AWStats reports:** these provider-managed records are handled under the shared hosting provider’s service and retention practices. The operator uses AWStats traffic reports; rejecting optional analytics does not stop this hosting-level processing.
+
+**Server and database backups:** The operator may create manual backups as needed for maintenance, security, and disaster recovery. Operator-managed backups are retained according to operational needs and applicable legal obligations, reviewed periodically, and deleted when no longer necessary where deletion is under the operator’s control. The hosting provider may also create automatic backups under its own service and retention practices. Deleting data from active systems may not immediately remove copies in existing backups. Before reopening a restored service, deployment procedures require purging restored optional analytics and consent records.
+
+**Email enquiries:** retained only as long as reasonably necessary for the enquiry and any related legal obligations or disputes, with periodic review.
+
+**Cloudflare network and security records:** Cloudflare processes network and security information independently of analytics consent. These records are handled under Cloudflare’s applicable service and retention practices; see [Cloudflare’s Privacy Policy](https://www.cloudflare.com/privacypolicy/).
+
+## 9. International processing and transfers
+
+Cloudflare and the shared hosting provider may process information outside Bulgaria and, where applicable, outside the European Economic Area (EEA). Processing locations, service providers, and transfer arrangements depend on the services and contractual settings in use. Where GDPR requires a transfer mechanism for data transferred outside the EEA, an appropriate mechanism must apply. You may contact the operator for information about the arrangements applicable to this Website.
+
+Cloudflare publishes a [Data Processing Addendum](https://www.cloudflare.com/cloudflare-customer-dpa/) and [EU Standard Contractual Clauses](https://www.cloudflare.com/cloudflare-customer-scc/); publication of those terms does not establish which terms or safeguards apply to this website. You may contact the address above for available information about the arrangements in use.
+## 10. Your rights
+
+Depending on the circumstances, GDPR grants rights to **access**, **rectify**, **erase**, or **restrict** processing of your personal data, request **data portability**, and **object** to processing based on legitimate interests. You can **withdraw consent** at any time without affecting the lawfulness of processing before withdrawal. Some rights are subject to legal conditions or exceptions.
+
+Email **[baran@baranhq.com](mailto:baran@baranhq.com)** to exercise your rights. The operator may ask for reasonable information necessary to identify the relevant records and prevent unauthorized disclosure. Requests are generally answered within **one month**; lawful extensions may apply. When records are held only locally in your browser, you can inspect or erase them using the Website's and browser's controls rather than requesting server-side deletion.
+
+You may complain to a data-protection supervisory authority without contacting the operator first, including Bulgaria's **Commission for Personal Data Protection (CPDP / КЗЛД)**: [cpdp.bg](https://cpdp.bg/en/).
+
+## 11. Children and classrooms
+
+The Website may be used in educational settings. It does not require students to create accounts or submit personal information to use scoreboards. Do not place sensitive or confidential information in team names, scoreboard content, exports, or share links.
+
+Under **Article 25c of Bulgaria's Personal Data Protection Act**, when processing a child's data is based on consent and the child is **under 14**, consent must be given by a parent exercising parental rights or the child's guardian. The Website does not ask visitors' ages, create student profiles, or verify a parent's or guardian's authority. A child under 14 should not enable optional analytics without that authorization. The operator must ensure that any use by children under 14 has the required authorization; the Website has no age or guardian-verification flow, and this notice alone does not obtain valid consent. Schools and other independent operators are responsible for their own use of the tool and any information they choose to enter or disclose. See the [Bulgarian Personal Data Protection Act](https://cpdp.bg/en/legislation/personal-data-protection-act/).
+
+## 12. Required information and automated decisions
+
+You do not need to provide a name, email address, or visitor account to use the public scoreboard. Essential technical connection information is processed when you access pages; without that processing, the Website cannot be delivered securely. Optional analytics are not required to use the Website. No internet service can be guaranteed completely secure. The Website does not make solely automated decisions about visitors with legal or similarly significant effects and does not perform such profiling.
+
+## 13. Policy updates
+
+This notice may be updated when the Website, providers, or processing practices change. The current version and its update date will be published on this page. If a change requires consent for new processing, the relevant consent will be requested before that processing begins.
+## 14. Contact
+
+**Baran Ahmedov**
+Bulgaria
+**Email:** [baran@baranhq.com](mailto:baran@baranhq.com)
