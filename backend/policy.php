@@ -10,8 +10,8 @@ function policy_document(array $c,string $lang): array {
     return $p;
 }
 function policy_inline(string $text): string {
-    $html='';$end=0;preg_match_all('~\[([^\]\n]+)\]\((https://[^\s)]+|mailto:[^\s)]+)\)~u',$text,$matches,PREG_OFFSET_CAPTURE);
-    foreach($matches[0] as $index=>$match){$html.=h(substr($text,$end,$match[1]-$end));$href=$matches[2][$index][0];$label=$matches[1][$index][0];$external=str_starts_with($href,'https://');$html.='<a href="'.h($href).'"'.($external?' target="_blank" rel="noopener noreferrer"':'').' class="underline underline-offset-4">'.h($label).'</a>';$end=$match[1]+strlen($match[0]);}
+    $html='';$end=0;preg_match_all('~\[([^\]\n]+)\]\((https://[^\s)]+|mailto:[^\s)]+)\)|\*\*([^*\n]+)\*\*~u',$text,$matches,PREG_OFFSET_CAPTURE);
+    foreach($matches[0] as $index=>$match){$html.=h(substr($text,$end,$match[1]-$end));if($matches[1][$index][1]>=0){$href=$matches[2][$index][0];$label=$matches[1][$index][0];$external=str_starts_with($href,'https://');$html.='<a href="'.h($href).'"'.($external?' target="_blank" rel="noopener noreferrer"':'').' class="underline underline-offset-4">'.h($label).'</a>';}else $html.='<strong>'.h($matches[3][$index][0]).'</strong>';$end=$match[1]+strlen($match[0]);}
     return $html.h(substr($text,$end));
 }
 function policy_article(array $p,string $lang='en'): string {
