@@ -12,7 +12,8 @@ import { BoardIcon } from "../scoreboard/board-icon";
 import { TimerDisplay } from "../scoreboard/game-timer";
 import { TeamPanel } from "../scoreboard/team-panel";
 import { Button, Modal } from "../ui/ui";
-import { Customization } from "../scoreboard/customization";
+
+type CustomizationComponent = typeof import("../scoreboard/customization").Customization;
 
 export function HelpDemo({ lang, copy }: { lang: Lang; copy: Pick<HelpCopy, "demoTitle" | "demoNote" | "guide" | "guideStep" | "guideOf" | "guideBack" | "guideNext" | "guideRestart"> }) {
  const t = messages[lang];
@@ -33,6 +34,7 @@ export function HelpDemo({ lang, copy }: { lang: Lang; copy: Pick<HelpCopy, "dem
  const [scoreValue, setScoreValue] = useState("");
  const [status, setStatus] = useState("");
  const [activeStep, setActiveStep] = useState(0);
+ const [CustomizationView, setCustomizationView] = useState<CustomizationComponent | null>(null);
  const appearance = { ...defaults, ...board.appearance };
 
  const change = useCallback((update: (current: Board) => Board) => {
@@ -51,7 +53,15 @@ export function HelpDemo({ lang, copy }: { lang: Lang; copy: Pick<HelpCopy, "dem
   if (validScore(value)) editTeam(team.id, { score: value });
  };
  const changeTimer = (timer: NonNullable<Board["timer"]>) => change(current => ({ ...current, timer }));
- const goToStep = (index: number) => setActiveStep(index);
+ const openCustomization = async () => {
+  if (CustomizationView) return;
+  const { Customization } = await import("../scoreboard/customization");
+  setCustomizationView(() => Customization);
+ };
+ const goToStep = (index: number) => {
+  setActiveStep(index);
+  if (index >= 1 && index <= 3) void openCustomization();
+ };
  const confirmScore = (event: React.FormEvent<HTMLFormElement>) => {
   event.preventDefault();
   const value = Number(scoreValue);
@@ -145,7 +155,7 @@ export function HelpDemo({ lang, copy }: { lang: Lang; copy: Pick<HelpCopy, "dem
      <div className="mt-3 flex justify-end"><Button onClick={() => change(current => ({ ...current, teams: current.teams.map(team => ({ ...team, score: 0 })) }))}>↺ {t.reset}</Button></div>
     </section>
     {(activeStep === 1 || activeStep === 2) && guideCard}
-    {activeStep >= 1 && activeStep <= 3 && <div className="rounded-xl ring-4 ring-action ring-offset-2"><Customization board={board} t={t} change={change} renameBoard={name => change(current => ({ ...current, name, automaticName: false }))} remove={teamId => change(current => ({ ...current, teams: current.teams.filter(team => team.id !== teamId) }))}/></div>}
+    {activeStep >= 1 && activeStep <= 3 && <div className="rounded-xl ring-4 ring-action ring-offset-2">{CustomizationView ? <CustomizationView board={board} t={t} change={change} renameBoard={name => change(current => ({ ...current, name, automaticName: false }))} remove={teamId => change(current => ({ ...current, teams: current.teams.filter(team => team.id !== teamId) }))}/> : <p role="status" className="grid min-h-48 place-items-center text-base text-forest/80">{t.loading}</p>}</div>}
     {status && <p role="status" className="mt-3 rounded-lg bg-forest/5 px-3 py-2 text-sm leading-6 text-forest">{status}</p>}
    </div>
   </div>
