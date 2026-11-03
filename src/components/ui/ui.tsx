@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useId, type ReactNode, type ButtonHTMLAttributes } from "react";
-const base = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 py-2 text-base font-medium transition-[color,background-color,border-color,transform] duration-150 ease-out active:brightness-95 disabled:opacity-50 motion-reduce:transition-none motion-reduce:transform-none";
-export const buttonClass = `${base} border-forest/25 bg-transparent text-forest hover:bg-forest/5`;
-export function Button({className = "", primary = false, onDark = false, ...props}: ButtonHTMLAttributes<HTMLButtonElement> & {primary?: boolean; onDark?: boolean}) { return <button data-fullscreen-control {...props} className={`${base} ${onDark ? "border-white/35 bg-transparent text-white hover:bg-surface/10" : primary ? "border-action bg-action text-on-action hover:opacity-90" : "border-forest/25 bg-transparent text-forest hover:bg-forest/5"} ${className}`}/>; }
+const base = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 py-2 text-base font-medium transition-[color,background-color,border-color,opacity,filter] duration-150 ease-out active:brightness-95 disabled:opacity-50 motion-reduce:transition-none";
+export const buttonClass = `${base} border-forest/25 bg-transparent text-forest hover:border-forest/45 hover:bg-forest/10`;
+export function Button({className = "", primary = false, accent = false, onDark = false, ...props}: ButtonHTMLAttributes<HTMLButtonElement> & {primary?: boolean; accent?: boolean; onDark?: boolean}) { return <button data-fullscreen-control {...props} className={`${base} ${onDark ? "border-white/35 bg-transparent text-white hover:border-white/55 hover:bg-surface/10" : primary ? "border-action bg-action text-on-action hover:brightness-95" : accent ? "border-forest/25 bg-forest/5 text-forest hover:border-forest/45 hover:bg-forest/15" : "border-forest/25 bg-transparent text-forest hover:border-forest/45 hover:bg-forest/10"} ${className}`}/>; }
 export function Modal({title, close, children, closeLabel}: {title: string; close: () => void; children: ReactNode; closeLabel: string}) {
  const ref = useRef<HTMLDialogElement>(null);const titleId=useId();
  useEffect(() => {const d = ref.current; d?.showModal(); return () => d?.close();}, []);
