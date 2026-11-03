@@ -1,7 +1,8 @@
 "use client";
 import {useEffect,useState} from 'react';
 import {X} from 'lucide-react';
-import {repo,type Lang} from '@/lib/i18n';
+import {repo} from '@/lib/site';
+import type {Lang} from '@/lib/i18n';
 import {readStarPreference,shouldShowStar,STAR_PROMPT_KEY,WEEK} from '@/lib/star-prompt';
 const labels={en:{message:"Finding Baran’s Scoreboard useful? A star on GitHub would mean a lot. Thank you!",link:'Star on GitHub',close:'Dismiss for a week'},bg:{message:'Полезен ли ви е Baran’s Scoreboard? Ще се радвам да оставите звезда в GitHub. Благодаря!',link:'Звезда в GitHub',close:'Скрий за седмица'},tr:{message:'Baran’s Scoreboard işinize yarıyor mu? GitHub’da bir yıldız bırakırsanız çok sevinirim. Teşekkürler!',link:'GitHub’da yıldızla',close:'Bir hafta gösterme'}};
 export function StarPrompt({lang,fullscreen=false}:{lang:Lang;fullscreen?:boolean}){

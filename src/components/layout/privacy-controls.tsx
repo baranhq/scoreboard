@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type Lang, messages } from "@/lib/i18n";
+import type {Messages} from "@/lib/i18n";
 import {pageForPath} from "@/lib/routes";
 import { events } from "@/lib/analytics";
 import { Button, Modal } from "../ui/ui";
@@ -8,8 +8,8 @@ type Choices = {usage: boolean; cloud: boolean};
 type State = Choices & {saved: boolean; capabilities: Choices; cloudToken: string | null};
 const off: Choices = {usage:false, cloud:false};
 const initial: State = {...off, saved:false, capabilities:off, cloudToken:null};
-export function PrivacyControls({lang, fullscreen, promptReady=false}: {lang: Lang; fullscreen?: boolean; promptReady?:boolean}) {
- const t = messages[lang]; const [linkReady,setLinkReady]=useState(false);
+export function PrivacyControls({t, fullscreen, promptReady=false}: {t:Messages; fullscreen?: boolean; promptReady?:boolean}) {
+ const [linkReady,setLinkReady]=useState(false);
  useEffect(()=>{const ready=()=>setLinkReady(true);if(!/^#(?:share|board)=/.test(location.hash))ready();window.addEventListener('scoreboard-ready',ready);return()=>window.removeEventListener('scoreboard-ready',ready);},[]); const [state, setState] = useState<State>(initial); const [draft, setDraft] = useState<Choices>(off);
  const [open, setOpen] = useState(false); const [shouldAsk,setShouldAsk]=useState(false);const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
  const stateRef = useRef(state); stateRef.current = state; const channel = useRef<BroadcastChannel | null>(null);

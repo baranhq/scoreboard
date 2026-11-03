@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useRef,useState,type CSSProperties} from "react";
-import {type Lang,messages} from "@/lib/i18n";
+import type {Lang,Messages} from "@/lib/i18n";
 import {europeanDateTime} from "@/lib/dates";
 import {type Board,download,newBoard,parseBackupText,displayBoard,MAX_BACKUP_BYTES} from "@/lib/boards";
 import {foreground,validColor} from "@/lib/colors";
@@ -14,14 +14,14 @@ import {MatchPreview} from "./match-preview";
 import {ShareDialog} from "./share-dialog";
 import {BoardIcon} from "./board-icon";
 import {BoardIdentity} from "./board-identity";
-export function SavedBoards({lang}:{lang:Lang}) {
- const t=messages[lang];const [boards,setBoards]=useState<Board[]>([]);const [ready,setReady]=useState(false);const [message,setMessage]=useState('');const [search,setSearch]=useState('');const [editing,setEditing]=useState<string>();const [sharing,setSharing]=useState<Board>();
+export function SavedBoards({lang,t}:{lang:Lang;t:Messages}) {
+ const [boards,setBoards]=useState<Board[]>([]);const [ready,setReady]=useState(false);const [message,setMessage]=useState('');const [search,setSearch]=useState('');const [editing,setEditing]=useState<string>();const [sharing,setSharing]=useState<Board>();
  const [action,setAction]=useState<{title:string;value?:string;run:(name:string)=>Promise<void>} | null>(null);const [value,setValue]=useState('');const [busy,setBusy]=useState(false);const input=useRef<HTMLInputElement>(null);
  useEffect(()=>{void loadBoards().then(items=>{setBoards(items);setReady(true);}).catch(()=>{setMessage(t.storageError);setReady(true);});},[t.storageError]);
  const save=async(b:Board)=>{const next={...b,updatedAt:Date.now()};try{await writeBoards([next]);setBoards(all=>[...all.filter(old=>old.id!==b.id),next]);}catch(error){setMessage(t.storageError);throw error;}};
  const ask=(title:string,run:(name:string)=>Promise<void>,initial?:string)=>{setValue(initial||'');setAction({title,run,value:initial});};
  const create=async()=>{setBusy(true);try{const b=newBoard(t.board,t.team);await writeBoards([b]);track('create_scoreboard');location.assign(`/${lang}/#board=${b.id}`);}catch{setMessage(t.storageError);}finally{setBusy(false);}};
- return <Frame lang={lang}><main id="main" className="mx-auto max-w-6xl px-4 py-5 sm:px-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h1 className="font-display text-3xl font-bold tracking-tight">{t.saved}</h1><div className="flex gap-2"><Button primary disabled={!ready||busy} onClick={()=>void create()}>＋ {t.create}</Button><Dropdown label={<>{t.backupMenu}<ChevronDown aria-hidden="true" className="h-4 w-4"/></>} ariaLabel={t.backupMenu}><MenuItem disabled={!boards.length} onClick={()=>{download(boards);track('export_backup');}}>{t.export}</MenuItem><MenuItem disabled={!ready||busy} onClick={()=>input.current?.click()}>{t.import}</MenuItem></Dropdown></div></div>
+ return <Frame lang={lang} t={t}><main id="main" className="mx-auto max-w-6xl px-4 py-5 sm:px-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h1 className="font-display text-3xl font-bold tracking-tight">{t.saved}</h1><div className="flex gap-2"><Button primary disabled={!ready||busy} onClick={()=>void create()}>＋ {t.create}</Button><Dropdown label={<>{t.backupMenu}<ChevronDown aria-hidden="true" className="h-4 w-4"/></>} ariaLabel={t.backupMenu}><MenuItem disabled={!boards.length} onClick={()=>{download(boards);track('export_backup');}}>{t.export}</MenuItem><MenuItem disabled={!ready||busy} onClick={()=>input.current?.click()}>{t.import}</MenuItem></Dropdown></div></div>
  <input ref={input} type="file" accept=".json,application/json" hidden onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;setBusy(true);try{if(file.size>MAX_BACKUP_BYTES)throw new Error();const items=parseBackupText(await file.text());await writeBoards(items);setBoards(all=>[...all,...items]);setMessage(t.imported);track('import_backup');}catch{setMessage(t.importError);}finally{setBusy(false);}}}/>
  {message&&<p role="status" className="mb-4 rounded-lg border border-forest/20 px-4 py-3 text-base">{message}</p>}
  {!ready?<p className="py-8">{t.loading}</p>:!boards.length?<div className="border-y border-forest/20 py-6"><p className="mb-4 text-base">{t.emptyText}</p><Button primary onClick={()=>void create()}>{t.create}</Button></div>:<>{boards.length>=6&&<><label className="sr-only" htmlFor="board-search">{t.search}</label><input id="board-search" type="search" placeholder={t.search} value={search} onChange={e=>setSearch(e.target.value)} className="mb-4 min-h-12 w-full rounded-md border border-forest/25 bg-surface px-3 text-base"/></>}<ul className="divide-y divide-forest/20 border-y border-forest/20">{boards.filter(b=>b.name.toLocaleLowerCase(lang).includes(search.toLocaleLowerCase(lang))).sort((a,b)=>b.updatedAt-a.updatedAt).map(raw=>{

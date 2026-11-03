@@ -1,7 +1,7 @@
 import type {MetadataRoute} from 'next';
 import {languages,origin} from '@/lib/i18n';
 import {indexable} from '@/lib/site';
-import {route,type PageKey} from '@/lib/routes';
+import {localizedAlternates,route,type PageKey} from '@/lib/routes';
 
 export const dynamic='force-static';
 
@@ -11,6 +11,6 @@ export default function sitemap():MetadataRoute.Sitemap {
  if(!indexable)return [];
  return publicPages.flatMap(page=>languages.map(lang=>({
   url:origin+route(lang,page),
-  alternates:{languages:{bg:origin+route('bg',page),tr:origin+route('tr',page),'en-GB':origin+route('en',page),'x-default':origin+route('bg',page)}},
+  alternates:{languages:localizedAlternates(origin,page)},
  })));
 }

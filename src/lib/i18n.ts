@@ -1,6 +1,5 @@
 export const languages = ["bg", "tr", "en"] as const;
 export type Lang = typeof languages[number];
-export const repo = "https://github.com/baranhq/scoreboard";
 export { siteOrigin as origin } from "./site.ts";
 export function isLang(value: string): value is Lang { return languages.includes(value as Lang); }
 const en = {

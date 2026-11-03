@@ -4,7 +4,7 @@ import { ArrowDown, Download, Save, Share2 } from "lucide-react";
 import { type Board, type Team, validScore } from "@/lib/boards";
 import { defaults } from "@/lib/appearance";
 import { foreground, validColor } from "@/lib/colors";
-import { type Lang, messages } from "@/lib/i18n";
+import type {Lang,Messages} from "@/lib/i18n";
 import { type HelpCopy } from "@/lib/help";
 import { defaultTimer, isGamePaused } from "@/lib/timer";
 import { teamGridClass } from "@/lib/team-layout";
@@ -15,8 +15,7 @@ import { Button, Modal } from "../ui/ui";
 
 type CustomizationComponent = typeof import("../scoreboard/customization").Customization;
 
-export function HelpDemo({ lang, copy }: { lang: Lang; copy: Pick<HelpCopy, "demoTitle" | "demoNote" | "guide" | "guideStep" | "guideOf" | "guideBack" | "guideNext" | "guideRestart"> }) {
- const t = messages[lang];
+export function HelpDemo({ lang, t, copy }: { lang: Lang; t:Messages; copy: Pick<HelpCopy, "demoTitle" | "demoNote" | "guide" | "guideStep" | "guideOf" | "guideBack" | "guideNext" | "guideRestart"> }) {
  const [board, setBoard] = useState<Board>(() => ({
   id: "help-demo",
   name: t.board,
