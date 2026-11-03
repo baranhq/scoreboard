@@ -129,6 +129,7 @@ You do not need to provide a name, email address, or visitor account to use the 
 ## 13. Policy updates
 
 This notice may be updated when the Website, providers, or processing practices change. The current version and its update date will be published on this page. If a change requires consent for new processing, the relevant consent will be requested before that processing begins.
+
 ## 14. Contact
 
 **Baran Ahmedov**

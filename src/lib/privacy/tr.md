@@ -129,6 +129,7 @@ Herkese açık puan tablosunu kullanmak için ad, e-posta adresi veya ziyaretçi
 ## 13. Politika güncellemeleri
 
 Bu bildirim, Web Sitesi, sağlayıcılar veya veri işleme uygulamaları değiştiğinde güncellenebilir. Güncel sürüm ve güncelleme tarihi bu sayfada yayımlanacaktır. Bir değişiklik yeni bir işleme için onay gerektiriyorsa ilgili onay, bu işleme başlamadan önce istenecektir.
+
 ## 14. İletişim
 
 **Baran Ahmedov**
