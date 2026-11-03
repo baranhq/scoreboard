@@ -5,3 +5,4 @@ export const siteOrigin = url.origin;
 export const indexable = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 
 export const brand="Baran's Scoreboard";
+export const repo="https://github.com/baranhq/scoreboard";
