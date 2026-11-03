@@ -1,9 +1,9 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useLayoutEffect,useState} from "react";
 import type {Messages} from "@/lib/i18n";
 function useTheme(){
  const [theme,setTheme]=useState('system'); const [dark,setDark]=useState(false);
- useEffect(()=>{const sync=()=>{setTheme(document.documentElement.dataset.theme||'system');setDark(document.documentElement.classList.contains('dark'));};sync();const observer=new MutationObserver(sync);observer.observe(document.documentElement,{attributes:true,attributeFilter:['class','data-theme']});return()=>observer.disconnect();},[]);
+ useLayoutEffect(()=>{const sync=()=>{const root=document.documentElement;let saved='system';try{const value=localStorage.getItem('scoreboard-theme');if(value==='light'||value==='dark'||value==='system')saved=value;}catch{}const shouldDark=saved==='dark'||saved==='system'&&matchMedia('(prefers-color-scheme: dark)').matches;if(root.dataset.theme!==saved)root.dataset.theme=saved;if(root.classList.contains('dark')!==shouldDark)root.classList.toggle('dark',shouldDark);setTheme(saved);setDark(shouldDark);};sync();const observer=new MutationObserver(sync);observer.observe(document.documentElement,{attributes:true,attributeFilter:['class','data-theme']});return()=>observer.disconnect();},[]);
  const change=(next:string)=>window.dispatchEvent(new CustomEvent('scoreboard-theme',{detail:next}));
  return {theme,dark,change};
 }
