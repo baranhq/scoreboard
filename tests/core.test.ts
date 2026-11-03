@@ -35,13 +35,15 @@ test('duration fields carry extra minutes and seconds into larger units within c
  assert.equal(durationFromParts(['00','90','00']),5400000);
  assert.equal(durationFromParts(['00','00','90']),90000);
  assert.equal(durationFromParts(['01','60','00']),7200000);
- assert.equal(durationFromParts(['168','00','00']),MAX_TIMER_DURATION_MS);
- assert.equal(durationFromParts(['168','00','01']),undefined);
+ assert.equal(durationFromParts(['168','00','00']),168*60*60*1000);
+ assert.equal(durationFromParts(['168','00','01']),168*60*60*1000+1000);
+ assert.equal(durationFromParts(['999','59','59']),MAX_TIMER_DURATION_MS);
+ assert.equal(durationFromParts(['999','59','60']),undefined);
  assert.equal(durationFromParts(['00','90','00'],1800000),undefined);
 });
 test('timer display can show total minutes instead of hours',()=>{
  assert.equal(formatTime(90*60_000),'1:30:00');assert.equal(formatTime(90*60_000,false),'90:00');
- assert.equal(formatTime(MAX_TIMER_DURATION_MS,false),'10080:00');
+ assert.equal(formatTime(MAX_TIMER_DURATION_MS,false),'59999:59');
  assert.equal(parseTimer({...defaultTimer,showHours:false})?.showHours,false);
 });
 test('timer refreshes only at the next displayed second and stops when idle',()=>{

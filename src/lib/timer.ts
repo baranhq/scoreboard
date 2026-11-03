@@ -1,5 +1,5 @@
 export type GameTimer={enabled:boolean;durationMs:number;remainingMs:number;startedAt:number|null;mode?:'countdown'|'stopwatch';trackPausedTime?:boolean;showHours?:boolean;pausedAt?:number|null;periodCount?:number;period?:number;timeoutMs?:number;timeoutActive?:boolean;timeoutRemainingMs?:number;timeoutStartedAt?:number|null;resumeAfterTimeout?:boolean};
-export const MAX_TIMER_DURATION_MS=7*24*60*60*1000;
+export const MAX_TIMER_DURATION_MS=999*60*60*1000+59*60*1000+59*1000;
 export function durationFromParts(parts:readonly [string,string,string],max=MAX_TIMER_DURATION_MS):number|undefined {
  if(!parts.every((value,index)=>new RegExp(`^\\d{0,${index===0?3:2}}$`).test(value)))return;
  const [hours,minutes,seconds]=parts.map(value=>Number(value||0));const duration=(hours*3600+minutes*60+seconds)*1000;
