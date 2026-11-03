@@ -12,7 +12,6 @@ try {
     $c = configuration();
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
     $admin = in_array($path,[$c['admin_path'],$c['admin_path'].'/'],true);
-    if (in_array($path, ['/admin', '/admin/'], true) && $c['admin_path'] !== '/admin' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {header('Location: '.$c['admin_path'], true, 302);exit;}
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     $publicPolicy=array_search($path,policy_paths(),true);
     if($publicPolicy!==false&&$method==='GET')serve_policy($c,$publicPolicy);

@@ -54,7 +54,8 @@ function admin_route_response(string $path, string $documentRoot): array {
     check(proc_close($process)===0,'routing request completed');
     return [$body,$status];
 }
-[$body,$status]=admin_route_response('/admin',$webRoot);check($status==='302'&&$body==='','default admin entry redirects to custom private path');
+[$body,$status]=admin_route_response('/admin',$webRoot);check($status==='404'&&!str_contains($body,'/baranhq_admin'),'default admin entry does not reveal custom private path');
+[$body,$status]=admin_route_response('/admin/',$webRoot);check($status==='404','default admin trailing slash is also not found');
 [$body,$status]=admin_route_response('/baranhq_admin',$webRoot);check(str_ends_with($status,'503')&&str_contains($body,'Administration is temporarily unavailable')&&!str_contains($body,'Request unavailable'),'admin configuration failure renders safe HTML');
 [$body,$status]=admin_route_response('/unknown-page',$webRoot);check($status==='404','unknown single-segment routes remain not found');
 file_put_contents($accountEnv,"ADMIN_PATH=\n");
