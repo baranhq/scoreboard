@@ -13,7 +13,8 @@ try {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
     $admin = in_array($path,[$c['admin_path'],$c['admin_path'].'/'],true);
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-    $publicPolicy=array_search($path,policy_paths(),true);
+    $policyPath=is_string($path)?rtrim($path,'/').'/':'';
+    $publicPolicy=array_search($policyPath,policy_paths(),true);
     if($publicPolicy!==false&&$method==='GET')serve_policy($c,$publicPolicy);
     if (!$admin && $path !== '/api/index.php') {
         if (is_string($path) && preg_match('~^/[a-z0-9][a-z0-9_-]{0,63}/?$~D', $path)) {
