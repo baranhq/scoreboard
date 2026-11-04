@@ -26,7 +26,7 @@ const initialBoardId = "scoreboard-initial-placeholder";
 function initialBoard(t: Messages): Board {
  return {id:initialBoardId,name:t.board,automaticName:true,icon:"scoreboard",accent:"#285b35",updatedAt:0,teams:[1,2].map(n=>({id:`${initialBoardId}-${n}`,name:`${t.team} ${n}`,automaticName:true,score:0}))};
 }
-export function Scoreboard({lang,t,children}: {lang: Lang;t:Messages;children:ReactNode}) {
+export function Scoreboard({lang,t,children,below}: {lang: Lang;t:Messages;children:ReactNode;below?:ReactNode}) {
  const [boards,setBoards]=useState<Board[]>(()=>[initialBoard(t)]); const current=useRef(boards);
  const [id,setId]=useState<string>(initialBoardId); const [ready,setReady]=useState(false);
  const [error,setError]=useState(""); const [notice,setNotice]=useState(""); const [pending,setPending]=useState(0);
@@ -117,7 +117,7 @@ export function Scoreboard({lang,t,children}: {lang: Lang;t:Messages;children:Re
 
 </>}
  </div>
- </main>{action&&<Modal title={action.title} close={()=>setAction(undefined)} closeLabel={t.close}><form onSubmit={e=>{e.preventDefault();if(action.numeric&&!validScore(Number(value))){setNotice(t.scoreRange);return;}action.run(value.trim());setAction(undefined);}}>{action.value!==undefined&&<label className="block text-base">{t.name}<input autoFocus required inputMode={action.numeric?"numeric":"text"} pattern={action.numeric?"-?[0-9]+":undefined} maxLength={action.numeric?10:200} value={value} onChange={e=>setValue(e.target.value)} className="mt-2 min-h-12 w-full rounded-lg border border-forest/30 bg-surface px-3"/></label>}<div className="mt-6 flex justify-end gap-3"><Button type="button" onClick={()=>setAction(undefined)}>{t.cancel}</Button><Button primary type="submit" disabled={action.value!==undefined&&(!value.trim()||!!action.numeric&&!validScore(Number(value)))}>{t.confirm}</Button></div></form></Modal>}
+ </main>{!full&&below}{action&&<Modal title={action.title} close={()=>setAction(undefined)} closeLabel={t.close}><form onSubmit={e=>{e.preventDefault();if(action.numeric&&!validScore(Number(value))){setNotice(t.scoreRange);return;}action.run(value.trim());setAction(undefined);}}>{action.value!==undefined&&<label className="block text-base">{t.name}<input autoFocus required inputMode={action.numeric?"numeric":"text"} pattern={action.numeric?"-?[0-9]+":undefined} maxLength={action.numeric?10:200} value={value} onChange={e=>setValue(e.target.value)} className="mt-2 min-h-12 w-full rounded-lg border border-forest/30 bg-surface px-3"/></label>}<div className="mt-6 flex justify-end gap-3"><Button type="button" onClick={()=>setAction(undefined)}>{t.cancel}</Button><Button primary type="submit" disabled={action.value!==undefined&&(!value.trim()||!!action.numeric&&!validScore(Number(value)))}>{t.confirm}</Button></div></form></Modal>}
 
  {dialogMode&&board&&<ShareDialog board={storedBoard!} t={t} lang={lang} mode={dialogMode} save={saveNamed} close={()=>setDialogMode(undefined)}/>}
  </Frame></div>;

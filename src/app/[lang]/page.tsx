@@ -12,6 +12,6 @@ export default async function Page({params}: {params: Promise<{lang: string}>}) 
  const schema=softwareSchema(lang,origin,brand);
  return <>
   <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema).replace(/</g,'\\u003c')}}/>
-  <Scoreboard lang={lang} t={messages[lang]}><HomeIntro lang={lang}/><HomeFaq lang={lang}/></Scoreboard>
+  <Scoreboard lang={lang} t={messages[lang]} below={<HomeFaq lang={lang}/>}><HomeIntro lang={lang}/></Scoreboard>
  </>;
 }
