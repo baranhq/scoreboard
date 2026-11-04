@@ -11,8 +11,10 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "licenses": "node scripts/licenses.mjs",
     "predev": "node scripts/fonts.mjs && node scripts/policies.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test:php": "php tests/security.php",
-    "lint": "tsc --noEmit && php scripts/lint.php",
+    "lint": "eslint . && tsc --noEmit && php scripts/lint.php",
     "preview": "php -S localhost:8080 -t out backend/dev-router.php",
     "indexnow": "node --experimental-strip-types scripts/indexnow.mjs"
   },
@@ -29,9 +31,25 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "eslint": "10.14.0",
+    "eslint-config-next": "16.4.4",
+    "eslint-config-prettier": "10.1.8",
     "fake-indexeddb": "^6.2.7",
+    "prettier": "3.9.10",
+    "prettier-plugin-tailwindcss": "0.8.1",
     "tailwindcss": "4.3.3",
     "typescript": "~5.9.3"
+  },
+  "overrides": {
+    "eslint": {
+      "minimatch": "11.0.1"
+    },
+    "@eslint/config-array": {
+      "minimatch": "11.0.1"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "11.0.1"
+    }
   },
   "type": "module",
   "engines": {
