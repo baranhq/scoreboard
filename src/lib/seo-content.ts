@@ -15,7 +15,7 @@ export const seoContent: Record<Lang, {
     title: 'Free Online Scoreboard for Teams & Games',
     heading: 'Free online scoreboard for teams and games',
     description: 'Create a free online scoreboard for classroom games, sports and team competitions. Customize teams, adjust scores, use a countdown or stopwatch, and display the board full screen.',
-    intro: 'Create a free online scoreboard for classroom games, sports and team competitions. Add multiple teams, customize their names, colours and layout, then increase or decrease scores. Use a countdown or stopwatch and display the board full screen. No account is required: games stay in this browser, and shared links contain a snapshot, not live updates.',
+    intro: 'Create a free online scoreboard for classroom games, sports and team competitions. Add teams, adjust scores, use a countdown or stopwatch, and display the board full screen. No account is needed: games stay in this browser, and shared links contain a snapshot, not live updates. The MIT-licensed project is open source and can be self-hosted.',
     pageDescriptions: {
       help: 'Learn to create a team scoreboard, change scores, use a countdown or stopwatch, present it on a projector, and save, back up or share a snapshot.',
       licenses: 'Read the MIT terms for Baran’s Scoreboard and the licence notices required by its third-party fonts, icons and software.',
@@ -29,7 +29,7 @@ export const seoContent: Record<Lang, {
     title: 'Безплатно онлайн табло за резултати',
     heading: 'Безплатно онлайн табло за точки и резултати',
     description: 'Безплатно онлайн табло за резултати в класни игри, спорт и отборни състезания. Настройвайте отборите, точките и таймера, а таблото показвайте на цял екран.',
-    intro: 'Създавайте табло за резултати за класни игри, спорт и други отборни състезания. Добавяйте няколко отбора и настройвайте имената, цветовете и подредбата им. Увеличавайте или намалявайте точките, използвайте обратно броене или хронометър и показвайте таблото на цял екран. Регистрация не е нужна: игрите се запазват в този браузър, а споделената връзка съдържа моментно копие без последваща синхронизация.',
+    intro: 'Създайте безплатно онлайн табло за резултати за класни игри, спорт и отборни състезания. Добавяйте отбори, променяйте точките и използвайте обратно броене или хронометър. Показвайте таблото на цял екран. Не е нужна регистрация: игрите се запазват в този браузър, а споделената връзка съдържа моментно копие без последваща синхронизация. Проектът е с отворен код под лиценз MIT и може да се хоства самостоятелно.',
     pageDescriptions: {
       help: 'Научете как да създадете табло за отбори, да променяте точки, да използвате обратно броене или хронометър и да запазите, изнесете или споделите моментно копие.',
       licenses: 'Прочетете условията на MIT за Baran’s Scoreboard и лицензионните известия за шрифтовете, иконите и софтуера на трети страни.',
@@ -43,7 +43,7 @@ export const seoContent: Record<Lang, {
     title: 'Ücretsiz Online Skor Tablosu',
     heading: 'Takımlar ve oyunlar için online skor tablosu',
     description: 'Sınıf oyunları, spor ve takım yarışmaları için ücretsiz online skor tablosu. Takımları özelleştirin, puanları değiştirin; zamanlayıcıyı tam ekranda kullanın.',
-    intro: 'Sınıf oyunları, spor karşılaşmaları ve takım yarışmaları için ücretsiz bir online skor tablosu oluşturun. Birden çok takım ekleyip adlarını, renklerini ve düzeni özelleştirin; puanları artırıp azaltın. Geri sayım veya kronometreyi kullanın ve tabloyu tam ekranda gösterin. Kayıt gerekmez: oyunlar bu tarayıcıda saklanır, paylaşılan bağlantı ise canlı eşitleme değil bir anlık görüntü içerir.',
+    intro: 'Sınıf içi oyunlar, spor karşılaşmaları ve takım yarışmaları için ücretsiz bir online skor tablosu oluşturun. Takımlar ekleyin, puanları değiştirin; geri sayım veya kronometre kullanıp tabloyu tam ekranda gösterin. Hesap gerekmez: oyunlar bu tarayıcıda saklanır, paylaşılan bağlantılar canlı eşitleme yerine bir anlık görüntü içerir. Proje MIT lisanslı açık kaynaklıdır ve uygulamayı kendi sunucunuzda barındırabilirsiniz.',
     pageDescriptions: {
       help: 'Takım skor tablosu oluşturmayı, puanları değiştirmeyi, geri sayım veya kronometreyi kullanmayı, tam ekranda sunmayı ve oyunu kaydedip yedeklemeyi öğrenin.',
       licenses: 'Baran’s Scoreboard için MIT Lisansı koşullarını ve üçüncü taraf yazılım, yazı tipi ve simgelerin bildirimlerini inceleyin.',
@@ -81,6 +81,7 @@ export function softwareSchema(lang: Lang, siteOrigin: string, brand: string) {
         browserRequirements: 'A modern browser with JavaScript and IndexedDB enabled.',
         isAccessibleForFree: true,
         offers: {'@type': 'Offer', price: 0},
+        author: {'@type': 'Person', name: 'Baran Ahmedov', url: 'https://baranhq.com/en/'},
         license: 'https://github.com/baranhq/scoreboard/blob/main/LICENSE',
         inLanguage: content.locale,
         image: `${siteOrigin}/social.png`,

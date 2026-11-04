@@ -67,6 +67,7 @@ test('software schema uses stable multilingual entities and omits unsupported ra
  assert.equal(en[0]['@id'],bg[0]['@id']);assert.equal(en[1]['@id'],bg[1]['@id']);
  assert.deepEqual(en[0].inLanguage,['en-GB','bg','tr']);
  assert.equal((en[1].offers as {price:number}).price,0);
+ assert.deepEqual(en[1].author,{'@type':'Person',name:'Baran Ahmedov',url:'https://baranhq.com/en/'});
  assert.equal('aggregateRating' in en[1],false);assert.equal('review' in en[1],false);
  assert.equal(en[1].image,'https://scoreboard.baranhq.com/social.png');
 });
