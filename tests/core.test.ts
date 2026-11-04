@@ -131,6 +131,8 @@ test("software schema uses stable multilingual entities and omits unsupported ra
   assert.equal(en[1]["@id"], bg[1]["@id"]);
   assert.deepEqual(en[0].inLanguage, ["en-GB", "bg", "tr"]);
   assert.equal((en[1].offers as { price: number }).price, 0);
+  assert.equal(en[1].url, "https://scoreboard.baranhq.com/en/");
+  assert.equal(bg[1].url, "https://scoreboard.baranhq.com/bg/");
   assert.deepEqual(en[1].author, {
     "@type": "Person",
     name: "Baran Ahmedov",
@@ -139,6 +141,10 @@ test("software schema uses stable multilingual entities and omits unsupported ra
   assert.equal("aggregateRating" in en[1], false);
   assert.equal("review" in en[1], false);
   assert.equal(en[1].image, "https://scoreboard.baranhq.com/social.png");
+  const tr = softwareSchema("tr", "https://scoreboard.baranhq.com", "Baran's Scoreboard")[
+    "@graph"
+  ] as Record<string, unknown>[];
+  assert.equal(tr[1].url, "https://scoreboard.baranhq.com/tr/");
 });
 test("automatic and fullscreen scoreboard grids use the same team columns", () => {
   for (const count of [1, 2, 3, 4, 5, 9, 10]) {
