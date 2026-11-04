@@ -206,16 +206,24 @@ const en = {
   allow: "Allow all",
   reject: "Reject all",
   save: "Save selection",
+  dataController: "Data controller",
+  moreInformation: "More information",
   usage: "Site usage analytics",
+  usageSummary:
+    "Measures visits, page views and limited page paths, predefined button actions and estimated active time.",
   usageText:
-    "This site's own analytics measure visits, predefined button clicks, and estimated active time. Records are stored on the site's host for up to one year.",
+    "This site's own analytics records visits and page views, limited public page paths, predefined actions (creating a scoreboard, entering fullscreen, exporting or importing a backup), and estimated active time. Records are linked to a random browser token stored as a hash and kept on the hosting server for up to one year. Scoreboard names, team names, scores and field contents are not included.",
   cloud: "Cloudflare Web Analytics",
-  cloudText: "Loads Cloudflare Web Analytics to measure page-performance metrics.",
+  cloudSummary:
+    "Measures page views and browser performance timing through Cloudflare Web Analytics.",
+  cloudText:
+    "Cloudflare's reports may include page paths, referrers, approximate country, device type, browser, operating system and browser performance data, including Core Web Vitals. This Website does not intentionally send scoreboard contents, field text, its own analytics events or estimated active time to the beacon.",
   cloudPolicy: "Cloudflare’s Privacy Policy",
   unavailable:
     "Privacy settings could not be loaded or saved. Optional analytics remain off in this page. Please try again.",
   unavailableChoice: "Not configured on this host",
-  consentNote: "All choices are optional. Your scoreboards work with every option turned off.",
+  consentNote:
+    "All choices are optional. Your scoreboards work with every option off. You can change or withdraw your choices anytime in Privacy choices in the footer.",
   savedChoices: "Privacy choices saved.",
   licenseIntro:
     "Baran's Scoreboard is original software licensed under the MIT License. You may use, copy, modify, distribute, and sell it, as long as you keep the copyright and license notices. A visible website credit is not required.",
@@ -431,17 +439,24 @@ const bg: Messages = {
   allow: "Разреши всички",
   reject: "Откажи всички",
   save: "Запази избора",
+  dataController: "Администратор на лични данни",
+  moreInformation: "Повече информация",
   usage: "Анализ на използването на сайта",
+  usageSummary:
+    "Измерва посещения, преглеждания и ограничени пътища на страници, предварително определени действия с бутони и приблизително активно време.",
   usageText:
-    "Собствената система на сайта измерва посещения, натискания на предварително определени бутони и приблизително активно време. Записите се съхраняват при хостинг доставчика до една година.",
+    "Собствените анализи на сайта записват посещения и преглеждания на страници, ограничени публични пътища на страниците, предварително определени действия (създаване на табло, отваряне на цял екран, експортиране или импортиране на резервно копие) и приблизително активно време. Записите се свързват със случаен токен на браузъра, съхраняван като хеш, и се пазят на хостинг сървъра до една година. Имената на таблата и отборите, резултатите и съдържанието на полетата не се включват.",
   cloud: "Cloudflare Web Analytics",
+  cloudSummary:
+    "Измерва преглежданията на страници и показателите за производителност на браузъра чрез Cloudflare Web Analytics.",
   cloudText:
-    "Зарежда Cloudflare Web Analytics за измерване на показателите за производителност на страниците.",
+    "Отчетите на Cloudflare може да включват пътища до страници, препращащи сайтове, приблизителна държава, тип устройство, браузър, операционна система и данни за производителността на браузъра, включително Core Web Vitals. Уебсайтът не изпраща умишлено съдържание на таблата, текст от полета, собствени аналитични събития или приблизително активно време към този скрипт.",
   cloudPolicy: "Политика за поверителност на Cloudflare",
   unavailable:
     "Настройките не могат да се заредят или запазят. Незадължителните анализи остават изключени в тази страница. Опитайте отново.",
   unavailableChoice: "Не е настроено на този хост",
-  consentNote: "Всички опции са незадължителни. Таблата работят и когато всички са изключени.",
+  consentNote:
+    "Всички опции са незадължителни. Таблата работят и когато всички са изключени. Можете по всяко време да промените или оттеглите избора си от настройките за поверителност във футъра.",
   savedChoices: "Настройките са запазени.",
   licenseIntro:
     "Оригиналният код на Baran's Scoreboard е под лиценза MIT. Можете да го използвате, копирате, променяте, разпространявате и продавате, като запазите известията за авторски права и лиценза. Видимо посочване в сайта не се изисква.",
@@ -655,16 +670,24 @@ const tr: Messages = {
   allow: "Tümüne izin ver",
   reject: "Tümünü reddet",
   save: "Seçimi kaydet",
+  dataController: "Veri sorumlusu",
+  moreInformation: "Daha fazla bilgi",
   usage: "Site kullanım analizi",
+  usageSummary:
+    "Ziyaretleri, sayfa görüntülemelerini ve sınırlı sayfa yollarını, önceden belirlenmiş düğme işlemlerini ve tahmini etkin süreyi ölçer.",
   usageText:
-    "Sitenin kendi analiz sistemi ziyaretleri, önceden belirlenmiş düğme tıklamalarını ve tahmini aktif süreyi ölçer. Kayıtlar sitenin barındırma sunucusunda en fazla bir yıl saklanır.",
+    "Sitenin kendi analiz sistemi ziyaretleri, sayfa görüntüleme zamanlarını, sınırlı herkese açık sayfa yollarını, önceden belirlenmiş işlemleri (skor tablosu oluşturma, tam ekrana geçme, yedek dışa veya içe aktarma) ve tahmini etkin süreyi kaydeder. Kayıtlar, hash olarak saklanan rastgele bir tarayıcı belirteciyle ilişkilendirilir ve barındırma sunucusunda en fazla bir yıl tutulur. Skor tablosu adları, takım adları, skorlar ve alan içerikleri kaydedilmez.",
   cloud: "Cloudflare Web Analytics",
-  cloudText: "Sayfa performansı ölçümleri için Cloudflare Web Analytics’i yükler.",
+  cloudSummary:
+    "Cloudflare Web Analytics ile sayfa görüntülemelerini ve tarayıcı performans zamanlamalarını ölçer.",
+  cloudText:
+    "Cloudflare raporları sayfa yollarını, yönlendiren siteleri, yaklaşık ülkeyi, cihaz türünü, tarayıcıyı, işletim sistemini ve Core Web Vitals dahil tarayıcı performans verilerini içerebilir. Web sitesi bu analiz betiğine skor tablosu içeriği, alan metni, kendi analiz olayları veya tahmini etkin süreyi bilerek göndermez.",
   cloudPolicy: "Cloudflare Gizlilik Politikası",
   unavailable:
     "Gizlilik tercihleri yüklenemedi veya kaydedilemedi. Bu sayfada isteğe bağlı analizler kapalı kalır. Lütfen tekrar deneyin.",
   unavailableChoice: "Bu sunucuda yapılandırılmamış",
-  consentNote: "Tüm seçenekler isteğe bağlıdır. Hepsi kapalıyken de oyunlarınız çalışır.",
+  consentNote:
+    "Tüm seçenekler isteğe bağlıdır. Skor tablolarınız tüm seçenekler kapalıyken de çalışır. Tercihlerinizi altbilgideki Gizlilik tercihleri bölümünden istediğiniz zaman değiştirebilir veya geri çekebilirsiniz.",
   savedChoices: "Gizlilik tercihleri kaydedildi.",
   licenseIntro:
     "Baran's Scoreboard’un özgün kodu MIT Lisansı altındadır. Telif hakkı ve lisans bildirimlerini koruyarak kullanabilir, kopyalayabilir, değiştirebilir, dağıtabilir ve satabilirsiniz. Web sitesinde görünür atıf zorunlu değildir.",

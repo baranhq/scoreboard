@@ -3,10 +3,12 @@ import { useEffect, useRef, type ReactNode, type ButtonHTMLAttributes } from "re
 export function Dropdown({
   label,
   ariaLabel,
+  triggerClassName = "",
   children,
 }: {
   label: ReactNode;
   ariaLabel: string;
+  triggerClassName?: string;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDetailsElement>(null);
@@ -45,7 +47,7 @@ export function Dropdown({
     >
       <summary
         aria-label={ariaLabel}
-        className="flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center gap-2 rounded-lg px-3 text-base font-medium transition-colors duration-150 hover:bg-forest/10 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none"
+        className={`flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center gap-2 rounded-lg px-3 text-base font-medium transition-colors duration-150 hover:bg-forest/10 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none ${triggerClassName}`}
       >
         <span className="contents [&_svg]:transition-transform [&_svg]:duration-150 group-open:[&_svg]:rotate-180 motion-reduce:[&_svg]:transition-none">
           {label}
