@@ -34,6 +34,8 @@ export function Modal({
   close,
   children,
   beforeScrollable,
+  afterScrollable,
+  variant = "default",
   closeLabel,
   closeDisabled = false,
 }: {
@@ -41,6 +43,8 @@ export function Modal({
   close: () => void;
   children: ReactNode;
   beforeScrollable?: ReactNode;
+  afterScrollable?: ReactNode;
+  variant?: "default" | "privacy";
   closeLabel: string;
   closeDisabled?: boolean;
 }) {
@@ -89,7 +93,7 @@ export function Modal({
         if (closing && e.target === e.currentTarget) finishClose();
       }}
       aria-labelledby={titleId}
-      className={`m-auto flex max-h-[90dvh] w-[min(94vw,28rem)] flex-col overflow-hidden rounded-xl border border-forest/20 bg-surface p-4 text-ink shadow-lg transition-colors duration-150 backdrop:bg-[#102116]/60 motion-reduce:transition-none sm:p-6 ${closing ? "motion-safe:animate-[dismiss_150ms_ease-in_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
+      className={`m-auto flex max-h-[90dvh] ${variant === "privacy" ? "w-[min(94vw,44rem)] backdrop:bg-[#173d22] sm:p-9" : "w-[min(94vw,28rem)] backdrop:bg-[#102116]/60 sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 bg-surface p-4 text-ink shadow-lg transition-colors duration-150 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_150ms_ease-in_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
     >
       <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <h2 id={titleId} className="min-w-0 pt-1 font-display text-xl font-bold tracking-tight">
@@ -110,6 +114,9 @@ export function Modal({
       >
         {children}
       </div>
+      {afterScrollable && (
+        <div className="mt-3 shrink-0 border-t border-forest/15 pt-3">{afterScrollable}</div>
+      )}
     </dialog>
   );
 }
