@@ -1,13 +1,5 @@
 [
   {
-    "name": "@alloc/quick-lru",
-    "version": "5.3.0",
-    "license": "MIT",
-    "source": "https://github.com/aleclarson/quick-lru",
-    "development": true,
-    "noticePath": "/licenses/alloc-quick-lru-5.3.0.json"
-  },
-  {
     "name": "@fontsource/inter",
     "version": "5.3.0",
     "license": "OFL-1.1",
@@ -48,46 +40,6 @@
     "noticePath": "/licenses/img-sharp-linux-x64-0.35.5.json"
   },
   {
-    "name": "@jridgewell/gen-mapping",
-    "version": "0.3.13",
-    "license": "MIT",
-    "source": "https://github.com/jridgewell/sourcemaps",
-    "development": true,
-    "noticePath": "/licenses/jridgewell-gen-mapping-0.3.13.json"
-  },
-  {
-    "name": "@jridgewell/remapping",
-    "version": "2.3.5",
-    "license": "MIT",
-    "source": "https://github.com/jridgewell/sourcemaps",
-    "development": true,
-    "noticePath": "/licenses/jridgewell-remapping-2.3.5.json"
-  },
-  {
-    "name": "@jridgewell/resolve-uri",
-    "version": "3.1.2",
-    "license": "MIT",
-    "source": "https://github.com/jridgewell/resolve-uri",
-    "development": true,
-    "noticePath": "/licenses/jridgewell-resolve-uri-3.1.2.json"
-  },
-  {
-    "name": "@jridgewell/sourcemap-codec",
-    "version": "1.6.0",
-    "license": "MIT",
-    "source": "https://github.com/jridgewell/sourcemaps",
-    "development": true,
-    "noticePath": "/licenses/jridgewell-sourcemap-codec-1.6.0.json"
-  },
-  {
-    "name": "@jridgewell/trace-mapping",
-    "version": "0.3.31",
-    "license": "MIT",
-    "source": "https://github.com/jridgewell/sourcemaps",
-    "development": true,
-    "noticePath": "/licenses/jridgewell-trace-mapping-0.3.31.json"
-  },
-  {
     "name": "@next/env",
     "version": "16.4.4",
     "license": "MIT",
@@ -112,60 +64,12 @@
     "noticePath": "/licenses/swc-helpers-0.5.23.json"
   },
   {
-    "name": "@tailwindcss/node",
-    "version": "4.3.3",
-    "license": "MIT",
-    "source": "https://github.com/tailwindlabs/tailwindcss",
-    "development": true,
-    "noticePath": "/licenses/tailwindcss-node-4.3.3.json"
-  },
-  {
-    "name": "@tailwindcss/oxide",
-    "version": "4.3.3",
-    "license": "MIT",
-    "source": "https://github.com/tailwindlabs/tailwindcss",
-    "development": true,
-    "noticePath": "/licenses/tailwindcss-oxide-4.3.3.json"
-  },
-  {
-    "name": "@tailwindcss/oxide-linux-x64-gnu",
-    "version": "4.3.3",
-    "license": "MIT",
-    "source": "https://github.com/tailwindlabs/tailwindcss",
-    "development": true,
-    "noticePath": "/licenses/tailwindcss-oxide-linux-x64-gnu-4.3.3.json"
-  },
-  {
-    "name": "@tailwindcss/postcss",
-    "version": "4.3.3",
-    "license": "MIT",
-    "source": "https://github.com/tailwindlabs/tailwindcss",
-    "development": true,
-    "noticePath": "/licenses/tailwindcss-postcss-4.3.3.json"
-  },
-  {
-    "name": "@types/node",
-    "version": "24.19.2",
-    "license": "MIT",
-    "source": "https://github.com/DefinitelyTyped/DefinitelyTyped",
-    "development": true,
-    "noticePath": "/licenses/types-node-24.19.2.json"
-  },
-  {
     "name": "@types/react",
     "version": "19.3.0",
     "license": "MIT",
     "source": "https://github.com/DefinitelyTyped/DefinitelyTyped",
     "development": false,
     "noticePath": "/licenses/types-react-19.3.0.json"
-  },
-  {
-    "name": "@types/react-dom",
-    "version": "19.3.0",
-    "license": "MIT",
-    "source": "https://github.com/DefinitelyTyped/DefinitelyTyped",
-    "development": true,
-    "noticePath": "/licenses/types-react-dom-19.3.0.json"
   },
   {
     "name": "baseline-browser-mapping",
@@ -208,68 +112,12 @@
     "noticePath": "/licenses/detect-libc-2.1.2.json"
   },
   {
-    "name": "enhanced-resolve",
-    "version": "5.26.0",
-    "license": "MIT",
-    "source": "https://github.com/webpack/enhanced-resolve",
-    "development": true,
-    "noticePath": "/licenses/enhanced-resolve-5.26.0.json"
-  },
-  {
-    "name": "fake-indexeddb",
-    "version": "6.2.7",
-    "license": "Apache-2.0",
-    "source": "git://github.com/dumbmatter/fakeIndexedDB",
-    "development": true,
-    "noticePath": "/licenses/fake-indexeddb-6.2.7.json"
-  },
-  {
-    "name": "graceful-fs",
-    "version": "4.2.11",
-    "license": "ISC",
-    "source": "https://github.com/isaacs/node-graceful-fs",
-    "development": true,
-    "noticePath": "/licenses/graceful-fs-4.2.11.json"
-  },
-  {
-    "name": "jiti",
-    "version": "2.7.0",
-    "license": "MIT",
-    "source": "unjs/jiti",
-    "development": true,
-    "noticePath": "/licenses/jiti-2.7.0.json"
-  },
-  {
-    "name": "lightningcss",
-    "version": "1.32.0",
-    "license": "MPL-2.0",
-    "source": "https://github.com/parcel-bundler/lightningcss",
-    "development": true,
-    "noticePath": "/licenses/lightningcss-1.32.0.json"
-  },
-  {
-    "name": "lightningcss-linux-x64-gnu",
-    "version": "1.32.0",
-    "license": "MPL-2.0",
-    "source": "https://github.com/parcel-bundler/lightningcss",
-    "development": true,
-    "noticePath": "/licenses/lightningcss-linux-x64-gnu-1.32.0.json"
-  },
-  {
     "name": "lucide-react",
     "version": "1.66.0",
     "license": "ISC",
     "source": "https://github.com/lucide-icons/lucide",
     "development": false,
     "noticePath": "/licenses/lucide-react-1.66.0.json"
-  },
-  {
-    "name": "magic-string",
-    "version": "0.30.21",
-    "license": "MIT",
-    "source": "https://github.com/Rich-Harris/magic-string",
-    "development": true,
-    "noticePath": "/licenses/magic-string-0.30.21.json"
   },
   {
     "name": "nanoid",
@@ -302,14 +150,6 @@
     "source": "postcss/postcss",
     "development": false,
     "noticePath": "/licenses/postcss-8.5.23.json"
-  },
-  {
-    "name": "postcss",
-    "version": "8.5.32",
-    "license": "MIT",
-    "source": "postcss/postcss",
-    "development": true,
-    "noticePath": "/licenses/postcss-8.5.32.json"
   },
   {
     "name": "react",
@@ -368,44 +208,12 @@
     "noticePath": "/licenses/styled-jsx-5.1.6.json"
   },
   {
-    "name": "tailwindcss",
-    "version": "4.3.3",
-    "license": "MIT",
-    "source": "https://github.com/tailwindlabs/tailwindcss",
-    "development": true,
-    "noticePath": "/licenses/tailwindcss-4.3.3.json"
-  },
-  {
-    "name": "tapable",
-    "version": "2.3.3",
-    "license": "MIT",
-    "source": "http://github.com/webpack/tapable",
-    "development": true,
-    "noticePath": "/licenses/tapable-2.3.3.json"
-  },
-  {
     "name": "tslib",
     "version": "2.9.1",
     "license": "0BSD",
     "source": "https://github.com/Microsoft/tslib",
     "development": false,
     "noticePath": "/licenses/tslib-2.9.1.json"
-  },
-  {
-    "name": "typescript",
-    "version": "5.9.3",
-    "license": "Apache-2.0",
-    "source": "https://github.com/microsoft/TypeScript",
-    "development": true,
-    "noticePath": "/licenses/typescript-5.9.3.json"
-  },
-  {
-    "name": "undici-types",
-    "version": "7.24.6",
-    "license": "MIT",
-    "source": "https://github.com/nodejs/undici",
-    "development": true,
-    "noticePath": "/licenses/undici-types-7.24.6.json"
   },
   {
     "name": "PHP Docker runtime",

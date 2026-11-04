@@ -4,11 +4,11 @@ This guide is for people who want to run their own copy, often just for themselv
 
 ## Choose how much to run
 
-| Setup | What you get |
-| --- | --- |
-| Static files only | The scoreboard, browser-local saves, timers, sharing links, and JSON backups. No PHP, database, admin panel, or server analytics. |
-| Full home or Linux server | The static app plus the PHP/MySQL admin panel and privacy-policy editor. Optional application analytics remain disabled unless you enable them. |
-| Shared hosting | The same static frontend and PHP/MySQL backend. A domain is optional if your hosting provider gives you another suitable HTTPS address. Follow [the deployment guide](docs/DEPLOYMENT.md). |
+| Setup                     | What you get                                                                                                                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Static files only         | The scoreboard, browser-local saves, timers, sharing links, and JSON backups. No PHP, database, admin panel, or server analytics.                                                          |
+| Full home or Linux server | The static app plus the PHP/MySQL admin panel and privacy-policy editor. Optional application analytics remain disabled unless you enable them.                                            |
+| Shared hosting            | The same static frontend and PHP/MySQL backend. A domain is optional if your hosting provider gives you another suitable HTTPS address. Follow [the deployment guide](docs/DEPLOYMENT.md). |
 
 Scoreboards themselves stay in each visitor's browser. The server database does **not** store team names or scores. It is used for optional consented analytics, privacy choices, and security counters. There is no account system for scoreboard users.
 
