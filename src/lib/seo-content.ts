@@ -1,4 +1,5 @@
 import type { Lang } from "./i18n";
+import { route } from "./routes.ts";
 
 export const seoContent: Record<
   Lang,
@@ -18,9 +19,9 @@ export const seoContent: Record<
     title: "Free Online Scoreboard for Teams & Games",
     heading: "Free online scoreboard for teams and games",
     description:
-      "Create a free online scoreboard for classroom games, sports and team competitions. Customize teams, adjust scores, use a countdown or stopwatch, and display the board full screen.",
+      "Free online scoreboard for classroom games, sports and team competitions. Track teams, change scores, use a timer or stopwatch, and display the board full screen.",
     intro:
-      "Create a free online scoreboard for classroom games, sports and team competitions. Add teams, adjust scores, use a countdown or stopwatch, and display the board full screen. No account is needed: games stay in this browser, and shared links contain a snapshot, not live updates. The MIT-licensed project is open source and can be self-hosted.",
+      "Use Baran’s Scoreboard as a free digital scoreboard and score counter for classroom games, sports and team competitions. Track points for multiple teams, use a countdown or stopwatch, and show the board full screen. No account is needed: games stay in this browser, and shared links are snapshots rather than live updates. The MIT-licensed project is open source and can be self-hosted.",
     pageDescriptions: {
       help: "Learn to create a team scoreboard, change scores, use a countdown or stopwatch, present it on a projector, and save, back up or share a snapshot.",
       licenses:
@@ -40,11 +41,11 @@ export const seoContent: Record<
     title: "Безплатно онлайн табло за резултати",
     heading: "Безплатно онлайн табло за точки и резултати",
     description:
-      "Безплатно онлайн табло за резултати в класни игри, спорт и отборни състезания. Настройвайте отборите, точките и таймера, а таблото показвайте на цял екран.",
+      "Безплатно онлайн табло за резултати и брояч на точки за игри в клас, спорт и отборни състезания. Следете няколко отбора и използвайте таймер или хронометър.",
     intro:
-      "Създайте безплатно онлайн табло за резултати за класни игри, спорт и отборни състезания. Добавяйте отбори, променяйте точките и използвайте обратно броене или хронометър. Показвайте таблото на цял екран. Не е нужна регистрация: игрите се запазват в този браузър, а споделената връзка съдържа моментно копие без последваща синхронизация. Проектът е с отворен код под лиценз MIT и може да се хоства самостоятелно.",
+      "Създайте безплатно онлайн табло за резултати за игри в класната стая, спорт и отборни състезания. Добавяйте отбори, променяйте точките и използвайте обратно броене или хронометър. Показвайте таблото на цял екран. Не е нужна регистрация: игрите се запазват в този браузър, а споделената връзка съдържа моментно копие без последваща синхронизация. Проектът е с отворен код под лиценз MIT и може да се хоства самостоятелно.",
     pageDescriptions: {
-      help: "Научете как да създадете табло за отбори, да променяте точки, да използвате обратно броене или хронометър и да запазите, изнесете или споделите моментно копие.",
+      help: "Научете как да създадете табло за отбори, да променяте точки, да използвате обратно броене или хронометър и да запазите, експортирате или споделите моментно копие.",
       licenses:
         "Прочетете условията на MIT за Baran’s Scoreboard и лицензионните известия за шрифтовете, иконите и софтуера на трети страни.",
     },
@@ -59,12 +60,12 @@ export const seoContent: Record<
     ],
   },
   tr: {
-    title: "Ücretsiz Online Skor Tablosu",
-    heading: "Takımlar ve oyunlar için online skor tablosu",
+    title: "Ücretsiz Çevrimiçi Skor Tabelası",
+    heading: "Takımlar ve oyunlar için çevrimiçi skor tabelası",
     description:
-      "Sınıf oyunları, spor ve takım yarışmaları için ücretsiz online skor tablosu. Takımları özelleştirin, puanları değiştirin; zamanlayıcıyı tam ekranda kullanın.",
+      "Sınıf içi oyunlar, spor ve takım yarışmaları için ücretsiz çevrimiçi skor tabelası ve puan sayacı. Takımları takip edin, süre tutun ve tabloyu tam ekranda gösterin.",
     intro:
-      "Sınıf içi oyunlar, spor karşılaşmaları ve takım yarışmaları için ücretsiz bir online skor tablosu oluşturun. Takımlar ekleyin, puanları değiştirin; geri sayım veya kronometre kullanıp tabloyu tam ekranda gösterin. Hesap gerekmez: oyunlar bu tarayıcıda saklanır, paylaşılan bağlantılar canlı eşitleme yerine bir anlık görüntü içerir. Proje MIT lisanslı açık kaynaklıdır ve uygulamayı kendi sunucunuzda barındırabilirsiniz.",
+      "Baran’s Scoreboard, sınıf içi oyunlar, spor karşılaşmaları ve takım yarışmaları için ücretsiz bir çevrimiçi skor tabelası ve puan sayacıdır. Birden çok takımın puanını takip edin, geri sayım veya kronometre kullanın ve tabloyu tam ekranda gösterin. Hesap gerekmez: oyunlar bu tarayıcıda saklanır, paylaşılan bağlantılar canlı eşitleme yerine bir anlık görüntü içerir. Proje MIT lisanslı açık kaynaklıdır ve kendi sunucunuzda barındırılabilir.",
     pageDescriptions: {
       help: "Takım skor tablosu oluşturmayı, puanları değiştirmeyi, geri sayım veya kronometreyi kullanmayı, tam ekranda sunmayı ve oyunu kaydedip yedeklemeyi öğrenin.",
       licenses:
@@ -86,7 +87,7 @@ export function softwareSchema(lang: Lang, siteOrigin: string, brand: string) {
   const content = seoContent[lang];
   const websiteId = `${siteOrigin}/#website`;
   const applicationId = `${siteOrigin}/#application`;
-  const applicationUrl = `${siteOrigin}/en/`;
+  const applicationUrl = siteOrigin + route(lang, "home");
   return {
     "@context": "https://schema.org",
     "@graph": [
