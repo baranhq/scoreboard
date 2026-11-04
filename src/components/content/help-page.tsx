@@ -3,6 +3,7 @@ import {messages} from '@/lib/i18n';
 import {help} from '@/lib/help';
 import {Frame} from '../layout/frame';
 import {TopicNavigation} from './topic-navigation';
+import {QuickGuide} from './quick-guide';
 
 export function HelpPage({lang}:{lang:Lang}){
  const content=help[lang];
@@ -13,8 +14,9 @@ export function HelpPage({lang}:{lang:Lang}){
    <p className="mt-4 text-lg leading-8 text-forest/90">{content.intro}</p>
   </header>
   <div className="grid items-start gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
-   <TopicNavigation label={content.contentsTitle} topics={content.sections.map(section=>({href:`#${section.id}`,title:section.title}))}/>
+   <TopicNavigation label={content.contentsTitle} topics={[{href:'#quick-guide',title:content.quickGuide.title},...content.sections.map(section=>({href:`#${section.id}`,title:section.title}))]}/>
    <article className="min-w-0 max-w-3xl divide-y divide-forest/15">
+    <QuickGuide content={content.quickGuide} t={t}/>
     {content.sections.map(section=><section key={section.id} id={section.id} aria-labelledby={`${section.id}-title`} className="scroll-mt-24 py-7 first:pt-0">
      <h2 id={`${section.id}-title`} className="font-display text-2xl font-bold tracking-tight">{section.title}</h2>
      {section.paragraphs.map((paragraph,index)=><p key={index} className="mt-3 text-base leading-7 text-forest/90 sm:text-lg sm:leading-8">{paragraph}</p>)}

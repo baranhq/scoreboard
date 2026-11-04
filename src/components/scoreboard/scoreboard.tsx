@@ -26,7 +26,7 @@ const initialBoardId = "scoreboard-initial-placeholder";
 function initialBoard(t: Messages): Board {
  return {id:initialBoardId,name:t.board,automaticName:true,icon:"scoreboard",accent:"#285b35",updatedAt:0,teams:[1,2].map(n=>({id:`${initialBoardId}-${n}`,name:`${t.team} ${n}`,automaticName:true,score:0}))};
 }
-export function Scoreboard({lang,t,children,below}: {lang: Lang;t:Messages;children:ReactNode;below?:ReactNode}) {
+export function Scoreboard({lang,t,children,below}: {lang: Lang;t:Messages;children?:ReactNode;below?:ReactNode}) {
  const [boards,setBoards]=useState<Board[]>(()=>[initialBoard(t)]); const current=useRef(boards);
  const [id,setId]=useState<string>(initialBoardId); const [ready,setReady]=useState(false);
  const [error,setError]=useState(""); const [notice,setNotice]=useState(""); const [pending,setPending]=useState(0);
