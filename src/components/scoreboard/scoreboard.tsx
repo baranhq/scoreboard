@@ -302,7 +302,11 @@ export function Scoreboard({
               {t.loading}
             </p>
           )}
-          <div aria-busy={!ready} inert={!ready}>
+          <div
+            aria-busy={!ready}
+            inert={!ready}
+            className={full ? "flex min-h-0 flex-1 flex-col" : ""}
+          >
             {board ? (
               <section aria-label={t.board} className="flex min-h-0 flex-1 flex-col">
                 {full ? (
@@ -312,6 +316,7 @@ export function Scoreboard({
                     <Button
                       aria-label={t.keepVisible}
                       aria-pressed={!appearance.autoHideControls}
+                      className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
                       onClick={() =>
                         update((b) => ({
                           ...b,
@@ -369,6 +374,7 @@ export function Scoreboard({
                             <Button
                               aria-label={t.keepVisible}
                               aria-pressed={!appearance.autoHideControls}
+                              className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
                               onClick={() =>
                                 update((b) => ({
                                   ...b,
@@ -384,6 +390,7 @@ export function Scoreboard({
                             <Button
                               aria-label={t.fullscreenControls}
                               aria-pressed={appearance.fullscreenControls}
+                              className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
                               onClick={() =>
                                 update((b) => ({
                                   ...b,
