@@ -1,7 +1,9 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Messages } from "@/lib/i18n";
-import { pageForPath } from "@/lib/routes";
+import Link from "next/link";
+import type { Lang, Messages } from "@/lib/i18n";
+import { pageForPath, route } from "@/lib/routes";
+import { operator } from "@/lib/operator";
 import { events } from "@/lib/analytics";
 import { Button, Modal } from "../ui/ui";
 type Choices = { usage: boolean; cloud: boolean };
@@ -9,10 +11,12 @@ type State = Choices & { saved: boolean; capabilities: Choices; cloudToken: stri
 const off: Choices = { usage: false, cloud: false };
 const initial: State = { ...off, saved: false, capabilities: off, cloudToken: null };
 export function PrivacyControls({
+  lang,
   t,
   fullscreen,
   promptReady = false,
 }: {
+  lang: Lang;
   t: Messages;
   fullscreen?: boolean;
   promptReady?: boolean;
@@ -183,66 +187,103 @@ export function PrivacyControls({
   };
   if (!open || fullscreen) return null;
   return (
-    <Modal title={t.choices} close={() => setOpen(false)} closeLabel={t.close}>
-      <p className="mb-5 text-base leading-6">{t.consentNote}</p>
-      <div className="divide-y divide-forest/20 border-y border-forest/20">
+    <Modal
+      title={t.choices}
+      close={() => setOpen(false)}
+      closeLabel={t.close}
+      beforeScrollable={
+        <div className="space-y-3 text-sm leading-5">
+          <p className="text-forest/85">{t.consentNote}</p>
+          <p className="text-xs leading-4 text-forest/75">
+            <span className="font-semibold">{t.dataController}:</span> {operator.name} ·{" "}
+            <Link className="underline underline-offset-2" href={route(lang, "privacy")}>
+              {t.privacy}
+            </Link>
+          </p>
+          {error && (
+            <p
+              role="alert"
+              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-900 dark:bg-red-950/40 dark:text-red-200"
+            >
+              {error}
+            </p>
+          )}
+          <div className="grid gap-2 pt-1">
+            <Button
+              accent
+              className="w-full justify-center text-sm font-semibold"
+              disabled={busy}
+              onClick={() =>
+                void save({ usage: state.capabilities.usage, cloud: state.capabilities.cloud })
+              }
+            >
+              {t.allow}
+            </Button>
+            <Button
+              className="w-full justify-center bg-surface text-sm font-semibold"
+              disabled={busy}
+              onClick={() => void save(off)}
+            >
+              {t.reject}
+            </Button>
+            <Button
+              className="w-full justify-center bg-surface text-sm font-semibold"
+              disabled={busy}
+              onClick={() => void save(draft)}
+            >
+              {t.save}
+            </Button>
+          </div>
+        </div>
+      }
+    >
+      <div className="grid gap-3">
         {(
           [
             ["usage", t.usage, t.usageText],
             ["cloud", t.cloud, t.cloudText],
           ] as const
         ).map(([key, label, text]) => (
-          <div key={key} className="py-5">
-            <label className="flex items-start gap-3">
+          <div key={key} className="rounded-xl border border-forest/20 bg-surface p-3">
+            <label htmlFor={`privacy-${key}`} className="flex cursor-pointer items-start gap-3">
               <input
+                id={`privacy-${key}`}
                 type="checkbox"
                 checked={draft[key]}
                 disabled={busy || !state.capabilities[key]}
                 onChange={(e) => setDraft((d) => ({ ...d, [key]: e.target.checked }))}
-                className="mt-1 h-5 w-5 shrink-0 accent-forest"
+                className="mt-0.5 h-5 w-5 shrink-0 accent-forest"
               />
-              <span>
-                <span className="block font-semibold">{label}</span>
-                <span className="mt-2 block text-base leading-6 text-forest/90">{text}</span>
-                {!state.capabilities[key] && (
-                  <span className="mt-2 block text-base">{t.unavailableChoice}</span>
-                )}
+              <span className="min-w-0 text-sm leading-5">
+                <span className="block font-semibold text-ink">{label}</span>
+                <span className="mt-1 block text-forest/80">
+                  {key === "usage" ? t.usageSummary : t.cloudSummary}
+                </span>
               </span>
             </label>
-            {key === "cloud" && (
-              <a
-                href="https://www.cloudflare.com/privacypolicy/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 ml-8 inline-block text-base underline underline-offset-4"
-              >
-                {t.cloudPolicy}
-              </a>
+            <details className="mt-2 ml-8 text-sm leading-5">
+              <summary className="w-fit cursor-pointer font-medium text-forest underline underline-offset-2">
+                {t.moreInformation}
+              </summary>
+              <div className="mt-2 space-y-2 text-forest/80">
+                <p>{text}</p>
+                {key === "cloud" && (
+                  <a
+                    href="https://www.cloudflare.com/privacypolicy/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-forest underline underline-offset-2"
+                  >
+                    {t.cloudPolicy}
+                  </a>
+                )}
+              </div>
+            </details>
+            {!state.capabilities[key] && (
+              <p className="mt-2 ml-8 text-xs leading-4 text-forest/75">{t.unavailableChoice}</p>
             )}
           </div>
         ))}
-      </div>
-      {error && (
-        <p role="alert" className="mt-4 text-base text-red-900 dark:text-red-200">
-          {error}
-        </p>
-      )}
-      <div className="mt-6 grid gap-2 sm:grid-cols-3">
-        <Button
-          accent
-          disabled={busy}
-          onClick={() =>
-            void save({ usage: state.capabilities.usage, cloud: state.capabilities.cloud })
-          }
-        >
-          {t.allow}
-        </Button>
-        <Button disabled={busy} onClick={() => void save(off)}>
-          {t.reject}
-        </Button>
-        <Button disabled={busy} onClick={() => void save(draft)}>
-          {t.save}
-        </Button>
       </div>
     </Modal>
   );

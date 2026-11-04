@@ -87,7 +87,11 @@ export function Customization({
       aria-label={t.customize}
       className="mt-4 rounded-xl border border-forest/20 bg-surface p-3 sm:p-4"
     >
-      <div role="tablist" aria-label={t.customize} className="flex gap-1 overflow-x-auto">
+      <div
+        role="tablist"
+        aria-label={t.customize}
+        className="grid grid-cols-3 gap-1 sm:flex sm:overflow-x-auto"
+      >
         {tabs.map((key, index) => (
           <button
             key={key}
@@ -111,7 +115,7 @@ export function Customization({
               setTab(tabs[next]);
               buttons.current[next]?.focus();
             }}
-            className={`min-h-11 min-w-24 flex-1 rounded-lg px-3 py-2 text-base font-semibold transition-[color,background-color,transform] duration-150 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none ${tab === key ? "bg-action text-on-action" : "text-forest hover:bg-forest/5"}`}
+            className={`min-h-11 min-w-0 rounded-lg px-1 py-2 text-sm font-semibold transition-[color,background-color,transform] duration-150 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none sm:min-w-24 sm:flex-1 sm:px-3 sm:text-base ${tab === key ? "bg-action text-on-action" : "text-forest hover:bg-forest/5"}`}
           >
             {t[key]}
           </button>

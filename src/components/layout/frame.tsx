@@ -49,9 +49,9 @@ export function Frame({
           >
             <nav
               aria-label={t.home}
-              className="mx-auto flex h-full max-w-6xl flex-wrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
+              className="mx-auto flex h-full max-w-6xl flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
             >
-              <div className="flex min-w-0 flex-wrap items-center gap-0 sm:gap-2">
+              <div className="flex min-w-0 flex-1 items-center gap-0 sm:gap-2">
                 <Link
                   className={`${link.replace("hover:bg-forest/10", "")} shrink-0 rounded-lg px-1 sm:px-2`}
                   href={`/${lang}/`}
@@ -62,15 +62,15 @@ export function Frame({
                     width="315"
                     height="83"
                     alt={brand}
-                    className="aspect-[315/83] h-auto w-16 sm:w-32 dark:brightness-0 dark:invert"
+                    className="aspect-[315/83] h-auto w-14 sm:w-32 dark:brightness-0 dark:invert"
                   />
                 </Link>
                 <Link
-                  className={`${link} gap-2 rounded-lg px-2 sm:px-3`}
+                  className={`${link} min-w-0 gap-2 rounded-lg px-1 sm:px-3`}
                   href={route(lang, "saved")}
                 >
                   <FolderOpen aria-hidden="true" className="h-4 w-4 shrink-0" />
-                  {t.saved}
+                  <span className="truncate">{t.saved}</span>
                 </Link>
               </div>
               <div className="flex shrink-0 items-center">
@@ -85,15 +85,15 @@ export function Frame({
       <div className={fullscreen ? "contents" : "flex-1"}>{children}</div>
       {!fullscreen && (
         <footer className="mt-4 bg-[#203e29] text-[#f5f7ef]">
-          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-5 gap-y-3 px-5 py-3 sm:grid-cols-3 sm:justify-items-center">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-5 gap-y-3 px-5 py-3 sm:grid-cols-3 sm:justify-items-center">
             <div>
-              <p className="mb-1 font-semibold text-white/75">{t.contact}</p>
+              <p className="mb-1 font-semibold text-white/50">{t.contact}</p>
               <a className={footerLink} href={`mailto:${operator.email}`}>
                 {operator.email}
               </a>
             </div>
             <div>
-              <p className="mb-1 font-semibold text-white/75">{t.explore}</p>
+              <p className="mb-1 font-semibold text-white/50">{t.explore}</p>
               <Link className={footerLink} href={`/${lang}/`}>
                 {t.home}
               </Link>
@@ -107,7 +107,7 @@ export function Frame({
               </Link>
             </div>
             <div>
-              <p className="mb-1 font-semibold text-white/75">{t.information}</p>
+              <p className="mb-1 font-semibold text-white/50">{t.information}</p>
               <Link className={footerLink} href={route(lang, "privacy")}>
                 {t.privacy}
               </Link>
@@ -118,7 +118,7 @@ export function Frame({
               <br />
               <button
                 onClick={() => window.dispatchEvent(new Event("privacy-open"))}
-                className={footerLink}
+                className={`${footerLink} text-left`}
               >
                 {t.choices}
               </button>
@@ -128,21 +128,35 @@ export function Frame({
               </a>
             </div>
           </div>
-          <div className="bg-[#193120] px-4 py-2 text-center text-base leading-6">
-            {brand} · Copyright © 2026 Baran Ahmedov.{" "}
-            <a
-              href={`${repo}/blob/HEAD/LICENSE`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 transition-opacity duration-150 hover:opacity-50 motion-reduce:transition-none"
-            >
-              MIT License
-            </a>
+          <div className="bg-[#193120] px-4 py-2 text-base leading-6">
+            <p className="mx-auto w-fit max-w-full text-left">
+              {brand} · Copyright © 2026{" "}
+              <a
+                href="https://baranhq.com"
+                className="underline underline-offset-2 transition-opacity duration-150 hover:opacity-50 motion-reduce:transition-none"
+              >
+                Baran Ahmedov (BaranHQ.com)
+              </a>
+              .{" "}
+              <a
+                href={`${repo}/blob/HEAD/LICENSE`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 transition-opacity duration-150 hover:opacity-50 motion-reduce:transition-none"
+              >
+                MIT License
+              </a>
+            </p>
           </div>
         </footer>
       )}
       <StarPrompt lang={lang} fullscreen={fullscreen} />
-      <PrivacyControls t={t} fullscreen={fullscreen} promptReady={languageCheckComplete} />
+      <PrivacyControls
+        lang={lang}
+        t={t}
+        fullscreen={fullscreen}
+        promptReady={languageCheckComplete}
+      />
     </div>
   );
 }

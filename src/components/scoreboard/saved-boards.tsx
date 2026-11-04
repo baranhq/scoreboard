@@ -82,10 +82,15 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
   return (
     <Frame lang={lang} t={t}>
       <main id="main" className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-4 grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
           <h1 className="font-display text-3xl font-bold tracking-tight">{t.saved}</h1>
-          <div className="flex gap-2">
-            <Button primary disabled={!ready || busy} onClick={() => void create()}>
+          <div className="grid gap-2 sm:flex">
+            <Button
+              primary
+              className="w-full justify-center !px-2 whitespace-nowrap sm:w-auto sm:!px-4"
+              disabled={!ready || busy}
+              onClick={() => void create()}
+            >
               ＋ {t.create}
             </Button>
             <Dropdown
@@ -96,6 +101,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                 </>
               }
               ariaLabel={t.backupMenu}
+              triggerClassName="w-full justify-center sm:w-auto"
             >
               <MenuItem
                 disabled={!boards.length}
@@ -181,7 +187,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                       <div className="group relative rounded-lg transition-colors duration-150 focus-within:bg-forest/5 hover:bg-forest/5 motion-reduce:transition-none">
                         <Link
                           href={`/${lang}/#board=${b.id}`}
-                          className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg p-3 pr-28 sm:grid-cols-[auto_minmax(10rem,1fr)_minmax(12rem,1.5fr)]"
+                          className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg p-3 sm:grid-cols-[auto_minmax(10rem,1fr)_minmax(12rem,1.5fr)] sm:pr-28"
                         >
                           <span
                             style={
@@ -212,7 +218,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                             <MatchPreview board={b} />
                           </span>
                         </Link>
-                        <div className="absolute top-3 right-2">
+                        <div className="flex justify-end px-3 pb-2 sm:absolute sm:top-3 sm:right-2 sm:block sm:p-0">
                           <Dropdown
                             label={
                               <>
