@@ -1,13 +1,23 @@
 import type {Lang} from './i18n';
 
 export type HelpSection={id:string;title:string;paragraphs:string[];points?:string[]};
-export type HelpCopy={title:string;intro:string;contentsTitle:string;sections:HelpSection[]};
+export type HelpAction={title:string;description:string;example:'teams'|'score'|'timer'|'fullscreen'|'save'|'share'};
+export type QuickGuide={title:string;intro:string;actions:HelpAction[]};
+export type HelpCopy={title:string;intro:string;contentsTitle:string;quickGuide:QuickGuide;sections:HelpSection[]};
 
 export const help:Record<Lang,HelpCopy>={
  en:{
   title:"Baran's Scoreboard help",
   intro:'Create a board for a class game, a match, or friendly competition. This guide explains how to set it up, run it, and keep a copy of your results. No account is needed.',
   contentsTitle:'On this page',
+  quickGuide:{title:'How to use the scoreboard',intro:'Choose a task and use the button shown.',actions:[
+   {title:'Set up teams',description:'Open Teams to rename or add teams.',example:'teams'},
+   {title:'Change a score',description:'Use + or − on a team card.',example:'score'},
+   {title:'Use a timer',description:'Open Timer to choose a countdown or stopwatch.',example:'timer'},
+   {title:'Show the board',description:'Choose Fullscreen for a larger display.',example:'fullscreen'},
+   {title:'Save a board',description:'Choose Save to name it and keep it in Saved.',example:'save'},
+   {title:'Share a board',description:'Choose Share for a snapshot link; later changes do not sync.',example:'share'},
+  ]},
   sections:[
    {id:'get-started',title:'Get started',paragraphs:['Open the home page to start a board. New boards begin with two teams and a score of zero. In the Teams tab, rename the board and teams, add more teams, and use the arrow buttons to arrange them.']},
    {id:'change-scores',title:'Change scores',paragraphs:['Use + or − on a team card to change its score. Select the score number to enter a value directly. In Controls, change Points per step to make each press add or remove more than one point.'],points:['Reset clears the scores after you confirm.','When a started match is paused, score controls stay disabled until you resume it.']},
@@ -23,6 +33,14 @@ export const help:Record<Lang,HelpCopy>={
   title:"Помощ за Baran's Scoreboard",
   intro:'Създайте табло за игра в клас, мач или приятелско състезание. Тук ще намерите как да го настроите, използвате и запазите. Не е нужна регистрация.',
   contentsTitle:'В тази страница',
+  quickGuide:{title:'Как да използвате таблото',intro:'Изберете задача и използвайте показания бутон.',actions:[
+   {title:'Настройте отборите',description:'Отворете Отбори, за да ги преименувате или да добавите нови.',example:'teams'},
+   {title:'Променете резултата',description:'Използвайте + или − на картата на отбора.',example:'score'},
+   {title:'Използвайте таймер',description:'Отворете Таймер и изберете обратно броене или хронометър.',example:'timer'},
+   {title:'Покажете таблото',description:'Изберете Цял екран за по-голям изглед.',example:'fullscreen'},
+   {title:'Запазете таблото',description:'Изберете Запази, за да му дадете име и да го добавите в Моите резултати.',example:'save'},
+   {title:'Споделете таблото',description:'Изберете Сподели за връзка към моментно копие; последващите промени няма да се синхронизират.',example:'share'},
+  ]},
   sections:[
    {id:'get-started',title:'Първи стъпки',paragraphs:['Отворете началната страница, за да започнете. Новото табло има два отбора с резултат нула. В раздел Отбори можете да преименувате таблото и отборите, да добавяте още отбори и да ги подреждате със стрелките.']},
    {id:'change-scores',title:'Промяна на резултата',paragraphs:['Използвайте + или − на картата на отбора. Изберете числото на резултата, за да въведете стойност директно. В раздел Управление променете Точки при натискане, ако искате всяко натискане да добавя или отнема повече от една точка.'],points:['Нулиране изчиства резултатите след потвърждение.','Когато започнал мач е на пауза, точките не могат да се променят, докато не продължите таймера.']},
@@ -38,6 +56,14 @@ export const help:Record<Lang,HelpCopy>={
   title:"Baran's Scoreboard yardım",
   intro:'Sınıf oyunu, maç veya dostça yarışma için bir skor panosu oluşturun. Bu sayfada panoyu kurmayı, kullanmayı ve sonuçlarınızın bir kopyasını saklamayı öğrenin. Hesap gerekmez.',
   contentsTitle:'Bu sayfada',
+  quickGuide:{title:'Skor tablosu nasıl kullanılır',intro:'Bir işlem seçip gösterilen düğmeyi kullanın.',actions:[
+   {title:'Takımları ayarlayın',description:'Takımları yeniden adlandırmak veya yenilerini eklemek için Takımlar’ı açın.',example:'teams'},
+   {title:'Skoru değiştirin',description:'Takım kartındaki + veya − düğmesini kullanın.',example:'score'},
+   {title:'Zamanlayıcıyı kullanın',description:'Geri sayım veya kronometre seçmek için Zamanlayıcı’yı açın.',example:'timer'},
+   {title:'Panoyu gösterin',description:'Daha büyük görüntü için Tam ekran’ı seçin.',example:'fullscreen'},
+   {title:'Panoyu kaydedin',description:'Ad verip Kayıtlı’ya eklemek için Kaydet’i seçin.',example:'save'},
+   {title:'Panoyu paylaşın',description:'Anlık kopya bağlantısı için Paylaş’ı seçin; sonraki değişiklikler eşitlenmez.',example:'share'},
+  ]},
   sections:[
    {id:'get-started',title:'Başlangıç',paragraphs:['Başlamak için ana sayfayı açın. Yeni panolarda iki takım ve sıfır skor bulunur. Takımlar sekmesinden pano ve takım adlarını değiştirin, yeni takımlar ekleyin ve ok düğmeleriyle sıralayın.']},
    {id:'change-scores',title:'Skorları değiştirme',paragraphs:['Takım kartındaki + veya − düğmesini kullanın. Belirli bir değer girmek için skor sayısını seçin. Her basışta birden fazla puan eklemek veya çıkarmak için Kontroller bölümündeki Adım başına puan ayarını değiştirin.'],points:['Sıfırlama, onayınızdan sonra skorları temizler.','Başlamış bir maç duraklatıldığında, zamanlayıcı devam ettirilene kadar skor değiştirilemez.']},
