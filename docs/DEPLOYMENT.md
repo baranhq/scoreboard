@@ -125,14 +125,14 @@ The ordinary Next.js development server previews the build defaults. Use the exp
 
 ## Common problems
 
-| Problem | Check |
-| --- | --- |
-| Games disappear on another device | Games are browser-local. Export/import JSON or use a snapshot link. |
-| Admin/API returns unavailable | Private file path, PHP environment forwarding, PDO MySQL, database grants, migrations and private directory permissions. Detailed database errors are deliberately not sent to visitors. |
-| Sign-in or privacy save is rejected | Exact `APP_ORIGIN`, HTTPS, cookies, matching host/port, and no cached backend response. Cross-origin writes are rejected. |
-| Admin CSS looks old after a deployment | Upload the complete build, including current `_next` assets, then clear only appropriate static caches. Never cache admin HTML. |
-| Privacy edit does not appear | Verify the PHP rewrite rules, `POLICY_PATH`, the selected language and cache bypass. A pure static host cannot publish server-side edits. |
-| Root language differs from the device | Explicit language URLs are respected. `/` uses the remembered choice or Bulgarian; supported device languages can trigger a suggestion. |
-| A timer is hidden after switching it off | Turning it off stops and resets it. Re-enable it from Timer. |
+| Problem                                  | Check                                                                                                                                                                                    |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Games disappear on another device        | Games are browser-local. Export/import JSON or use a snapshot link.                                                                                                                      |
+| Admin/API returns unavailable            | Private file path, PHP environment forwarding, PDO MySQL, database grants, migrations and private directory permissions. Detailed database errors are deliberately not sent to visitors. |
+| Sign-in or privacy save is rejected      | Exact `APP_ORIGIN`, HTTPS, cookies, matching host/port, and no cached backend response. Cross-origin writes are rejected.                                                                |
+| Admin CSS looks old after a deployment   | Upload the complete build, including current `_next` assets, then clear only appropriate static caches. Never cache admin HTML.                                                          |
+| Privacy edit does not appear             | Verify the PHP rewrite rules, `POLICY_PATH`, the selected language and cache bypass. A pure static host cannot publish server-side edits.                                                |
+| Root language differs from the device    | Explicit language URLs are respected. `/` uses the remembered choice or Bulgarian; supported device languages can trigger a suggestion.                                                  |
+| A timer is hidden after switching it off | Turning it off stops and resets it. Re-enable it from Timer.                                                                                                                             |
 
 Container images and dependencies should be updated deliberately, followed by the same checks. No particular hosting provider's live configuration is certified by this repository.

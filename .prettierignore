@@ -1,0 +1,21 @@
+# Build output and dependencies
+node_modules/
+.next/
+.next-preview/
+out/
+coverage/
+
+# Generated project assets and inventories
+package-lock.json
+next-env.d.ts
+LICENSES.md
+THIRD-PARTY-NOTICES.txt
+public/THIRD-PARTY-NOTICES.txt
+public/dependencies.json
+public/licenses/
+public/policies/
+public/fonts/
+src/app/font-faces.css
+
+# Owner-authored legal policy source
+src/lib/privacy/
