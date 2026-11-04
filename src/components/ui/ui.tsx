@@ -33,12 +33,14 @@ export function Modal({
   title,
   close,
   children,
+  beforeScrollable,
   closeLabel,
   closeDisabled = false,
 }: {
   title: string;
   close: () => void;
   children: ReactNode;
+  beforeScrollable?: ReactNode;
   closeLabel: string;
   closeDisabled?: boolean;
 }) {
@@ -87,22 +89,27 @@ export function Modal({
         if (closing && e.target === e.currentTarget) finishClose();
       }}
       aria-labelledby={titleId}
-      className={`m-auto max-h-[90dvh] w-[min(94vw,36rem)] overflow-y-auto rounded-2xl border border-forest/25 bg-paper p-5 text-ink transition-colors duration-150 backdrop:bg-black/50 motion-reduce:transition-none sm:p-7 ${closing ? "motion-safe:animate-[dismiss_150ms_ease-in_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
+      className={`m-auto flex max-h-[90dvh] w-[min(94vw,28rem)] flex-col overflow-hidden rounded-xl border border-forest/20 bg-surface p-4 text-ink shadow-lg transition-colors duration-150 backdrop:bg-[#102116]/60 motion-reduce:transition-none sm:p-6 ${closing ? "motion-safe:animate-[dismiss_150ms_ease-in_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
     >
-      <div className="mb-5 flex items-start justify-between gap-4 border-b border-forest/25 pb-5">
-        <h2 id={titleId} className="pt-2 text-2xl font-semibold tracking-tight">
+      <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
+        <h2 id={titleId} className="min-w-0 pt-1 font-display text-xl font-bold tracking-tight">
           {title}
         </h2>
         <Button
           aria-label={closeLabel}
           disabled={closeDisabled}
           onClick={requestClose}
-          className="px-3"
+          className="h-11 w-11 shrink-0 rounded-md border-forest/30 bg-forest/5 px-3 text-2xl leading-none hover:bg-forest/10"
         >
           ×
         </Button>
       </div>
-      {children}
+      {beforeScrollable && <div className="shrink-0">{beforeScrollable}</div>}
+      <div
+        className={`min-h-0 flex-1 overflow-y-auto overscroll-contain ${beforeScrollable ? "mt-3" : ""}`}
+      >
+        {children}
+      </div>
     </dialog>
   );
 }
