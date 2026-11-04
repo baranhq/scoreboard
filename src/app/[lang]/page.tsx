@@ -4,6 +4,7 @@ import { Scoreboard } from "@/components/scoreboard/scoreboard";
 import { brand } from "@/lib/site";
 import { softwareSchema } from "@/lib/seo-content";
 import { HomeIntro } from "@/components/content/home-intro";
+import { HomeFaq } from "@/components/content/home-faq";
 
 export default async function Page({params}: {params: Promise<{lang: string}>}) {
  const {lang}=await params;
@@ -11,6 +12,6 @@ export default async function Page({params}: {params: Promise<{lang: string}>}) 
  const schema=softwareSchema(lang,origin,brand);
  return <>
   <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema).replace(/</g,'\\u003c')}}/>
-  <Scoreboard lang={lang} t={messages[lang]}><HomeIntro lang={lang}/></Scoreboard>
+  <Scoreboard lang={lang} t={messages[lang]}><HomeIntro lang={lang}/><HomeFaq lang={lang}/></Scoreboard>
  </>;
 }
