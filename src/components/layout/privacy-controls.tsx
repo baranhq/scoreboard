@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Lang, Messages } from "@/lib/i18n";
 import { pageForPath, route } from "@/lib/routes";
-import { operator } from "@/lib/operator";
 import { events } from "@/lib/analytics";
 import { Button, Modal } from "../ui/ui";
 type Choices = { usage: boolean; cloud: boolean };
@@ -191,11 +190,12 @@ export function PrivacyControls({
       title={t.choices}
       close={() => setOpen(false)}
       closeLabel={t.close}
-      beforeScrollable={
-        <div className="space-y-3 text-sm leading-5">
-          <p className="text-forest/85">{t.consentNote}</p>
+      variant="privacy"
+      beforeScrollable={<p className="text-sm leading-5 text-forest/85">{t.consentNote}</p>}
+      afterScrollable={
+        <div className="space-y-3">
           <p className="text-xs leading-4 text-forest/75">
-            <span className="font-semibold">{t.dataController}:</span> {operator.name} ·{" "}
+            {t.consentChangeNote}{" "}
             <Link className="underline underline-offset-2" href={route(lang, "privacy")}>
               {t.privacy}
             </Link>
@@ -208,7 +208,7 @@ export function PrivacyControls({
               {error}
             </p>
           )}
-          <div className="grid gap-2 pt-1">
+          <div className="grid gap-2 sm:grid-cols-3">
             <Button
               accent
               className="w-full justify-center text-sm font-semibold"
