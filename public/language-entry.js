@@ -1,9 +1,0 @@
-(() => {
-  if (location.pathname !== "/") return;
-  let language = "bg";
-  try {
-    const saved = localStorage.getItem("scoreboard-language");
-    if (["bg", "tr", "en"].includes(saved)) language = saved;
-  } catch {}
-  location.replace("/" + language + "/");
-})();

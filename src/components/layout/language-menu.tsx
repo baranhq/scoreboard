@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { translatedPath } from "@/lib/routes";
+import { homeRoute, translatedPath } from "@/lib/routes";
 import { useEffect, useRef, useState } from "react";
 import type { Lang } from "@/lib/i18n";
 export function LanguageMenu({ lang, languageLabel }: { lang: Lang; languageLabel: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
-  const pathname = usePathname() || `/${lang}/`;
+  const pathname = usePathname() || homeRoute(lang);
   const router = useRouter();
   const labels = { bg: "Български", tr: "Türkçe", en: "English" };
   useEffect(() => {

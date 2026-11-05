@@ -126,3 +126,21 @@ body {
     transform: scale(1);
   }
 }
+@keyframes cursor-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes cursor-tap {
+  from {
+    opacity: 0.65;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}

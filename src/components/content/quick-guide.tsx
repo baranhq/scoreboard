@@ -62,7 +62,7 @@ export function QuickGuide({ content, t }: { content: QuickGuideCopy; t: Message
         <h2 id="quick-guide-title" className="font-display text-2xl font-bold tracking-tight">
           {content.title}
         </h2>
-        <p className="mt-3 text-base leading-7 text-forest/90 sm:text-lg sm:leading-8">
+        <p className="mt-3 text-base leading-7 text-ink/85 sm:text-lg sm:leading-8">
           {content.intro}
         </p>
       </header>
@@ -72,7 +72,7 @@ export function QuickGuide({ content, t }: { content: QuickGuideCopy; t: Message
           <li key={action.title} className="min-w-0">
             <article className="h-full rounded-xl border border-forest/15 bg-surface p-4">
               <h3 className="font-display text-lg font-semibold text-ink">{action.title}</h3>
-              <p className="mt-2 text-base leading-7 text-forest/90">{action.description}</p>
+              <p className="mt-2 text-base leading-7 text-ink/85">{action.description}</p>
               <div aria-hidden="true" className="mt-4 flex min-h-12 items-center">
                 <ControlPreview example={action.example} t={t} />
               </div>
