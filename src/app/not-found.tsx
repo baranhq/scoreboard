@@ -6,7 +6,7 @@ export default function NotFound() {
       <head>
         <meta name="robots" content="noindex,nofollow" />
         <title>Страницата не е намерена | Baran’s Scoreboard</title>
-        <script src="/theme.js" />
+        <script src="/theme-4940c847476b.js" />
       </head>
       <body>
         <main className="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-6 py-12">
