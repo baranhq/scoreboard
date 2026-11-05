@@ -1,35 +1,41 @@
 import type { CSSProperties } from "react";
 import type { Board } from "@/lib/boards";
-import { readableText, teamPalette, validColor } from "@/lib/colors";
+import { readableText, teamPalette, themePaletteColor, validColor } from "@/lib/colors";
 export function MatchPreview({ board }: { board: Board }) {
-  if (board.teams.length === 2) {
-    const [a, b] = board.teams;
-    return (
-      <span className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
-        <span className="min-w-0 text-right text-base font-medium break-words">{a.name}</span>
-        <strong className="font-display text-3xl font-bold tabular-nums">
-          {a.score} <span className="font-normal text-forest/70">:</span> {b.score}
-        </strong>
-        <span className="min-w-0 text-base font-medium break-words">{b.name}</span>
-      </span>
-    );
-  }
   return (
-    <span className="flex flex-wrap gap-2">
+    <span className="flex flex-wrap gap-x-3 gap-y-2">
       {board.teams.slice(0, 6).map((team, index) => {
         const color = validColor(team.color)
           ? team.color
           : validColor(board.color)
             ? board.color
             : teamPalette[index % teamPalette.length].background;
+        const palette = teamPalette.find(
+          (item) => item.background.toLowerCase() === color.toLowerCase(),
+        );
+        const darkColor = themePaletteColor(color, "dark");
+        const lightText = readableText(color, team.textColor || board.textColor || palette?.text);
+        const darkText = readableText(
+          darkColor,
+          team.textColor || board.textColor || palette?.darkText,
+        );
         return (
           <span
             key={team.id}
-            style={{ "--preview-bg": color, "--preview-fg": readableText(color) } as CSSProperties}
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--preview-bg)] px-2 py-1 text-base text-[var(--preview-fg)]"
+            style={
+              {
+                "--preview-bg": color,
+                "--preview-fg": lightText,
+                "--preview-bg-dark": darkColor,
+                "--preview-fg-dark": darkText,
+              } as CSSProperties
+            }
+            className="inline-flex min-w-0 items-center gap-1.5 rounded-lg border border-black/10 bg-[var(--preview-bg)] px-2 py-1 text-sm font-medium text-[var(--preview-fg)] sm:gap-2 sm:px-2.5 sm:py-1.5 dark:border-white/10 dark:bg-[var(--preview-bg-dark)] dark:text-[var(--preview-fg-dark)]"
           >
-            <span className="break-words">{team.name}</span>
-            <strong className="font-display text-xl font-bold tabular-nums">{team.score}</strong>
+            <span className="max-w-20 truncate sm:max-w-28">{team.name}</span>
+            <strong className="font-display text-base font-bold tabular-nums sm:text-lg">
+              {team.score}
+            </strong>
           </span>
         );
       })}

@@ -2,7 +2,7 @@ Options -Indexes
 DirectoryIndex index.html
 ErrorDocument 404 /404.html
 RewriteEngine On
-# The static / page remembers a local language choice; Bulgarian is its no-script default.
+# The static / page is the English landing page; localized landing pages live under /[lang]/.
 # PHP is the only administrator implementation. The build replaces this marker
 # with the route configured by ADMIN_PATH; PHP independently validates the same value.
 # ADMIN_ROUTE_REWRITE

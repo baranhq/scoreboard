@@ -1,5 +1,7 @@
 import { backup, parseBackup, validateJsonDepth, type Board } from "./boards.ts";
 import { pausedTimer } from "./timer.ts";
+import type { Lang } from "./i18n.ts";
+import { route } from "./routes.ts";
 export const MAX_SHARE_LENGTH = 32768;
 export function encodeGame(board: Board): string {
   const snapshot = {
@@ -25,6 +27,7 @@ export function decodeGame(encoded: string): { board: Board; sourceId: string; k
   if (boards.length !== 1) throw new Error("one game required");
   return { board: boards[0], sourceId: raw.boards[0].id, key: encoded };
 }
-export function shareUrl(board: Board): string {
-  return `${location.origin}${location.pathname}#share=${encodeGame(board)}`;
+export function shareUrl(board: Board, lang: Lang, baseOrigin?: string): string {
+  const origin = baseOrigin ?? location.origin;
+  return `${origin}${route(lang, "scoreboard")}#share=${encodeGame(board)}`;
 }
