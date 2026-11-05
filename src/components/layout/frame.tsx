@@ -3,7 +3,7 @@ import Link from "next/link";
 import { StarPrompt } from "./star-prompt";
 import { brand, repo } from "@/lib/site";
 import { operator } from "@/lib/operator";
-import { route } from "@/lib/routes";
+import { homeRoute, route } from "@/lib/routes";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import type { Lang, Messages } from "@/lib/i18n";
 import { FolderOpen } from "lucide-react";
@@ -34,7 +34,8 @@ export function Frame({
   const link =
     "inline-flex min-h-11 items-center text-[17px] font-medium transition-colors duration-150 hover:bg-forest/10 underline-offset-4 motion-reduce:transition-none";
   const footerLink = link
-    .replace("min-h-11", "min-h-11 sm:min-h-9")
+    .replace("min-h-11", "min-h-8")
+    .replace("text-[17px]", "text-[15px] leading-5")
     .replace("transition-colors", "transition-opacity")
     .replace("hover:bg-forest/10", "hover:opacity-50");
   return (
@@ -54,7 +55,7 @@ export function Frame({
               <div className="flex min-w-0 flex-1 items-center gap-0 sm:gap-2">
                 <Link
                   className={`${link.replace("hover:bg-forest/10", "")} shrink-0 rounded-lg px-1 sm:px-2`}
-                  href={`/${lang}/`}
+                  href={route(lang, "scoreboard")}
                   aria-label={`${brand}: ${t.home}`}
                 >
                   <img
@@ -62,15 +63,16 @@ export function Frame({
                     width="315"
                     height="83"
                     alt={brand}
-                    className="aspect-[315/83] h-auto w-14 sm:w-32 dark:brightness-0 dark:invert"
+                    className="aspect-[315/83] h-auto w-16 min-[360px]:w-20 sm:w-32 dark:brightness-0 dark:invert"
                   />
                 </Link>
                 <Link
-                  className={`${link} min-w-0 gap-2 rounded-lg px-1 sm:px-3`}
+                  aria-label={t.saved}
+                  className={`${link} ml-1 min-w-0 gap-1 rounded-lg px-0 text-sm min-[360px]:ml-2 min-[360px]:gap-2 min-[360px]:px-1 min-[360px]:text-base sm:ml-8 sm:px-3`}
                   href={route(lang, "saved")}
                 >
                   <FolderOpen aria-hidden="true" className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{t.saved}</span>
+                  <span className="whitespace-nowrap">{t.saved}</span>
                 </Link>
               </div>
               <div className="flex shrink-0 items-center">
@@ -85,55 +87,83 @@ export function Frame({
       <div className={fullscreen ? "contents" : "flex-1"}>{children}</div>
       {!fullscreen && (
         <footer className="mt-4 bg-[#203e29] text-[#f5f7ef]">
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-5 gap-y-3 px-5 py-3 sm:grid-cols-3 sm:justify-items-center">
-            <div>
-              <p className="mb-1 font-semibold text-white/50">{t.contact}</p>
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-5 gap-y-2 px-4 py-3 sm:grid-cols-3 sm:justify-items-center sm:px-5">
+            <section className="border-t border-white/15 pt-2 first:border-t-0 first:pt-0 sm:border-0 sm:pt-0">
+              <h2 className="mb-1 text-xs font-bold tracking-[0.08em] text-white/70 uppercase">
+                {t.contact}
+              </h2>
               <a className={footerLink} href={`mailto:${operator.email}`}>
                 {operator.email}
               </a>
-            </div>
-            <div>
-              <p className="mb-1 font-semibold text-white/50">{t.explore}</p>
-              <Link className={footerLink} href={`/${lang}/`}>
-                {t.home}
-              </Link>
-              <br />
-              <Link className={footerLink} href={route(lang, "saved")}>
-                {t.saved}
-              </Link>
-              <br />
-              <Link className={footerLink} href={route(lang, "help")}>
-                {t.help}
-              </Link>
-            </div>
-            <div>
-              <p className="mb-1 font-semibold text-white/50">{t.information}</p>
-              <Link className={footerLink} href={route(lang, "privacy")}>
-                {t.privacy}
-              </Link>
-              <br />
-              <Link className={footerLink} href={route(lang, "licenses")}>
-                {t.licenses}
-              </Link>
-              <br />
-              <button
-                onClick={() => window.dispatchEvent(new Event("privacy-open"))}
-                className={`${footerLink} text-left`}
-              >
-                {t.choices}
-              </button>
-              <br />
-              <a className={footerLink} href={repo} target="_blank" rel="noopener noreferrer">
-                GitHub
-              </a>
-            </div>
+            </section>
+            <section className="border-t border-white/15 pt-2 first:border-t-0 first:pt-0 sm:border-0 sm:pt-0">
+              <h2 className="mb-1 text-xs font-bold tracking-[0.08em] text-white/70 uppercase">
+                {t.explore}
+              </h2>
+              <nav aria-label={t.explore}>
+                <ul className="grid justify-items-start sm:justify-items-center">
+                  <li>
+                    <Link className={footerLink} href={homeRoute(lang)}>
+                      {t.home}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className={footerLink} href={route(lang, "scoreboard")}>
+                      {t.create}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className={footerLink} href={route(lang, "saved")}>
+                      {t.saved}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className={footerLink} href={route(lang, "help")}>
+                      {t.help}
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
+            </section>
+            <section className="border-t border-white/15 pt-2 first:border-t-0 first:pt-0 sm:border-0 sm:pt-0">
+              <h2 className="mb-1 text-xs font-bold tracking-[0.08em] text-white/70 uppercase">
+                {t.information}
+              </h2>
+              <nav aria-label={t.information}>
+                <ul className="grid justify-items-start sm:justify-items-center">
+                  <li>
+                    <Link className={footerLink} href={route(lang, "privacy")}>
+                      {t.privacy}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className={footerLink} href={route(lang, "licenses")}>
+                      {t.licenses}
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => window.dispatchEvent(new Event("privacy-open"))}
+                      className={`${footerLink} text-left`}
+                    >
+                      {t.choices}
+                    </button>
+                  </li>
+                  <li>
+                    <a className={footerLink} href={repo} target="_blank" rel="noopener noreferrer">
+                      GitHub
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </section>
           </div>
           <div className="bg-[#193120] px-4 py-2 text-base leading-6">
             <p className="mx-auto w-fit max-w-full text-left">
               {brand} · Copyright © 2026{" "}
               <a
                 href="https://baranhq.com"
-                className="underline underline-offset-2 transition-opacity duration-150 hover:opacity-50 motion-reduce:transition-none"
+                className="transition-opacity duration-150 hover:opacity-50 motion-reduce:transition-none"
               >
                 Baran Ahmedov (BaranHQ.com)
               </a>
@@ -142,7 +172,7 @@ export function Frame({
                 href={`${repo}/blob/HEAD/LICENSE`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline underline-offset-2 transition-opacity duration-150 hover:opacity-50 motion-reduce:transition-none"
+                className="underline decoration-forest/50 decoration-1 underline-offset-4 transition-[opacity,text-decoration-color] duration-150 hover:decoration-forest hover:opacity-50 motion-reduce:transition-none"
               >
                 MIT License
               </a>

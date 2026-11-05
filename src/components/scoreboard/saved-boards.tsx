@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import type { Lang, Messages } from "@/lib/i18n";
 import { europeanDateTime } from "@/lib/dates";
 import {
@@ -15,6 +15,7 @@ import {
 import { foreground, validColor } from "@/lib/colors";
 import { loadBoards, writeBoards } from "@/store/database";
 import { track } from "@/lib/analytics";
+import { route } from "@/lib/routes";
 import { Frame } from "../layout/frame";
 import { Button, Modal } from "../ui/ui";
 import { Pencil, Palette, Copy, Download, Trash2, ChevronDown, Share2 } from "lucide-react";
@@ -23,6 +24,18 @@ import { MatchPreview } from "./match-preview";
 import { ShareDialog } from "./share-dialog";
 import { BoardIcon } from "./board-icon";
 import { BoardIdentity } from "./board-identity";
+
+function readSavedBoardPositions(list: HTMLUListElement | null) {
+  if (!list) return null;
+
+  const positions = new Map<string, DOMRect>();
+  list.querySelectorAll<HTMLElement>("[data-saved-board]").forEach((row) => {
+    const id = row.dataset.savedBoard;
+    if (id) positions.set(id, row.getBoundingClientRect());
+  });
+  return positions;
+}
+
 export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
   const router = useRouter();
   const [boards, setBoards] = useState<Board[]>([]);
@@ -39,6 +52,51 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+  const layoutSnapshot = useRef<Map<string, DOMRect> | null>(null);
+  const enteringBoardIds = useRef(new Set<string>());
+
+  useLayoutEffect(() => {
+    const previous = layoutSnapshot.current;
+    layoutSnapshot.current = null;
+    if (!previous || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      enteringBoardIds.current.clear();
+      return;
+    }
+
+    const animations: Animation[] = [];
+    list.current?.querySelectorAll<HTMLElement>("[data-saved-board]").forEach((row) => {
+      const id = row.dataset.savedBoard;
+      if (!id) return;
+
+      const oldPosition = previous.get(id);
+      if (!oldPosition && enteringBoardIds.current.has(id)) {
+        animations.push(
+          row.animate(
+            [
+              { opacity: 0, transform: "translate3d(0, -6px, 0)" },
+              { opacity: 1, transform: "translate3d(0, 0, 0)" },
+            ],
+            { duration: 220, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+          ),
+        );
+        return;
+      }
+      if (!oldPosition) return;
+
+      const offsetY = oldPosition.top - row.getBoundingClientRect().top;
+      if (offsetY === 0) return;
+      animations.push(
+        row.animate(
+          [{ transform: `translate3d(0, ${offsetY}px, 0)` }, { transform: "translate3d(0, 0, 0)" }],
+          { duration: 320, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+        ),
+      );
+    });
+    enteringBoardIds.current.clear();
+    return () => animations.forEach((animation) => animation.cancel());
+  }, [boards]);
+
   useEffect(() => {
     void loadBoards()
       .then((items) => {
@@ -50,12 +108,16 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
         setReady(true);
       });
   }, [t.storageError]);
-  const handleSave = async (b: Board) => {
+  const handleSave = async (b: Board, animateListChange = false) => {
     // This helper runs after a save action; the value is intentionally not render-pure.
     // eslint-disable-next-line react-hooks/purity
     const next = { ...b, updatedAt: Date.now() };
     try {
       await writeBoards([next]);
+      if (animateListChange) {
+        layoutSnapshot.current = readSavedBoardPositions(list.current);
+        if (!boards.some((old) => old.id === b.id)) enteringBoardIds.current.add(b.id);
+      }
       setBoards((all) => [...all.filter((old) => old.id !== b.id), next]);
     } catch (error) {
       setMessage(t.storageError);
@@ -72,7 +134,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
       const b = newBoard(t.board, t.team);
       await writeBoards([b]);
       track("create_scoreboard");
-      router.push(`/${lang}/#board=${b.id}`);
+      router.push(`${route(lang, "scoreboard")}#board=${b.id}`);
     } catch {
       setMessage(t.storageError);
     } finally {
@@ -81,9 +143,9 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
   };
   return (
     <Frame lang={lang} t={t}>
-      <main id="main" className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
-        <div className="mb-4 grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
-          <h1 className="font-display text-3xl font-bold tracking-tight">{t.saved}</h1>
+      <main id="main" className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-5">
+        <div className="mb-4 grid gap-3 border-b border-forest/20 pb-3 sm:mb-5 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:pb-4">
+          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{t.saved}</h1>
           <div className="grid gap-2 sm:flex">
             <Button
               primary
@@ -91,7 +153,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
               disabled={!ready || busy}
               onClick={() => void create()}
             >
-              ＋ {t.create}
+              ＋ {t.newScoreboard}
             </Button>
             <Dropdown
               label={
@@ -132,6 +194,8 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
               if (file.size > MAX_BACKUP_BYTES) throw new Error();
               const items = parseBackupText(await file.text());
               await writeBoards(items);
+              layoutSnapshot.current = readSavedBoardPositions(list.current);
+              items.forEach((item) => enteringBoardIds.current.add(item.id));
               setBoards((all) => [...all, ...items]);
               setMessage(t.imported);
               track("import_backup");
@@ -173,7 +237,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                 />
               </>
             )}
-            <ul className="divide-y divide-forest/20 border-y border-forest/20">
+            <ul ref={list} className="grid gap-2 sm:gap-3">
               {boards
                 .filter((b) =>
                   b.name.toLocaleLowerCase(lang).includes(search.toLocaleLowerCase(lang)),
@@ -183,11 +247,15 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                   const b = displayBoard(raw, t);
                   const accent = validColor(b.accent) ? b.accent : "#285b35";
                   return (
-                    <li key={b.id} className="relative py-1">
+                    <li
+                      key={b.id}
+                      data-saved-board={b.id}
+                      className="relative rounded-xl border border-forest/20 bg-surface p-1 transition-colors duration-150 focus-within:z-20 hover:border-forest/35 has-[details[open]]:z-40 motion-reduce:transition-none"
+                    >
                       <div className="group relative rounded-lg transition-colors duration-150 focus-within:bg-forest/5 hover:bg-forest/5 motion-reduce:transition-none">
                         <Link
-                          href={`/${lang}/#board=${b.id}`}
-                          className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg p-3 sm:grid-cols-[auto_minmax(10rem,1fr)_minmax(12rem,1.5fr)] sm:pr-28"
+                          href={`${route(lang, "scoreboard")}#board=${b.id}`}
+                          className="grid grid-cols-[auto_minmax(0,1fr)_2.75rem] items-center gap-2 rounded-lg p-2 sm:grid-cols-[auto_minmax(10rem,1fr)_minmax(12rem,1.5fr)] sm:gap-3 sm:p-3 sm:pr-28"
                         >
                           <span
                             style={
@@ -196,29 +264,29 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                                 "--accent-text": foreground(accent),
                               } as CSSProperties
                             }
-                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--accent-text)]"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--accent-text)] sm:h-12 sm:w-12"
                           >
                             <BoardIcon id={b.icon} />
                           </span>
                           <span className="min-w-0">
-                            <span className="block font-display text-xl font-bold break-words">
+                            <span className="block font-display text-lg font-bold break-words sm:text-xl">
                               {b.name}
                             </span>
-                            <time
-                              dateTime={new Date(b.updatedAt).toISOString()}
-                              className="mt-1 block text-base text-forest/90"
-                            >
-                              {europeanDateTime(b.updatedAt)}
-                            </time>
-                            <span className="mt-1 inline-flex min-h-9 items-center gap-2 text-base font-medium text-forest">
-                              {t.open} <span aria-hidden="true">→</span>
+                            <span className="mt-1 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-0.5">
+                              <time
+                                dateTime={new Date(b.updatedAt).toISOString()}
+                                className="text-sm text-forest/90 sm:text-base"
+                              >
+                                {europeanDateTime(b.updatedAt)}
+                              </time>
                             </span>
                           </span>
-                          <span className="col-span-2 min-w-0 sm:col-span-1">
+                          <span aria-hidden="true" className="block h-11 w-11 sm:hidden" />
+                          <span className="col-span-3 min-w-0 sm:col-span-1">
                             <MatchPreview board={b} />
                           </span>
                         </Link>
-                        <div className="flex justify-end px-3 pb-2 sm:absolute sm:top-3 sm:right-2 sm:block sm:p-0">
+                        <div className="absolute top-1 right-1 z-10 sm:top-3 sm:right-2">
                           <Dropdown
                             label={
                               <>
@@ -254,14 +322,17 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                                 onClick={async () => {
                                   setBusy(true);
                                   try {
-                                    await handleSave({
-                                      ...b,
-                                      id: crypto.randomUUID(),
-                                      teams: b.teams.map((team) => ({
-                                        ...team,
+                                    await handleSave(
+                                      {
+                                        ...b,
                                         id: crypto.randomUUID(),
-                                      })),
-                                    });
+                                        teams: b.teams.map((team) => ({
+                                          ...team,
+                                          id: crypto.randomUUID(),
+                                        })),
+                                      },
+                                      true,
+                                    );
                                   } catch {
                                     setMessage(t.storageError);
                                   } finally {
@@ -294,6 +365,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                               onClick={() =>
                                 ask(t.deleteConfirm, async () => {
                                   await writeBoards([], b.id);
+                                  layoutSnapshot.current = readSavedBoardPositions(list.current);
                                   setBoards((all) => all.filter((old) => old.id !== b.id));
                                 })
                               }
@@ -305,9 +377,17 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                         </div>
                       </div>
                       {editing === b.id && (
-                        <div className="mb-4 rounded-lg border border-forest/20 bg-surface p-4">
-                          <div className="mb-3 flex items-center justify-between gap-3">
-                            <h2 className="font-display text-xl font-bold">{t.customize}</h2>
+                        <section
+                          aria-labelledby={`customize-${b.id}`}
+                          className="mt-2 rounded-xl border border-forest/20 bg-paper p-3 motion-safe:animate-[appear_180ms_ease-out] motion-reduce:animate-none sm:p-4"
+                        >
+                          <div className="mb-3 flex items-center justify-between gap-3 border-b border-forest/15 pb-2">
+                            <h2
+                              id={`customize-${b.id}`}
+                              className="font-display text-lg font-bold sm:text-xl"
+                            >
+                              {t.customize}
+                            </h2>
                             <Button onClick={() => setEditing(undefined)} aria-label={t.close}>
                               ×
                             </Button>
@@ -319,7 +399,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                               void handleSave(next).catch(() => {});
                             }}
                           />
-                        </div>
+                        </section>
                       )}
                     </li>
                   );

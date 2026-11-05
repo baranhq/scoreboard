@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Check, Copy, Save } from "lucide-react";
 import { type Board } from "@/lib/boards";
-import { encodeGame } from "@/lib/sharing";
+import { shareUrl } from "@/lib/sharing";
 import type { Lang, Messages } from "@/lib/i18n";
 import { route } from "@/lib/routes";
 import { Button, Modal } from "../ui/ui";
@@ -30,7 +30,7 @@ export function ShareDialog({
   let url = "";
   let tooLarge = false;
   try {
-    url = `${location.origin}${route(lang)}#share=${encodeGame(saved || board)}`;
+    url = shareUrl(saved || board, lang);
   } catch {
     tooLarge = true;
   }
