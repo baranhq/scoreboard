@@ -63,12 +63,12 @@ export function Frame({
                     width="315"
                     height="83"
                     alt={brand}
-                    className="aspect-[315/83] h-auto w-16 min-[360px]:w-20 sm:w-32 dark:brightness-0 dark:invert"
+                    className="aspect-[315/83] h-auto w-16 min-[360px]:w-[4.5rem] sm:w-32 dark:brightness-0 dark:invert"
                   />
                 </Link>
                 <Link
                   aria-label={t.saved}
-                  className={`${link} ml-1 min-w-0 gap-1 rounded-lg px-0 text-sm min-[360px]:ml-2 min-[360px]:gap-2 min-[360px]:px-1 min-[360px]:text-base sm:ml-8 sm:px-3`}
+                  className={`${link} ml-1 min-w-0 gap-1 rounded-lg px-0 text-sm min-[420px]:gap-2 min-[420px]:px-1 min-[420px]:text-base sm:ml-8 sm:px-3`}
                   href={route(lang, "saved")}
                 >
                   <FolderOpen aria-hidden="true" className="h-4 w-4 shrink-0" />
