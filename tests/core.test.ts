@@ -21,6 +21,7 @@ import { encodeGame, decodeGame } from "../src/lib/sharing.ts";
 import { writeBoards, loadBoards, loadOrCreateBoard } from "../src/store/database.ts";
 import { localizedAlternates } from "../src/lib/routes.ts";
 import { softwareSchema } from "../src/lib/seo-content.ts";
+import { shouldKeepFullscreenControlsVisible } from "../src/components/scoreboard/use-fullscreen-controls.ts";
 
 test("custom colours maintain readable controls across RGB colour space", () => {
   for (let r = 0; r <= 255; r += 17)
@@ -36,6 +37,13 @@ test("custom colours maintain readable controls across RGB colour space", () => 
       }
   assert.equal(validColor("red; background:url(https://example.org)"), false);
 });
+
+test("fullscreen controls ignore sticky touch hover but preserve mouse hover and keyboard focus", () => {
+  assert.equal(shouldKeepFullscreenControlsVisible("touch", false, true), false);
+  assert.equal(shouldKeepFullscreenControlsVisible("mouse", false, true), true);
+  assert.equal(shouldKeepFullscreenControlsVisible("touch", true, false), true);
+});
+
 test("pause and disable stop the timer, re-enable restores its configured time", () => {
   const running = { ...defaultTimer, enabled: true, startedAt: 1000 };
   const paused = pausedTimer(running, 6000);

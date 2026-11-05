@@ -21,6 +21,12 @@ $html=policy_inline('<img src=x onerror=alert(1)> [bad](javascript:alert(1)) [li
 check(!str_contains($html,'<img'),'markup escaped');check(!str_contains($html,'href="javascript:'),'unsafe scheme rejected');check(str_contains($html,'&quot;'),'attribute quotes escaped');
 $policy=['title'=>'Privacy & <notice>','content'=>"## Overview\n\nUpdated policy text. [Contact](mailto:owner@example.org)"];
 check(policy_summary($policy)==='Updated policy text. Contact','policy description summary');
+$renderedPolicy=policy_article($policy+['updatedAt'=>'2026-11-05'],'en');
+$policyTopics=policy_topics($policy,'en');
+check(str_contains($renderedPolicy,'id="policy-content" class="max-w-3xl min-w-0 text-ink'),'policy article hydration structure');
+check(str_contains($renderedPolicy,'id="policy-section-0"'),'policy section anchor');
+check(str_contains($renderedPolicy,'data-fullscreen-control="true"'),'privacy settings button in rendered policy');
+check(str_contains($policyTopics,'href="#policy-section-0"'),'policy contents match rendered section anchors');
 $metadata=policy_metadata_html('<title>Old title</title><meta name="description" content="Old description"><meta property="og:title" content="Old social title"><meta property="og:description" content="Old social description"><meta name="twitter:title" content="Old card title"><meta name="twitter:description" content="Old card description">',$policy);
 check(str_contains($metadata,'<title>Privacy &amp; &lt;notice&gt; | Baran&#39;s Scoreboard</title>'),'policy title escaped in metadata');
 check(str_contains($metadata,'name="description" content="Updated policy text. Contact"'),'policy description updated');

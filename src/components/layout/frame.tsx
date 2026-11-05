@@ -59,6 +59,8 @@ export function Frame({
                 >
                   <img
                     src="/wordmark-62157c899159.webp"
+                    srcSet="/wordmark-56-82e25c28ac94.webp 56w, /wordmark-112-104bf045763f.webp 112w, /wordmark-128-492516610722.webp 128w, /wordmark-256-aaadf7f18229.webp 256w"
+                    sizes="(min-width: 640px) 128px, 56px"
                     width="315"
                     height="83"
                     alt={brand}
@@ -87,13 +89,13 @@ export function Frame({
         <footer className="mt-4 bg-[#203e29] text-[#f5f7ef]">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-5 gap-y-3 px-5 py-3 sm:grid-cols-3 sm:justify-items-center">
             <div>
-              <p className="mb-1 font-semibold text-white/50">{t.contact}</p>
+              <p className="mb-1 font-semibold text-white/70">{t.contact}</p>
               <a className={footerLink} href={`mailto:${operator.email}`}>
                 {operator.email}
               </a>
             </div>
             <div>
-              <p className="mb-1 font-semibold text-white/50">{t.explore}</p>
+              <p className="mb-1 font-semibold text-white/70">{t.explore}</p>
               <Link className={footerLink} href={`/${lang}/`}>
                 {t.home}
               </Link>
@@ -107,10 +109,10 @@ export function Frame({
               </Link>
             </div>
             <div>
-              <p className="mb-1 font-semibold text-white/50">{t.information}</p>
-              <Link className={footerLink} href={route(lang, "privacy")}>
+              <p className="mb-1 font-semibold text-white/70">{t.information}</p>
+              <a className={footerLink} href={route(lang, "privacy")}>
                 {t.privacy}
-              </Link>
+              </a>
               <br />
               <Link className={footerLink} href={route(lang, "licenses")}>
                 {t.licenses}

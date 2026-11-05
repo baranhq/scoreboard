@@ -14,11 +14,69 @@ function policy_inline(string $text): string {
     foreach($matches[0] as $index=>$match){$html.=h(substr($text,$end,$match[1]-$end));if($matches[1][$index][1]>=0){$href=$matches[2][$index][0];$label=$matches[1][$index][0];$external=str_starts_with($href,'https://');$html.='<a href="'.h($href).'"'.($external?' target="_blank" rel="noopener noreferrer"':'').' class="underline underline-offset-4">'.h($label).'</a>';}else $html.='<strong>'.h($matches[3][$index][0]).'</strong>';$end=$match[1]+strlen($match[0]);}
     return $html.h(substr($text,$end));
 }
+function policy_blocks(string $content): array {
+    $normalised=str_replace("\r\n","\n",$content);
+    $parts=preg_split('/\n\s*\n/u',$normalised);
+    $blocks=[];
+
+    foreach($parts as $part){
+        if($part==='')continue;
+        $heading=str_starts_with($part,'## ');
+        $blocks[]=[
+            'heading'=>$heading,
+            'text'=>$heading?trim(substr($part,3)):trim($part),
+        ];
+    }
+
+    return $blocks;
+}
+function policy_topic_list(array $topics): string {
+    $html='<ul class="mt-2 space-y-1">';
+
+    foreach($topics as $topic){
+        $href=h($topic['href']);
+        $title=h($topic['title']);
+        $html.='<li><a href="#'.$href.'" class="flex min-h-11 items-center rounded-lg px-3 py-2 font-sans text-base leading-6 font-medium text-forest transition-colors duration-150 hover:text-forest/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none dark:text-[#8bd69a] dark:hover:text-white">'.$title.'</a></li>';
+    }
+
+    return $html.'</ul>';
+}
 function policy_article(array $p,string $lang='en'): string {
-    $labels=['en'=>'Updated','bg'=>'Актуализирана на','tr'=>'Güncelleme:'];$date=european_date(substr($p['updatedAt'],0,10));
-    $html='<article id="policy-content"><p class="mb-2 text-base font-medium text-forest"><time datetime="'.h($p['updatedAt']).'">'.h($labels[$lang].' '.$date).'</time></p><h1 class="font-display text-3xl font-bold tracking-tight">'.h($p['title']).'</h1>';
-    foreach(preg_split('/\n\s*\n/u',str_replace("\r\n","\n",$p['content'])) as $block){if(!trim($block))continue;if(str_starts_with($block,'## '))$html.='<h2 class="mt-7 border-t border-forest/20 pt-5 font-display text-2xl font-bold">'.h(trim(substr($block,3))).'</h2>';else $html.='<p class="mt-3 whitespace-pre-line text-lg leading-8">'.policy_inline(trim($block)).'</p>';}
-    return $html.'</article>';
+    $labels=['en'=>'Updated','bg'=>'Актуализирана на','tr'=>'Güncelleme:'];
+    $choices=['en'=>'Privacy choices','bg'=>'Настройки за поверителност','tr'=>'Gizlilik tercihleri'];
+    $date=european_date(substr($p['updatedAt'],0,10));
+    $html='<article id="policy-content" class="max-w-3xl min-w-0 text-ink transition-colors duration-150 motion-reduce:transition-none"><p class="mb-2 text-base font-medium text-forest"><time datetime="'.h($p['updatedAt']).'">'.h($labels[$lang]).'<!-- --> <!-- -->'.h($date).'</time></p><h1 class="font-display text-3xl font-bold tracking-tight">'.h($p['title']).'</h1>';
+    foreach(policy_blocks($p['content']) as $index=>$block){
+        if($block['heading']){
+            $html.='<h2 id="policy-section-'.$index.'" class="mt-7 scroll-mt-24 border-t border-forest/20 pt-5 font-display text-2xl font-bold">'.h($block['text']).'</h2>';
+        }else{
+            $html.='<p class="mt-3 text-lg leading-8 whitespace-pre-line">'.policy_inline($block['text']).'</p>';
+        }
+    }
+
+    $button='inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 py-2 text-base font-medium transition-[color,background-color,border-color,opacity,filter,transform] duration-150 ease-out active:scale-[.98] active:brightness-95 disabled:opacity-50 motion-reduce:transition-none motion-reduce:transform-none border-forest/25 bg-transparent text-forest hover:border-forest/45 hover:bg-forest/10 mt-4';
+    return $html.'<button data-fullscreen-control="true" class="'.$button.'">'.h($choices[$lang]).'</button></article>';
+}
+function policy_topics(array $p,string $lang): string {
+    $labels=['en'=>'On this page','bg'=>'На тази страница','tr'=>'Bu sayfada'];
+    $topics=[];
+    foreach(policy_blocks($p['content']) as $index=>$block){
+        if($block['heading'])$topics[]=['href'=>'policy-section-'.$index,'title'=>$block['text']];
+    }
+
+    $label=h($labels[$lang]);
+    $mobile='<details class="mb-6 lg:hidden">'
+        .'<summary class="cursor-pointer font-sans text-base font-semibold text-forest transition-colors duration-150 hover:text-forest/80 motion-reduce:transition-none dark:text-[#8bd69a] dark:hover:text-white">'.$label.'</summary>'
+        .'<nav aria-label="'.$label.'">'.policy_topic_list($topics).'</nav>'
+        .'</details>';
+    $desktop='<aside class="hidden h-fit lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto">'
+        .'<nav aria-label="'.$label.'">'
+        .'<p class="px-3 font-sans text-base font-semibold text-forest dark:text-[#8bd69a]">'.$label.'</p>'
+        .policy_topic_list($topics)
+        .'</nav>'
+        .'</aside>';
+
+    return $mobile.$desktop;
 }
 function policy_summary(array $p): string {
     foreach(preg_split('/\n\s*\n/u',str_replace("\r\n","\n",$p['content'])) as $block){
@@ -60,6 +118,8 @@ function serve_policy(array $c,string $lang): never {
     $p=policy_document($c,$lang);$file=rtrim($_SERVER['DOCUMENT_ROOT'],'/').policy_paths()[$lang].'index.html';$html=file_get_contents($file);
     $article=policy_article($p,$lang);$json=json_encode($p,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
     $html=preg_replace_callback('~<article\b[^>]*\bid="policy-content"[^>]*>.*?</article>~s',static fn()=>$article,$html,1,$count);if($count!==1)throw new RuntimeException('Policy template unavailable');
+    $topics=policy_topics($p,$lang);
+    $html=preg_replace_callback('~<details\b[^>]*>.*?</details>\s*<aside\b[^>]*>.*?</aside>~s',static fn()=>$topics,$html,1,$count);if($count!==1)throw new RuntimeException('Policy topics unavailable');
     $html=preg_replace_callback('~<script\b[^>]*\bid="policy-document"[^>]*>.*?</script>~s',static fn()=>'<script id="policy-document" type="application/json">'.$json.'</script>',$html,1,$count);if($count!==1)throw new RuntimeException('Policy data unavailable');
     $html=policy_metadata_html($html,$p);
     header_remove('X-Robots-Tag');header('Content-Type: text/html; charset=UTF-8');header('Cache-Control: no-cache');echo $html;exit;
