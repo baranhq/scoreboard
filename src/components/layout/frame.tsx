@@ -54,7 +54,7 @@ export function Frame({
             >
               <div className="flex min-w-0 flex-1 items-center gap-0 sm:gap-2">
                 <Link
-                  className={`${link.replace("hover:bg-forest/10", "")} shrink-0 rounded-lg px-1 sm:px-2`}
+                  className={`${link.replace("hover:bg-forest/10", "")} hidden shrink-0 rounded-lg px-1 sm:inline-flex sm:px-2`}
                   href={route(lang, "scoreboard")}
                   aria-label={`${brand}: ${t.home}`}
                 >
@@ -68,7 +68,7 @@ export function Frame({
                 </Link>
                 <Link
                   aria-label={t.saved}
-                  className={`${link} ml-1 min-w-0 gap-1 rounded-lg px-0 text-sm min-[420px]:gap-2 min-[420px]:px-1 min-[420px]:text-base sm:ml-8 sm:px-3`}
+                  className={`${link} ml-0 min-w-0 gap-2 rounded-lg px-2 text-base sm:ml-8 sm:px-3`}
                   href={route(lang, "saved")}
                 >
                   <FolderOpen aria-hidden="true" className="h-4 w-4 shrink-0" />
