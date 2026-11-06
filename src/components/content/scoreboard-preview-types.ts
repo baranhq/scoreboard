@@ -12,6 +12,8 @@ export type PreviewTarget =
   | "team-three-color"
   | "team-one-default-color"
   | "team-three-default-color"
+  | "timer-scroll"
+  | "timer-paused-time"
   | "teams-tab"
   | "colors-tab"
   | "timer-tab"
@@ -30,6 +32,7 @@ export type PreviewState = {
   timerEnabled: boolean;
   timerRunning: boolean;
   timer: string;
+  trackPausedTime: boolean;
   editingTeamName: boolean;
   leavingThirdTeam: boolean;
   cursor: PreviewTarget | null;

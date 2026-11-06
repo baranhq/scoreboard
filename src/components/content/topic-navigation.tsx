@@ -28,7 +28,7 @@ export function TopicNavigation({ label, topics }: { label: string; topics: Topi
           <TopicLinks topics={topics} />
         </nav>
       </details>
-      <aside className="hidden h-fit [scrollbar-width:thin] [scrollbar-color:color-mix(in_srgb,var(--color-forest)_30%,transparent)_transparent] overscroll-contain rounded-xl border border-forest/15 bg-surface p-3 lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/30 hover:[&::-webkit-scrollbar-thumb]:bg-forest/50 [&::-webkit-scrollbar-track]:bg-transparent">
+      <aside className="hidden h-fit overscroll-contain rounded-xl border border-forest/15 bg-surface p-3 lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto">
         <nav aria-label={label}>
           <p className="mb-2 border-b border-forest/15 px-3 pb-3 font-sans text-base font-semibold text-forest dark:text-[#8bd69a]">
             {label}
