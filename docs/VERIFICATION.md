@@ -32,3 +32,22 @@ No production hosting account was accessed or deployed. Docker and Apache CLIs a
 Provider-specific log retention, processor arrangements and international-transfer details must be confirmed by the operator before publishing a final site-specific privacy notice. The general self-hosting template explicitly identifies these deployment facts rather than inventing them.
 
 No production penetration test, comprehensive WCAG audit or measured Core Web Vitals assessment has been performed.
+
+## Performance and SEO comparison — 6 November 2026
+
+The production static export was built before and after the frame split. Both builds completed; the updated build prerendered 30 pages. The table compares the homepage and English scoreboard HTML plus local JavaScript referenced by script tags. Each file was gzipped separately at level 9, so these are repeatable size estimates rather than observed CDN transfer sizes.
+
+| Route             | JS raw / gzip, before → after             | HTML raw / gzip, before → after         | HTML + JS gzip sum, before → after     |
+| ----------------- | ----------------------------------------- | --------------------------------------- | -------------------------------------- |
+| `/`               | 642,140 / 199,161 B → 639,422 / 198,568 B | 117,395 / 20,444 B → 127,973 / 21,836 B | 219,605 B → 220,404 B (+799 B, 0.4%)   |
+| `/en/scoreboard/` | 714,141 / 221,220 B → 676,968 / 210,985 B | 44,325 / 10,514 B → 55,099 / 11,446 B   | 231,734 B → 222,431 B (−9,303 B, 4.0%) |
+
+The scoreboard route now ships 37,173 fewer raw JavaScript bytes (5.2%) and its HTML-plus-JavaScript gzip sum is 4.0% lower. The homepage JavaScript sum is slightly smaller, but the extra server-rendered frame markup makes its combined estimate 799 B (0.4%) larger. The homepage baseline also referenced `/theme.js`, which was absent from the export; the updated build uses the existing fingerprinted theme asset. The baseline homepage JavaScript figure therefore did not count a successful theme-script response.
+
+These totals exclude CSS, images, fonts, HTTP headers and CDN compression. They do not measure FCP, LCP, INP, CLS, CPU time, interaction latency or memory use. No Lighthouse run, CPU/network throttling run, extended scoreboard session or physical low-end-device test was available.
+
+The updated export was checked for 15 canonical sitemap URLs, reciprocal five-entry language sets, canonical links on the English aliases, saved-page `noindex`, parseable homepage JSON-LD, one H1 and a description on each canonical page, existing local script assets, and crawler rules for OAI-SearchBot and private paths. All checks passed. The compatibility routes `/en/` and `/scoreboard/` are intentionally absent from the sitemap and point to `/` and `/en/scoreboard/`, respectively.
+
+The in-app browser smoke check covered the landing page at 375 px and 1440 px, a score increment, fullscreen entry and exit, and console errors/warnings. No horizontal overflow or console errors/warnings appeared in those checks. The saved-board persistence flow, reduced-motion rendering, keyboard-only journeys and full light/dark route matrix were not browser-tested in this pass; existing unit and PHP regression suites passed.
+
+The updated source does not change privacy choices, analytics, storage, backend behavior, dependencies or licensing. No production deployment or hosting setting changed. Confirm Google-selected canonicals and crawl reports in Search Console, submit the sitemap in Google Search Console and Bing Webmaster Tools, and verify actual Apache/Cloudflare cache and compression headers after deployment. Search-volume, rankings, and field Core Web Vitals still require the relevant external tools and data.

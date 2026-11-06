@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <html lang="en-GB" suppressHydrationWarning>
       <head>
-        <Script src="/theme.js" strategy="beforeInteractive" />
+        <Script src="/theme-4940c847476b.js" strategy="beforeInteractive" />
       </head>
       <body>
         <LandingDocument lang="en" root />

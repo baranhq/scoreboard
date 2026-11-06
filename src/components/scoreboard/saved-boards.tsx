@@ -16,7 +16,6 @@ import { foreground, validColor } from "@/lib/colors";
 import { loadBoards, writeBoards } from "@/store/database";
 import { track } from "@/lib/analytics";
 import { route } from "@/lib/routes";
-import { Frame } from "../layout/frame";
 import { Button, Modal } from "../ui/ui";
 import { Pencil, Palette, Copy, Download, Trash2, ChevronDown, Share2 } from "lucide-react";
 import { Dropdown, MenuItem } from "../ui/dropdown";
@@ -142,7 +141,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
     }
   };
   return (
-    <Frame lang={lang} t={t}>
+    <>
       <main id="main" className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-5">
         <div className="mb-4 grid gap-3 border-b border-forest/20 pb-3 sm:mb-5 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:pb-4">
           <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{t.saved}</h1>
@@ -473,6 +472,6 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
           close={() => setSharing(undefined)}
         />
       )}
-    </Frame>
+    </>
   );
 }
