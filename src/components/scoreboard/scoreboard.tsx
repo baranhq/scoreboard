@@ -344,7 +344,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
           className={
             full
               ? "relative mx-auto flex h-dvh max-w-[160rem] flex-col p-3 sm:p-4"
-              : "mx-auto max-w-6xl px-4 pt-2 sm:px-6 sm:pt-3"
+              : "mx-auto max-w-6xl px-4 pt-2 pb-8 sm:px-6 sm:pt-3 sm:pb-10"
           }
         >
           <h1 className="sr-only">{t.scoreboardPageTitle}</h1>
