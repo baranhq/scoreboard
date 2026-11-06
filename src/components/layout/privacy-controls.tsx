@@ -1,6 +1,5 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import type { Lang, Messages } from "@/lib/i18n";
 import { pageForPath, route } from "@/lib/routes";
 import { events } from "@/lib/analytics";
@@ -196,9 +195,9 @@ export function PrivacyControls({
         <div className="space-y-3">
           <p className="text-xs leading-4 text-ink/70">
             {t.consentChangeNote}{" "}
-            <Link className="underline underline-offset-2" href={route(lang, "privacy")}>
+            <a className="underline underline-offset-2" href={route(lang, "privacy")}>
               {t.privacy}
-            </Link>
+            </a>
           </p>
           {error && (
             <p

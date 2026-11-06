@@ -1,5 +1,6 @@
 "use client";
 import { Pin, Save, Share2, Star, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import { BoardIcon } from "./board-icon";
 import { foreground, validColor } from "@/lib/colors";
 import type { CSSProperties } from "react";
@@ -10,7 +11,6 @@ import { resolveAppearance } from "@/lib/appearance";
 import { useFullscreenControls } from "./use-fullscreen-controls";
 import { decodeGame } from "@/lib/sharing";
 import { isGamePaused, type GameTimer } from "@/lib/timer";
-import { ShareDialog } from "./share-dialog";
 import { TimerDisplay } from "./game-timer";
 import { Customization } from "./customization";
 import { teamGridClass } from "@/lib/team-layout";
@@ -22,6 +22,7 @@ import { track } from "@/lib/analytics";
 import { repo } from "@/lib/site";
 type Action = { title: string; value?: string; numeric?: boolean; run: (value: string) => void };
 type TeamBounds = { left: number; top: number; width: number; height: number };
+const ShareDialog = dynamic(() => import("./share-dialog").then((module) => module.ShareDialog));
 const initialBoardId = "scoreboard-initial-placeholder";
 
 function readTeamBounds(grid: HTMLElement): Map<string, TeamBounds> {
