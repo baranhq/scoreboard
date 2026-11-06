@@ -31,7 +31,7 @@ export function Dropdown({
     <details
       ref={ref}
       name="scoreboard-menu"
-      className="group relative"
+      className="group relative open:z-40"
       onToggle={(e) => {
         if (e.currentTarget.open)
           window.dispatchEvent(
