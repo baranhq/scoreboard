@@ -71,7 +71,7 @@ function PreviewCheck({
       >
         {checked && <Check aria-hidden="true" className="h-4 w-4" />}
       </span>
-      <span>{label}</span>
+      <span className="min-w-0 break-words">{label}</span>
     </div>
   );
 }
@@ -84,7 +84,7 @@ export function PreviewToolbar({
   labels: PreviewLabels;
 }) {
   return (
-    <div className="mb-3 flex min-w-0 items-center justify-between gap-2">
+    <div className="mb-3 flex min-w-0 items-center justify-between gap-2 [@media(max-height:600px)]:mb-1">
       <h2
         aria-hidden="true"
         className="flex min-w-0 items-center gap-2 font-display text-lg font-bold tracking-tight sm:text-xl"
@@ -118,9 +118,11 @@ export function PreviewTimer({ state, labels }: { state: PreviewState; labels: P
   if (!state.timerEnabled) return null;
 
   return (
-    <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 text-center">
+    <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 text-center [@media(max-height:600px)]:mb-1">
       <div className="col-start-2">
-        <p className="font-display text-2xl font-bold tabular-nums sm:text-3xl">{state.timer}</p>
+        <p className="font-display text-2xl font-bold tabular-nums sm:text-3xl [@media(max-height:600px)]:text-xl">
+          {state.timer}
+        </p>
       </div>
       <div className="col-start-3 flex justify-end gap-1.5">
         <VisualButton target="timer-start" pressed={state.pressed === "timer-start"}>
@@ -181,30 +183,30 @@ export function PreviewTeamCard({
     <article
       data-demo-team={index + 1}
       style={style}
-      className={`[container-type:inline-size] flex min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-1.5 py-2 text-[var(--team-fg)] transition-[opacity,transform,background-color] duration-300 motion-reduce:transition-none sm:flex-1 sm:px-2 sm:py-4 dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] ${leaving ? "scale-[.96] opacity-0" : "scale-100 opacity-100"} motion-safe:animate-[appear_180ms_ease-out]`}
+      className={`[container-type:inline-size] flex min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-1.5 py-2 text-[var(--team-fg)] transition-[opacity,transform,background-color] duration-300 motion-reduce:transition-none sm:flex-1 sm:px-2 sm:py-4 dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] [@media(max-height:600px)]:py-0 ${leaving ? "scale-[.96] opacity-0" : "scale-100 opacity-100"} motion-safe:animate-[appear_180ms_ease-out]`}
     >
-      <h3 className="max-w-full truncate px-2 py-1 text-center font-display text-base font-semibold sm:text-lg">
+      <h3 className="max-w-full truncate px-1 py-1 text-center font-display text-sm font-semibold sm:px-2 sm:text-lg [@media(max-height:600px)]:px-1 [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-sm">
         {name}
       </h3>
-      <p className="my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums sm:text-[calc(min(48cqw,7rem))]">
+      <p className="my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums sm:text-[calc(min(48cqw,7rem))] [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-[calc(min(30cqw,4rem))]">
         <span
           key={score}
           data-demo-score={score}
-          className="inline-block motion-safe:animate-[score-change_100ms_ease-out]"
+          className="inline-block motion-safe:animate-[score-change_160ms_ease-out] motion-reduce:animate-none"
         >
           {score}
         </span>
       </p>
-      <div className="mt-1 flex items-center gap-1 min-[480px]:gap-2">
+      <div className="mt-1 flex items-center gap-1 min-[480px]:gap-2 [@media(max-height:600px)]:mt-0">
         <span
           data-demo-target={minusTarget ?? undefined}
-          className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-[background-color,transform] duration-150 min-[480px]:h-10 min-[480px]:w-11 sm:h-11 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] ${minusTarget !== null && state.pressed === minusTarget ? "scale-[.96]" : ""}`}
+          className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-[background-color,transform] duration-150 min-[480px]:h-10 min-[480px]:w-11 sm:h-11 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] [@media(max-height:600px)]:h-8 [@media(max-height:600px)]:w-8 ${minusTarget !== null && state.pressed === minusTarget ? "scale-[.96]" : ""}`}
         >
           <Minus aria-hidden="true" className="h-5 w-5" />
         </span>
         <span
           data-demo-target={plusTarget}
-          className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-[background-color,transform] duration-150 min-[480px]:h-10 min-[480px]:w-11 sm:h-11 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] ${plusTarget !== null && state.pressed === plusTarget ? "scale-[.96] brightness-95" : ""}`}
+          className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-[background-color,transform] duration-150 min-[480px]:h-10 min-[480px]:w-11 sm:h-11 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] [@media(max-height:600px)]:h-8 [@media(max-height:600px)]:w-8 ${plusTarget !== null && state.pressed === plusTarget ? "scale-[.96] brightness-95" : ""}`}
         >
           <Plus aria-hidden="true" className="h-5 w-5" />
         </span>
@@ -247,13 +249,13 @@ export function PreviewConfiguration({
   const names = state.teamNames.slice(0, state.teamCount);
 
   return (
-    <section className="mt-3 rounded-xl border border-forest/20 bg-surface p-2.5 sm:p-3">
-      <div className="grid grid-cols-3 gap-1 sm:flex sm:overflow-hidden">
+    <section className="mt-2 flex max-h-[min(40svh,22rem)] min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-forest/20 bg-surface p-2 sm:mt-3 sm:p-3 [@media(max-height:600px)]:mt-1 [@media(max-height:600px)]:p-1">
+      <div className="grid shrink-0 grid-cols-3 gap-1 min-[900px]:grid-cols-5 min-[900px]:gap-0.5 lg:flex lg:overflow-hidden">
         {tabOrder.map((tab) => (
           <span
             key={tab}
             data-demo-target={tabTargets[tab]}
-            className={`inline-flex min-h-9 min-w-0 items-center justify-center rounded-lg px-1 py-1 text-center text-xs font-semibold transition-colors duration-150 motion-reduce:transition-none sm:min-w-0 sm:flex-1 sm:px-2 sm:text-sm ${state.tab === tab ? "bg-action text-on-action" : "text-forest"} ${state.pressed === tabTargets[tab] ? "scale-[.97]" : ""}`}
+            className={`inline-flex min-h-9 min-w-0 items-center justify-center rounded-lg px-1 py-1 text-center text-xs font-semibold transition-colors duration-150 motion-reduce:transition-none min-[900px]:px-0 min-[900px]:text-[11px] lg:min-w-0 lg:flex-1 lg:px-2 lg:text-sm ${state.tab === tab ? "bg-action text-on-action" : "text-forest"} ${state.pressed === tabTargets[tab] ? "scale-[.97]" : ""}`}
           >
             {tabLabels[tab]}
           </span>
@@ -262,11 +264,13 @@ export function PreviewConfiguration({
 
       <div
         key={state.tab}
-        className="mt-3 border-t border-forest/15 pt-3 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none"
+        data-demo-scroll-panel
+        data-demo-target={state.tab === "timer" ? "timer-scroll" : undefined}
+        className="mt-3 min-h-0 flex-1 overflow-x-hidden overflow-y-hidden overscroll-contain rounded-b-md border-t border-forest/15 pt-3 pb-2 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none"
       >
         {state.tab === "teams" && (
           <div className="space-y-2">
-            <div className="grid gap-1.5 text-sm sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center">
+            <div className="grid min-w-0 gap-1.5 text-sm sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center">
               <span className="font-medium">{labels.boardName}</span>
               <span className="flex min-h-9 items-center rounded-lg border border-forest/25 bg-paper px-2.5 text-ink">
                 {copy.boardName}
@@ -330,7 +334,7 @@ export function PreviewConfiguration({
                       <span
                         key={palette.background}
                         data-demo-target={target}
-                        className={`flex h-8 w-8 items-center justify-center rounded-lg border border-black/15 bg-[var(--swatch-bg)] text-[var(--swatch-check)] transition-[transform,border-color] duration-150 motion-reduce:transition-none dark:border-white/20 dark:bg-[var(--swatch-bg-dark)] dark:text-[var(--swatch-check-dark)] ${state.pressed === target ? "scale-95" : selected ? "scale-105 border-action" : ""}`}
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg border border-black/15 bg-[var(--swatch-bg)] text-[var(--swatch-check)] transition-[transform,border-color] duration-150 motion-reduce:transition-none min-[480px]:h-8 min-[480px]:w-8 dark:border-white/20 dark:bg-[var(--swatch-bg-dark)] dark:text-[var(--swatch-check-dark)] ${state.pressed === target ? "scale-95" : selected ? "scale-105 border-action" : ""}`}
                         style={
                           {
                             "--swatch-bg": palette.background,
@@ -351,10 +355,10 @@ export function PreviewConfiguration({
                 </div>
               </div>
             ))}
-            <div className="grid gap-1 border-t border-forest/15 pt-2 sm:grid-cols-2">
+            <div className="grid grid-cols-2 gap-1 border-t border-forest/15 pt-2 sm:gap-2">
               {[labels.color, labels.iconColor].map((label, index) => (
-                <div key={label} className="flex items-center justify-between gap-2">
-                  <span>{label}</span>
+                <div key={label} className="flex min-w-0 items-center justify-between gap-2">
+                  <span className="min-w-0 text-xs leading-4 break-words sm:text-sm">{label}</span>
                   <VisualButton className="h-8 min-h-8 px-1.5">
                     <span
                       className={`h-4 w-4 rounded border border-forest/20 ${index === 0 ? "bg-paper" : "bg-action"}`}
@@ -385,11 +389,11 @@ export function PreviewConfiguration({
                 ))}
               </div>
             </fieldset>
-            <div className="grid gap-1.5 border-y border-forest/15 py-2 sm:grid-cols-3">
+            <div className="grid min-w-0 gap-1.5 border-y border-forest/15 py-2 sm:grid-cols-3">
               {[labels.scoreSize, labels.teamSize, labels.density].map((label, index) => (
                 <div
                   key={label}
-                  className="flex min-h-9 items-center justify-between gap-2 rounded-lg border border-forest/20 px-2"
+                  className="flex min-h-9 min-w-0 items-center justify-between gap-2 rounded-lg border border-forest/20 px-2"
                 >
                   <span>{label}</span>
                   <span className="text-forest">
@@ -436,7 +440,7 @@ export function PreviewConfiguration({
         )}
 
         {state.tab === "timer" && (
-          <div className="space-y-2 text-sm">
+          <div className="space-y-1.5 text-sm">
             <PreviewCheck
               label={labels.enableTimer}
               checked={state.timerEnabled}
@@ -445,20 +449,20 @@ export function PreviewConfiguration({
             />
             {state.timerEnabled && (
               <>
-                <div className="grid gap-2 border-t border-forest/15 pt-2 min-[480px]:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-                  <div className="grid gap-1">
+                <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-1.5 border-t border-forest/15 pt-1.5">
+                  <div className="grid min-w-0 gap-1">
                     <span className="font-medium">{labels.timerMode}</span>
-                    <span className="flex min-h-9 items-center justify-between rounded-lg border border-forest/20 bg-paper px-2.5 text-ink">
-                      {labels.countdown}
+                    <span className="flex min-h-9 min-w-0 items-center justify-between gap-1 rounded-lg border border-forest/20 bg-paper px-2 text-ink">
+                      <span className="min-w-0 leading-tight break-words">{labels.countdown}</span>
                       <ChevronDown aria-hidden="true" className="h-4 w-4 text-forest" />
                     </span>
                   </div>
-                  <fieldset className="grid gap-1">
+                  <fieldset className="grid min-w-0 gap-1">
                     <legend className="font-medium">{labels.duration}</legend>
                     <div className="flex items-end gap-1.5">
                       {[labels.hours, labels.minutes, labels.seconds].map((part, index) => (
                         <label key={part} className="grid min-w-0 flex-1 gap-1">
-                          <span className="truncate text-xs">{part}</span>
+                          <span className="text-xs leading-3 break-words">{part}</span>
                           <span className="flex min-h-9 items-center justify-center rounded-lg border border-forest/20 bg-paper font-display text-base font-bold text-ink tabular-nums">
                             {index === 1 ? "01" : "00"}
                           </span>
@@ -474,16 +478,15 @@ export function PreviewConfiguration({
                     </VisualButton>
                   ))}
                 </div>
-                <div className="divide-y divide-forest/15 border-t border-forest/15 pt-1">
-                  <div className="py-1">
-                    <PreviewCheck label={labels.showTimerHours} checked />
-                  </div>
-                  <div className="py-1">
-                    <PreviewCheck label={labels.trackPausedTime} />
-                  </div>
-                  <div className="py-1">
-                    <PreviewCheck label={labels.pausedScoreNotice} checked />
-                  </div>
+                <div className="grid gap-0.5 border-t border-forest/15 pt-1">
+                  <PreviewCheck label={labels.showTimerHours} checked />
+                  <PreviewCheck
+                    label={labels.trackPausedTime}
+                    checked={state.trackPausedTime}
+                    target="timer-paused-time"
+                    pressed={state.pressed === "timer-paused-time"}
+                  />
+                  <PreviewCheck label={labels.pausedScoreNotice} checked />
                 </div>
                 <details className="border-t border-forest/15 pt-1">
                   <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between rounded-lg px-2 text-sm font-semibold hover:bg-forest/5 [&::-webkit-details-marker]:hidden">

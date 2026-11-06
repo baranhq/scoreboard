@@ -11,6 +11,26 @@ import { LanguageSuggestion } from "./language-suggestion";
 import { LanguageMenu } from "./language-menu";
 import { ThemeToggle } from "./theme-select";
 import { PrivacyControls } from "./privacy-controls";
+
+function FooterGroup({
+  title,
+  label,
+  children,
+}: {
+  title: string;
+  label?: string;
+  children: ReactNode;
+}) {
+  const links = <ul className="grid w-full justify-items-start gap-0.5">{children}</ul>;
+
+  return (
+    <section className="mx-auto flex w-full max-w-[420px] flex-col items-start gap-[5px] text-left min-[761px]:w-fit min-[761px]:max-w-full min-[761px]:gap-2">
+      <h2 className="m-0 text-[15px] leading-[1.4] font-semibold opacity-60">{title}</h2>
+      {label ? <nav aria-label={label}>{links}</nav> : links}
+    </section>
+  );
+}
+
 export function Frame({
   lang,
   t,
@@ -33,11 +53,8 @@ export function Frame({
   }, []);
   const link =
     "inline-flex min-h-11 items-center text-[17px] font-medium transition-colors duration-150 hover:bg-forest/10 underline-offset-4 motion-reduce:transition-none";
-  const footerLink = link
-    .replace("min-h-11", "min-h-8")
-    .replace("text-[17px]", "text-[15px] leading-5")
-    .replace("transition-colors", "transition-opacity")
-    .replace("hover:bg-forest/10", "hover:opacity-50");
+  const footerLink =
+    "flex min-h-8 max-w-full items-center text-[15px] leading-[1.4] font-semibold text-[#f5f7ef] transition-colors duration-150 hover:text-[#c2ddc5] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c2ddc5] motion-reduce:transition-none min-[761px]:min-h-[27px]";
   return (
     <div className={fullscreen ? "contents" : "flex min-h-dvh flex-col"}>
       <a href="#main" className="sr-only z-50 rounded bg-surface p-3 focus:not-sr-only focus:fixed">
@@ -54,7 +71,7 @@ export function Frame({
             >
               <div className="flex min-w-0 flex-1 items-center gap-0 sm:gap-2">
                 <Link
-                  className={`${link.replace("hover:bg-forest/10", "")} hidden shrink-0 rounded-lg px-1 sm:inline-flex sm:px-2`}
+                  className={`${link.replace("hover:bg-forest/10", "")} shrink-0 rounded-lg px-1 max-md:hidden md:inline-flex md:px-2`}
                   href={route(lang, "scoreboard")}
                   aria-label={`${brand}: ${t.home}`}
                 >
@@ -68,7 +85,7 @@ export function Frame({
                 </Link>
                 <Link
                   aria-label={t.saved}
-                  className={`${link} ml-0 min-w-0 gap-2 rounded-lg px-2 text-base sm:ml-8 sm:px-3`}
+                  className={`${link} ml-0 min-w-0 gap-2 rounded-lg px-2 text-base md:ml-8 md:px-3`}
                   href={route(lang, "saved")}
                 >
                   <FolderOpen aria-hidden="true" className="h-4 w-4 shrink-0" />
@@ -86,80 +103,65 @@ export function Frame({
       {!fullscreen && <LanguageSuggestion lang={lang} t={t} onComplete={completeLanguageCheck} />}
       <div className={fullscreen ? "contents" : "flex-1"}>{children}</div>
       {!fullscreen && (
-        <footer className="mt-4 bg-[#203e29] text-[#f5f7ef]">
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-5 gap-y-2 px-4 py-3 sm:grid-cols-3 sm:justify-items-center sm:px-5">
-            <section className="border-t border-white/15 pt-2 first:border-t-0 first:pt-0 sm:border-0 sm:pt-0">
-              <h2 className="mb-1 text-xs font-bold tracking-[0.08em] text-white/70 uppercase">
-                {t.contact}
-              </h2>
-              <a className={footerLink} href={`mailto:${operator.email}`}>
-                {operator.email}
-              </a>
-            </section>
-            <section className="border-t border-white/15 pt-2 first:border-t-0 first:pt-0 sm:border-0 sm:pt-0">
-              <h2 className="mb-1 text-xs font-bold tracking-[0.08em] text-white/70 uppercase">
-                {t.explore}
-              </h2>
-              <nav aria-label={t.explore}>
-                <ul className="grid justify-items-start sm:justify-items-center">
-                  <li>
-                    <Link className={footerLink} href={homeRoute(lang)}>
-                      {t.home}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className={footerLink} href={route(lang, "scoreboard")}>
-                      {t.create}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className={footerLink} href={route(lang, "saved")}>
-                      {t.saved}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className={footerLink} href={route(lang, "help")}>
-                      {t.help}
-                    </Link>
-                  </li>
-                </ul>
-              </nav>
-            </section>
-            <section className="border-t border-white/15 pt-2 first:border-t-0 first:pt-0 sm:border-0 sm:pt-0">
-              <h2 className="mb-1 text-xs font-bold tracking-[0.08em] text-white/70 uppercase">
-                {t.information}
-              </h2>
-              <nav aria-label={t.information}>
-                <ul className="grid justify-items-start sm:justify-items-center">
-                  <li>
-                    <Link className={footerLink} href={route(lang, "privacy")}>
-                      {t.privacy}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className={footerLink} href={route(lang, "licenses")}>
-                      {t.licenses}
-                    </Link>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => window.dispatchEvent(new Event("privacy-open"))}
-                      className={`${footerLink} text-left`}
-                    >
-                      {t.choices}
-                    </button>
-                  </li>
-                  <li>
-                    <a className={footerLink} href={repo} target="_blank" rel="noopener noreferrer">
-                      GitHub
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </section>
+        <footer className="bg-[#213f29] text-white">
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-[14px] px-4 py-5 min-[761px]:grid-cols-3 min-[761px]:gap-10 sm:px-6">
+            <FooterGroup title={t.contact}>
+              <li>
+                <a className={footerLink} href={`mailto:${operator.email}`}>
+                  {operator.email}
+                </a>
+              </li>
+            </FooterGroup>
+            <FooterGroup title={t.explore} label={t.explore}>
+              <li>
+                <Link className={footerLink} href={homeRoute(lang)}>
+                  {t.home}
+                </Link>
+              </li>
+              <li>
+                <Link className={footerLink} href={route(lang, "scoreboard")}>
+                  {t.create}
+                </Link>
+              </li>
+              <li>
+                <Link className={footerLink} href={route(lang, "saved")}>
+                  {t.saved}
+                </Link>
+              </li>
+              <li>
+                <Link className={footerLink} href={route(lang, "help")}>
+                  {t.help}
+                </Link>
+              </li>
+            </FooterGroup>
+            <FooterGroup title={t.information} label={t.information}>
+              <li>
+                <Link className={footerLink} href={route(lang, "privacy")}>
+                  {t.privacy}
+                </Link>
+              </li>
+              <li>
+                <Link className={footerLink} href={route(lang, "licenses")}>
+                  {t.licenses}
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => window.dispatchEvent(new Event("privacy-open"))}
+                  className={`${footerLink} border-0 bg-transparent p-0 text-left`}
+                >
+                  {t.choices}
+                </button>
+              </li>
+              <li>
+                <a className={footerLink} href={repo} target="_blank" rel="noopener noreferrer">
+                  GitHub
+                </a>
+              </li>
+            </FooterGroup>
           </div>
-          <div className="bg-[#193120] px-4 py-2 text-base leading-6">
-            <p className="mx-auto w-fit max-w-full text-left">
+          <div className="bg-[#182f20] px-4 py-2">
+            <p className="mx-auto max-w-6xl text-center text-sm leading-[1.4] font-semibold break-words">
               {brand} · Copyright © 2026{" "}
               <a
                 href="https://baranhq.com"
