@@ -56,7 +56,7 @@ export default async function Layout({
   return (
     <html lang={lang === "en" ? "en-GB" : lang} suppressHydrationWarning>
       <head>
-        <Script src="/theme.js" strategy="beforeInteractive" />
+        <Script src="/theme-4940c847476b.js" strategy="beforeInteractive" />
       </head>
       <body>{children}</body>
     </html>

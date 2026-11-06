@@ -1,24 +1,33 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+export function shouldKeepFullscreenControlsVisible(
+  pointerType: PointerEvent["pointerType"],
+  focusedControl: boolean,
+  hoveredControl: boolean,
+) {
+  return focusedControl || (pointerType !== "touch" && hoveredControl);
+}
+
 export function useFullscreenControls(full: boolean, autoHide: boolean) {
   const [visible, setVisible] = useState(true);
-  const [touchInput, setTouchInput] = useState(false);
+  const lastPointerType = useRef<PointerEvent["pointerType"]>("mouse");
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const canAutoHide = full && autoHide && !touchInput;
+  const canAutoHide = full && autoHide;
+
   useEffect(() => {
-    const touchPointers = window.matchMedia("(hover: none), (pointer: coarse)");
-    const syncTouchPointer = () => setTouchInput(touchPointers.matches);
-    const rememberTouch = (event: PointerEvent) => {
-      if (event.pointerType === "touch") setTouchInput(true);
+    const rememberPointerType = (event: PointerEvent) => {
+      if (event.pointerType) lastPointerType.current = event.pointerType;
     };
-    syncTouchPointer();
-    touchPointers.addEventListener("change", syncTouchPointer);
-    window.addEventListener("pointerdown", rememberTouch, { passive: true });
+
+    window.addEventListener("pointerdown", rememberPointerType, { passive: true });
+    window.addEventListener("pointermove", rememberPointerType, { passive: true });
     return () => {
-      touchPointers.removeEventListener("change", syncTouchPointer);
-      window.removeEventListener("pointerdown", rememberTouch);
+      window.removeEventListener("pointerdown", rememberPointerType);
+      window.removeEventListener("pointermove", rememberPointerType);
     };
   }, []);
+
   const reveal = useCallback(() => {
     setVisible(true);
     clearTimeout(timer.current);
@@ -27,8 +36,16 @@ export function useFullscreenControls(full: boolean, autoHide: boolean) {
       const focused =
         document.activeElement?.matches(":focus-visible") &&
         document.activeElement.closest("[data-fullscreen-control]");
-      const hovered = document.querySelector("[data-fullscreen-control]:hover");
-      if (focused || hovered) {
+      const hovered =
+        lastPointerType.current !== "touch" &&
+        document.querySelector("[data-fullscreen-control]:hover");
+      if (
+        shouldKeepFullscreenControlsVisible(
+          lastPointerType.current,
+          Boolean(focused),
+          Boolean(hovered),
+        )
+      ) {
         timer.current = setTimeout(hide, 3000);
         return;
       }
