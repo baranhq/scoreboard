@@ -70,6 +70,13 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
+html[data-scoreboard-fullscreen="true"] [data-frame-root],
+html[data-scoreboard-fullscreen="true"] [data-frame-content] {
+  display: contents;
+}
+html[data-scoreboard-fullscreen="true"] [data-frame-chrome] {
+  display: none;
+}
 * {
   scrollbar-color: color-mix(in srgb, var(--color-forest) 38%, transparent) transparent;
   scrollbar-width: thin;
