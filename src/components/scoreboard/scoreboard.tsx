@@ -15,7 +15,6 @@ import { TimerDisplay } from "./game-timer";
 import { Customization } from "./customization";
 import { teamGridClass } from "@/lib/team-layout";
 import { loadBoards, loadOrCreateBoard, writeBoards } from "@/store/database";
-import { Frame } from "../layout/frame";
 import { Button, Modal } from "../ui/ui";
 import { TeamPanel } from "./team-panel";
 import { track } from "@/lib/analytics";
@@ -82,6 +81,10 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const teamOrderKey = board?.teams.map((team) => team.id).join("\u0000") ?? "";
   const appearance = resolveAppearance(board?.appearance);
   const controls = useFullscreenControls(full, appearance.autoHideControls);
+  const changeFullscreen = useCallback((next: boolean) => {
+    setFull(next);
+    window.dispatchEvent(new CustomEvent("scoreboard-fullscreen-change", { detail: next }));
+  }, []);
   const replace = useCallback((items: Board[]) => {
     current.current = items;
     setBoards(items);
@@ -254,16 +257,16 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const toggleFull = useCallback(async () => {
     if (full) {
       if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
-      setFull(false);
+      changeFullscreen(false);
     } else {
-      setFull(true);
+      changeFullscreen(true);
       track("enter_fullscreen");
       await display.current?.requestFullscreen?.().catch(() => {});
     }
-  }, [full]);
+  }, [full, changeFullscreen]);
   useEffect(() => {
     const change = () => {
-      if (!document.fullscreenElement) setFull(false);
+      if (!document.fullscreenElement) changeFullscreen(false);
     };
     const key = (e: KeyboardEvent) => {
       if (
@@ -275,7 +278,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
         e.altKey
       )
         return;
-      if (e.key === "Escape") setFull(false);
+      if (e.key === "Escape") changeFullscreen(false);
       if (action || dialogMode || !board) return;
       if (e.key.toLowerCase() === "f") {
         e.preventDefault();
@@ -290,7 +293,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
       document.removeEventListener("fullscreenchange", change);
       window.removeEventListener("keydown", key);
     };
-  }, [toggleFull, action, dialogMode, board, score, appearance.increment, ready]);
+  }, [toggleFull, changeFullscreen, action, dialogMode, board, score, appearance.increment, ready]);
   const saveNamed = async (name: string): Promise<Board> => {
     const latest = current.current.find((b) => b.id === id);
     if (!latest) throw new Error("missing");
@@ -339,396 +342,392 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
           : ""
       }
     >
-      <Frame lang={lang} t={t} fullscreen={full}>
-        <main
-          id="main"
-          className={
-            full
-              ? "relative mx-auto flex h-dvh max-w-[160rem] flex-col p-3 sm:p-4"
-              : "mx-auto max-w-6xl px-4 pt-2 pb-8 sm:px-6 sm:pt-3 sm:pb-10"
-          }
-        >
-          <h1 className="sr-only">{t.scoreboardPageTitle}</h1>
+      <main
+        id="main"
+        className={
+          full
+            ? "relative mx-auto flex h-dvh max-w-[160rem] flex-col p-3 sm:p-4"
+            : "mx-auto max-w-6xl px-4 pt-2 pb-8 sm:px-6 sm:pt-3 sm:pb-10"
+        }
+      >
+        <h1 className="sr-only">{t.scoreboardPageTitle}</h1>
 
-          {showStarPrompt && !full && (
-            <div
-              role="status"
-              className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-lg border border-forest/15 bg-surface px-2.5 py-2 text-sm sm:gap-3"
-            >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-forest/10">
-                <Star aria-hidden="true" className="h-4 w-4 text-forest" />
-              </span>
-              <p className="min-w-0 flex-1 text-sm leading-5 text-ink/85">{t.githubStarNote}</p>
-              <a
-                href={repo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-8 shrink-0 items-center rounded-md px-2 text-sm font-semibold text-forest transition-colors duration-150 hover:bg-forest/10 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none"
-              >
-                {t.githubStarAction}
-              </a>
-              <Button
-                aria-label={t.close}
-                onClick={() => setShowStarPrompt(false)}
-                className="min-h-8 min-w-8 shrink-0 p-1.5"
-              >
-                <X aria-hidden="true" className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-
-          {notice && (
-            <div
-              role="status"
-              className="fixed right-4 bottom-4 z-50 flex w-fit max-w-[min(24rem,calc(100vw-2rem))] items-start gap-3 rounded-xl border border-forest/20 bg-paper px-4 py-3 text-ink shadow-lg motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none"
-            >
-              <p className="min-w-0 flex-1 text-sm leading-5 break-words sm:text-base sm:leading-6">
-                {notice}
-              </p>
-              <Button aria-label={t.close} onClick={() => setNotice("")} className="shrink-0 px-3">
-                ×
-              </Button>
-            </div>
-          )}
-          {error && (
-            <div
-              role="alert"
-              className="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 text-base text-red-900 dark:bg-red-950/40 dark:text-red-200"
-            >
-              {error} <Button onClick={() => persist(boards)}>{t.retry}</Button>
-              <Button onClick={() => download(boards)}>{t.export}</Button>
-            </div>
-          )}
-          {!ready && (
-            <p aria-live="polite" className="py-2 text-center">
-              {t.loading}
-            </p>
-          )}
+        {showStarPrompt && !full && (
           <div
-            aria-busy={!ready}
-            inert={!ready}
-            className={full ? "flex min-h-0 flex-1 flex-col" : ""}
+            role="status"
+            className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-lg border border-forest/15 bg-surface px-2.5 py-2 text-sm sm:gap-3"
           >
-            {board ? (
-              <section aria-label={t.board} className="flex min-h-0 flex-1 flex-col">
-                {full ? (
-                  <div
-                    className={`absolute top-3 right-3 z-30 flex items-center gap-1 rounded-xl border border-forest/25 bg-paper p-1 text-ink shadow-sm transition-opacity duration-150 motion-reduce:transition-none ${controls.visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-forest/10">
+              <Star aria-hidden="true" className="h-4 w-4 text-forest" />
+            </span>
+            <p className="min-w-0 flex-1 text-sm leading-5 text-ink/85">{t.githubStarNote}</p>
+            <a
+              href={repo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-8 shrink-0 items-center rounded-md px-2 text-sm font-semibold text-forest transition-colors duration-150 hover:bg-forest/10 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none"
+            >
+              {t.githubStarAction}
+            </a>
+            <Button
+              aria-label={t.close}
+              onClick={() => setShowStarPrompt(false)}
+              className="min-h-8 min-w-8 shrink-0 p-1.5"
+            >
+              <X aria-hidden="true" className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {notice && (
+          <div
+            role="status"
+            className="fixed right-4 bottom-4 z-50 flex w-fit max-w-[min(24rem,calc(100vw-2rem))] items-start gap-3 rounded-xl border border-forest/20 bg-paper px-4 py-3 text-ink shadow-lg motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none"
+          >
+            <p className="min-w-0 flex-1 text-sm leading-5 break-words sm:text-base sm:leading-6">
+              {notice}
+            </p>
+            <Button aria-label={t.close} onClick={() => setNotice("")} className="shrink-0 px-3">
+              ×
+            </Button>
+          </div>
+        )}
+        {error && (
+          <div
+            role="alert"
+            className="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 text-base text-red-900 dark:bg-red-950/40 dark:text-red-200"
+          >
+            {error} <Button onClick={() => persist(boards)}>{t.retry}</Button>
+            <Button onClick={() => download(boards)}>{t.export}</Button>
+          </div>
+        )}
+        {!ready && (
+          <p aria-live="polite" className="py-2 text-center">
+            {t.loading}
+          </p>
+        )}
+        <div
+          aria-busy={!ready}
+          inert={!ready}
+          className={full ? "flex min-h-0 flex-1 flex-col" : ""}
+        >
+          {board ? (
+            <section aria-label={t.board} className="flex min-h-0 flex-1 flex-col">
+              {full ? (
+                <div
+                  className={`absolute top-3 right-3 z-30 flex items-center gap-1 rounded-xl border border-forest/25 bg-paper p-1 text-ink shadow-sm transition-opacity duration-150 motion-reduce:transition-none ${controls.visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+                >
+                  <Button
+                    aria-label={t.keepVisible}
+                    aria-pressed={!appearance.autoHideControls}
+                    className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
+                    onClick={() =>
+                      update((b) => ({
+                        ...b,
+                        appearance: {
+                          ...b.appearance,
+                          autoHideControls: !appearance.autoHideControls,
+                        },
+                      }))
+                    }
                   >
-                    <Button
-                      aria-label={t.keepVisible}
-                      aria-pressed={!appearance.autoHideControls}
-                      className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
-                      onClick={() =>
-                        update((b) => ({
-                          ...b,
-                          appearance: {
-                            ...b.appearance,
-                            autoHideControls: !appearance.autoHideControls,
-                          },
-                        }))
-                      }
+                    <Pin aria-hidden="true" className="h-5 w-5" />
+                  </Button>
+                  <Button onClick={() => void toggleFull()} aria-label={t.exit}>
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-5 w-5 fill-none stroke-current"
+                      strokeWidth="1.8"
+                      aria-hidden="true"
                     >
-                      <Pin aria-hidden="true" className="h-5 w-5" />
-                    </Button>
-                    <Button onClick={() => void toggleFull()} aria-label={t.exit}>
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="h-5 w-5 fill-none stroke-current"
-                        strokeWidth="1.8"
-                        aria-hidden="true"
-                      >
-                        <path d="M8 3v5H3m13-5v5h5M8 21v-5H3m13 5v-5h5" />
-                      </svg>
-                      <span className="hidden sm:inline">{t.exitShort}</span>
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    {" "}
-                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                      <h2 className="min-w-0 font-display text-xl font-bold tracking-tight break-words sm:text-2xl">
-                        <span className="inline-flex items-center gap-2">
-                          <span
-                            style={
-                              {
-                                "--accent": validColor(board.accent) ? board.accent : "#285b35",
-                                "--accent-text": foreground(
-                                  validColor(board.accent) ? board.accent : "#285b35",
-                                ),
-                              } as CSSProperties
-                            }
-                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--accent-text)]"
-                          >
-                            <BoardIcon id={board.icon} />
-                          </span>
-                          {board.name}
+                      <path d="M8 3v5H3m13-5v5h5M8 21v-5H3m13 5v-5h5" />
+                    </svg>
+                    <span className="hidden sm:inline">{t.exitShort}</span>
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  {" "}
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <h2 className="min-w-0 font-display text-xl font-bold tracking-tight break-words sm:text-2xl">
+                      <span className="inline-flex items-center gap-2">
+                        <span
+                          style={
+                            {
+                              "--accent": validColor(board.accent) ? board.accent : "#285b35",
+                              "--accent-text": foreground(
+                                validColor(board.accent) ? board.accent : "#285b35",
+                              ),
+                            } as CSSProperties
+                          }
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--accent-text)]"
+                        >
+                          <BoardIcon id={board.icon} />
                         </span>
-                      </h2>
-                      <div className="flex shrink-0 items-center gap-2">
-                        {pending > 0 && (
-                          <span role="status" className="hidden text-base text-forest sm:inline">
-                            {t.saving}
-                          </span>
-                        )}
-                        {full && (
+                        {board.name}
+                      </span>
+                    </h2>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {pending > 0 && (
+                        <span role="status" className="hidden text-base text-forest sm:inline">
+                          {t.saving}
+                        </span>
+                      )}
+                      {full && (
+                        <>
+                          <Button
+                            aria-label={t.keepVisible}
+                            aria-pressed={!appearance.autoHideControls}
+                            className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
+                            onClick={() =>
+                              update((b) => ({
+                                ...b,
+                                appearance: {
+                                  ...b.appearance,
+                                  autoHideControls: !appearance.autoHideControls,
+                                },
+                              }))
+                            }
+                          >
+                            <Pin aria-hidden="true" className="h-5 w-5" />
+                          </Button>
+                          <Button
+                            aria-label={t.fullscreenControls}
+                            aria-pressed={appearance.fullscreenControls}
+                            className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
+                            onClick={() =>
+                              update((b) => ({
+                                ...b,
+                                appearance: {
+                                  ...b.appearance,
+                                  fullscreenControls: !appearance.fullscreenControls,
+                                },
+                              }))
+                            }
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-5 w-5 fill-none stroke-current"
+                              strokeWidth="1.6"
+                              aria-hidden="true"
+                            >
+                              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                              <circle cx="12" cy="12" r="3" />
+                              {!appearance.fullscreenControls && <path d="m3 3 18 18" />}
+                            </svg>
+                          </Button>
+                        </>
+                      )}
+                      <>
+                        {!full && (
                           <>
-                            <Button
-                              aria-label={t.keepVisible}
-                              aria-pressed={!appearance.autoHideControls}
-                              className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
-                              onClick={() =>
-                                update((b) => ({
-                                  ...b,
-                                  appearance: {
-                                    ...b.appearance,
-                                    autoHideControls: !appearance.autoHideControls,
-                                  },
-                                }))
-                              }
-                            >
-                              <Pin aria-hidden="true" className="h-5 w-5" />
+                            <Button onClick={() => setDialogMode("share")}>
+                              <Share2 aria-hidden="true" className="h-5 w-5" />
+                              <span className="hidden sm:inline">{t.share}</span>
+                              <span className="sr-only sm:hidden">{t.share}</span>
                             </Button>
-                            <Button
-                              aria-label={t.fullscreenControls}
-                              aria-pressed={appearance.fullscreenControls}
-                              className="aria-pressed:border-forest/35 aria-pressed:bg-forest/10 aria-pressed:text-forest"
-                              onClick={() =>
-                                update((b) => ({
-                                  ...b,
-                                  appearance: {
-                                    ...b.appearance,
-                                    fullscreenControls: !appearance.fullscreenControls,
-                                  },
-                                }))
-                              }
-                            >
-                              <svg
-                                viewBox="0 0 24 24"
-                                className="h-5 w-5 fill-none stroke-current"
-                                strokeWidth="1.6"
-                                aria-hidden="true"
-                              >
-                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
-                                <circle cx="12" cy="12" r="3" />
-                                {!appearance.fullscreenControls && <path d="m3 3 18 18" />}
-                              </svg>
+                            <Button primary onClick={() => setDialogMode("save")}>
+                              <Save aria-hidden="true" className="h-5 w-5" />
+                              {t.saveBoardShort}
                             </Button>
                           </>
                         )}
-                        <>
-                          {!full && (
-                            <>
-                              <Button onClick={() => setDialogMode("share")}>
-                                <Share2 aria-hidden="true" className="h-5 w-5" />
-                                <span className="hidden sm:inline">{t.share}</span>
-                                <span className="sr-only sm:hidden">{t.share}</span>
-                              </Button>
-                              <Button primary onClick={() => setDialogMode("save")}>
-                                <Save aria-hidden="true" className="h-5 w-5" />
-                                {t.saveBoardShort}
-                              </Button>
-                            </>
-                          )}
-                        </>
-                        <Button
-                          aria-label={full ? t.exit : t.fullscreen}
-                          onClick={() => void toggleFull()}
-                        >
-                          <span className="hidden sm:inline">{full ? t.exit : t.fullscreen}</span>
-                          <svg
-                            viewBox="0 0 24 24"
-                            className="h-5 w-5 fill-none stroke-current"
-                            strokeWidth="1.8"
-                            aria-hidden="true"
-                          >
-                            {full ? (
-                              <path d="M8 3v5H3m13-5v5h5M8 21v-5H3m13 5v-5h5" />
-                            ) : (
-                              <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
-                            )}
-                          </svg>
-                        </Button>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {board.timer?.enabled && (
-                  <TimerDisplay
-                    timer={board.timer}
-                    t={t}
-                    change={changeTimer}
-                    full={full}
-                    controlsVisible={controls.visible}
-                    textScale={appearance.textScaleEnabled ? appearance.timerScale : 100}
-                  />
-                )}
-                <div
-                  ref={teamGridRef}
-                  style={
-                    { "--board-background": board.background || "transparent" } as CSSProperties
-                  }
-                  className={`min-h-0 flex-1 gap-3 bg-[var(--board-background)] ${board.background ? "rounded-xl p-2" : ""} ${teamGridClass(board.teams.length, appearance.layout, full)}`}
-                >
-                  {board.teams.map((team, index) => (
-                    <TeamPanel
-                      key={team.id}
-                      team={team}
-                      color={board.color}
-                      textColor={board.textColor}
-                      paused={isGamePaused(board.timer)}
-                      appearance={appearance}
-                      controlsVisible={controls.visible}
-                      index={index}
-                      count={board.teams.length}
-                      full={full}
-                      t={t}
-                      change={(amount) => score(team.id, amount * appearance.increment)}
-                      manual={() => {
-                        if (isGamePaused(board.timer)) {
-                          if (appearance.showPausedNotice) setNotice(t.matchPaused);
-                          return;
-                        }
-                        setValue(String(team.score));
-                        setAction({
-                          title: `${team.name}: ${t.score}`,
-                          value: String(team.score),
-                          numeric: true,
-                          run: (value) => teamEdit(team.id, { score: Number(value) }),
-                        });
-                      }}
-                    />
-                  ))}
-                </div>
-              </section>
-            ) : ready ? (
-              <section className="rounded-xl bg-forest/5 px-5 py-12 text-center">
-                <h2 className="font-display text-xl font-semibold">{t.empty}</h2>
-                <Button onClick={addBoard} className="mt-5">
-                  {t.create}
-                </Button>
-              </section>
-            ) : null}
-            {!full && (
-              <>
-                {ready && board && (
-                  <>
-                    <div className="mt-3 flex justify-end">
+                      </>
                       <Button
-                        onClick={() => {
-                          const reset = () =>
-                            update((b) => ({
-                              ...b,
-                              teams: b.teams.map((team) => ({ ...team, score: 0 })),
-                            }));
-                          ask(t.resetConfirm, reset);
-                        }}
+                        aria-label={full ? t.exit : t.fullscreen}
+                        onClick={() => void toggleFull()}
                       >
-                        ↺ {t.reset}
+                        <span className="hidden sm:inline">{full ? t.exit : t.fullscreen}</span>
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="h-5 w-5 fill-none stroke-current"
+                          strokeWidth="1.8"
+                          aria-hidden="true"
+                        >
+                          {full ? (
+                            <path d="M8 3v5H3m13-5v5h5M8 21v-5H3m13 5v-5h5" />
+                          ) : (
+                            <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
+                          )}
+                        </svg>
                       </Button>
                     </div>
-                    <Customization
-                      board={board}
-                      t={t}
-                      change={update}
-                      renameBoard={(name) => update((b) => ({ ...b, name, automaticName: false }))}
-                      remove={(teamId) =>
-                        ask(t.deleteConfirm, () => {
-                          const removeTeam = () =>
-                            update((b) => ({
-                              ...b,
-                              teams: b.teams.filter((team) => team.id !== teamId),
-                            }));
-                          const team = Array.from(
-                            teamGridRef.current?.querySelectorAll<HTMLElement>(
-                              "[data-scoreboard-team]",
-                            ) ?? [],
-                          ).find((element) => element.dataset.scoreboardTeam === teamId);
-
-                          if (
-                            !team ||
-                            window.matchMedia("(prefers-reduced-motion: reduce)").matches
-                          ) {
-                            removeTeam();
-                            return;
-                          }
-
-                          team.inert = true;
-                          team.animate(
-                            [
-                              { opacity: 1, transform: "scale(1)" },
-                              { opacity: 0, transform: "scale(0.96)" },
-                            ],
-                            { duration: 180, easing: "ease-in", fill: "forwards" },
-                          ).onfinish = removeTeam;
-                        })
-                      }
-                    />
-                  </>
-                )}
-              </>
-            )}
-          </div>
-        </main>
-        {action && (
-          <Modal title={action.title} close={() => setAction(undefined)} closeLabel={t.close}>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (action.numeric && !validScore(Number(value))) {
-                  setNotice(t.scoreRange);
-                  return;
-                }
-                action.run(value.trim());
-                setAction(undefined);
-              }}
-            >
-              {action.value !== undefined && (
-                <label className="block text-base">
-                  {t.name}
-                  <input
-                    autoFocus
-                    required
-                    inputMode={action.numeric ? "numeric" : "text"}
-                    pattern={action.numeric ? "-?[0-9]+" : undefined}
-                    maxLength={action.numeric ? 10 : 200}
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                    className="mt-2 min-h-12 w-full rounded-lg border border-forest/30 bg-surface px-3"
-                  />
-                </label>
+                  </div>
+                </>
               )}
-              <div className="mt-6 flex justify-end gap-3">
-                <Button type="button" onClick={() => setAction(undefined)}>
-                  {t.cancel}
-                </Button>
-                <Button
-                  primary
-                  type="submit"
-                  disabled={
-                    action.value !== undefined &&
-                    (!value.trim() || (!!action.numeric && !validScore(Number(value))))
-                  }
-                >
-                  {t.confirm}
-                </Button>
-              </div>
-            </form>
-          </Modal>
-        )}
 
-        {dialogMode && board && (
-          <ShareDialog
-            board={storedBoard!}
-            t={t}
-            lang={lang}
-            mode={dialogMode}
-            save={saveNamed}
-            close={() => setDialogMode(undefined)}
-          />
-        )}
-      </Frame>
+              {board.timer?.enabled && (
+                <TimerDisplay
+                  timer={board.timer}
+                  t={t}
+                  change={changeTimer}
+                  full={full}
+                  controlsVisible={controls.visible}
+                  textScale={appearance.textScaleEnabled ? appearance.timerScale : 100}
+                />
+              )}
+              <div
+                ref={teamGridRef}
+                style={{ "--board-background": board.background || "transparent" } as CSSProperties}
+                className={`min-h-0 flex-1 gap-3 bg-[var(--board-background)] ${board.background ? "rounded-xl p-2" : ""} ${teamGridClass(board.teams.length, appearance.layout, full)}`}
+              >
+                {board.teams.map((team, index) => (
+                  <TeamPanel
+                    key={team.id}
+                    team={team}
+                    color={board.color}
+                    textColor={board.textColor}
+                    paused={isGamePaused(board.timer)}
+                    appearance={appearance}
+                    controlsVisible={controls.visible}
+                    index={index}
+                    count={board.teams.length}
+                    full={full}
+                    t={t}
+                    change={(amount) => score(team.id, amount * appearance.increment)}
+                    manual={() => {
+                      if (isGamePaused(board.timer)) {
+                        if (appearance.showPausedNotice) setNotice(t.matchPaused);
+                        return;
+                      }
+                      setValue(String(team.score));
+                      setAction({
+                        title: `${team.name}: ${t.score}`,
+                        value: String(team.score),
+                        numeric: true,
+                        run: (value) => teamEdit(team.id, { score: Number(value) }),
+                      });
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : ready ? (
+            <section className="rounded-xl bg-forest/5 px-5 py-12 text-center">
+              <h2 className="font-display text-xl font-semibold">{t.empty}</h2>
+              <Button onClick={addBoard} className="mt-5">
+                {t.create}
+              </Button>
+            </section>
+          ) : null}
+          {!full && (
+            <>
+              {ready && board && (
+                <>
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      onClick={() => {
+                        const reset = () =>
+                          update((b) => ({
+                            ...b,
+                            teams: b.teams.map((team) => ({ ...team, score: 0 })),
+                          }));
+                        ask(t.resetConfirm, reset);
+                      }}
+                    >
+                      ↺ {t.reset}
+                    </Button>
+                  </div>
+                  <Customization
+                    board={board}
+                    t={t}
+                    change={update}
+                    renameBoard={(name) => update((b) => ({ ...b, name, automaticName: false }))}
+                    remove={(teamId) =>
+                      ask(t.deleteConfirm, () => {
+                        const removeTeam = () =>
+                          update((b) => ({
+                            ...b,
+                            teams: b.teams.filter((team) => team.id !== teamId),
+                          }));
+                        const team = Array.from(
+                          teamGridRef.current?.querySelectorAll<HTMLElement>(
+                            "[data-scoreboard-team]",
+                          ) ?? [],
+                        ).find((element) => element.dataset.scoreboardTeam === teamId);
+
+                        if (
+                          !team ||
+                          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                        ) {
+                          removeTeam();
+                          return;
+                        }
+
+                        team.inert = true;
+                        team.animate(
+                          [
+                            { opacity: 1, transform: "scale(1)" },
+                            { opacity: 0, transform: "scale(0.96)" },
+                          ],
+                          { duration: 180, easing: "ease-in", fill: "forwards" },
+                        ).onfinish = removeTeam;
+                      })
+                    }
+                  />
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </main>
+      {action && (
+        <Modal title={action.title} close={() => setAction(undefined)} closeLabel={t.close}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (action.numeric && !validScore(Number(value))) {
+                setNotice(t.scoreRange);
+                return;
+              }
+              action.run(value.trim());
+              setAction(undefined);
+            }}
+          >
+            {action.value !== undefined && (
+              <label className="block text-base">
+                {t.name}
+                <input
+                  autoFocus
+                  required
+                  inputMode={action.numeric ? "numeric" : "text"}
+                  pattern={action.numeric ? "-?[0-9]+" : undefined}
+                  maxLength={action.numeric ? 10 : 200}
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  className="mt-2 min-h-12 w-full rounded-lg border border-forest/30 bg-surface px-3"
+                />
+              </label>
+            )}
+            <div className="mt-6 flex justify-end gap-3">
+              <Button type="button" onClick={() => setAction(undefined)}>
+                {t.cancel}
+              </Button>
+              <Button
+                primary
+                type="submit"
+                disabled={
+                  action.value !== undefined &&
+                  (!value.trim() || (!!action.numeric && !validScore(Number(value))))
+                }
+              >
+                {t.confirm}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {dialogMode && board && (
+        <ShareDialog
+          board={storedBoard!}
+          t={t}
+          lang={lang}
+          mode={dialogMode}
+          save={saveNamed}
+          close={() => setDialogMode(undefined)}
+        />
+      )}
     </div>
   );
 }
