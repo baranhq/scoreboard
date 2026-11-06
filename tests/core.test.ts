@@ -17,9 +17,15 @@ import {
 import { newBoard, backup, parseBackup, parseBackupText } from "../src/lib/boards.ts";
 import { teamGridClass } from "../src/lib/team-layout.ts";
 import { parseAppearance } from "../src/lib/appearance.ts";
-import { encodeGame, decodeGame } from "../src/lib/sharing.ts";
+import { encodeGame, decodeGame, shareUrl } from "../src/lib/sharing.ts";
 import { writeBoards, loadBoards, loadOrCreateBoard } from "../src/store/database.ts";
-import { localizedAlternates } from "../src/lib/routes.ts";
+import {
+  homeRoute,
+  localizedAlternates,
+  pageForPath,
+  route,
+  translatedPath,
+} from "../src/lib/routes.ts";
 import { softwareSchema } from "../src/lib/seo-content.ts";
 import { shouldKeepFullscreenControlsVisible } from "../src/components/scoreboard/use-fullscreen-controls.ts";
 
@@ -128,6 +134,32 @@ test("localized alternates are reciprocal and provide both generic and British E
   assert.equal(alternates.tr, "https://scoreboard.baranhq.com/tr/yardim/");
   assert.equal(alternates["x-default"], alternates.en);
 });
+test("scoreboard routes stay localized while the root aliases remain useful", () => {
+  assert.equal(homeRoute("en"), "/");
+  assert.equal(route("en", "scoreboard"), "/en/scoreboard/");
+  assert.equal(route("bg", "scoreboard"), "/bg/scoreboard/");
+  assert.equal(route("tr", "scoreboard"), "/tr/scoreboard/");
+  assert.equal(pageForPath("/scoreboard"), "scoreboard");
+  assert.equal(pageForPath("/bg/scoreboard/"), "scoreboard");
+  assert.equal(translatedPath("/scoreboard/", "tr"), "/tr/scoreboard/");
+
+  const homeAlternates = localizedAlternates("https://scoreboard.baranhq.com", "home");
+  assert.equal(homeAlternates.en, "https://scoreboard.baranhq.com/");
+  assert.equal(homeAlternates.bg, "https://scoreboard.baranhq.com/bg/");
+  assert.equal(homeAlternates.tr, "https://scoreboard.baranhq.com/tr/");
+  assert.equal(homeAlternates["x-default"], "https://scoreboard.baranhq.com/");
+
+  const scoreboardAlternates = localizedAlternates("https://scoreboard.baranhq.com", "scoreboard");
+  assert.equal(scoreboardAlternates.en, "https://scoreboard.baranhq.com/en/scoreboard/");
+  assert.equal(scoreboardAlternates["x-default"], scoreboardAlternates.en);
+});
+test("shared scoreboard snapshots link to the localized application route", () => {
+  const board = newBoard("Friendly game", "Team");
+  const url = shareUrl(board, "bg", "https://scoreboard.baranhq.com");
+
+  assert.match(url, /^https:\/\/scoreboard\.baranhq\.com\/bg\/scoreboard\/#share=/);
+  assert.equal(decodeGame(url.split("#share=")[1]).board.name, "Friendly game");
+});
 test("software schema uses stable multilingual entities and omits unsupported ratings", () => {
   const en = softwareSchema("en", "https://scoreboard.baranhq.com", "Baran's Scoreboard")[
     "@graph"
@@ -139,8 +171,8 @@ test("software schema uses stable multilingual entities and omits unsupported ra
   assert.equal(en[1]["@id"], bg[1]["@id"]);
   assert.deepEqual(en[0].inLanguage, ["en-GB", "bg", "tr"]);
   assert.equal((en[1].offers as { price: number }).price, 0);
-  assert.equal(en[1].url, "https://scoreboard.baranhq.com/en/");
-  assert.equal(bg[1].url, "https://scoreboard.baranhq.com/bg/");
+  assert.equal(en[1].url, "https://scoreboard.baranhq.com/en/scoreboard/");
+  assert.equal(bg[1].url, "https://scoreboard.baranhq.com/bg/scoreboard/");
   assert.deepEqual(en[1].author, {
     "@type": "Person",
     name: "Baran Ahmedov",
@@ -152,7 +184,7 @@ test("software schema uses stable multilingual entities and omits unsupported ra
   const tr = softwareSchema("tr", "https://scoreboard.baranhq.com", "Baran's Scoreboard")[
     "@graph"
   ] as Record<string, unknown>[];
-  assert.equal(tr[1].url, "https://scoreboard.baranhq.com/tr/");
+  assert.equal(tr[1].url, "https://scoreboard.baranhq.com/tr/scoreboard/");
 });
 test("automatic and fullscreen scoreboard grids use the same team columns", () => {
   for (const count of [1, 2, 3, 4, 5, 9, 10]) {

@@ -19,9 +19,9 @@ export function BoardIdentity({
 }) {
   const accent = validColor(board.accent) ? board.accent : "#285b35";
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)]">
       {showName && (
-        <label className="grid gap-2 sm:col-span-2">
+        <label className="grid gap-2 rounded-lg border border-forest/15 bg-surface p-3 sm:col-span-2">
           {t.boardName}
           <input
             value={board.name}
@@ -30,11 +30,11 @@ export function BoardIdentity({
             onBlur={(e) => {
               if (!e.target.value.trim()) change({ ...board, name: t.board });
             }}
-            className="min-h-11 w-full rounded-md border border-forest/25 bg-paper px-3 text-base"
+            className="min-h-11 w-full rounded-lg border border-forest/25 bg-paper px-3 text-base"
           />
         </label>
       )}
-      <fieldset>
+      <fieldset className="min-w-0 rounded-lg border border-forest/15 bg-surface p-3">
         <legend className="mb-2 font-medium">{t.icon}</legend>
         <div className="grid grid-cols-6 gap-1">
           {iconIds.map((id) => (
@@ -51,7 +51,7 @@ export function BoardIdentity({
           ))}
         </div>
       </fieldset>
-      <fieldset>
+      <fieldset className="min-w-0 rounded-lg border border-forest/15 bg-surface p-3">
         <legend className="mb-2 font-medium">{t.accent}</legend>
         <div className="flex flex-wrap gap-2">
           {["#285b35", "#75613a", "#355b68", "#63516f"].map((color) => (

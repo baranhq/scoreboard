@@ -1,10 +1,10 @@
 "use client";
-import { Save, Pin, Share2 } from "lucide-react";
+import { Pin, Save, Share2, Star, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { BoardIcon } from "./board-icon";
 import { foreground, validColor } from "@/lib/colors";
-import type { CSSProperties, ReactNode } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Lang, Messages } from "@/lib/i18n";
 import { download, newBoard, validScore, displayBoard, type Board, type Team } from "@/lib/boards";
 import { resolveAppearance } from "@/lib/appearance";
@@ -19,9 +19,32 @@ import { Frame } from "../layout/frame";
 import { Button, Modal } from "../ui/ui";
 import { TeamPanel } from "./team-panel";
 import { track } from "@/lib/analytics";
+import { repo } from "@/lib/site";
 type Action = { title: string; value?: string; numeric?: boolean; run: (value: string) => void };
+type TeamBounds = { left: number; top: number; width: number; height: number };
 const ShareDialog = dynamic(() => import("./share-dialog").then((module) => module.ShareDialog));
 const initialBoardId = "scoreboard-initial-placeholder";
+
+function readTeamBounds(grid: HTMLElement): Map<string, TeamBounds> {
+  const bounds = new Map<string, TeamBounds>();
+  const origin = grid.getBoundingClientRect();
+
+  grid.querySelectorAll<HTMLElement>("[data-scoreboard-team]").forEach((team) => {
+    const rect = team.getBoundingClientRect();
+    const id = team.dataset.scoreboardTeam;
+    if (!id) return;
+
+    bounds.set(id, {
+      left: rect.left - origin.left,
+      top: rect.top - origin.top,
+      width: rect.width,
+      height: rect.height,
+    });
+  });
+
+  return bounds;
+}
+
 function initialBoard(t: Messages): Board {
   return {
     id: initialBoardId,
@@ -38,37 +61,81 @@ function initialBoard(t: Messages): Board {
     })),
   };
 }
-export function Scoreboard({
-  lang,
-  t,
-  children,
-  below,
-}: {
-  lang: Lang;
-  t: Messages;
-  children?: ReactNode;
-  below?: ReactNode;
-}) {
+export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const [boards, setBoards] = useState<Board[]>(() => [initialBoard(t)]);
   const current = useRef(boards);
   const [id, setId] = useState<string>(initialBoardId);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [showStarPrompt, setShowStarPrompt] = useState(true);
   const [pending, setPending] = useState(0);
   const [dialogMode, setDialogMode] = useState<"save" | "share">();
   const [full, setFull] = useState(false);
   const [action, setAction] = useState<Action>();
   const [value, setValue] = useState("");
   const display = useRef<HTMLDivElement>(null);
+  const teamGridRef = useRef<HTMLDivElement>(null);
+  const teamLayoutSnapshotRef = useRef<Map<string, TeamBounds> | null>(null);
   const storedBoard = boards.find((b) => b.id === id);
   const board = storedBoard ? displayBoard(storedBoard, t) : undefined;
+  const teamOrderKey = board?.teams.map((team) => team.id).join("\u0000") ?? "";
   const appearance = resolveAppearance(board?.appearance);
   const controls = useFullscreenControls(full, appearance.autoHideControls);
   const replace = useCallback((items: Board[]) => {
     current.current = items;
     setBoards(items);
   }, []);
+  useLayoutEffect(() => {
+    const previousBounds = teamLayoutSnapshotRef.current;
+    teamLayoutSnapshotRef.current = null;
+    const grid = teamGridRef.current;
+
+    if (!previousBounds || !grid || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const elements = new Map<string, HTMLElement>();
+    grid.querySelectorAll<HTMLElement>("[data-scoreboard-team]").forEach((team) => {
+      const id = team.dataset.scoreboardTeam;
+      if (id) elements.set(id, team);
+    });
+
+    const animations: Animation[] = [];
+    readTeamBounds(grid).forEach((next, id) => {
+      const previous = previousBounds.get(id);
+      const element = elements.get(id);
+      if (!previous || !element) return;
+
+      const x = previous.left - next.left;
+      const y = previous.top - next.top;
+      const scaleX = next.width ? previous.width / next.width : 1;
+      const scaleY = next.height ? previous.height / next.height : 1;
+      if (
+        Math.abs(x) < 1 &&
+        Math.abs(y) < 1 &&
+        Math.abs(scaleX - 1) < 0.01 &&
+        Math.abs(scaleY - 1) < 0.01
+      ) {
+        return;
+      }
+
+      animations.push(
+        element.animate(
+          [
+            {
+              transform: `translate(${x}px, ${y}px) scale(${scaleX}, ${scaleY})`,
+              transformOrigin: "top left",
+            },
+            { transform: "translate(0, 0) scale(1, 1)", transformOrigin: "top left" },
+          ],
+          { duration: 320, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+        ),
+      );
+    });
+
+    return () => animations.forEach((animation) => animation.cancel());
+  }, [teamOrderKey]);
   const persist = useCallback(
     (items: Board[], removeId?: string) => {
       setPending((n) => n + 1);
@@ -141,7 +208,14 @@ export function Scoreboard({
       const all = current.current;
       const old = all.find((b) => b.id === id);
       if (!old) return;
-      const next = { ...change(old), updatedAt: Date.now() };
+      const changed = change(old);
+      const orderChanged =
+        old.teams.length !== changed.teams.length ||
+        old.teams.some((team, index) => team.id !== changed.teams[index]?.id);
+      if (orderChanged && teamGridRef.current) {
+        teamLayoutSnapshotRef.current = readTeamBounds(teamGridRef.current);
+      }
+      const next = { ...changed, updatedAt: Date.now() };
       replace(all.map((b) => (b.id === id ? next : b)));
       persist([next]);
     },
@@ -271,10 +345,37 @@ export function Scoreboard({
           className={
             full
               ? "relative mx-auto flex h-dvh max-w-[160rem] flex-col p-3 sm:p-4"
-              : "mx-auto max-w-6xl px-4 pt-4 sm:px-6 sm:pt-5"
+              : "mx-auto max-w-6xl px-4 pt-2 pb-8 sm:px-6 sm:pt-3 sm:pb-10"
           }
         >
-          {!full && children}
+          <h1 className="sr-only">{t.scoreboardPageTitle}</h1>
+
+          {showStarPrompt && !full && (
+            <div
+              role="status"
+              className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-lg border border-forest/15 bg-surface px-2.5 py-2 text-sm sm:gap-3"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-forest/10">
+                <Star aria-hidden="true" className="h-4 w-4 text-forest" />
+              </span>
+              <p className="min-w-0 flex-1 text-sm leading-5 text-ink/85">{t.githubStarNote}</p>
+              <a
+                href={repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-8 shrink-0 items-center rounded-md px-2 text-sm font-semibold text-forest transition-colors duration-150 hover:bg-forest/10 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none"
+              >
+                {t.githubStarAction}
+              </a>
+              <Button
+                aria-label={t.close}
+                onClick={() => setShowStarPrompt(false)}
+                className="min-h-8 min-w-8 shrink-0 p-1.5"
+              >
+                <X aria-hidden="true" className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
           {notice && (
             <div
@@ -464,6 +565,7 @@ export function Scoreboard({
                   />
                 )}
                 <div
+                  ref={teamGridRef}
                   style={
                     { "--board-background": board.background || "transparent" } as CSSProperties
                   }
@@ -532,12 +634,35 @@ export function Scoreboard({
                       change={update}
                       renameBoard={(name) => update((b) => ({ ...b, name, automaticName: false }))}
                       remove={(teamId) =>
-                        ask(t.deleteConfirm, () =>
-                          update((b) => ({
-                            ...b,
-                            teams: b.teams.filter((team) => team.id !== teamId),
-                          })),
-                        )
+                        ask(t.deleteConfirm, () => {
+                          const removeTeam = () =>
+                            update((b) => ({
+                              ...b,
+                              teams: b.teams.filter((team) => team.id !== teamId),
+                            }));
+                          const team = Array.from(
+                            teamGridRef.current?.querySelectorAll<HTMLElement>(
+                              "[data-scoreboard-team]",
+                            ) ?? [],
+                          ).find((element) => element.dataset.scoreboardTeam === teamId);
+
+                          if (
+                            !team ||
+                            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                          ) {
+                            removeTeam();
+                            return;
+                          }
+
+                          team.inert = true;
+                          team.animate(
+                            [
+                              { opacity: 1, transform: "scale(1)" },
+                              { opacity: 0, transform: "scale(0.96)" },
+                            ],
+                            { duration: 180, easing: "ease-in", fill: "forwards" },
+                          ).onfinish = removeTeam;
+                        })
                       }
                     />
                   </>
@@ -546,7 +671,6 @@ export function Scoreboard({
             )}
           </div>
         </main>
-        {!full && below}
         {action && (
           <Modal title={action.title} close={() => setAction(undefined)} closeLabel={t.close}>
             <form

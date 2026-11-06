@@ -62,7 +62,7 @@ export function TeamPanel({
               : scorePreset === "xlarge"
                 ? "text-[calc(min(66cqw,17rem)*var(--score-text-scale))]"
                 : count > 2
-                  ? "text-[calc(min(48cqw,22vw,9rem)*var(--score-text-scale))]"
+                  ? "text-[calc(min(38cqw,14vw,7rem)*var(--score-text-scale))] sm:text-[calc(min(48cqw,22vw,9rem)*var(--score-text-scale))]"
                   : "text-[calc(min(48cqw,11rem)*var(--score-text-scale))]";
   const fullSize =
     digits > 6
@@ -100,10 +100,11 @@ export function TeamPanel({
       small:
         "text-[calc(1rem*var(--team-text-scale))] sm:text-[calc(1.25rem*var(--team-text-scale))]",
       medium:
-        "text-[calc(1.5rem*var(--team-text-scale))] sm:text-[calc(1.875rem*var(--team-text-scale))]",
+        "text-[calc(1.25rem*var(--team-text-scale))] sm:text-[calc(1.875rem*var(--team-text-scale))]",
       large:
-        "text-[calc(1.875rem*var(--team-text-scale))] sm:text-[calc(2.25rem*var(--team-text-scale))]",
-      xlarge: "text-[calc(min(30cqw,5rem)*var(--team-text-scale))]",
+        "text-[calc(1.5rem*var(--team-text-scale))] sm:text-[calc(2.25rem*var(--team-text-scale))]",
+      xlarge:
+        "text-[calc(min(20cqw,3rem)*var(--team-text-scale))] sm:text-[calc(min(30cqw,5rem)*var(--team-text-scale))]",
     } as const
   )[teamPreset];
   const fullNameSize = (
@@ -119,6 +120,7 @@ export function TeamPanel({
   const size = full ? fullSize : regularSize;
   return (
     <article
+      data-scoreboard-team={team.id}
       style={
         {
           "--button-bg": lightButtons.primary,
@@ -142,7 +144,7 @@ export function TeamPanel({
           "--team-text-scale": teamScale,
         } as CSSProperties
       }
-      className={`[container-type:inline-size] relative flex min-h-0 min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-2 text-[var(--team-fg)] transition-colors duration-150 focus-visible:outline-[var(--secondary-text)] disabled:cursor-not-allowed disabled:border-dashed motion-safe:animate-[appear_140ms_ease-out] motion-reduce:transition-none dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${className} ${full ? "gap-2 py-3" : appearance.density === "spacious" ? "py-8 sm:py-10" : "py-4 sm:py-4"}`}
+      className={`[container-type:inline-size] relative flex min-h-0 min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-2 text-[var(--team-fg)] transition-colors duration-150 focus-visible:outline-[var(--secondary-text)] disabled:cursor-not-allowed disabled:border-dashed motion-safe:animate-[appear_200ms_ease-out] motion-reduce:transition-none dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${className} ${full ? "gap-2 py-3" : appearance.density === "spacious" ? "py-6 sm:py-10" : "py-3 sm:py-4"}`}
     >
       <h3
         className={`max-w-full rounded px-2 py-1 text-center font-display font-semibold break-words ${teamNameSize}`}
@@ -157,7 +159,7 @@ export function TeamPanel({
       >
         <span
           key={team.score}
-          className="inline-block motion-safe:animate-[score-change_80ms_ease-out]"
+          className="inline-block motion-safe:animate-[score-change_140ms_ease-out]"
         >
           {team.score}
         </span>
@@ -176,9 +178,9 @@ export function TeamPanel({
             onClick={() => change(-1)}
             data-fullscreen-control
             aria-label={`${t.decrement}: ${team.name}`}
-            className={`flex h-12 w-14 ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] transition-[color,background-color,border-color,transform] duration-150 hover:border-2 focus-visible:outline-[var(--secondary-text)] active:scale-[.97] active:border-2 disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transform-none motion-reduce:transition-none sm:w-20 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)]`}
+            className={`flex ${full ? "h-12 w-14" : "h-11 w-12"} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] transition-[color,background-color,border-color,transform] duration-150 hover:border-2 focus-visible:outline-[var(--secondary-text)] active:scale-[.97] active:border-2 disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transform-none motion-reduce:transition-none sm:h-12 sm:w-20 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)]`}
           >
-            <Minus aria-hidden="true" className="h-7 w-7" strokeWidth={2.3} />
+            <Minus aria-hidden="true" className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2.3} />
           </button>
           <button
             aria-disabled={paused}
@@ -186,9 +188,9 @@ export function TeamPanel({
             onClick={() => change(1)}
             data-fullscreen-control
             aria-label={`${t.increment}: ${team.name}`}
-            className={`flex h-12 w-14 ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] transition-[color,background-color,border-color,transform] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:scale-[.97] active:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transform-none motion-reduce:transition-none sm:w-20 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)]`}
+            className={`flex ${full ? "h-12 w-14" : "h-11 w-12"} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] transition-[color,background-color,border-color,transform] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:scale-[.97] active:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transform-none motion-reduce:transition-none sm:h-12 sm:w-20 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)]`}
           >
-            <Plus aria-hidden="true" className="h-7 w-7" strokeWidth={2.3} />
+            <Plus aria-hidden="true" className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2.3} />
           </button>
         </div>
       )}

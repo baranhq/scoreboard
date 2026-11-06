@@ -4,6 +4,8 @@ import { X } from "lucide-react";
 import { repo } from "@/lib/site";
 import type { Lang } from "@/lib/i18n";
 import { readStarPreference, shouldShowStar, STAR_PROMPT_KEY, WEEK } from "@/lib/star-prompt";
+import { pageForPath } from "@/lib/routes";
+import { usePathname } from "next/navigation";
 const labels = {
   en: {
     message: "Finding Baran’s Scoreboard useful? A star on GitHub would mean a lot. Thank you!",
@@ -25,8 +27,14 @@ const labels = {
 };
 export function StarPrompt({ lang, fullscreen = false }: { lang: Lang; fullscreen?: boolean }) {
   const [visible, setVisible] = useState(false);
+  const pathname = usePathname() || "/";
   const t = labels[lang];
   useEffect(() => {
+    if (pageForPath(pathname) !== "scoreboard") {
+      setVisible(false);
+      return;
+    }
+
     const read = () => readStarPreference(localStorage.getItem(STAR_PROMPT_KEY));
     try {
       const p = read();
@@ -44,8 +52,8 @@ export function StarPrompt({ lang, fullscreen = false }: { lang: Lang; fullscree
     };
     document.addEventListener("click", clicked);
     return () => document.removeEventListener("click", clicked);
-  }, []);
-  if (!visible || fullscreen) return null;
+  }, [pathname]);
+  if (!visible || fullscreen || pageForPath(pathname) !== "scoreboard") return null;
   return (
     <aside
       aria-label={t.link}
@@ -75,7 +83,7 @@ export function StarPrompt({ lang, fullscreen = false }: { lang: Lang; fullscree
         href={repo}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-2 inline-flex min-h-11 items-center font-semibold text-forest underline underline-offset-4"
+        className="mt-2 inline-flex min-h-11 items-center font-semibold text-forest transition-opacity duration-150 hover:opacity-50 motion-reduce:transition-none"
       >
         {t.link}
       </a>
