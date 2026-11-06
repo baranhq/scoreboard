@@ -77,6 +77,8 @@ export function Frame({
                 >
                   <img
                     src="/wordmark-62157c899159.webp"
+                    srcSet="/wordmark-56-82e25c28ac94.webp 56w, /wordmark-112-104bf045763f.webp 112w, /wordmark-128-492516610722.webp 128w, /wordmark-256-aaadf7f18229.webp 256w"
+                    sizes="(min-width: 640px) 128px, 56px"
                     width="315"
                     height="83"
                     alt={brand}
@@ -103,7 +105,7 @@ export function Frame({
       {!fullscreen && <LanguageSuggestion lang={lang} t={t} onComplete={completeLanguageCheck} />}
       <div className={fullscreen ? "contents" : "flex-1"}>{children}</div>
       {!fullscreen && (
-        <footer className="bg-[#213f29] text-white">
+        <footer className="mt-4 bg-[#213f29] text-white">
           <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-[14px] px-4 py-5 min-[761px]:grid-cols-3 min-[761px]:gap-10 sm:px-6">
             <FooterGroup title={t.contact}>
               <li>
