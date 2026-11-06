@@ -93,7 +93,7 @@ export function Modal({
         if (closing && e.target === e.currentTarget) finishClose();
       }}
       aria-labelledby={titleId}
-      className={`m-auto flex max-h-[90dvh] p-4 ${variant === "privacy" ? "w-[min(94vw,44rem)] sm:p-9" : "w-[min(94vw,28rem)] sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 bg-surface text-ink shadow-lg transition-colors duration-150 backdrop:bg-[#102116]/60 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_150ms_ease-in_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
+      className={`m-auto flex max-h-[90dvh] ${variant === "privacy" ? "w-[min(94vw,44rem)] bg-surface text-ink backdrop:bg-black/50 sm:p-9" : "w-[min(94vw,28rem)] bg-surface text-ink backdrop:bg-[#102116]/60 sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 p-4 shadow-lg transition-colors duration-150 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_150ms_ease-in_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
     >
       <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <h2 id={titleId} className="min-w-0 pt-1 font-display text-xl font-bold tracking-tight">
