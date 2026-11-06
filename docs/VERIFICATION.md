@@ -39,10 +39,10 @@ The production static export was built before and after the frame split. Both bu
 
 | Route             | JS raw / gzip, before → after             | HTML raw / gzip, before → after         | HTML + JS gzip sum, before → after     |
 | ----------------- | ----------------------------------------- | --------------------------------------- | -------------------------------------- |
-| `/`               | 642,140 / 199,161 B → 639,422 / 198,568 B | 117,395 / 20,444 B → 127,973 / 21,836 B | 219,605 B → 220,404 B (+799 B, 0.4%)   |
-| `/en/scoreboard/` | 714,141 / 221,220 B → 676,968 / 210,985 B | 44,325 / 10,514 B → 55,099 / 11,446 B   | 231,734 B → 222,431 B (−9,303 B, 4.0%) |
+| `/`               | 642,140 / 199,161 B → 638,427 / 198,127 B | 117,395 / 20,444 B → 127,973 / 21,836 B | 219,605 B → 219,963 B (+358 B, 0.2%)   |
+| `/en/scoreboard/` | 714,141 / 221,220 B → 675,973 / 210,544 B | 44,325 / 10,514 B → 55,099 / 11,444 B   | 231,734 B → 221,988 B (−9,746 B, 4.2%) |
 
-The scoreboard route now ships 37,173 fewer raw JavaScript bytes (5.2%) and its HTML-plus-JavaScript gzip sum is 4.0% lower. The homepage JavaScript sum is slightly smaller, but the extra server-rendered frame markup makes its combined estimate 799 B (0.4%) larger. The homepage baseline also referenced `/theme.js`, which was absent from the export; the updated build uses the existing fingerprinted theme asset. The baseline homepage JavaScript figure therefore did not count a successful theme-script response.
+The scoreboard route now ships 38,168 fewer raw JavaScript bytes (5.3%) and its HTML-plus-JavaScript gzip sum is 4.2% lower. The homepage JavaScript sum is slightly smaller, but the extra server-rendered frame markup makes its combined estimate 358 B (0.2%) larger. The homepage baseline also referenced `/theme.js`, which was absent from the export; the updated build uses the existing fingerprinted theme asset. The baseline homepage JavaScript figure therefore did not count a successful theme-script response.
 
 These totals exclude CSS, images, fonts, HTTP headers and CDN compression. They do not measure FCP, LCP, INP, CLS, CPU time, interaction latency or memory use. No Lighthouse run, CPU/network throttling run, extended scoreboard session or physical low-end-device test was available.
 
