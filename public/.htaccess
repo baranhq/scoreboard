@@ -38,7 +38,7 @@ RewriteRule (^|/)\. - [F,L]
  <FilesMatch "\.(woff2|png|svg|webp)$">
   Header set Cache-Control "public, max-age=2592000" env=!next_static_asset
  </FilesMatch>
- <FilesMatch "-[a-f0-9]{12}\.(woff2|webp)$">
+ <FilesMatch "-[a-f0-9]{12}\.(js|woff2|webp)$">
   Header set Cache-Control "public, max-age=31536000, immutable" env=!next_static_asset
  </FilesMatch>
 </IfModule>
