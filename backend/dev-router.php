@@ -11,6 +11,6 @@ if(str_starts_with($path,'/api/_lib/') || str_starts_with($path,'/.')){http_resp
 $file=rtrim($_SERVER['DOCUMENT_ROOT'],'/').rawurldecode($path);
 $root=realpath($_SERVER['DOCUMENT_ROOT']);$real=realpath($file);
 if($real!==false&&str_starts_with($real,$root.'/')&&is_file($real))return false;
-if($path==='/'){header('Location: /bg/',true,302);return true;}
+if($path==='/'&&is_file($root.'/index.html')){header('Content-Type: text/html; charset=UTF-8');readfile($root.'/index.html');return true;}
 if($real!==false&&str_starts_with($real,$root.'/')&&is_dir($real)&&is_file($real.'/index.html')){header('Content-Type: text/html; charset=UTF-8');readfile($real.'/index.html');return true;}
 http_response_code(404);header('Content-Type: text/html; charset=UTF-8');if(is_file($root.'/404.html'))readfile($root.'/404.html');else echo 'Not found';return true;

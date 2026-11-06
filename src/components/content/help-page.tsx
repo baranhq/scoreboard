@@ -15,7 +15,7 @@ export function HelpPage({ lang }: { lang: Lang }) {
           <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
             {content.title}
           </h1>
-          <p className="mt-4 text-lg leading-8 text-forest/90">{content.intro}</p>
+          <p className="mt-4 text-lg leading-8 text-ink/85">{content.intro}</p>
         </header>
         <div className="grid items-start gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
           <TopicNavigation
@@ -46,13 +46,13 @@ export function HelpPage({ lang }: { lang: Lang }) {
                 {section.paragraphs.map((paragraph, index) => (
                   <p
                     key={index}
-                    className="mt-3 text-base leading-7 text-forest/90 sm:text-lg sm:leading-8"
+                    className="mt-3 text-base leading-7 text-ink/85 sm:text-lg sm:leading-8"
                   >
                     {paragraph}
                   </p>
                 ))}
                 {section.points && (
-                  <ul className="mt-4 list-disc space-y-2 pl-6 text-base leading-7 text-forest/90 sm:text-lg sm:leading-8">
+                  <ul className="mt-4 list-disc space-y-2 pl-6 text-base leading-7 text-ink/85 sm:text-lg sm:leading-8">
                     {section.points.map((point) => (
                       <li key={point}>{point}</li>
                     ))}

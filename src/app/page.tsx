@@ -1,20 +1,18 @@
+import Script from "next/script";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { brand, siteOrigin } from "@/lib/site";
-export const metadata: Metadata = {
-  metadataBase: new URL(siteOrigin),
-  title: `Изберете език | ${brand}`,
-  robots: { index: false, follow: true },
-  alternates: { canonical: `${siteOrigin}/bg/` },
-};
+import { LandingDocument } from "@/components/content/landing-document";
+import { landingMetadata } from "@/lib/page-metadata";
+
+export const metadata: Metadata = landingMetadata("en");
+
 export default function Page() {
   return (
-    <html lang="bg">
+    <html lang="en-GB" suppressHydrationWarning>
       <head>
-        <script src="/language-entry.js" />
+        <Script src="/theme.js" strategy="beforeInteractive" />
       </head>
       <body>
-        <Link href="/bg/">Продължи към Scoreboard</Link>
+        <LandingDocument lang="en" root />
       </body>
     </html>
   );

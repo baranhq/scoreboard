@@ -1,85 +1,65 @@
 import type { Lang } from "./i18n";
 import { route } from "./routes.ts";
+import { landingContent } from "./landing-content.ts";
 
 export const seoContent: Record<
   Lang,
   {
     title: string;
-    heading: string;
     description: string;
-    intro: string;
-    pageDescriptions: Record<"help" | "licenses", string>;
+    pageDescriptions: Record<"help" | "licenses" | "saved" | "scoreboard", string>;
     locale: string;
     openGraphLocale: string;
     imageAlt: string;
-    features: string[];
   }
 > = {
   en: {
-    title: "Free Online Scoreboard for Teams & Games",
-    heading: "Free online scoreboard for teams and games",
+    title: "Free Online Scoreboard",
     description:
-      "Free online scoreboard for classroom games, sports and team competitions. Track teams, change scores, use a timer or stopwatch, and display the board full screen.",
-    intro:
-      "Use Baran’s Scoreboard as a free digital scoreboard and score counter for classroom games, sports and team competitions. Track points for multiple teams, use a countdown or stopwatch, and show the board full screen. No account is needed: games stay in this browser, and shared links are snapshots rather than live updates. The MIT-licensed project is open source and can be self-hosted.",
+      "Create a free online scoreboard for games, sports, classrooms and events. Track points, customize teams, use a timer and go fullscreen. No account needed.",
     pageDescriptions: {
       help: "Learn to create a team scoreboard, change scores, use a countdown or stopwatch, present it on a projector, and save, back up or share a snapshot.",
       licenses:
         "Read the MIT terms for Baran’s Scoreboard and the licence notices required by its third-party fonts, icons and software.",
+      saved: "Open the scoreboards you saved in this browser on this device.",
+      scoreboard:
+        "Create teams, update scores, use a timer or stopwatch, and show a free scoreboard full screen. No account is required.",
     },
     locale: "en-GB",
     openGraphLocale: "en_GB",
     imageAlt: "Baran’s Scoreboard, an online scoreboard for teams and games",
-    features: [
-      "Free to use without an account",
-      "Keep score for multiple teams and customise names, colours and layouts",
-      "Use a countdown, stopwatch, match periods and timeouts",
-      "Save games in this browser or share a snapshot link without live synchronisation",
-    ],
   },
   bg: {
     title: "Безплатно онлайн табло за резултати",
-    heading: "Безплатно онлайн табло за точки и резултати",
     description:
-      "Безплатно онлайн табло за резултати и брояч на точки за игри в клас, спорт и отборни състезания. Следете няколко отбора и използвайте таймер или хронометър.",
-    intro:
-      "Създайте безплатно онлайн табло за резултати за игри в класната стая, спорт и отборни състезания. Добавяйте отбори, променяйте точките и използвайте обратно броене или хронометър. Показвайте таблото на цял екран. Не е нужна регистрация: игрите се запазват в този браузър, а споделената връзка съдържа моментно копие без последваща синхронизация. Проектът е с отворен код под лиценз MIT и може да се хоства самостоятелно.",
+      "Създайте безплатно онлайн табло за резултати за игри, спорт и занимания в клас. Следете точки, настройте отборите и използвайте таймер — без регистрация.",
     pageDescriptions: {
       help: "Научете как да създадете табло за отбори, да променяте точки, да използвате обратно броене или хронометър и да запазите, експортирате или споделите моментно копие.",
       licenses:
         "Прочетете условията на MIT за Baran’s Scoreboard и лицензионните известия за шрифтовете, иконите и софтуера на трети страни.",
+      saved: "Отворете таблата, запазени в браузъра на това устройство.",
+      scoreboard:
+        "Създавайте отбори, променяйте точки, използвайте таймер или хронометър и показвайте безплатното табло на цял екран. Не е нужна регистрация.",
     },
     locale: "bg",
     openGraphLocale: "bg_BG",
     imageAlt: "Baran’s Scoreboard — онлайн табло за резултати за отбори и игри",
-    features: [
-      "Безплатно използване без регистрация",
-      "Отчитане на точки за няколко отбора с имена, цветове и подредба по избор",
-      "Обратно броене, хронометър, части на мача и прекъсвания",
-      "Запазване в този браузър или споделяне на моментно копие без синхронизация",
-    ],
   },
   tr: {
-    title: "Ücretsiz Çevrimiçi Skor Tabelası",
-    heading: "Takımlar ve oyunlar için çevrimiçi skor tabelası",
+    title: "Ücretsiz Çevrim İçi Skor Tabelası",
     description:
-      "Sınıf içi oyunlar, spor ve takım yarışmaları için ücretsiz çevrimiçi skor tabelası ve puan sayacı. Takımları takip edin, süre tutun ve tabloyu tam ekranda gösterin.",
-    intro:
-      "Baran’s Scoreboard, sınıf içi oyunlar, spor karşılaşmaları ve takım yarışmaları için ücretsiz bir çevrimiçi skor tabelası ve puan sayacıdır. Birden çok takımın puanını takip edin, geri sayım veya kronometre kullanın ve tabloyu tam ekranda gösterin. Hesap gerekmez: oyunlar bu tarayıcıda saklanır, paylaşılan bağlantılar canlı eşitleme yerine bir anlık görüntü içerir. Proje MIT lisanslı açık kaynaklıdır ve kendi sunucunuzda barındırılabilir.",
+      "Oyunlar, spor karşılaşmaları ve sınıf etkinlikleri için ücretsiz çevrim içi skor tabelası oluşturun. Puanları takip edin, takımları özelleştirin ve zamanlayıcı kullanın; üyelik gerekmez.",
     pageDescriptions: {
       help: "Takım skor tablosu oluşturmayı, puanları değiştirmeyi, geri sayım veya kronometreyi kullanmayı, tam ekranda sunmayı ve oyunu kaydedip yedeklemeyi öğrenin.",
       licenses:
         "Baran’s Scoreboard için MIT Lisansı koşullarını ve üçüncü taraf yazılım, yazı tipi ve simgelerin bildirimlerini inceleyin.",
+      saved: "Bu cihazdaki tarayıcıya kaydettiğiniz skor tablolarını açın.",
+      scoreboard:
+        "Takım oluşturun, puanları güncelleyin, zamanlayıcı veya kronometre kullanın ve ücretsiz skor tabelasını tam ekranda gösterin. Üyelik gerekmez.",
     },
     locale: "tr",
     openGraphLocale: "tr_TR",
     imageAlt: "Baran’s Scoreboard — takımlar ve oyunlar için çevrim içi skor panosu",
-    features: [
-      "Ücretsiz kullanım; üyelik gerekmez",
-      "Birden çok takımın puanlarını ad, renk ve düzen seçenekleriyle takip etme",
-      "Geri sayım, kronometre, devreler ve molalar",
-      "Oyunları bu tarayıcıya kaydetme veya canlı eşitleme olmadan anlık görüntü bağlantısı paylaşma",
-    ],
   },
 };
 
@@ -87,7 +67,7 @@ export function softwareSchema(lang: Lang, siteOrigin: string, brand: string) {
   const content = seoContent[lang];
   const websiteId = `${siteOrigin}/#website`;
   const applicationId = `${siteOrigin}/#application`;
-  const applicationUrl = siteOrigin + route(lang, "home");
+  const applicationUrl = siteOrigin + route(lang, "scoreboard");
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -113,7 +93,9 @@ export function softwareSchema(lang: Lang, siteOrigin: string, brand: string) {
         license: "https://github.com/baranhq/scoreboard/blob/main/LICENSE",
         inLanguage: content.locale,
         image: `${siteOrigin}/social.png`,
-        featureList: content.features,
+        featureList: landingContent[lang].features.items.map(
+          ({ title, description }) => `${title}: ${description}`,
+        ),
         isPartOf: { "@id": websiteId },
       },
     ],

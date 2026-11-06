@@ -190,10 +190,10 @@ export function PrivacyControls({
       close={() => setOpen(false)}
       closeLabel={t.close}
       variant="privacy"
-      beforeScrollable={<p className="text-sm leading-5 text-forest/85">{t.consentNote}</p>}
+      beforeScrollable={<p className="text-sm leading-5 text-ink/85">{t.consentNote}</p>}
       afterScrollable={
         <div className="space-y-3">
-          <p className="text-xs leading-4 text-forest/75">
+          <p className="text-xs leading-4 text-ink/70">
             {t.consentChangeNote}{" "}
             <a className="underline underline-offset-2" href={route(lang, "privacy")}>
               {t.privacy}
@@ -243,7 +243,7 @@ export function PrivacyControls({
             ["cloud", t.cloud, t.cloudText],
           ] as const
         ).map(([key, label, text]) => (
-          <div key={key} className="rounded-xl border border-forest/20 bg-surface p-3">
+          <div key={key} className="rounded-xl border border-forest/20 bg-paper p-3">
             <label htmlFor={`privacy-${key}`} className="flex cursor-pointer items-start gap-3">
               <input
                 id={`privacy-${key}`}
@@ -255,7 +255,7 @@ export function PrivacyControls({
               />
               <span className="min-w-0 text-sm leading-5">
                 <span className="block font-semibold text-ink">{label}</span>
-                <span className="mt-1 block text-forest/80">
+                <span className="mt-1 block text-ink/80">
                   {key === "usage" ? t.usageSummary : t.cloudSummary}
                 </span>
               </span>
@@ -264,7 +264,7 @@ export function PrivacyControls({
               <summary className="w-fit cursor-pointer font-medium text-forest underline underline-offset-2">
                 {t.moreInformation}
               </summary>
-              <div className="mt-2 space-y-2 text-forest/80">
+              <div className="mt-2 space-y-2 text-ink/80">
                 <p>{text}</p>
                 {key === "cloud" && (
                   <a
@@ -279,7 +279,7 @@ export function PrivacyControls({
               </div>
             </details>
             {!state.capabilities[key] && (
-              <p className="mt-2 ml-8 text-xs leading-4 text-forest/75">{t.unavailableChoice}</p>
+              <p className="mt-2 ml-8 text-xs leading-4 text-ink/65">{t.unavailableChoice}</p>
             )}
           </div>
         ))}

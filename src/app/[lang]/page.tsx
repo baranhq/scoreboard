@@ -1,31 +1,21 @@
 import { notFound } from "next/navigation";
-import { isLang, messages, origin } from "@/lib/i18n";
-import { Scoreboard } from "@/components/scoreboard/scoreboard";
-import { brand } from "@/lib/site";
-import { softwareSchema } from "@/lib/seo-content";
-import { HomeIntro } from "@/components/content/home-intro";
-import { HomeFaq } from "@/components/content/home-faq";
+import { LandingDocument } from "@/components/content/landing-document";
+import { isLang } from "@/lib/i18n";
+import { landingMetadata } from "@/lib/page-metadata";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLang(lang)) notFound();
+  return landingMetadata(lang);
+}
 
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
-  const schema = softwareSchema(lang, origin, brand);
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
-      />
-      <Scoreboard
-        lang={lang}
-        t={messages[lang]}
-        below={
-          <>
-            <HomeIntro lang={lang} />
-            <HomeFaq lang={lang} />
-          </>
-        }
-      />
-    </>
-  );
+  return <LandingDocument lang={lang} />;
 }

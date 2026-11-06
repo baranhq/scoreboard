@@ -2,106 +2,119 @@ import type { Lang } from "./i18n";
 
 export const homeFaq: Record<
   Lang,
-  { title: string; intro: string; items: { question: string; answer: string }[] }
+  { title: string; items: { question: string; answer: string }[] }
 > = {
   en: {
-    title: "Questions and answers",
-    intro: "Quick answers about using your scoreboard.",
+    title: "Frequently asked questions",
     items: [
       {
-        question: "Is it free?",
-        answer: "Yes. Baran’s Scoreboard is free to use and open source under the MIT License.",
+        question: "Is this online scoreboard really free?",
+        answer: "Yes. You can use every scoreboard feature without a subscription or payment.",
       },
       {
         question: "Do I need an account?",
-        answer: "No. You can create and use scoreboards without signing up.",
+        answer: "No. Open the scoreboard and start using it. There is no sign-up step.",
       },
       {
-        question: "Can I add more teams?",
-        answer: "Yes. Add teams whenever you need them, then rename and reorder them.",
-      },
-      {
-        question: "Where are my scoreboards stored?",
+        question: "Can I use it on my phone or tablet?",
         answer:
-          "Your scoreboards are stored in this browser on this device, not in an online account. Export a backup before clearing browser data or switching devices.",
+          "Yes. Baran’s Scoreboard runs in a modern web browser and adapts to phones, tablets and computers.",
       },
       {
-        question: "Will a shared scoreboard update live?",
+        question: "Can I use it for classroom games?",
         answer:
-          "A share link contains a snapshot of the scoreboard. Later changes are not synced to that link.",
+          "Yes. Add a team for each group and keep quiz, activity or classroom-game points visible to everyone.",
       },
       {
-        question: "Can I use a timer and full-screen display?",
-        answer: "Yes. Choose a countdown or stopwatch, then show the scoreboard full screen.",
+        question: "Can I customize the scoreboard?",
+        answer:
+          "Yes. Add and rename teams, choose colors and layouts, adjust text sizes, and use a countdown or stopwatch.",
+      },
+      {
+        question: "Where are my scoreboards saved?",
+        answer:
+          "Saved boards stay in this browser on this device, not in an online account. Export a backup before clearing browser data or switching devices.",
+      },
+      {
+        question: "Does a shared scoreboard update live?",
+        answer:
+          "No. A share link contains a snapshot of the board when you create it. Later score changes are not synced to that link.",
       },
     ],
   },
   bg: {
-    title: "Въпроси и отговори",
-    intro: "Кратки отговори за използването на таблото.",
+    title: "Често задавани въпроси",
     items: [
       {
-        question: "Безплатно ли е?",
+        question: "Наистина ли онлайн таблото е безплатно?",
+        answer: "Да. Всички функции са без абонамент и плащане.",
+      },
+      {
+        question: "Трябва ли да си направя акаунт?",
+        answer: "Не. Отворете таблото и започнете веднага. Не е нужна регистрация.",
+      },
+      {
+        question: "Мога ли да го използвам на телефон или таблет?",
         answer:
-          "Да. Baran’s Scoreboard е безплатен за използване софтуер с отворен код под лиценза MIT.",
+          "Да. Baran’s Scoreboard работи в съвременен браузър и се адаптира към телефони, таблети и компютри.",
       },
       {
-        question: "Нужна ли е регистрация?",
-        answer: "Не. Можете да създавате и използвате табла без регистрация.",
-      },
-      {
-        question: "Мога ли да добавя още отбори?",
+        question: "Подходящо ли е за игри в класната стая?",
         answer:
-          "Да. Добавяйте отбори при нужда, а след това можете да променяте имената и реда им.",
+          "Да. Добавете отбор за всяка група и показвайте точките от викторина, занимание или игра на целия клас.",
       },
       {
-        question: "Къде се съхраняват таблата ми?",
+        question: "Мога ли да персонализирам таблото?",
         answer:
-          "Таблата се съхраняват локално в браузъра на това устройство, а не в онлайн акаунт. Изтеглете резервно копие, преди да изчистите данните на браузъра или да смените устройството.",
+          "Да. Добавяйте и преименувайте отбори, избирайте цветове и подредба, настройвайте размера на текста и използвайте таймер или хронометър.",
       },
       {
-        question: "Актуализира ли се споделеното табло на живо?",
+        question: "Къде се запазват таблата ми?",
         answer:
-          "Връзката за споделяне съдържа моментно копие на таблото. Последващите промени няма да се синхронизират с нея.",
+          "Запазените табла остават в браузъра на това устройство, а не в онлайн акаунт. Изтеглете резервно копие, преди да изчистите данните на браузъра или да смените устройството.",
       },
       {
-        question: "Мога ли да използвам таймер и цял екран?",
-        answer: "Да. Изберете обратно броене или хронометър и покажете таблото на цял екран.",
+        question: "Споделеното табло актуализира ли се на живо?",
+        answer:
+          "Не. Връзката съдържа моментно копие на таблото при създаването ѝ. Последващите промени в резултата не се синхронизират с нея.",
       },
     ],
   },
   tr: {
-    title: "Sorular ve cevaplar",
-    intro: "Skor tablonuzu kullanmayla ilgili kısa yanıtlar.",
+    title: "Sık sorulan sorular",
     items: [
       {
-        question: "Ücretsiz mi?",
-        answer:
-          "Evet. Baran’s Scoreboard ücretsiz kullanılabilir ve MIT Lisansı altında açık kaynaklıdır.",
+        question: "Bu çevrim içi skor tabelası gerçekten ücretsiz mi?",
+        answer: "Evet. Tüm özellikleri abonelik veya ödeme olmadan kullanabilirsiniz.",
       },
       {
-        question: "Kayıt olmam gerekiyor mu?",
-        answer: "Hayır. Hesap açmadan skor tabloları oluşturup kullanabilirsiniz.",
+        question: "Hesap açmam gerekiyor mu?",
+        answer: "Hayır. Skor tabelasını açıp hemen kullanabilirsiniz; kayıt gerekmez.",
       },
       {
-        question: "Daha fazla takım ekleyebilir miyim?",
+        question: "Telefonumda veya tabletimde kullanabilir miyim?",
         answer:
-          "Evet. İhtiyacınız oldukça takım ekleyebilir, adlarını ve sıralarını değiştirebilirsiniz.",
+          "Evet. Baran’s Scoreboard güncel bir web tarayıcısında çalışır; telefon, tablet ve bilgisayar ekranlarına uyum sağlar.",
       },
       {
-        question: "Skor tablolarım nerede saklanıyor?",
+        question: "Sınıf oyunlarında kullanabilir miyim?",
         answer:
-          "Skor tablolarınız çevrimiçi bir hesapta değil, bu cihazdaki tarayıcıda saklanır. Tarayıcı verilerini silmeden veya cihaz değiştirmeden önce bir yedek dışa aktarın.",
+          "Evet. Her grup için bir takım ekleyip bilgi yarışması, etkinlik veya sınıf oyunlarının puanlarını herkesin görebileceği şekilde tutabilirsiniz.",
       },
       {
-        question: "Paylaşılan skor tablosu canlı olarak güncellenir mi?",
+        question: "Skor tabelasını özelleştirebilir miyim?",
         answer:
-          "Paylaşım bağlantısı skor tablosunun o anki görüntüsünü içerir. Sonraki değişiklikler bağlantıyla eşitlenmez.",
+          "Evet. Takım ekleyip adlarını değiştirebilir, renk ve düzen seçebilir, yazı boyutunu ayarlayabilir, geri sayım ya da kronometre kullanabilirsiniz.",
       },
       {
-        question: "Zamanlayıcı ve tam ekran kullanabilir miyim?",
+        question: "Skor tablolarım nereye kaydedilir?",
         answer:
-          "Evet. Geri sayım veya kronometre seçip skor tablosunu tam ekranda gösterebilirsiniz.",
+          "Kaydedilen tablolar çevrim içi bir hesapta değil, bu cihazdaki tarayıcıda saklanır. Tarayıcı verilerini silmeden veya cihaz değiştirmeden önce yedek dışa aktarın.",
+      },
+      {
+        question: "Paylaşım bağlantısı canlı olarak güncellenir mi?",
+        answer:
+          "Hayır. Paylaşım bağlantısı oluşturulduğu andaki tabloyu içerir. Daha sonra yapılan skor değişiklikleri bu bağlantıyla eşitlenmez.",
       },
     ],
   },
