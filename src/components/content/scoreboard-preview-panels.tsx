@@ -189,13 +189,7 @@ export function PreviewTeamCard({
         {name}
       </h3>
       <p className="my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums sm:text-[calc(min(48cqw,7rem))] [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-[calc(min(30cqw,4rem))]">
-        <span
-          key={score}
-          data-demo-score={score}
-          className="inline-block motion-safe:animate-[score-change_160ms_ease-out] motion-reduce:animate-none"
-        >
-          {score}
-        </span>
+        {score}
       </p>
       <div className="mt-1 flex items-center gap-1 min-[480px]:gap-2 [@media(max-height:600px)]:mt-0">
         <span
