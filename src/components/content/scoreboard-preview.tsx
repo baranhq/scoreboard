@@ -238,7 +238,7 @@ export function ScoreboardPreview({
   const [state, setState] = useState(() => initialPreviewState(copy));
   const [inView, setInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
-  const [mobileLayout, setMobileLayout] = useState(false);
+  const [mobileLayout, setMobileLayout] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [manuallyPaused, setManuallyPaused] = useState(false);
   const [motionPreferenceOverridden, setMotionPreferenceOverridden] = useState(false);
@@ -263,8 +263,9 @@ export function ScoreboardPreview({
     const updatePosition = () => {
       const demoBounds = demo.getBoundingClientRect();
       const targetBounds = target.getBoundingClientRect();
-      const x = targetBounds.left - demoBounds.left + targetBounds.width / 2 - 3;
-      const y = targetBounds.top - demoBounds.top + targetBounds.height / 2 - 4;
+      const offset = mobileLayout ? 10 : 3;
+      const x = targetBounds.left - demoBounds.left + targetBounds.width / 2 - offset;
+      const y = targetBounds.top - demoBounds.top + targetBounds.height / 2 - offset;
       pointer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       pointer.style.opacity = "1";
     };
@@ -455,7 +456,7 @@ export function ScoreboardPreview({
     <figure
       ref={previewRef}
       aria-labelledby="scoreboard-preview-caption"
-      className="group/demo relative mx-auto flex h-[min(62svh,30rem)] max-h-[min(62svh,30rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
+      className="group/demo relative mx-auto flex h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
       onPointerDown={() => setPlaybackControlRevealed(true)}
     >
       <figcaption id="scoreboard-preview-caption" className="sr-only">
@@ -487,7 +488,7 @@ export function ScoreboardPreview({
           data-scoreboard-demo
           data-demo-running={shouldAnimate}
           data-demo-stage="0"
-          className="relative flex max-h-[min(calc(62svh-3rem),27rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:max-h-[calc(100svh-12rem-1px)]"
+          className="relative flex h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:h-auto md:max-h-[calc(100svh-12rem-1px)]"
         >
           <PreviewToolbar copy={copy} labels={labels} />
           <div aria-hidden="true" className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -511,25 +512,34 @@ export function ScoreboardPreview({
             </div>
             <PreviewConfiguration state={state} copy={copy} labels={labels} />
           </div>
-          {!prefersReducedMotion && !mobileLayout && (
+          {!prefersReducedMotion && (
             <span
               ref={pointerRef}
               aria-hidden="true"
-              className="pointer-events-none absolute top-0 left-0 z-30 hidden opacity-0 transition-[transform,opacity] duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none md:block"
+              className="pointer-events-none absolute top-0 left-0 z-30 opacity-0 transition-[transform,opacity] duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
               style={{ transform: "translate3d(0, 0, 0)" }}
             >
-              <span
-                className={`relative block transition-transform duration-150 motion-reduce:transition-none ${state.pressed === state.cursor ? "scale-90" : "scale-100"}`}
-              >
-                {state.pressed === state.cursor && (
-                  <span className="absolute -top-1 -left-1 h-6 w-6 rounded-full border border-forest/60 motion-safe:animate-[cursor-tap_180ms_ease-out]" />
-                )}
-                <MousePointer2
-                  aria-hidden="true"
-                  className="h-5 w-5 fill-paper text-ink drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] motion-safe:animate-[cursor-enter_180ms_ease-out]"
-                  strokeWidth={1.7}
-                />
-              </span>
+              {mobileLayout ? (
+                <span className="relative block h-5 w-5 rounded-full border-2 border-forest bg-paper/90 shadow-md">
+                  <span className="absolute inset-1 rounded-full bg-action" />
+                  {state.pressed === state.cursor && (
+                    <span className="absolute -inset-1.5 rounded-full border border-action/70 motion-safe:animate-[cursor-tap_220ms_ease-out]" />
+                  )}
+                </span>
+              ) : (
+                <span
+                  className={`relative block transition-transform duration-150 motion-reduce:transition-none ${state.pressed === state.cursor ? "scale-90" : "scale-100"}`}
+                >
+                  {state.pressed === state.cursor && (
+                    <span className="absolute -top-1 -left-1 h-6 w-6 rounded-full border border-forest/60 motion-safe:animate-[cursor-tap_180ms_ease-out]" />
+                  )}
+                  <MousePointer2
+                    aria-hidden="true"
+                    className="h-5 w-5 fill-paper text-ink drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] motion-safe:animate-[cursor-enter_180ms_ease-out]"
+                    strokeWidth={1.7}
+                  />
+                </span>
+              )}
             </span>
           )}
         </div>
