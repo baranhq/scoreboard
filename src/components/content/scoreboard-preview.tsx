@@ -238,7 +238,7 @@ export function ScoreboardPreview({
   const [state, setState] = useState(() => initialPreviewState(copy));
   const [inView, setInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
-  const [coarsePointer, setCoarsePointer] = useState(false);
+  const [mobileLayout, setMobileLayout] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [manuallyPaused, setManuallyPaused] = useState(false);
   const [motionPreferenceOverridden, setMotionPreferenceOverridden] = useState(false);
@@ -284,7 +284,7 @@ export function ScoreboardPreview({
       scrollPanel?.removeEventListener("scroll", onResize);
     };
   }, [
-    coarsePointer,
+    mobileLayout,
     prefersReducedMotion,
     state.cursor,
     state.teamCount,
@@ -373,8 +373,8 @@ export function ScoreboardPreview({
   }, []);
 
   useEffect(() => {
-    const media = window.matchMedia("(pointer: coarse)");
-    const update = () => setCoarsePointer(media.matches);
+    const media = window.matchMedia("(pointer: coarse), (max-width: 767px)");
+    const update = () => setMobileLayout(media.matches);
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
@@ -396,7 +396,7 @@ export function ScoreboardPreview({
 
     const runNextStage = () => {
       const stage = sequence[stageIndexRef.current];
-      delay = remainingMs.current ?? stage.durationMs * (coarsePointer ? 1.35 : 1);
+      delay = remainingMs.current ?? stage.durationMs * (mobileLayout ? 1.35 : 1);
       remainingMs.current = null;
       startedAt = performance.now();
 
@@ -447,7 +447,7 @@ export function ScoreboardPreview({
       window.clearTimeout(timeout);
       remainingMs.current = Math.max(0, delay - (performance.now() - startedAt));
     };
-  }, [coarsePointer, sequence, shouldAnimate]);
+  }, [mobileLayout, sequence, shouldAnimate]);
 
   const visibleTeams = state.teamNames.slice(0, state.teamCount);
 
@@ -511,11 +511,11 @@ export function ScoreboardPreview({
             </div>
             <PreviewConfiguration state={state} copy={copy} labels={labels} />
           </div>
-          {!prefersReducedMotion && !coarsePointer && (
+          {!prefersReducedMotion && !mobileLayout && (
             <span
               ref={pointerRef}
               aria-hidden="true"
-              className="pointer-events-none absolute top-0 left-0 z-30 opacity-0 transition-[transform,opacity] duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
+              className="pointer-events-none absolute top-0 left-0 z-30 hidden opacity-0 transition-[transform,opacity] duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none md:block"
               style={{ transform: "translate3d(0, 0, 0)" }}
             >
               <span
