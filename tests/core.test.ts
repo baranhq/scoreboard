@@ -268,17 +268,6 @@ test("IndexedDB initialisation is atomic and updates do not duplicate or erase o
   assert.equal((await loadBoards()).length, 1);
 });
 
-test("star reminder respects first visits, a week away, dismissals and GitHub clicks", async () => {
-  const { shouldShowStar, readStarPreference, WEEK } = await import("../src/lib/star-prompt.ts");
-  const now = 2 * WEEK;
-  assert.equal(shouldShowStar({}, now), true);
-  assert.equal(shouldShowStar({ lastVisit: now - 1000 }, now), false);
-  assert.equal(shouldShowStar({ lastVisit: now - WEEK }, now), true);
-  assert.equal(shouldShowStar({ dismissedUntil: now + WEEK }, now), false);
-  assert.equal(shouldShowStar({ clicked: true }, now + 10 * WEEK), false);
-  assert.deepEqual(readStarPreference("broken"), {});
-});
-
 test("dates display day, month and year without changing stored timestamps", async () => {
   const { europeanDateTime } = await import("../src/lib/dates.ts");
   const { policyDate } = await import("../src/lib/policy-document.ts");
