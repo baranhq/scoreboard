@@ -15,7 +15,7 @@ import { route } from "@/lib/routes";
 import type { PreviewLabels } from "./scoreboard-preview-types";
 
 const primaryLinkClass =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-action bg-action px-5 py-3 text-base font-semibold text-on-action transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest motion-safe:hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:transition-none";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-action bg-action px-5 py-3 text-base font-semibold text-on-action transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest motion-reduce:transform-none motion-reduce:transition-none";
 
 export function LandingPage({ lang, root = false }: { lang: Lang; root?: boolean }) {
   const copy = landingContent[lang];
@@ -136,7 +136,7 @@ export function LandingPage({ lang, root = false }: { lang: Lang; root?: boolean
           </div>
           <Link
             href={scoreboardPath}
-            className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-lg border border-white bg-white px-5 py-3 text-base font-semibold text-[#203e29] transition-[filter,transform] duration-150 hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white active:scale-[.98] motion-safe:hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:transition-none"
+            className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-lg border border-white bg-white px-5 py-3 text-base font-semibold text-[#203e29] transition-[filter,transform] duration-150 hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none"
           >
             {copy.finalCta.action}
             <ArrowRight aria-hidden="true" className="h-5 w-5" />

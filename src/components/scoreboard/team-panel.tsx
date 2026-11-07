@@ -157,12 +157,7 @@ export function TeamPanel({
         title={full ? undefined : t.score}
         className={`my-0 w-full overflow-hidden rounded-lg bg-transparent py-1 text-center font-display leading-[1.15] font-bold tracking-[-0.06em] tabular-nums ${full ? "flex min-h-0 flex-1 items-center justify-center" : ""} ${size}`}
       >
-        <span
-          key={team.score}
-          className="inline-block motion-safe:animate-[score-change_140ms_ease-out]"
-        >
-          {team.score}
-        </span>
+        {team.score}
       </ScoreTag>
       <span className="sr-only" aria-live="polite">
         {team.name}: {team.score}
