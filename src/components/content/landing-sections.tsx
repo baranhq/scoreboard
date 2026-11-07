@@ -37,7 +37,7 @@ export function LandingFeatures({ copy }: { copy: LandingContent["features"] }) 
               data-reveal="rise"
               className={`group border-t border-forest/15 py-4 transition-colors duration-200 ease-out hover:border-forest/40 sm:px-5 sm:py-5 ${revealDelays[index % revealDelays.length]}`}
             >
-              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-forest/5 text-forest transition-[background-color,transform] duration-200 ease-out group-hover:bg-forest/10 motion-safe:group-hover:-translate-y-0.5 motion-reduce:transition-none sm:mb-3">
+              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-forest/5 text-forest transition-colors duration-200 ease-out group-hover:bg-forest/10 motion-reduce:transition-none sm:mb-3">
                 <Icon
                   aria-hidden="true"
                   className="h-5 w-5 transition-transform duration-200 ease-out group-hover:scale-110 motion-reduce:transition-none"

@@ -238,6 +238,7 @@ export function ScoreboardPreview({
   const [state, setState] = useState(() => initialPreviewState(copy));
   const [inView, setInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
+  const [coarsePointer, setCoarsePointer] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [manuallyPaused, setManuallyPaused] = useState(false);
   const [motionPreferenceOverridden, setMotionPreferenceOverridden] = useState(false);
@@ -282,7 +283,14 @@ export function ScoreboardPreview({
       window.removeEventListener("resize", onResize);
       scrollPanel?.removeEventListener("scroll", onResize);
     };
-  }, [prefersReducedMotion, state.cursor, state.teamCount, state.tab, state.timerEnabled]);
+  }, [
+    coarsePointer,
+    prefersReducedMotion,
+    state.cursor,
+    state.teamCount,
+    state.tab,
+    state.timerEnabled,
+  ]);
 
   useLayoutEffect(() => {
     const previousBounds = layoutSnapshotRef.current;
@@ -365,6 +373,14 @@ export function ScoreboardPreview({
   }, []);
 
   useEffect(() => {
+    const media = window.matchMedia("(pointer: coarse)");
+    const update = () => setCoarsePointer(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
     const update = () => setPageVisible(document.visibilityState === "visible");
     update();
     document.addEventListener("visibilitychange", update);
@@ -380,7 +396,7 @@ export function ScoreboardPreview({
 
     const runNextStage = () => {
       const stage = sequence[stageIndexRef.current];
-      delay = remainingMs.current ?? stage.durationMs;
+      delay = remainingMs.current ?? stage.durationMs * (coarsePointer ? 1.35 : 1);
       remainingMs.current = null;
       startedAt = performance.now();
 
@@ -431,7 +447,7 @@ export function ScoreboardPreview({
       window.clearTimeout(timeout);
       remainingMs.current = Math.max(0, delay - (performance.now() - startedAt));
     };
-  }, [sequence, shouldAnimate]);
+  }, [coarsePointer, sequence, shouldAnimate]);
 
   const visibleTeams = state.teamNames.slice(0, state.teamCount);
 
@@ -439,7 +455,7 @@ export function ScoreboardPreview({
     <figure
       ref={previewRef}
       aria-labelledby="scoreboard-preview-caption"
-      className="group/demo relative mx-auto flex h-[calc(100svh-4rem-1px)] max-h-[calc(100svh-4rem-1px)] min-h-0 w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl"
+      className="group/demo relative mx-auto flex h-[min(62svh,30rem)] max-h-[min(62svh,30rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
       onPointerDown={() => setPlaybackControlRevealed(true)}
     >
       <figcaption id="scoreboard-preview-caption" className="sr-only">
@@ -459,7 +475,7 @@ export function ScoreboardPreview({
               setManuallyPaused(true);
             }
           }}
-          className={`absolute -top-14 right-2 z-40 flex h-11 w-11 items-center justify-center rounded-lg border border-forest/20 bg-surface text-forest transition-[opacity,background-color,transform] duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none ${playbackControlRevealed ? "opacity-100" : "opacity-0"} group-focus-within/demo:opacity-100 md:right-3 md:group-hover/demo:opacity-100`}
+          className={`absolute -top-14 right-2 z-40 flex h-11 w-11 items-center justify-center rounded-lg border border-forest/20 bg-surface text-forest transition-[opacity,background-color] duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none ${playbackControlRevealed ? "opacity-100" : "opacity-0"} group-focus-within/demo:opacity-100 md:right-3 md:group-hover/demo:opacity-100`}
         >
           {playbackPaused ? (
             <Play aria-hidden="true" className="h-4 w-4" />
@@ -471,7 +487,7 @@ export function ScoreboardPreview({
           data-scoreboard-demo
           data-demo-running={shouldAnimate}
           data-demo-stage="0"
-          className="relative flex max-h-[calc(100svh-12rem-1px)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3"
+          className="relative flex max-h-[min(calc(62svh-3rem),27rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:max-h-[calc(100svh-12rem-1px)]"
         >
           <PreviewToolbar copy={copy} labels={labels} />
           <div aria-hidden="true" className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -495,7 +511,7 @@ export function ScoreboardPreview({
             </div>
             <PreviewConfiguration state={state} copy={copy} labels={labels} />
           </div>
-          {!prefersReducedMotion && (
+          {!prefersReducedMotion && !coarsePointer && (
             <span
               ref={pointerRef}
               aria-hidden="true"

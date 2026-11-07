@@ -144,16 +144,6 @@ html[data-scoreboard-fullscreen="true"] [data-frame-chrome] {
     transform: translateY(2px) scale(0.985);
   }
 }
-@keyframes score-change {
-  from {
-    opacity: 0.8;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 @keyframes hero-rise {
   from {
     opacity: 0;
