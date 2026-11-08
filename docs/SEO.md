@@ -21,6 +21,8 @@ The build and `npm run indexnow` use the same private environment loader and pro
 
 ## Production verification
 
+After `npm run build`, run `python3 tests/seo-export.py` to check the exported metadata, canonicals, reciprocal locale links, sitemap, robots rules, structured data and static internal link targets. This checks local output; HTTP redirects and production indexing still need the checks below.
+
 1. Verify the HTTPS domain in [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters/about).
 2. Submit `/sitemap.xml`. Confirm that it contains only canonical public pages on the production origin and that each localized set includes reciprocal `bg`, `tr`, `en`, `en-GB` and `x-default` alternatives.
 3. Inspect `/`, `/en/`, `/bg/`, `/tr/`, `/scoreboard/`, the localized scoreboard routes and each localized help page. Check raw and rendered HTML for language, title, description, H1, canonical, alternates and readable content with JavaScript disabled. Confirm `/en/` canonicalizes to `/`, `/scoreboard/` canonicalizes to `/en/scoreboard/`, and neither alias appears as a sitemap entry.

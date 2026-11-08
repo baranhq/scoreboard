@@ -242,7 +242,6 @@ export function ScoreboardPreview({
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [manuallyPaused, setManuallyPaused] = useState(false);
   const [motionPreferenceOverridden, setMotionPreferenceOverridden] = useState(false);
-  const [playbackControlRevealed, setPlaybackControlRevealed] = useState(false);
   const sequence = useMemo(() => buildSequence(copy), [copy]);
   const playbackPaused = manuallyPaused || (prefersReducedMotion && !motionPreferenceOverridden);
   const shouldAnimate = inView && pageVisible && !playbackPaused;
@@ -346,7 +345,7 @@ export function ScoreboardPreview({
 
   useEffect(() => {
     const element = previewRef.current;
-    if (!element) return;
+    if (!element || typeof IntersectionObserver === "undefined") return;
 
     const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
       threshold: 0.12,
@@ -456,34 +455,33 @@ export function ScoreboardPreview({
     <figure
       ref={previewRef}
       aria-labelledby="scoreboard-preview-caption"
-      className="group/demo relative mx-auto flex h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
-      onPointerDown={() => setPlaybackControlRevealed(true)}
+      className="group/demo relative mx-auto flex h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl pt-14 md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
     >
       <figcaption id="scoreboard-preview-caption" className="sr-only">
         {copy.accessibleDescription}
       </figcaption>
+      <button
+        type="button"
+        aria-label={playbackPaused ? labels.playPreview : labels.pausePreview}
+        aria-pressed={playbackPaused}
+        title={playbackPaused ? labels.playPreview : labels.pausePreview}
+        onClick={() => {
+          if (playbackPaused) {
+            setManuallyPaused(false);
+            setMotionPreferenceOverridden(true);
+          } else {
+            setManuallyPaused(true);
+          }
+        }}
+        className="absolute top-2 right-2 z-40 flex h-11 w-11 items-center justify-center rounded-lg border border-forest/20 bg-surface text-forest transition-colors duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none md:right-3"
+      >
+        {playbackPaused ? (
+          <Play aria-hidden="true" className="h-4 w-4" />
+        ) : (
+          <Pause aria-hidden="true" className="h-4 w-4" />
+        )}
+      </button>
       <div className="relative w-full min-w-0">
-        <button
-          type="button"
-          aria-label={playbackPaused ? labels.playPreview : labels.pausePreview}
-          aria-pressed={playbackPaused}
-          title={playbackPaused ? labels.playPreview : labels.pausePreview}
-          onClick={() => {
-            if (playbackPaused) {
-              setManuallyPaused(false);
-              setMotionPreferenceOverridden(true);
-            } else {
-              setManuallyPaused(true);
-            }
-          }}
-          className={`absolute -top-14 right-2 z-40 flex h-11 w-11 items-center justify-center rounded-lg border border-forest/20 bg-surface text-forest transition-[opacity,background-color] duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none ${playbackControlRevealed ? "opacity-100" : "opacity-0"} group-focus-within/demo:opacity-100 md:right-3 md:group-hover/demo:opacity-100`}
-        >
-          {playbackPaused ? (
-            <Play aria-hidden="true" className="h-4 w-4" />
-          ) : (
-            <Pause aria-hidden="true" className="h-4 w-4" />
-          )}
-        </button>
         <div
           data-scoreboard-demo
           data-demo-running={shouldAnimate}
@@ -491,7 +489,7 @@ export function ScoreboardPreview({
           className="relative flex h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:h-auto md:max-h-[calc(100svh-12rem-1px)]"
         >
           <PreviewToolbar copy={copy} labels={labels} />
-          <div aria-hidden="true" className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div aria-hidden="true" inert className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <PreviewTimer state={state} labels={labels} />
             <div className={`grid gap-2 ${state.teamCount === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
               {visibleTeams.map((name, index) => (
