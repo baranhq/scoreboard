@@ -55,9 +55,9 @@ This cookie is specific to this Website and is not shared with or reused by the 
 
 **score_admin cookie**: Authenticates the private administration session; this is **not** a visitor login. At most **one hour**; Secure, HttpOnly, and SameSite=Strict.
 
-**Browser IndexedDB and local preferences**: Stores scoreboards, selected scoreboard, language, theme, dismissed language suggestion, and GitHub-star reminder state. Generally until you delete site data or your browser removes it; individual reminder values may be updated or cleared by Website behavior.
+**Browser IndexedDB and local preferences**: Stores scoreboards, selected scoreboard, language, theme, and dismissed language suggestion, generally until you delete site data or your browser removes it. Any GitHub-star reminder value saved by an earlier version is deleted locally when the Website's interface loads.
 
-The GitHub-star reminder stores its last visit, dismissal time, and whether a GitHub project link was selected locally. It does not make its own analytics request and is hidden permanently after you select a project GitHub link. Cloudflare may also use security cookies where its protection features require them; their presence and lifetimes depend on the security feature. See [Cloudflare's cookie documentation](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/).
+Cloudflare may also use security cookies where its protection features require them; their presence and lifetimes depend on the security feature. See [Cloudflare's cookie documentation](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/).
 
 The server checks stored consent on each first-party analytics request. A preference cookie may be needed to remember a rejection as well as an acceptance. Local functional settings and private administrator authentication are not permission to use optional analytics.
 
