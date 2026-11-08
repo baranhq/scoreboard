@@ -28,7 +28,7 @@ function record_event(PDO $db, array $c, array $data): never {
     if (!$c['analytics'] || !cookie_hash()) fail(403);
     if (array_diff(array_keys($data), ['type','path','label'])) fail(400);
     $type = $data['type'] ?? ''; $path = $data['path'] ?? '';
-    if (!is_string($path) || !in_array($path, ['/bg/','/tr/','/en/','/bg/poveritelnost/','/tr/gizlilik/','/en/privacy/','/bg/pomosht/','/tr/yardim/','/en/help/','/bg/licenzi/','/tr/lisanslar/','/en/licenses/'], true) || !in_array($type, ['view','click','active'], true)) fail(400);
+    if (!is_string($path) || !in_array($path, ['/','/bg/','/tr/','/en/','/scoreboard/','/bg/scoreboard/','/tr/scoreboard/','/en/scoreboard/','/bg/poveritelnost/','/tr/gizlilik/','/en/privacy/','/bg/pomosht/','/tr/yardim/','/en/help/','/bg/licenzi/','/tr/lisanslar/','/en/licenses/'], true) || !in_array($type, ['view','click','active'], true)) fail(400);
     if ($type === 'click' && !in_array($data['label'] ?? null, ALLOWED_EVENTS, true)) fail(400);
     if ($type !== 'click' && isset($data['label'])) fail(400);
     if (isset($_COOKIE['score_admin'])) {
