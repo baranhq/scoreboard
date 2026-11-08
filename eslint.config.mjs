@@ -24,7 +24,6 @@ export default defineConfig([
     files: [
       "src/components/layout/language-suggestion.tsx",
       "src/components/layout/privacy-controls.tsx",
-      "src/components/layout/star-prompt.tsx",
       "src/components/scoreboard/game-timer.tsx",
       "src/components/scoreboard/scoreboard.tsx",
       "src/components/scoreboard/use-fullscreen-controls.ts",
