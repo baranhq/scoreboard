@@ -189,13 +189,7 @@ export function PreviewTeamCard({
         {name}
       </h3>
       <p className="my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums sm:text-[calc(min(48cqw,7rem))] [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-[calc(min(30cqw,4rem))]">
-        <span
-          key={score}
-          data-demo-score={score}
-          className="inline-block motion-safe:animate-[score-change_160ms_ease-out] motion-reduce:animate-none"
-        >
-          {score}
-        </span>
+        {score}
       </p>
       <div className="mt-1 flex items-center gap-1 min-[480px]:gap-2 [@media(max-height:600px)]:mt-0">
         <span
@@ -266,7 +260,7 @@ export function PreviewConfiguration({
         key={state.tab}
         data-demo-scroll-panel
         data-demo-target={state.tab === "timer" ? "timer-scroll" : undefined}
-        className="mt-3 min-h-0 flex-1 overflow-x-hidden overflow-y-hidden overscroll-contain rounded-b-md border-t border-forest/15 pt-3 pb-2 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none"
+        className="mt-3 min-h-0 flex-1 touch-pan-y [scrollbar-width:thin] [scrollbar-color:rgba(40,91,53,0.35)_transparent] overflow-x-hidden overflow-y-auto overscroll-contain rounded-b-md border-t border-forest/15 pt-3 pb-2 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-forest/5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/35"
       >
         {state.tab === "teams" && (
           <div className="space-y-2">

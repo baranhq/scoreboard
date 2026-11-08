@@ -1,12 +1,32 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-import { Check, Copy, Save } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Copy, Save, Share2 } from "lucide-react";
 import { type Board } from "@/lib/boards";
 import { shareUrl } from "@/lib/sharing";
 import type { Lang, Messages } from "@/lib/i18n";
 import { route } from "@/lib/routes";
 import { Button, Modal } from "../ui/ui";
+
+function copyWithDocumentCommand(value: string) {
+  const field = document.createElement("textarea");
+  field.value = value;
+  field.readOnly = true;
+  field.tabIndex = -1;
+  field.setAttribute("aria-hidden", "true");
+  field.className = "fixed top-0 left-0 text-base opacity-0";
+  document.body.append(field);
+  field.focus();
+  field.select();
+  field.setSelectionRange(0, value.length);
+
+  try {
+    if (!document.execCommand("copy")) throw new Error("Copy unavailable");
+  } finally {
+    field.remove();
+  }
+}
+
 export function ShareDialog({
   board,
   t,
@@ -27,6 +47,12 @@ export function ShareDialog({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [deviceShareAvailable, setDeviceShareAvailable] = useState(false);
+
+  useEffect(() => {
+    setDeviceShareAvailable(typeof navigator.share === "function");
+  }, []);
+
   let url = "";
   let tooLarge = false;
   try {
@@ -106,14 +132,49 @@ export function ShareDialog({
                 />
               </label>
               <div className="mt-3 flex flex-wrap items-center gap-3">
+                {deviceShareAvailable && (
+                  <Button
+                    type="button"
+                    primary
+                    onClick={async () => {
+                      setError("");
+                      try {
+                        await navigator.share({ title: (saved || board).name, url });
+                      } catch (shareError) {
+                        if (shareError instanceof Error && shareError.name === "AbortError") return;
+                        setError(t.shareError);
+                      }
+                    }}
+                  >
+                    <Share2 aria-hidden="true" className="h-5 w-5" />
+                    {t.share}
+                  </Button>
+                )}
                 <Button
-                  primary
+                  type="button"
+                  primary={!deviceShareAvailable}
                   onClick={async () => {
+                    const clipboardAvailable = typeof navigator.clipboard?.writeText === "function";
                     try {
-                      await navigator.clipboard.writeText(url);
+                      if (clipboardAvailable) {
+                        await navigator.clipboard.writeText(url);
+                      } else {
+                        copyWithDocumentCommand(url);
+                      }
                       setCopied(true);
+                      setError("");
                     } catch {
-                      setError(t.copyManually);
+                      if (!clipboardAvailable) {
+                        setError(t.copyManually);
+                        return;
+                      }
+                      try {
+                        copyWithDocumentCommand(url);
+                        setCopied(true);
+                        setError("");
+                      } catch {
+                        setError(t.copyManually);
+                      }
                     }
                   }}
                 >
