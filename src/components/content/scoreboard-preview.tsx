@@ -238,6 +238,7 @@ export function ScoreboardPreview({
   const [state, setState] = useState(() => initialPreviewState(copy));
   const [inView, setInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
+  const [mobileLayout, setMobileLayout] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [manuallyPaused, setManuallyPaused] = useState(false);
   const [motionPreferenceOverridden, setMotionPreferenceOverridden] = useState(false);
@@ -262,8 +263,9 @@ export function ScoreboardPreview({
     const updatePosition = () => {
       const demoBounds = demo.getBoundingClientRect();
       const targetBounds = target.getBoundingClientRect();
-      const x = targetBounds.left - demoBounds.left + targetBounds.width / 2 - 3;
-      const y = targetBounds.top - demoBounds.top + targetBounds.height / 2 - 4;
+      const offset = mobileLayout ? 10 : 3;
+      const x = targetBounds.left - demoBounds.left + targetBounds.width / 2 - offset;
+      const y = targetBounds.top - demoBounds.top + targetBounds.height / 2 - offset;
       pointer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       pointer.style.opacity = "1";
     };
@@ -282,7 +284,14 @@ export function ScoreboardPreview({
       window.removeEventListener("resize", onResize);
       scrollPanel?.removeEventListener("scroll", onResize);
     };
-  }, [prefersReducedMotion, state.cursor, state.teamCount, state.tab, state.timerEnabled]);
+  }, [
+    mobileLayout,
+    prefersReducedMotion,
+    state.cursor,
+    state.teamCount,
+    state.tab,
+    state.timerEnabled,
+  ]);
 
   useLayoutEffect(() => {
     const previousBounds = layoutSnapshotRef.current;
@@ -365,6 +374,14 @@ export function ScoreboardPreview({
   }, []);
 
   useEffect(() => {
+    const media = window.matchMedia("(pointer: coarse), (max-width: 767px)");
+    const update = () => setMobileLayout(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
     const update = () => setPageVisible(document.visibilityState === "visible");
     update();
     document.addEventListener("visibilitychange", update);
@@ -380,7 +397,7 @@ export function ScoreboardPreview({
 
     const runNextStage = () => {
       const stage = sequence[stageIndexRef.current];
-      delay = remainingMs.current ?? stage.durationMs;
+      delay = remainingMs.current ?? stage.durationMs * (mobileLayout ? 1.35 : 1);
       remainingMs.current = null;
       startedAt = performance.now();
 
@@ -431,7 +448,7 @@ export function ScoreboardPreview({
       window.clearTimeout(timeout);
       remainingMs.current = Math.max(0, delay - (performance.now() - startedAt));
     };
-  }, [sequence, shouldAnimate]);
+  }, [mobileLayout, sequence, shouldAnimate]);
 
   const visibleTeams = state.teamNames.slice(0, state.teamCount);
 
@@ -439,7 +456,7 @@ export function ScoreboardPreview({
     <figure
       ref={previewRef}
       aria-labelledby="scoreboard-preview-caption"
-      className="group/demo relative mx-auto flex h-[calc(100svh-4rem-1px)] max-h-[calc(100svh-4rem-1px)] min-h-0 w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl"
+      className="group/demo relative mx-auto flex h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
       onPointerDown={() => setPlaybackControlRevealed(true)}
     >
       <figcaption id="scoreboard-preview-caption" className="sr-only">
@@ -459,7 +476,7 @@ export function ScoreboardPreview({
               setManuallyPaused(true);
             }
           }}
-          className={`absolute -top-14 right-2 z-40 flex h-11 w-11 items-center justify-center rounded-lg border border-forest/20 bg-surface text-forest transition-[opacity,background-color,transform] duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none ${playbackControlRevealed ? "opacity-100" : "opacity-0"} group-focus-within/demo:opacity-100 md:right-3 md:group-hover/demo:opacity-100`}
+          className={`absolute -top-14 right-2 z-40 flex h-11 w-11 items-center justify-center rounded-lg border border-forest/20 bg-surface text-forest transition-[opacity,background-color] duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none ${playbackControlRevealed ? "opacity-100" : "opacity-0"} group-focus-within/demo:opacity-100 md:right-3 md:group-hover/demo:opacity-100`}
         >
           {playbackPaused ? (
             <Play aria-hidden="true" className="h-4 w-4" />
@@ -471,7 +488,7 @@ export function ScoreboardPreview({
           data-scoreboard-demo
           data-demo-running={shouldAnimate}
           data-demo-stage="0"
-          className="relative flex max-h-[calc(100svh-12rem-1px)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3"
+          className="relative flex h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:h-auto md:max-h-[calc(100svh-12rem-1px)]"
         >
           <PreviewToolbar copy={copy} labels={labels} />
           <div aria-hidden="true" className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -502,18 +519,27 @@ export function ScoreboardPreview({
               className="pointer-events-none absolute top-0 left-0 z-30 opacity-0 transition-[transform,opacity] duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
               style={{ transform: "translate3d(0, 0, 0)" }}
             >
-              <span
-                className={`relative block transition-transform duration-150 motion-reduce:transition-none ${state.pressed === state.cursor ? "scale-90" : "scale-100"}`}
-              >
-                {state.pressed === state.cursor && (
-                  <span className="absolute -top-1 -left-1 h-6 w-6 rounded-full border border-forest/60 motion-safe:animate-[cursor-tap_180ms_ease-out]" />
-                )}
-                <MousePointer2
-                  aria-hidden="true"
-                  className="h-5 w-5 fill-paper text-ink drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] motion-safe:animate-[cursor-enter_180ms_ease-out]"
-                  strokeWidth={1.7}
-                />
-              </span>
+              {mobileLayout ? (
+                <span className="relative block h-5 w-5 rounded-full border-2 border-forest bg-paper/90 shadow-md">
+                  <span className="absolute inset-1 rounded-full bg-action" />
+                  {state.pressed === state.cursor && (
+                    <span className="absolute -inset-1.5 rounded-full border border-action/70 motion-safe:animate-[cursor-tap_220ms_ease-out]" />
+                  )}
+                </span>
+              ) : (
+                <span
+                  className={`relative block transition-transform duration-150 motion-reduce:transition-none ${state.pressed === state.cursor ? "scale-90" : "scale-100"}`}
+                >
+                  {state.pressed === state.cursor && (
+                    <span className="absolute -top-1 -left-1 h-6 w-6 rounded-full border border-forest/60 motion-safe:animate-[cursor-tap_180ms_ease-out]" />
+                  )}
+                  <MousePointer2
+                    aria-hidden="true"
+                    className="h-5 w-5 fill-paper text-ink drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] motion-safe:animate-[cursor-enter_180ms_ease-out]"
+                    strokeWidth={1.7}
+                  />
+                </span>
+              )}
             </span>
           )}
         </div>
