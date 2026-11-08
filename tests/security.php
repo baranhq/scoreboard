@@ -27,6 +27,38 @@ check(str_contains($renderedPolicy,'id="policy-content" class="max-w-3xl min-w-0
 check(str_contains($renderedPolicy,'id="policy-section-0"'),'policy section anchor');
 check(str_contains($renderedPolicy,'data-fullscreen-control="true"'),'privacy settings button in rendered policy');
 check(str_contains($policyTopics,'href="#policy-section-0"'),'policy contents match rendered section anchors');
+$topicComponent=file_get_contents(__DIR__.'/../src/components/content/topic-navigation.tsx');
+preg_match_all('/class="([^"]*)"/u',$policyTopics,$topicClasses);
+foreach($topicClasses[1] as $classes){
+    check(str_contains($topicComponent,'className="'.$classes.'"'),'server policy navigation classes match the hydrated component');
+}
+check(substr_count($policyTopics,'print:hidden')===2,'policy navigation is hidden in print');
+$adjacentBlocks=policy_blocks("First line.\r\nSecond line.\r\n## Heading\r\nBody.\r\n## Next");
+check($adjacentBlocks===[['heading'=>false,'text'=>"First line.\nSecond line."],['heading'=>true,'text'=>'Heading'],['heading'=>false,'text'=>'Body.'],['heading'=>true,'text'=>'Next']],'standalone headings with CRLF split without blank lines');
+foreach(['en','bg','tr'] as $lang){
+    $source=file_get_contents(__DIR__.'/../src/lib/privacy/'.$lang.'.md');
+    $headings=array_values(array_filter(policy_blocks($source),static fn($block)=>$block['heading']));
+    check(count($headings)===14,'all fourteen translated policy sections are recognized: '.$lang);
+    foreach($headings as $index=>$heading){
+        check(str_starts_with($heading['text'],($index+1).'.'),'policy section order includes section 10: '.$lang);
+    }
+    $topics=policy_topics(['content'=>$source],$lang);
+    check(substr_count($topics,'href="#policy-section-')===28,'both contents menus include every translated section');
+}
+$adjacentPolicy=['title'=>'Policy','updatedAt'=>'2026-11-09','content'=>"Text ## inline.\n\n## Same <title>\n## Same <title>\nEnd."];
+$adjacentTopics=policy_topics($adjacentPolicy,'en');
+$adjacentArticle=policy_article($adjacentPolicy,'en');
+foreach([1,2] as $index){
+    check(substr_count($adjacentTopics,'href="#policy-section-'.$index.'"')===2&&str_contains($adjacentArticle,'id="policy-section-'.$index.'"'),'adjacent repeated headings retain matching unique anchors');
+}
+check(!str_contains($adjacentArticle,'<title>')&&str_contains($adjacentArticle,'Same &lt;title&gt;'),'adjacent headings remain escaped');
+$repeatedPolicy=['content'=>"Introduction.\n\n## Same <title>\n\nBody.\n\n## Same <title>"];
+foreach(['en'=>'On this page','bg'=>'На тази страница','tr'=>'Bu sayfada'] as $lang=>$label){
+    $topics=policy_topics($repeatedPolicy,$lang);
+    check(substr_count($topics,'aria-label="'.$label.'"')===2,'localized policy navigation labels');
+    check(substr_count($topics,'href="#policy-section-1"')===2&&substr_count($topics,'href="#policy-section-3"')===2,'repeated policy headings retain distinct matching anchors');
+    check(!str_contains($topics,'Same <title>')&&str_contains($topics,'Same &lt;title&gt;'),'navigation titles are escaped');
+}
 $metadata=policy_metadata_html('<title>Old title</title><meta name="description" content="Old description"><meta property="og:title" content="Old social title"><meta property="og:description" content="Old social description"><meta name="twitter:title" content="Old card title"><meta name="twitter:description" content="Old card description">',$policy);
 check(str_contains($metadata,'<title>Privacy &amp; &lt;notice&gt; | Baran&#39;s Scoreboard</title>'),'policy title escaped in metadata');
 check(str_contains($metadata,'name="description" content="Updated policy text. Contact"'),'policy description updated');

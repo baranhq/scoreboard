@@ -73,7 +73,7 @@ export function pageMetadata(
       break;
   }
 
-  const title = `${heading} | ${brand}`;
+  const title = page === "help" ? heading : `${heading} | ${brand}`;
   const url = siteOrigin + route(lang, page);
   const canonicalPath = currentPath === undefined || currentPath === route(lang, page);
   const publicIndexable = indexable && page !== "saved" && canonicalPath;
