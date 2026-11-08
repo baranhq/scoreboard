@@ -21,6 +21,7 @@ The repository can verify application behaviour, but not hosting-level settings,
 - Hosting logs, AWStats, Cloudflare delivery/security and email correspondence are separate from optional application analytics. Rejecting consent does not turn them off.
 - The consent cookie is site-specific, opaque, Secure and HttpOnly in production. Portfolio consent on a different host is not reused.
 - Usage consent withdrawal deletes the associated live analytics in a transaction. Analytics writes and consent changes lock the same preference record to prevent a late write from recreating withdrawn records.
+- Preference refreshes pause first-party collection while consent is checked; stale responses cannot restore an older choice. An already initialized Cloudflare beacon is ended by reloading the tab when refreshed consent is withdrawn or cannot be verified.
 - Cloudflare Web Analytics is manually loaded by the application after consent. The repository cannot verify whether a separate Cloudflare automatic beacon injection is disabled in production; inspect actual production responses and requests.
 - Timers, theme selection, device-language suggestions and interface nudges do not contact third-party services.
 
@@ -48,3 +49,5 @@ The repository can verify application behaviour, but not hosting-level settings,
 Publishing a policy edit changes only text. It does not configure provider logging, enable analytics, set retention, verify a transfer mechanism or change the hosting arrangements. Keep the public notices aligned with actual processing. The separate portfolio policy is not edited by this project.
 
 Relevant primary references: [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng), [Bulgarian Personal Data Protection Act and Article 25c](https://cpdp.bg/en/legislation/personal-data-protection-act/), [Bulgarian Commission for Personal Data Protection](https://cpdp.bg/en/), [Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/), [Cloudflare Web Analytics retention documentation](https://developers.cloudflare.com/web-analytics/faq/).
+
+The consent review also used the [consolidated ePrivacy Directive, Article 5(3)](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02002L0058-20091219) and [EDPB Guidelines 05/2020 on consent](https://www.edpb.europa.eu/documents/guideline/guidelines-052020-on-consent-under-regulation-2016679_en). Direct retrieval of CPDP material was unavailable during this pass, so current Bulgarian-law interpretation remains an operator/legal-review item. No contractual terms were changed.

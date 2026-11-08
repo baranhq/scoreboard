@@ -1,12 +1,16 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Check, Copy, Save, Share2 } from "lucide-react";
 import { type Board } from "@/lib/boards";
 import { shareUrl } from "@/lib/sharing";
 import type { Lang, Messages } from "@/lib/i18n";
 import { route } from "@/lib/routes";
 import { Button, Modal } from "../ui/ui";
+
+const subscribeToShareCapability = () => () => {};
+const deviceShareSnapshot = () => typeof navigator.share === "function";
+const serverShareSnapshot = () => false;
 
 function copyWithDocumentCommand(value: string) {
   const field = document.createElement("textarea");
@@ -47,11 +51,11 @@ export function ShareDialog({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-  const [deviceShareAvailable, setDeviceShareAvailable] = useState(false);
-
-  useEffect(() => {
-    setDeviceShareAvailable(typeof navigator.share === "function");
-  }, []);
+  const deviceShareAvailable = useSyncExternalStore(
+    subscribeToShareCapability,
+    deviceShareSnapshot,
+    serverShareSnapshot,
+  );
 
   let url = "";
   let tooLarge = false;

@@ -35,7 +35,7 @@ export function PolicyBody({
     block.heading ? [{ href: `#policy-section-${index}`, title: block.text }] : [],
   );
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
+    <div className="grid items-start gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12 print:block">
       <TopicNavigation label={contentsLabel} topics={topics} />
       <article
         id="policy-content"

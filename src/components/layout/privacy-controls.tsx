@@ -3,11 +3,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Lang, Messages } from "@/lib/i18n";
 import { pageForPath, route } from "@/lib/routes";
 import { events } from "@/lib/analytics";
+import {
+  createPrivacySession,
+  disabledPrivacyState,
+  type PrivacyChoices as Choices,
+  type PrivacyState as State,
+} from "@/lib/privacy-session";
 import { Button, Modal } from "../ui/ui";
-type Choices = { usage: boolean; cloud: boolean };
-type State = Choices & { saved: boolean; capabilities: Choices; cloudToken: string | null };
 const off: Choices = { usage: false, cloud: false };
-const initial: State = { ...off, saved: false, capabilities: off, cloudToken: null };
+const initial = disabledPrivacyState;
+// A beacon remains active for this document even when a route unmounts its controls.
+const cloudIntegration: { token: string | null } = { token: null };
 export function PrivacyControls({
   lang,
   t,
@@ -33,31 +39,44 @@ export function PrivacyControls({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const stateRef = useRef(state);
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
+  const usageVisitStarted = useRef(false);
   const channel = useRef<BroadcastChannel | null>(null);
+  const sessionRef = useRef<ReturnType<typeof createPrivacySession> | null>(null);
   const read = useCallback(async () => {
-    try {
-      const response = await fetch("/api/index.php?action=state", {
-        cache: "no-store",
-        credentials: "same-origin",
-      });
-      if (!response.ok) throw new Error();
-      const s: State = await response.json();
-      if (!s.capabilities || typeof s.usage !== "boolean" || typeof s.cloud !== "boolean")
-        throw new Error();
-      setState(s);
-      setDraft({ usage: s.usage, cloud: s.cloud });
+    const next = await sessionRef.current?.read();
+    if (next) {
+      if (!next.usage) usageVisitStarted.current = false;
+      setDraft({ usage: next.usage, cloud: next.cloud });
       setError("");
-      return s;
-    } catch {
-      setState(initial);
-      setError(t.unavailable);
-      return null;
     }
-  }, [t.unavailable]);
+    return next;
+  }, []);
   useEffect(() => {
+    const session = createPrivacySession({
+      async request(choices) {
+        const response = await fetch(`/api/index.php?action=${choices ? "consent" : "state"}`, {
+          cache: "no-store",
+          credentials: "same-origin",
+          ...(choices
+            ? {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(choices),
+              }
+            : {}),
+        });
+        if (!response.ok) throw new Error("Privacy request failed");
+        return response.json();
+      },
+      update(next) {
+        stateRef.current = next;
+        setState(next);
+      },
+      unavailable: () => setError(t.unavailable),
+      reload: () => location.reload(),
+      integration: cloudIntegration,
+    });
+    sessionRef.current = session;
     let alive = true;
     void read().then((s) => {
       if (alive && s && !s.saved && (s.capabilities.usage || s.capabilities.cloud))
@@ -71,7 +90,6 @@ export function PrivacyControls({
     if (typeof BroadcastChannel !== "undefined") {
       channel.current = new BroadcastChannel("scoreboard-privacy");
       channel.current.onmessage = () => {
-        setState(initial);
         void read();
       };
     }
@@ -81,29 +99,38 @@ export function PrivacyControls({
     document.addEventListener("visibilitychange", refresh);
     return () => {
       alive = false;
+      session.cancel();
+      sessionRef.current = null;
       window.removeEventListener("privacy-open", show);
       document.removeEventListener("visibilitychange", refresh);
       channel.current?.close();
     };
-  }, [read]);
+  }, [read, t.unavailable]);
   useEffect(() => {
     if (promptReady && shouldAsk && !fullscreen) setOpen(true);
   }, [promptReady, shouldAsk, fullscreen]);
   useEffect(() => {
-    if (!linkReady || !state.cloud || !state.cloudToken || !/^[a-f0-9]{32}$/.test(state.cloudToken))
+    if (
+      !linkReady ||
+      !state.cloud ||
+      !state.cloudToken ||
+      !sessionRef.current?.startCloud(state.cloudToken)
+    )
       return;
     const script = document.createElement("script");
     script.src = "https://static.cloudflareinsights.com/beacon.min.js";
     script.defer = true;
     script.dataset.cfBeacon = JSON.stringify({ token: state.cloudToken, spa: false });
     document.head.appendChild(script);
-    return () => script.remove();
-  }, [state.cloud, state.cloudToken, linkReady]);
+  }, [state, linkReady]);
   useEffect(() => {
     if (
       !linkReady ||
       !state.usage ||
-      !["home", "privacy", "licenses"].includes(pageForPath(location.pathname) || "")
+      (location.pathname !== "/" &&
+        !["home", "scoreboard", "privacy", "licenses"].includes(
+          pageForPath(location.pathname) || "",
+        ))
     )
       return;
     let lastActivity = Date.now();
@@ -119,11 +146,17 @@ export function PrivacyControls({
         cache: "no-store",
       })
         .then((r) => {
-          if (!r.ok) setState((s) => ({ ...s, usage: false }));
+          if (!r.ok) {
+            stateRef.current = { ...stateRef.current, usage: false };
+            setState(stateRef.current);
+          }
         })
         .catch(() => {});
     };
-    send({ type: "view" });
+    if (!usageVisitStarted.current) {
+      usageVisitStarted.current = true;
+      send({ type: "view" });
+    }
     const activity = () => {
       lastActivity = Date.now();
       activeSinceTick = true;
@@ -158,27 +191,17 @@ export function PrivacyControls({
     };
   }, [state.usage, linkReady]);
   const save = async (choices: Choices) => {
-    const oldCloud = state.cloud;
-    setState((s) => ({ ...s, usage: false, cloud: false }));
     setBusy(true);
     try {
-      const r = await fetch("/api/index.php?action=consent", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(choices),
-        cache: "no-store",
-      });
-      if (!r.ok) throw new Error();
-      const s: State = await r.json();
-      setState(s);
-      setDraft({ usage: s.usage, cloud: s.cloud });
-      setOpen(false);
-      setError("");
-      channel.current?.postMessage("changed");
-      if (oldCloud && !s.cloud) location.reload();
-    } catch {
-      setError(t.unavailable);
+      const next = await sessionRef.current?.save(choices);
+      if (next) {
+        if (!next.usage) usageVisitStarted.current = false;
+        setDraft({ usage: next.usage, cloud: next.cloud });
+        setOpen(false);
+        setShouldAsk(false);
+        setError("");
+        channel.current?.postMessage("changed");
+      }
     } finally {
       setBusy(false);
     }

@@ -16,6 +16,7 @@ function policy_inline(string $text): string {
 }
 function policy_blocks(string $content): array {
     $normalised=str_replace("\r\n","\n",$content);
+    $normalised=preg_replace('/^(## [^\n]*)$/mu',"\n\n$1\n\n",$normalised);
     $parts=preg_split('/\n\s*\n/u',$normalised);
     $blocks=[];
 
@@ -36,7 +37,7 @@ function policy_topic_list(array $topics): string {
     foreach($topics as $topic){
         $href=h($topic['href']);
         $title=h($topic['title']);
-        $html.='<li><a href="#'.$href.'" class="flex min-h-11 items-center rounded-lg px-3 py-2 font-sans text-base leading-6 font-medium text-forest transition-colors duration-150 hover:text-forest/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none dark:text-[#8bd69a] dark:hover:text-white">'.$title.'</a></li>';
+        $html.='<li><a href="#'.$href.'" class="flex min-h-11 items-center rounded-lg px-3 py-2 font-sans text-base leading-6 font-medium text-forest transition-colors duration-150 hover:bg-forest/8 focus-visible:bg-forest/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none dark:text-[#8bd69a] dark:hover:bg-white/5 dark:hover:text-white dark:focus-visible:bg-white/5">'.$title.'</a></li>';
     }
 
     return $html.'</ul>';
@@ -65,13 +66,13 @@ function policy_topics(array $p,string $lang): string {
     }
 
     $label=h($labels[$lang]);
-    $mobile='<details class="mb-6 lg:hidden">'
-        .'<summary class="cursor-pointer font-sans text-base font-semibold text-forest transition-colors duration-150 hover:text-forest/80 motion-reduce:transition-none dark:text-[#8bd69a] dark:hover:text-white">'.$label.'</summary>'
-        .'<nav aria-label="'.$label.'">'.policy_topic_list($topics).'</nav>'
+    $mobile='<details class="group mb-6 rounded-xl border border-forest/15 bg-surface p-3 lg:hidden print:hidden">'
+        .'<summary class="cursor-pointer border-b border-transparent px-3 pb-2 font-sans text-base font-semibold text-forest transition-[color,border-color] duration-150 group-open:border-forest/15 group-open:pb-3 hover:text-forest/80 motion-reduce:transition-none dark:text-[#8bd69a] dark:hover:text-white">'.$label.'</summary>'
+        .'<nav aria-label="'.$label.'" class="pt-1">'.policy_topic_list($topics).'</nav>'
         .'</details>';
-    $desktop='<aside class="hidden h-fit lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto">'
+    $desktop='<aside class="hidden h-fit overscroll-contain rounded-xl border border-forest/15 bg-surface p-3 lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto print:hidden">'
         .'<nav aria-label="'.$label.'">'
-        .'<p class="px-3 font-sans text-base font-semibold text-forest dark:text-[#8bd69a]">'.$label.'</p>'
+        .'<p class="mb-2 border-b border-forest/15 px-3 pb-3 font-sans text-base font-semibold text-forest dark:text-[#8bd69a]">'.$label.'</p>'
         .policy_topic_list($topics)
         .'</nav>'
         .'</aside>';
