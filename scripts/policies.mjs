@@ -13,7 +13,7 @@ for (const lang of ["bg", "tr", "en"]) {
   writeFileSync(
     "public/policies/" + lang + ".json",
     JSON.stringify(
-      { title: messages[lang].privacy, content, revision: 0, updatedAt: "2026-11-07" },
+      { title: messages[lang].privacy, content, revision: 0, updatedAt: "2026-11-09" },
       null,
       2,
     ) + "\n",

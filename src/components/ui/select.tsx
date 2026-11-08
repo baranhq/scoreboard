@@ -42,7 +42,20 @@ export function Select({
     setOpen(true);
   };
   return (
-    <div ref={root} className="relative w-full">
+    <div
+      ref={root}
+      className="relative w-full"
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || !open) return;
+        event.preventDefault();
+        event.stopPropagation();
+        setOpen(false);
+        trigger.current?.focus();
+      }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+    >
       <button
         ref={trigger}
         type="button"

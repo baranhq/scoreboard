@@ -19,6 +19,7 @@ export function validPolicyDocument(value: unknown): value is PolicyDocument {
 export function policyBlocks(content: string): { heading: boolean; text: string }[] {
   return content
     .replace(/\r\n/g, "\n")
+    .replace(/^(## [^\n]*)$/gm, "\n\n$1\n\n")
     .split(/\n\s*\n/)
     .filter(Boolean)
     .map((block) => ({
