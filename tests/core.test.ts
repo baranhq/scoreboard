@@ -167,23 +167,32 @@ test("software schema uses stable multilingual entities and omits unsupported ra
   const bg = softwareSchema("bg", "https://scoreboard.baranhq.com", "Baran's Scoreboard")[
     "@graph"
   ] as Record<string, unknown>[];
+  const tr = softwareSchema("tr", "https://scoreboard.baranhq.com", "Baran's Scoreboard")[
+    "@graph"
+  ] as Record<string, unknown>[];
   assert.equal(en[0]["@id"], bg[0]["@id"]);
   assert.equal(en[1]["@id"], bg[1]["@id"]);
   assert.deepEqual(en[0].inLanguage, ["en-GB", "bg", "tr"]);
   assert.equal((en[1].offers as { price: number }).price, 0);
   assert.equal(en[1].url, "https://scoreboard.baranhq.com/en/scoreboard/");
   assert.equal(bg[1].url, "https://scoreboard.baranhq.com/bg/scoreboard/");
-  assert.deepEqual(en[1].author, {
+  assert.deepEqual(en[1].author, { "@id": "https://scoreboard.baranhq.com/#developer" });
+  assert.deepEqual(en[1].sameAs, ["https://github.com/baranhq/scoreboard"]);
+  assert.deepEqual(en[0].publisher, { "@id": "https://scoreboard.baranhq.com/#developer" });
+  assert.equal(en[2]["@type"], "WebPage");
+  assert.equal(en[2].url, "https://scoreboard.baranhq.com/");
+  assert.deepEqual(en[2].mainEntity, { "@id": "https://scoreboard.baranhq.com/#application" });
+  assert.deepEqual(en[3], {
     "@type": "Person",
+    "@id": "https://scoreboard.baranhq.com/#developer",
     name: "Baran Ahmedov",
     url: "https://baranhq.com/en/",
   });
   assert.equal("aggregateRating" in en[1], false);
   assert.equal("review" in en[1], false);
   assert.equal(en[1].image, "https://scoreboard.baranhq.com/social.png");
-  const tr = softwareSchema("tr", "https://scoreboard.baranhq.com", "Baran's Scoreboard")[
-    "@graph"
-  ] as Record<string, unknown>[];
+  assert.equal(bg[2].url, "https://scoreboard.baranhq.com/bg/");
+  assert.equal(tr[2].url, "https://scoreboard.baranhq.com/tr/");
   assert.equal(tr[1].url, "https://scoreboard.baranhq.com/tr/scoreboard/");
 });
 test("automatic and fullscreen scoreboard grids use the same team columns", () => {
