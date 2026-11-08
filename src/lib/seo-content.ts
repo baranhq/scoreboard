@@ -1,6 +1,7 @@
 import type { Lang } from "./i18n";
-import { route } from "./routes.ts";
+import { homeRoute, route } from "./routes.ts";
 import { landingContent } from "./landing-content.ts";
+import { repo } from "./site.ts";
 
 export const seoContent: Record<
   Lang,
@@ -67,6 +68,8 @@ export function softwareSchema(lang: Lang, siteOrigin: string, brand: string) {
   const content = seoContent[lang];
   const websiteId = `${siteOrigin}/#website`;
   const applicationId = `${siteOrigin}/#application`;
+  const developerId = `${siteOrigin}/#developer`;
+  const pageUrl = siteOrigin + homeRoute(lang);
   const applicationUrl = siteOrigin + route(lang, "scoreboard");
   return {
     "@context": "https://schema.org",
@@ -78,6 +81,7 @@ export function softwareSchema(lang: Lang, siteOrigin: string, brand: string) {
         url: `${siteOrigin}/`,
         description: content.description,
         inLanguage: ["en-GB", "bg", "tr"],
+        publisher: { "@id": developerId },
       },
       {
         "@type": "WebApplication",
@@ -89,14 +93,31 @@ export function softwareSchema(lang: Lang, siteOrigin: string, brand: string) {
         browserRequirements: "A modern browser with JavaScript and IndexedDB enabled.",
         isAccessibleForFree: true,
         offers: { "@type": "Offer", price: 0 },
-        author: { "@type": "Person", name: "Baran Ahmedov", url: "https://baranhq.com/en/" },
+        author: { "@id": developerId },
         license: "https://github.com/baranhq/scoreboard/blob/main/LICENSE",
         inLanguage: content.locale,
         image: `${siteOrigin}/social.png`,
+        sameAs: [repo],
         featureList: landingContent[lang].features.items.map(
           ({ title, description }) => `${title}: ${description}`,
         ),
         isPartOf: { "@id": websiteId },
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: content.title,
+        description: content.description,
+        inLanguage: content.locale,
+        isPartOf: { "@id": websiteId },
+        mainEntity: { "@id": applicationId },
+      },
+      {
+        "@type": "Person",
+        "@id": developerId,
+        name: "Baran Ahmedov",
+        url: "https://baranhq.com/en/",
       },
     ],
   };
