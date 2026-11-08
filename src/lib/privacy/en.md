@@ -67,7 +67,7 @@ You can manage **Site usage analytics** and **Cloudflare Web Analytics** separat
 
 If you withdraw consent for Site usage analytics, the Website stops future collection under that choice and removes live analytics records linked to that browser's privacy token. If you disable Cloudflare Web Analytics, the Website stops new beacon loading and reloads the page to end the active integration; a request already in progress may finish. Withdrawal does not retroactively make previous lawful processing unlawful and does not automatically erase hosting logs, AWStats reports, Cloudflare network records, existing backups, or Cloudflare's previously processed analytics.
 
-Other open Website tabs refresh privacy preferences when focused and receive same-site change notifications. Deleting the privacy cookie may prevent the Website from associating an earlier analytics record with your browser. Deleting that cookie does not delete the separately stored scoreboards in IndexedDB.
+Other open Website tabs refresh privacy preferences when focused and receive same-site change notifications. If a tab has already loaded the Cloudflare beacon, it reloads when it learns that the corresponding consent was withdrawn, ending that tab's active integration. Deleting the privacy cookie may prevent the Website from associating an earlier analytics record with your browser. Deleting that cookie does not delete the separately stored scoreboards in IndexedDB.
 
 ## 6. Private administration, security, and messages
 

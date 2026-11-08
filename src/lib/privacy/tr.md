@@ -67,7 +67,7 @@ Sunucu, her birinci taraf analiz isteğinde kayıtlı onayı kontrol eder. Bir t
 
 Site kullanım analizi onayınızı geri çekerseniz Web Sitesi, bu seçime bağlı olarak gelecekte veri toplamayı durdurur ve tarayıcınızın gizlilik belirteciyle ilişkili aktif analiz kayıtlarını siler. Cloudflare Web Analytics'i devre dışı bırakırsanız Web Sitesi yeni analiz işaretçilerinin yüklenmesini durdurur ve etkin entegrasyonu sonlandırmak için sayfayı yeniden yükler; başlamış bir istek tamamlanabilir. Onayın geri çekilmesi, önceki hukuka uygun işlemeyi geriye dönük olarak hukuka aykırı hâle getirmez ve barındırma günlüklerini, AWStats raporlarını, Cloudflare ağ kayıtlarını, mevcut yedekleri veya Cloudflare tarafından daha önce işlenen analiz verilerini otomatik olarak silmez.
 
-Web Sitesi'nin diğer açık sekmeleri, odaklandıklarında gizlilik tercihlerini yeniler ve aynı siteye ait değişiklik bildirimlerini alır. Gizlilik çerezini silmek, Web Sitesi'nin önceki analiz kaydını tarayıcınızla eşleştirememesine yol açabilir. Bu çerezi silmek, IndexedDB'de ayrıca saklanan puan tablolarını silmez.
+Web Sitesi'nin diğer açık sekmeleri, odaklandıklarında gizlilik tercihlerini yeniler ve aynı siteye ait değişiklik bildirimlerini alır. Cloudflare analiz betiğini zaten yüklemiş olan bir sekme, ilgili iznin geri çekildiğini öğrendiğinde yeniden yüklenerek o sekmedeki etkin entegrasyonu sonlandırır. Gizlilik çerezini silmek, Web Sitesi'nin önceki analiz kaydını tarayıcınızla eşleştirememesine yol açabilir. Bu çerezi silmek, IndexedDB'de ayrıca saklanan puan tablolarını silmez.
 
 ## 6. Özel yönetim, güvenlik ve yazışmalar
 
