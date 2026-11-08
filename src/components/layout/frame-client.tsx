@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode 
 import type { Lang, Messages } from "@/lib/i18n";
 import { LanguageSuggestion } from "./language-suggestion";
 import { PrivacyControls } from "./privacy-controls";
-import { StarPrompt } from "./star-prompt";
 
 function subscribeToLanguageCheck(onChange: () => void) {
   window.addEventListener("scoreboard-language-check-complete", onChange);
@@ -74,6 +73,11 @@ export function FrameOverlays({ lang, t }: { lang: Lang; t: Messages }) {
   );
 
   useEffect(() => {
+    try {
+      // Remove the preference left behind by the old star reminder.
+      window.localStorage.removeItem("scoreboard-star-prompt");
+    } catch {}
+
     const syncFullscreen = (event: Event) => {
       const active = (event as CustomEvent<boolean>).detail === true;
       setFullscreen(active);
@@ -91,7 +95,6 @@ export function FrameOverlays({ lang, t }: { lang: Lang; t: Messages }) {
 
   return (
     <>
-      <StarPrompt lang={lang} fullscreen={fullscreen} />
       <PrivacyControls lang={lang} t={t} fullscreen={fullscreen} promptReady={promptReady} />
     </>
   );

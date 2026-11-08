@@ -55,9 +55,9 @@ Bu çerez yalnızca bu Web Sitesi'ne özgüdür; başka bir ana makinedeki ayrı
 
 **score_admin çerezi**: Özel yönetim oturumunun kimliğini doğrular; bu bir ziyaretçi girişi **değildir**. En fazla **bir saat**; Secure, HttpOnly ve SameSite=Strict.
 
-**Tarayıcı IndexedDB'si ve yerel tercihler**: Puan tablolarını, seçili puan tablosunu, dili, temayı, kapatılan dil önerisini ve GitHub yıldız hatırlatıcısının durumunu saklar. Genellikle siz site verilerini silene veya tarayıcınız bunları kaldırana kadar; hatırlatıcının bazı değerleri Web Sitesi tarafından güncellenebilir veya temizlenebilir.
+**Tarayıcı IndexedDB'si ve yerel tercihler**: Puan tablolarını, seçili puan tablosunu, dili, temayı ve kapatılan dil önerisini saklar; genellikle siz site verilerini silene veya tarayıcınız bunları kaldırana kadar. Önceki bir sürümün kaydettiği GitHub yıldız hatırlatıcısı değeri, Web Sitesi arayüzü yüklendiğinde yerel olarak silinir.
 
-GitHub yıldız hatırlatıcısı, son gösterilme zamanını, kapatılma zamanını ve bir GitHub proje bağlantısının seçilip seçilmediğini yerel olarak kaydeder. Kendi başına bir analiz isteği göndermez ve bir GitHub proje bağlantısı seçtiğinizde kalıcı olarak gizlenir. Cloudflare de koruma özellikleri gerektirdiğinde güvenlik çerezleri kullanabilir; bunların bulunması ve kullanım süreleri ilgili güvenlik özelliğine bağlıdır. Bkz. [Cloudflare çerez belgeleri](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/).
+Cloudflare de koruma özellikleri gerektirdiğinde güvenlik çerezleri kullanabilir; bunların bulunması ve kullanım süreleri ilgili güvenlik özelliğine bağlıdır. Bkz. [Cloudflare çerez belgeleri](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/).
 
 Sunucu, her birinci taraf analiz isteğinde kayıtlı onayı kontrol eder. Bir tercihi reddettiğinizi de kabul ettiğinizi de hatırlamak için tercih çerezi gerekli olabilir. Yerel işlevsel ayarlar ve özel yönetici kimlik doğrulaması, isteğe bağlı analiz hizmetlerini kullanma izni anlamına gelmez.
 
