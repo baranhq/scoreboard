@@ -26,6 +26,11 @@ export const homeFaq: Record<
           "Yes. Add a team for each group and keep quiz, activity or classroom-game points visible to everyone.",
       },
       {
+        question: "Can I use this as an online score counter for several teams?",
+        answer:
+          "Yes. Add teams, choose their names and colours, and keep every score together on one board.",
+      },
+      {
         question: "Can I customize the scoreboard?",
         answer:
           "Yes. Add and rename teams, choose colors and layouts, adjust text sizes, and use a countdown or stopwatch.",
@@ -64,6 +69,11 @@ export const homeFaq: Record<
           "Да. Добавете отбор за всяка група и показвайте точките от викторина, занимание или игра на целия клас.",
       },
       {
+        question: "Мога ли да използвам това онлайн табло като брояч на точки за няколко отбора?",
+        answer:
+          "Да. Добавете отбори, задайте имената и цветовете им и следете точките на едно табло.",
+      },
+      {
         question: "Мога ли да персонализирам таблото?",
         answer:
           "Да. Добавяйте и преименувайте отбори, избирайте цветове и подредба, настройвайте размера на текста и използвайте таймер или хронометър.",
@@ -100,6 +110,11 @@ export const homeFaq: Record<
         question: "Sınıf oyunlarında kullanabilir miyim?",
         answer:
           "Evet. Her grup için bir takım ekleyip bilgi yarışması, etkinlik veya sınıf oyunlarının puanlarını herkesin görebileceği şekilde tutabilirsiniz.",
+      },
+      {
+        question: "Birden fazla takım için çevrim içi puan sayacı olarak kullanabilir miyim?",
+        answer:
+          "Evet. Takım ekleyip adlarını ve renklerini seçerek tüm puanları tek bir tabloda takip edebilirsiniz.",
       },
       {
         question: "Skor tabelasını özelleştirebilir miyim?",

@@ -29,10 +29,13 @@ if (!/^[A-Za-z0-9-]{8,128}$/.test(key))
   );
 
 const { languages } = await import("../src/lib/i18n.ts");
-const { route } = await import("../src/lib/routes.ts");
-const urls = ["home", "privacy", "licenses", "help"].flatMap((page) =>
-  languages.map((lang) => origin + route(lang, page)),
-);
+const { homeRoute, route } = await import("../src/lib/routes.ts");
+const urls = [
+  ...languages.map((lang) => origin + homeRoute(lang)),
+  ...["scoreboard", "privacy", "licenses", "help"].flatMap((page) =>
+    languages.map((lang) => origin + route(lang, page)),
+  ),
+];
 const response = await fetch("https://api.indexnow.org/indexnow", {
   method: "POST",
   headers: { "Content-Type": "application/json; charset=utf-8" },
