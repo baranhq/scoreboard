@@ -17,8 +17,8 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: indexable
       ? [
-          { userAgent: "*", allow: "/", disallow: privatePaths },
-          { userAgent: "OAI-SearchBot", allow: "/", disallow: privatePaths },
+          { userAgent: "*", disallow: privatePaths },
+          { userAgent: "OAI-SearchBot", disallow: privatePaths },
         ]
       : [
           { userAgent: "*", disallow: "/" },
