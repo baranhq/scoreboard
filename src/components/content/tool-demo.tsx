@@ -1,123 +1,387 @@
 "use client";
-import { useMemo, useState } from "react";
-import { RotateCcw, Plus, Minus, ArrowUpRight } from "lucide-react";
+
+import { useCallback, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, ChartNoAxesColumn, GitBranch } from "lucide-react";
 import { Graphic } from "@/components/studio/graphic";
-import { Button } from "@/components/ui/ui";
-import { studioDemo } from "@/lib/studio-demo";
+import { DemoPlaybackControls } from "@/components/content/demo-playback-controls";
+import { ScoreboardPreview } from "@/components/content/scoreboard-preview";
+import { landingContent } from "@/lib/landing-content";
+import { bracketRounds, setMatchResult, type Bracket } from "@/lib/brackets";
+import { route } from "@/lib/routes";
+import { messages, type Lang } from "@/lib/i18n";
+import { advanceStudioDemo, studioDemo } from "@/lib/studio-demo";
+import { updateLeaderboardCell, type Leaderboard, type StudioDocument } from "@/lib/studio";
+import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
 import { studioCopy } from "@/lib/studio-copy";
-import type { Lang } from "@/lib/i18n";
-import { bracketRounds, setMatchResult } from "@/lib/brackets";
-import { moveItem } from "@/lib/studio";
+import { useAutoDemo } from "./use-auto-demo";
+
 export type Tool = "scoreboard" | "leaderboard" | "bracket";
+
+const editorRoutes = {
+  scoreboard: "scoreboard",
+  leaderboard: "leaderboardEditor",
+  bracket: "bracketEditor",
+} as const;
+
+const productRoutes = {
+  scoreboard: "scoreboardIntro",
+  leaderboard: "leaderboards",
+  bracket: "brackets",
+} as const;
+
+const demoInputClass =
+  "min-h-9 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-2.5 py-1.5 text-sm text-ink";
+
 export function ToolDemo({ tool, lang }: { tool: Tool; lang: Lang }) {
+  if (tool === "scoreboard") {
+    return (
+      <ScoreboardPreview
+        copy={landingContent[lang].preview}
+        labels={{
+          ...messages[lang],
+          save: messages[lang].saveBoardShort,
+          addTeam: messages[lang].add,
+          fineTuneSizes: messages[lang].enableTextSizeSlider,
+          editParticipant: studioCopy[lang].editParticipant,
+          increase: studioCopy[lang].increase,
+          decrease: studioCopy[lang].decrease,
+          resetDemo: studioCopy[lang].resetDemo,
+        }}
+      />
+    );
+  }
+
+  return <StudioToolDemo key={tool} tool={tool} lang={lang} />;
+}
+
+function StudioToolDemo({ tool, lang }: { tool: Exclude<Tool, "scoreboard">; lang: Lang }) {
   const t = studioCopy[lang];
-  const initial = useMemo(
-    () => studioDemo(tool === "scoreboard" ? "leaderboard" : tool, lang),
-    [tool, lang],
-  );
+  const initial = useMemo(() => studioDemo(tool, lang), [tool, lang]);
   const [document, setDocument] = useState(initial);
-  const [scores, setScores] = useState([12, 9]);
-  const reset = () => {
+  const [activeField, setActiveField] = useState<PreviewField | null>(null);
+  const step = useRef(0);
+  const advance = useCallback(() => {
+    setDocument((current) => advanceStudioDemo(current, initial, step.current));
+    step.current += 1;
+  }, [initial]);
+  const reset = useCallback(() => {
+    step.current = 0;
+    setActiveField(null);
     setDocument(initial);
-    setScores([12, 9]);
-  };
-  const advance = () => {
-    if (document.kind === "leaderboard")
-      setDocument({ ...document, rows: moveItem(document.rows, 1, 0) });
-    else {
-      const match = bracketRounds(document)
-        .flat()
-        .find((m) => !m.winner && m.players.every(Boolean));
-      if (match) setDocument(setMatchResult(document, match.id, match.players[0], ["2", "1"]));
-    }
-  };
+  }, [initial]);
+  const {
+    ref: playbackRef,
+    playing,
+    toggle: togglePlayback,
+    pause,
+    reset: resetPlayback,
+  } = useAutoDemo(advance, reset, 2900);
+  const labels = messages[lang];
+
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-forest/20 bg-surface shadow-[0_16px_48px_-24px_rgba(16,40,24,0.3)]">
-      <div className="flex items-center justify-between border-b border-forest/15 px-4 py-3">
-        <span className="text-sm font-semibold">{t[tool]}</span>
-        <button
-          aria-label={t.newExample}
-          title={t.newExample}
-          onClick={reset}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg hover:bg-forest/10"
-        >
-          <RotateCcw size={16} />
-        </button>
-      </div>
-      {tool === "scoreboard" ? (
-        <div className="bg-[#203e29] px-4 py-8 text-[#f5f7ef] sm:px-7 sm:py-10">
-          <p className="text-center text-sm font-medium tracking-wide">{t.round} 2 · 04:32</p>
-          <div className="mt-7 grid grid-cols-2 divide-x divide-[#f5f7ef]/25">
-            {scores.map((score, i) => (
-              <div key={i} className="min-w-0 px-2 text-center">
-                <p className="font-display text-xl font-semibold">
-                  {t.team} {i + 1}
-                </p>
-                <p
-                  aria-live="polite"
-                  className="my-3 font-display text-7xl font-bold tracking-tight tabular-nums sm:text-8xl"
-                >
-                  {score}
-                </p>
-                <div className="flex justify-center gap-2">
-                  <button
-                    aria-label={`${t.score} −1, ${t.team} ${i + 1}`}
-                    className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/35 hover:bg-white/10"
-                    onClick={() => setScores((all) => all.map((n, j) => (i === j ? n - 1 : n)))}
-                  >
-                    <Minus size={18} />
-                  </button>
-                  <button
-                    aria-label={`${t.score} +1, ${t.team} ${i + 1}`}
-                    className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#c2d9a3] text-[#18251f] hover:brightness-95"
-                    onClick={() => setScores((all) => all.map((n, j) => (i === j ? n + 1 : n)))}
-                  >
-                    <Plus size={18} />
-                  </button>
-                </div>
-              </div>
-            ))}
+    <section
+      ref={playbackRef}
+      aria-label={t[tool]}
+      className="min-w-0 overflow-hidden rounded-xl border border-forest/20 bg-surface text-ink shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]"
+    >
+      <header className="flex items-center justify-between gap-3 border-b border-forest/15 px-3 py-2.5 sm:px-4">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-action text-on-action">
+            {tool === "leaderboard" ? (
+              <ChartNoAxesColumn aria-hidden="true" className="size-5" />
+            ) : (
+              <GitBranch aria-hidden="true" className="size-5" />
+            )}
+          </span>
+          <span className="truncate text-sm font-semibold">{t[tool]}</span>
+        </div>
+        <DemoPlaybackControls
+          playing={playing}
+          labels={{
+            play: labels.playPreview,
+            pause: labels.pausePreview,
+            reset: t.resetDemo,
+          }}
+          onToggle={togglePlayback}
+          onReset={resetPlayback}
+        />
+      </header>
+
+      <div
+        className="grid min-w-0 items-start gap-3 p-3 sm:p-4 lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"
+        onFocusCapture={pause}
+        onInputCapture={pause}
+        onChangeCapture={pause}
+      >
+        <div className="min-w-0 space-y-3">
+          <DocumentFields document={document} setDocument={setDocument} lang={lang} />
+          {document.kind === "leaderboard" ? (
+            <LeaderboardFields board={document} setDocument={setDocument} lang={lang} />
+          ) : (
+            <BracketFields board={document} setDocument={setDocument} lang={lang} />
+          )}
+        </div>
+
+        <section aria-label={t.preview} className="min-w-0">
+          <div className="max-h-[min(68svh,30rem)] min-h-52 overflow-auto overscroll-contain rounded-lg border border-forest/20 bg-paper p-2 sm:p-3">
+            <Graphic
+              document={document}
+              labels={t}
+              onEdit={(field) => {
+                pause();
+                setActiveField(field);
+              }}
+            />
           </div>
-        </div>
-      ) : (
-        <div
-          className="max-h-[28rem] overflow-auto bg-forest/5 p-3 sm:p-5"
-          tabIndex={0}
-          aria-label={t.preview}
-        >
-          <Graphic document={document} labels={t} />
-        </div>
-      )}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-forest/15 px-4 py-3">
-        <p className="max-w-[28ch] text-sm leading-5 text-ink/75">{t.demoHint}</p>
-        {tool !== "scoreboard" && (
-          <Button className="!px-3 !text-sm" onClick={advance}>
-            {tool === "leaderboard" ? t.up : t.winnerAction}
-            <ArrowUpRight size={15} />
-          </Button>
-        )}
+          <p className="mt-2 text-xs leading-relaxed text-ink/70">{t.clickToEdit}</p>
+          {activeField && (
+            <div className="mt-2 flex min-w-0 items-end gap-2 rounded-lg border border-forest/15 bg-paper p-2">
+              <label className="grid min-w-0 flex-1 gap-1 text-xs font-semibold">
+                {t.selectedPreview}
+                <input
+                  className={demoInputClass}
+                  maxLength={activeField.kind === "bracket-score" ? 12 : 200}
+                  value={previewFieldValue(document, activeField)}
+                  onChange={(event) =>
+                    setDocument((current) =>
+                      updatePreviewField(current, activeField, event.target.value),
+                    )
+                  }
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => setActiveField(null)}
+                className="min-h-9 rounded-lg px-3 text-sm font-semibold text-action hover:bg-action/10"
+              >
+                {t.done}
+              </button>
+            </div>
+          )}
+        </section>
+      </div>
+    </section>
+  );
+}
+
+function DocumentFields({
+  document,
+  setDocument,
+  lang,
+}: {
+  document: StudioDocument;
+  setDocument: (document: StudioDocument) => void;
+  lang: Lang;
+}) {
+  const t = studioCopy[lang];
+
+  return (
+    <div className="grid min-w-0 gap-2">
+      <label className="grid min-w-0 gap-1 text-xs font-semibold">
+        {t.title}
+        <input
+          className={demoInputClass}
+          maxLength={200}
+          value={document.title}
+          onChange={(event) => setDocument({ ...document, title: event.target.value })}
+        />
+      </label>
+      <label className="grid min-w-0 gap-1 text-xs font-semibold">
+        {t.subtitle}
+        <input
+          className={demoInputClass}
+          maxLength={200}
+          value={document.subtitle}
+          onChange={(event) => setDocument({ ...document, subtitle: event.target.value })}
+        />
+      </label>
+    </div>
+  );
+}
+
+function LeaderboardFields({
+  board,
+  setDocument,
+  lang,
+}: {
+  board: Leaderboard;
+  setDocument: (document: StudioDocument) => void;
+  lang: Lang;
+}) {
+  const t = studioCopy[lang];
+
+  return (
+    <div className="min-w-0 space-y-2 border-t border-forest/15 pt-3">
+      <div className="flex items-center justify-between gap-2">
+        <h4 className="text-sm font-semibold">{t.rows}</h4>
+        <label className="flex items-center gap-2 text-xs font-semibold">
+          {t.leaderboardLayout}
+          <select
+            className="min-h-9 rounded-lg border border-forest/20 bg-surface px-2 text-sm"
+            aria-label={t.leaderboardLayout}
+            value={board.gridColumns || 1}
+            onChange={(event) =>
+              setDocument({ ...board, gridColumns: Number(event.target.value) as 1 | 2 | 3 })
+            }
+          >
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+            <option value={3}>3</option>
+          </select>
+        </label>
+      </div>
+      <div className="max-h-60 space-y-1.5 overflow-auto pr-1">
+        {board.rows.map((row, index) => (
+          <div key={row.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_5.5rem] gap-1.5">
+            <label className="sr-only">
+              {t.team} {index + 1}
+            </label>
+            <input
+              aria-label={`${t.team} ${index + 1}`}
+              className={demoInputClass}
+              maxLength={200}
+              value={row.cells[0]}
+              onChange={(event) =>
+                setDocument(updateLeaderboardCell(board, row.id, 0, event.target.value))
+              }
+            />
+            <input
+              aria-label={`${t.points}: ${row.cells[0]}`}
+              className={`${demoInputClass} text-right tabular-nums`}
+              inputMode="numeric"
+              maxLength={200}
+              value={row.cells[1]}
+              onChange={(event) =>
+                setDocument(updateLeaderboardCell(board, row.id, 1, event.target.value, 1))
+              }
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
 }
+
+function BracketFields({
+  board,
+  setDocument,
+  lang,
+}: {
+  board: Bracket;
+  setDocument: (document: StudioDocument) => void;
+  lang: Lang;
+}) {
+  const t = studioCopy[lang];
+  const rounds = bracketRounds(board);
+  const match = rounds.flat().find((item) => item.players.every(Boolean) && !item.winner);
+  const participantName = (id: string | null) =>
+    board.participants.find((participant) => participant.id === id)?.name || t.pending;
+
+  if (!match) {
+    return (
+      <p className="border-t border-forest/15 pt-3 text-sm font-medium text-ink/75">
+        {t.champion}: {participantName(rounds.at(-1)?.[0]?.winner || null)}
+      </p>
+    );
+  }
+
+  const roundIndex = Number(match.id.split("-")[0]);
+
+  return (
+    <fieldset className="min-w-0 space-y-2 border-t border-forest/15 pt-3">
+      <legend className="px-1 text-sm font-semibold">
+        {roundIndex === rounds.length - 1 ? t.final : `${t.round} ${roundIndex + 1}`} · {t.match} 1
+      </legend>
+      {match.players.map((id, side) => (
+        <label
+          key={id}
+          className="grid min-w-0 grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-2"
+        >
+          <span className="min-w-0 truncate text-sm">{participantName(id)}</span>
+          <input
+            aria-label={`${t.score}: ${participantName(id)}`}
+            className={`${demoInputClass} text-right tabular-nums`}
+            inputMode="numeric"
+            maxLength={12}
+            value={match.scores[side]}
+            onChange={(event) => {
+              const scores: [string, string] = [...match.scores];
+              scores[side] = event.target.value;
+              setDocument(setMatchResult(board, match.id, match.winner, scores));
+            }}
+          />
+        </label>
+      ))}
+      <label className="grid gap-1 text-xs font-semibold">
+        {t.winner}
+        <select
+          className={demoInputClass}
+          value={match.winner || ""}
+          onChange={(event) =>
+            setDocument(setMatchResult(board, match.id, event.target.value || null, match.scores))
+          }
+        >
+          <option value="">{t.noWinner}</option>
+          {match.players.map((id) => (
+            <option key={id} value={id || ""}>
+              {participantName(id)}
+            </option>
+          ))}
+        </select>
+      </label>
+    </fieldset>
+  );
+}
+
 export function PlatformDemo({ lang }: { lang: Lang }) {
   const [tool, setTool] = useState<Tool>("scoreboard");
   const t = studioCopy[lang];
+  const content = {
+    scoreboard: { action: t.scoreAction, editor: editorRoutes.scoreboard },
+    leaderboard: { action: t.leaderAction, editor: editorRoutes.leaderboard },
+    bracket: { action: t.bracketAction, editor: editorRoutes.bracket },
+  }[tool];
+
   return (
     <div className="min-w-0">
-      <div className="mb-3 flex flex-wrap gap-1" role="group" aria-label={t.tools}>
+      <div
+        className="mb-3 flex flex-wrap gap-1 border-b border-forest/20"
+        role="group"
+        aria-label={t.tools}
+      >
         {(["scoreboard", "leaderboard", "bracket"] as const).map((key) => (
           <button
             key={key}
+            type="button"
             aria-pressed={tool === key}
             onClick={() => setTool(key)}
-            className={`min-h-11 rounded-lg px-3 py-2 text-sm font-semibold transition-colors motion-reduce:transition-none ${tool === key ? "bg-action text-on-action" : "hover:bg-forest/10"}`}
+            className={`min-h-11 rounded-t-lg border-b-2 px-3 py-2 text-sm font-semibold transition-colors motion-reduce:transition-none ${tool === key ? "border-action text-action" : "border-transparent text-ink/70 hover:text-ink"}`}
           >
             {t[key]}
           </button>
         ))}
       </div>
-      <ToolDemo key={tool} tool={tool} lang={lang} />
+      <div role="tabpanel" aria-label={t[tool]}>
+        <ToolDemo key={tool} tool={tool} lang={lang} />
+      </div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        {tool !== "scoreboard" && (
+          <Link
+            href={route(lang, editorRoutes[tool])}
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-action px-4 py-2 text-sm font-semibold text-on-action transition-[filter,transform] hover:brightness-95 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none"
+          >
+            {content.action}
+            <ArrowUpRight aria-hidden="true" className="size-4" />
+          </Link>
+        )}
+        <Link
+          href={route(lang, productRoutes[tool])}
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-ink underline decoration-forest/35 underline-offset-4 hover:text-action"
+        >
+          {t.learn}
+        </Link>
+      </div>
     </div>
   );
 }
