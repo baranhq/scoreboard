@@ -7,11 +7,11 @@
     if (["light", "dark", "system"].includes(saved)) choice = saved;
   } catch {}
   function apply() {
-    document.documentElement.classList.toggle(
-      "dark",
-      choice === "dark" || (choice === "system" && media.matches),
-    );
-    document.documentElement.dataset.theme = choice;
+    const root = document.documentElement;
+    root.classList.add("theme-switching");
+    root.classList.toggle("dark", choice === "dark" || (choice === "system" && media.matches));
+    root.dataset.theme = choice;
+    requestAnimationFrame(() => root.classList.remove("theme-switching"));
   }
   apply();
   media.addEventListener("change", apply);
