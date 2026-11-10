@@ -11,6 +11,7 @@ export type LeaderboardRow = {
 };
 export type Leaderboard = GraphicBase & {
   kind: "leaderboard";
+  gridColumns?: 1 | 2 | 3;
   columns: string[];
   rows: LeaderboardRow[];
 };
@@ -20,10 +21,11 @@ export function newLeaderboard(id = crypto.randomUUID()): Leaderboard {
     version: 1,
     id,
     kind: "leaderboard",
-    title: "Weekend league",
-    subtitle: "The standings · Round 4",
+    title: "Round 1 standings",
+    subtitle: "Round 1",
     updatedAt: 0,
     style: { ...graphicPresets.classic },
+    gridColumns: 1,
     columns: ["Team", "Points"],
     rows: [
       ["Team 1", "42"],
@@ -66,6 +68,24 @@ export function sortRows(
     return order === "asc" ? result : -result;
   });
 }
+export function updateLeaderboardCell(
+  board: Leaderboard,
+  rowId: string,
+  column: number,
+  value: string,
+  rankColumn?: number,
+): Leaderboard {
+  if (!Number.isInteger(column) || column < 0 || column >= board.columns.length) return board;
+
+  const rows = board.rows.map((row) =>
+    row.id === rowId
+      ? { ...row, cells: row.cells.map((cell, index) => (index === column ? value : cell)) }
+      : row,
+  );
+  if (!board.rows.some((row) => row.id === rowId)) return board;
+
+  return { ...board, rows: rankColumn === column ? sortRows(rows, column, "desc") : rows };
+}
 function record(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
@@ -96,8 +116,23 @@ export function parseDocument(value: unknown): StudioDocument {
     !validColor(style.background)
   )
     throw new Error("Invalid style");
+  if (
+    value.canvas !== undefined &&
+    (!record(value.canvas) ||
+      !Number.isInteger(value.canvas.width) ||
+      !Number.isInteger(value.canvas.height) ||
+      Number(value.canvas.width) < 320 ||
+      Number(value.canvas.width) > 4096 ||
+      Number(value.canvas.height) < 320 ||
+      Number(value.canvas.height) > 4096)
+  )
+    throw new Error("Invalid canvas");
   if (value.kind === "leaderboard") {
     if (
+      (value.gridColumns !== undefined &&
+        value.gridColumns !== 1 &&
+        value.gridColumns !== 2 &&
+        value.gridColumns !== 3) ||
       !Array.isArray(value.columns) ||
       value.columns.length < 1 ||
       value.columns.length > 10 ||
