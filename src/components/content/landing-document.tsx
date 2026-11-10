@@ -4,6 +4,7 @@ import { brand } from "@/lib/site";
 import { messages, origin, type Lang } from "@/lib/i18n";
 import { route } from "@/lib/routes";
 import { softwareSchema } from "@/lib/seo-content";
+import Script from "next/script";
 
 export function LandingDocument({ lang, root = false }: { lang: Lang; root?: boolean }) {
   const schema = softwareSchema(lang, origin, brand);
@@ -15,12 +16,10 @@ export function LandingDocument({ lang, root = false }: { lang: Lang; root?: boo
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
       />
-      <script
+      <Script
         id={`legacy-scoreboard-link-${lang}`}
-        dangerouslySetInnerHTML={{
-          __html: `if (location.hash.startsWith("#share=") || location.hash.startsWith("#board=")) location.replace(${JSON.stringify(scoreboardPath)} + location.search + location.hash);`,
-        }}
-      />
+        strategy="afterInteractive"
+      >{`if (location.hash.startsWith("#share=") || location.hash.startsWith("#board=")) location.replace(${JSON.stringify(scoreboardPath)} + location.search + location.hash);`}</Script>
       <Frame lang={lang} t={messages[lang]}>
         <LandingPage lang={lang} root={root} />
       </Frame>
