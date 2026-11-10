@@ -18,14 +18,15 @@ export function newBracket(id = crypto.randomUUID()): Bracket {
     version: 1,
     id,
     kind: "bracket",
-    title: "The weekend cup",
-    subtitle: "One tournament. One champion.",
+    title: "Tournament bracket",
+    subtitle: "Round 1",
     updatedAt: 0,
     style: { ...graphicPresets.night },
     layout: "split",
-    participants: ["Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6", "Team 7", "Team 8"].map(
-      (name, i) => ({ id: `player-${i}`, name }),
-    ),
+    participants: Array.from({ length: 8 }, (_, index) => ({
+      id: `player-${index}`,
+      name: `Participant ${index + 1}`,
+    })),
     results: {},
   };
 }
@@ -102,4 +103,21 @@ export function setMatchResult(
     }
   }
   return { ...board, results };
+}
+export function hasDependentResults(board: Bracket, matchId: string): boolean {
+  const matchIndex = /^(\d+)-(\d+)$/.exec(matchId);
+  if (!matchIndex) return false;
+
+  const rounds = bracketRounds(board);
+  const sourceRound = Number(matchIndex[1]);
+  let sourceIndex = Number(matchIndex[2]);
+  if (!rounds[sourceRound]?.[sourceIndex]) return false;
+
+  for (let round = sourceRound + 1; round < rounds.length; round++) {
+    sourceIndex = Math.floor(sourceIndex / 2);
+    const result = board.results[`${round}-${sourceIndex}`];
+    if (result && (result.winner !== null || result.scores.some((score) => score !== "")))
+      return true;
+  }
+  return false;
 }

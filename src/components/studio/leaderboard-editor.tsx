@@ -2,7 +2,13 @@
 import { ArrowDown, ArrowUp, ArrowLeft, ArrowRight, Trash2, Star, Plus } from "lucide-react";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/ui";
-import { moveItem, removeColumn, sortRows, type Leaderboard } from "@/lib/studio";
+import {
+  moveItem,
+  removeColumn,
+  sortRows,
+  updateLeaderboardCell,
+  type Leaderboard,
+} from "@/lib/studio";
 import type { Lang } from "@/lib/i18n";
 import { studioCopy } from "@/lib/studio-copy";
 import { studioDemo } from "@/lib/studio-demo";
@@ -14,13 +20,8 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const initial = useMemo(() => studioDemo("leaderboard", lang), [lang]);
   const state = useDocument(initial, t);
   const board = state.document as Leaderboard;
-  const changeCell = (row: number, column: number, value: string) =>
-    state.change({
-      ...board,
-      rows: board.rows.map((r, i) =>
-        i === row ? { ...r, cells: r.cells.map((cell, j) => (j === column ? value : cell)) } : r,
-      ),
-    });
+  const changeCell = (rowId: string, column: number, value: string) =>
+    state.change(updateLeaderboardCell(board, rowId, column, value, column === 1 ? 1 : undefined));
   return (
     <EditorShell lang={lang} state={state}>
       <StressControls initial={initial} change={state.change} labels={t} />
@@ -67,6 +68,26 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             {t.addColumn}
           </Button>
         </div>
+        <fieldset className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-forest/15 bg-surface p-3">
+          <legend className="px-1 text-sm font-semibold">{t.leaderboardLayout}</legend>
+          <div className="flex flex-wrap gap-2" role="group" aria-label={t.leaderboardLayout}>
+            {([1, 2, 3] as const).map((gridColumns) => (
+              <Button
+                key={gridColumns}
+                aria-pressed={(board.gridColumns || 1) === gridColumns}
+                accent={(board.gridColumns || 1) === gridColumns}
+                className="!min-h-10 !px-3 !text-sm"
+                onClick={() => state.change({ ...board, gridColumns })}
+              >
+                {gridColumns === 1
+                  ? t.oneColumn
+                  : gridColumns === 2
+                    ? t.twoColumns
+                    : t.threeColumns}
+              </Button>
+            ))}
+          </div>
+        </fieldset>
         <div
           tabIndex={0}
           aria-label={`${t.rows} & ${t.columns}`}
@@ -226,7 +247,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                         aria-label={`${t.rows} ${index + 1}, ${board.columns[column]}`}
                         maxLength={200}
                         value={cell}
-                        onChange={(e) => changeCell(index, column, e.target.value)}
+                        onChange={(e) => changeCell(row.id, column, e.target.value)}
                       />
                     </td>
                   ))}
