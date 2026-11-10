@@ -1,15 +1,18 @@
 "use client";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Download, Save, Upload, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/ui";
 import { Graphic } from "./graphic";
-import { graphicPresets, type StudioDocument } from "@/lib/studio";
+import type { StudioDocument } from "@/lib/studio";
+import { applyGraphicPreset, canvasRatios } from "@/lib/graphic-style";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
 import { route } from "@/lib/routes";
 import { exportPng } from "@/lib/export-png";
 import type { useDocument } from "./use-document";
+import { accentColors, backgroundColors, ColorControl } from "./color-control";
+import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
 export const inputClass =
   "min-h-11 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-3 py-2 text-base text-ink";
 export function EditorShell({
@@ -28,6 +31,14 @@ export function EditorShell({
   const [exportError, setExportError] = useState("");
   const [fullSize, setFullSize] = useState(doc.kind === "bracket");
   const [previewOnly, setPreviewOnly] = useState(false);
+  const [activeField, setActiveField] = useState<PreviewField | null>(null);
+  const previewInput = useRef<HTMLInputElement>(null);
+  const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
+  const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
+
+  useEffect(() => {
+    if (activeField) previewInput.current?.focus();
+  }, [activeField]);
   const exportImage = async () => {
     if (!svg.current) return;
     setExporting(true);
@@ -136,13 +147,42 @@ export function EditorShell({
               {fullSize ? t.fit : t.actual}
             </Button>
           </div>
+          <p className="mb-2 text-sm leading-relaxed text-ink/75">{t.clickToEdit}</p>
+          {activeField && (
+            <div className="mb-3 flex flex-wrap items-end gap-2 rounded-xl border border-action/30 bg-surface p-3 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none">
+              <label className="grid min-w-0 flex-1 gap-1 text-sm font-semibold">
+                <span>
+                  {t.selectedPreview}: {activeLabel}
+                </span>
+                <input
+                  ref={previewInput}
+                  maxLength={
+                    activeField.kind === "leaderboard-column"
+                      ? 80
+                      : activeField.kind === "leaderboard-position"
+                        ? 6
+                        : activeField.kind === "bracket-score"
+                          ? 12
+                          : 200
+                  }
+                  inputMode={activeField.kind === "bracket-score" ? "numeric" : undefined}
+                  value={activeValue}
+                  className={inputClass}
+                  onChange={(event) =>
+                    state.change(updatePreviewField(doc, activeField, event.target.value))
+                  }
+                />
+              </label>
+              <Button onClick={() => setActiveField(null)}>{t.done}</Button>
+            </div>
+          )}
           <div
             className="max-h-[75svh] overflow-auto overscroll-contain rounded-xl border border-forest/20 bg-forest/5 p-3 focus-visible:outline-offset-0 sm:p-5"
             tabIndex={0}
             aria-label={t.scrollHint}
           >
             <div className={fullSize ? "w-max [&>svg]:h-auto [&>svg]:w-auto" : "min-w-0"}>
-              <Graphic document={doc} labels={t} svgRef={svg} />
+              <Graphic document={doc} labels={t} svgRef={svg} onEdit={setActiveField} />
             </div>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-ink/75">{t.scrollHint}</p>
@@ -170,42 +210,185 @@ function StyleControls({
             key={preset}
             aria-pressed={doc.style.preset === preset}
             accent={doc.style.preset === preset}
-            onClick={() => change({ ...doc, style: { ...graphicPresets[preset] } })}
+            onClick={() => change({ ...doc, style: applyGraphicPreset(doc.style, preset) })}
           >
             {t[preset]}
           </Button>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {(["accent", "background"] as const).map((key) => (
-          <label key={key} className="grid gap-1 text-sm font-semibold">
-            {t[key]}
-            <input
-              type="color"
-              value={doc.style[key]}
-              className="h-11 w-full cursor-pointer rounded-lg border border-forest/25 bg-surface p-1"
-              onChange={(e) => change({ ...doc, style: { ...doc.style, [key]: e.target.value } })}
-            />
-          </label>
-        ))}
-        <label className="col-span-2 grid gap-1 text-sm font-semibold sm:col-span-1">
-          {t.font}
-          <select
-            className={inputClass}
-            value={doc.style.font}
-            onChange={(e) =>
-              change({
-                ...doc,
-                style: { ...doc.style, font: e.target.value as StudioDocument["style"]["font"] },
-              })
-            }
-          >
-            {["Inter Tight", "Inter", "Georgia"].map((font) => (
-              <option key={font}>{font}</option>
-            ))}
-          </select>
-        </label>
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+        <ColorControl
+          label={t.accent}
+          value={doc.style.accent}
+          colors={accentColors}
+          copy={t}
+          change={(accent) => change({ ...doc, style: { ...doc.style, accent } })}
+        />
+        <ColorControl
+          label={t.background}
+          value={doc.style.background}
+          colors={backgroundColors}
+          copy={t}
+          change={(background) => change({ ...doc, style: { ...doc.style, background } })}
+        />
       </div>
+      <CanvasControls document={doc} change={change} labels={t} />
     </fieldset>
   );
+}
+
+function CanvasControls({
+  document: doc,
+  change,
+  labels: t,
+}: {
+  document: StudioDocument;
+  change: (doc: StudioDocument) => void;
+  labels: (typeof studioCopy)[Lang];
+}) {
+  const [customOpen, setCustomOpen] = useState(false);
+  const widthValue = String(doc.canvas?.width || canvasRatios.landscape.width);
+  const heightValue = String(doc.canvas?.height || canvasRatios.landscape.height);
+  const [widthDraft, setWidthDraft] = useState(widthValue);
+  const [heightDraft, setHeightDraft] = useState(heightValue);
+  const [previousDimensions, setPreviousDimensions] = useState({ widthValue, heightValue });
+  const choices = [
+    { label: t.landscapeRatio, size: canvasRatios.landscape },
+    { label: t.portraitRatio, size: canvasRatios.portrait },
+    { label: t.squareRatio, size: canvasRatios.square },
+    { label: t.storyRatio, size: canvasRatios.story },
+  ];
+
+  if (
+    widthValue !== previousDimensions.widthValue ||
+    heightValue !== previousDimensions.heightValue
+  ) {
+    setPreviousDimensions({ widthValue, heightValue });
+    setWidthDraft(widthValue);
+    setHeightDraft(heightValue);
+  }
+
+  const updateDimension = (key: "width" | "height", value: string) => {
+    if (key === "width") setWidthDraft(value);
+    else setHeightDraft(value);
+
+    if (!/^\d+$/.test(value)) return;
+    const dimension = Number(value);
+    if (dimension < 320 || dimension > 4096) return;
+
+    change({
+      ...doc,
+      canvas: {
+        width: key === "width" ? dimension : doc.canvas?.width || canvasRatios.landscape.width,
+        height: key === "height" ? dimension : doc.canvas?.height || canvasRatios.landscape.height,
+      },
+    });
+  };
+
+  const resetDraft = (key: "width" | "height") => {
+    const value = doc.canvas?.[key] || canvasRatios.landscape[key];
+    if (key === "width") setWidthDraft(String(value));
+    else setHeightDraft(String(value));
+  };
+
+  return (
+    <fieldset className="space-y-3 border-t border-forest/15 pt-4">
+      <legend className="px-1 text-base font-semibold">{t.canvasSize}</legend>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          aria-pressed={!doc.canvas}
+          accent={!doc.canvas}
+          className="!min-h-10 !px-3 !text-sm"
+          onClick={() => {
+            change({ ...doc, canvas: undefined });
+            setCustomOpen(false);
+          }}
+        >
+          {t.fitContent}
+        </Button>
+        {choices.map(({ label, size }) => {
+          const selected =
+            !!doc.canvas && doc.canvas.width * size.height === doc.canvas.height * size.width;
+          return (
+            <Button
+              key={label}
+              aria-pressed={selected}
+              accent={selected}
+              className="!min-h-10 !px-3 !text-sm"
+              onClick={() => {
+                change({ ...doc, canvas: { ...size } });
+                setCustomOpen(false);
+              }}
+            >
+              {label}
+            </Button>
+          );
+        })}
+        <Button
+          aria-expanded={customOpen}
+          aria-pressed={customOpen}
+          accent={customOpen}
+          className="!min-h-10 !px-3 !text-sm"
+          onClick={() => {
+            if (!customOpen && !doc.canvas)
+              change({ ...doc, canvas: { ...canvasRatios.landscape } });
+            setCustomOpen((open) => !open);
+          }}
+        >
+          {t.customSize}
+        </Button>
+      </div>
+      {customOpen && (
+        <div className="grid grid-cols-2 gap-3 rounded-xl border border-forest/15 bg-surface p-3 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none">
+          {(["width", "height"] as const).map((key) => (
+            <label key={key} className="grid gap-1 text-sm font-semibold">
+              {t[key]}
+              <input
+                type="number"
+                min={320}
+                max={4096}
+                step={1}
+                value={key === "width" ? widthDraft : heightDraft}
+                inputMode="numeric"
+                aria-describedby="canvas-size-hint"
+                onChange={(event) => updateDimension(key, event.target.value)}
+                onBlur={() => resetDraft(key)}
+                className={inputClass}
+              />
+            </label>
+          ))}
+          <p id="canvas-size-hint" className="col-span-2 text-sm text-ink/70">
+            {t.pixelRange}
+          </p>
+        </div>
+      )}
+    </fieldset>
+  );
+}
+
+function previewFieldLabel(
+  doc: StudioDocument,
+  field: PreviewField,
+  labels: (typeof studioCopy)[Lang],
+): string {
+  if (field.kind === "title") return labels.title;
+  if (field.kind === "subtitle") return labels.subtitle;
+  if (field.kind === "leaderboard-column") return `${labels.column} ${field.column + 1}`;
+  if (field.kind === "leaderboard-position" && doc.kind === "leaderboard") {
+    const index = doc.rows.findIndex((row) => row.id === field.rowId);
+    return `${labels.position} ${index + 1}`;
+  }
+  if (field.kind === "leaderboard-cell" && doc.kind === "leaderboard") {
+    const index = doc.rows.findIndex((row) => row.id === field.rowId);
+    return `${labels.rows} ${index + 1} · ${doc.columns[field.column] || labels.cell}`;
+  }
+  if (field.kind === "bracket-participant" && doc.kind === "bracket") {
+    const index = doc.participants.findIndex((player) => player.id === field.participantId);
+    return `${labels.participant} ${index + 1}`;
+  }
+  if (field.kind === "bracket-score") {
+    const matchNumber = Number(field.matchId.split("-")[1]) + 1;
+    return `${labels.match} ${matchNumber} · ${labels.score} ${field.side + 1}`;
+  }
+  return labels.cell;
 }

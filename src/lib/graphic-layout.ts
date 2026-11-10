@@ -41,6 +41,37 @@ export function wrapText(text: string, limit: number): string[] {
   if (line.trim() || !lines.length) lines.push(line.trimEnd());
   return lines.map((value) => value.trimEnd());
 }
+
+export function distributeRows<T>(rows: T[], columns: number): T[][] {
+  if (!rows.length) return [];
+
+  const count = Math.min(rows.length, Math.max(1, Math.min(3, Math.floor(columns))));
+  const base = Math.floor(rows.length / count);
+  const remainder = rows.length % count;
+  let start = 0;
+
+  return Array.from({ length: count }, (_, index) => {
+    const size = base + (index < remainder ? 1 : 0);
+    const group = rows.slice(start, start + size);
+    start += size;
+    return group;
+  });
+}
+
+export function fitContentToCanvas(
+  contentWidth: number,
+  contentHeight: number,
+  canvasWidth: number,
+  canvasHeight: number,
+): { scale: number; x: number; y: number } {
+  const scale = Math.min(canvasWidth / contentWidth, canvasHeight / contentHeight);
+  return {
+    scale,
+    x: (canvasWidth - contentWidth * scale) / 2,
+    y: (canvasHeight - contentHeight * scale) / 2,
+  };
+}
+
 export function bracketLayout(board: Bracket) {
   const rounds = bracketRounds(board);
   const split = board.layout === "split" && rounds.length > 1;

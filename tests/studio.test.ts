@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import "fake-indexeddb/auto";
+import * as studioApi from "../src/lib/studio.ts";
+import * as bracketApi from "../src/lib/brackets.ts";
 import {
   newLeaderboard,
   moveItem,
@@ -10,6 +12,150 @@ import {
 } from "../src/lib/studio.ts";
 import { newBracket, bracketRounds, setMatchResult, resizeBracket } from "../src/lib/brackets.ts";
 import { saveDocument, listDocuments, deleteDocument } from "../src/store/studio.ts";
+import { fromHsl, toHsl } from "../src/lib/colors.ts";
+import { applyGraphicPreset, graphicPresets } from "../src/lib/graphic-style.ts";
+import { distributeRows, fitContentToCanvas } from "../src/lib/graphic-layout.ts";
+import { previewFieldValue, updatePreviewField } from "../src/lib/studio-edit.ts";
+import { advanceStudioDemo, studioDemo } from "../src/lib/studio-demo.ts";
+
+test("custom colour values round-trip through the editor's HSL controls", () => {
+  for (const color of ["#0d7480", "#b5d78b", "#000000", "#ffffff"]) {
+    const [hue, saturation, lightness] = toHsl(color);
+    assert.equal(fromHsl(hue, saturation, lightness), color);
+  }
+});
+
+test("appearance presets keep each saved graphic's existing typography", () => {
+  const editorial = applyGraphicPreset({ ...graphicPresets.classic, font: "Georgia" }, "editorial");
+
+  assert.equal(editorial.background, graphicPresets.editorial.background);
+  assert.equal(editorial.accent, graphicPresets.editorial.accent);
+  assert.equal(editorial.font, "Georgia");
+});
+
+test("saved graphics accept bounded canvas sizes while older documents remain valid", () => {
+  const board = newLeaderboard();
+  const sized = parseDocument({
+    ...board,
+    gridColumns: 3,
+    canvas: { width: 1600, height: 900 },
+  });
+
+  assert.equal(sized.kind, "leaderboard");
+  if (sized.kind !== "leaderboard") return;
+  assert.equal(sized.gridColumns, 3);
+  assert.deepEqual(sized.canvas, { width: 1600, height: 900 });
+
+  const legacy = { ...board } as Record<string, unknown>;
+  delete legacy.gridColumns;
+  delete legacy.canvas;
+  assert.equal(parseDocument(legacy).kind, "leaderboard");
+  assert.throws(() => parseDocument({ ...board, canvas: { width: 200, height: 900 } }));
+  assert.throws(() => parseDocument({ ...board, gridColumns: 4 }));
+});
+
+test("leaderboard rows split into balanced, ordered columns", () => {
+  const board = newLeaderboard();
+  const rows = Array.from({ length: 8 }, (_, index) => ({ id: String(index) }));
+  const groups = distributeRows(rows, 3);
+
+  assert.deepEqual(
+    groups.map((group) => group.length),
+    [3, 3, 2],
+  );
+  assert.deepEqual(
+    groups.flat().map((row) => row.id),
+    rows.map((row) => row.id),
+  );
+  assert.equal(distributeRows(board.rows, 1).length, 1);
+});
+
+test("graphic content stays centered and uncropped inside custom canvas ratios", () => {
+  assert.deepEqual(fitContentToCanvas(1200, 800, 1600, 900), {
+    scale: 1.125,
+    x: 125,
+    y: 0,
+  });
+  assert.deepEqual(fitContentToCanvas(1200, 800, 900, 1600), {
+    scale: 0.75,
+    x: 0,
+    y: 500,
+  });
+});
+
+test("preview edits update the selected leaderboard cell and bracket participant", () => {
+  const leaderboard = newLeaderboard("leaderboard");
+  const scoreTarget = { kind: "leaderboard-cell", rowId: "row-1", column: 1 } as const;
+  const updatedLeaderboard = updatePreviewField(leaderboard, scoreTarget, "51");
+  assert.equal(previewFieldValue(updatedLeaderboard, scoreTarget), "51");
+  assert.equal(updatedLeaderboard.kind, "leaderboard");
+  if (updatedLeaderboard.kind !== "leaderboard") return;
+  assert.deepEqual(
+    updatedLeaderboard.rows.map((row) => row.cells[0]),
+    ["Team 2", "Team 1", "Team 3", "Team 4"],
+  );
+
+  const bracket = newBracket("bracket");
+  const target = { kind: "bracket-participant", participantId: "player-0" } as const;
+  const updatedBracket = updatePreviewField(bracket, target, "Participant 9");
+  assert.equal(previewFieldValue(updatedBracket, target), "Participant 9");
+});
+
+test("preview edits can change a bracket score without losing its result", () => {
+  const board = resizeBracket(newBracket(), 4);
+  const match = bracketRounds(board)[0][0];
+  const target = { kind: "bracket-score", matchId: match.id, side: 0 } as const;
+  const withWinner = setMatchResult(board, match.id, match.players[0], ["2", "1"]);
+  const updated = updatePreviewField(withWinner, target, "3");
+
+  assert.equal(previewFieldValue(updated, target), "3");
+  assert.equal(updated.kind, "bracket");
+  if (updated.kind !== "bracket") return;
+  assert.equal(bracketRounds(updated)[0][0].winner, match.players[0]);
+});
+
+test("editing a ranked score immediately updates leaderboard order", () => {
+  const updateLeaderboardCell = (
+    studioApi as unknown as {
+      updateLeaderboardCell?: (
+        board: ReturnType<typeof newLeaderboard>,
+        rowId: string,
+        column: number,
+        value: string,
+        rankColumn?: number,
+      ) => ReturnType<typeof newLeaderboard>;
+    }
+  ).updateLeaderboardCell;
+  assert.equal(typeof updateLeaderboardCell, "function");
+  if (!updateLeaderboardCell) return;
+
+  const board = newLeaderboard();
+  const updated = updateLeaderboardCell(board, "row-1", 1, "50", 1);
+  assert.deepEqual(
+    updated.rows.map((row) => row.cells[0]),
+    ["Team 2", "Team 1", "Team 3", "Team 4"],
+  );
+});
+
+test("detects entered later-round data before a feeder result is changed", () => {
+  const hasDependentResults = (
+    bracketApi as unknown as {
+      hasDependentResults?: (board: ReturnType<typeof newBracket>, matchId: string) => boolean;
+    }
+  ).hasDependentResults;
+  assert.equal(typeof hasDependentResults, "function");
+  if (!hasDependentResults) return;
+
+  let board = resizeBracket(newBracket(), 4);
+  const firstRound = bracketRounds(board)[0];
+  board = setMatchResult(board, firstRound[0].id, firstRound[0].players[0]!, ["2", "1"]);
+  board = setMatchResult(board, firstRound[1].id, firstRound[1].players[0]!, ["2", "1"]);
+  const semifinal = bracketRounds(board)[1][0];
+  board = setMatchResult(board, semifinal.id, null, ["3", "2"]);
+
+  assert.equal(hasDependentResults(board, firstRound[0].id), true);
+  assert.equal(hasDependentResults(board, "invalid-match"), false);
+});
 
 test("moving rows keeps values attached; removing a column removes its cells", () => {
   const board = newLeaderboard();
@@ -101,6 +247,36 @@ test("every supported bracket size resolves to one champion with each participan
     assert.ok(bracketRounds(board).at(-1)![0].winner, `count ${count}`);
     assert.deepEqual(parseDocument(board), board);
   }
+});
+
+test("leaderboard demo updates standings and resets its animation loop", () => {
+  const initial = studioDemo("leaderboard", "en");
+  const firstChange = advanceStudioDemo(initial, initial, 0);
+  assert.equal(firstChange.kind, "leaderboard");
+  if (firstChange.kind !== "leaderboard") return;
+  assert.equal(firstChange.rows[0].id, "row-1");
+  assert.equal(firstChange.rows[0].cells[1], "43");
+
+  const secondChange = advanceStudioDemo(firstChange, initial, 1);
+  assert.equal(secondChange.kind, "leaderboard");
+  if (secondChange.kind !== "leaderboard") return;
+  assert.equal(secondChange.rows[0].id, "row-2");
+  assert.equal(secondChange.rows[0].cells[1], "46");
+
+  assert.deepEqual(advanceStudioDemo(secondChange, initial, 2), initial);
+});
+
+test("bracket demo advances match results through the final", () => {
+  const initial = studioDemo("bracket", "en");
+  const advanced = advanceStudioDemo(initial, initial, 0);
+  if (initial.kind !== "bracket" || advanced.kind !== "bracket") return;
+  assert.ok(bracketRounds(advanced)[0][1].winner);
+  assert.equal(bracketRounds(advanced)[1][0].winner, null);
+  const final = advanceStudioDemo(advanced, initial, 1);
+  if (final.kind !== "bracket") return;
+  assert.ok(bracketRounds(final)[1][0].winner);
+  assert.deepEqual(advanceStudioDemo(final, initial, 2), initial);
+  assert.notDeepEqual(advanced.results, initial.results);
 });
 
 test("maximum-size stress documents validate without affecting demo records", async () => {
