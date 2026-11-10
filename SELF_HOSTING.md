@@ -112,13 +112,13 @@ npm ci
 npm run build
 ```
 
-This option does not run the PHP API or admin panel. The scoreboard still works with browser storage, backup files, and URL-fragment sharing. On a home computer, you can preview the export with `npm run preview`.
+This option does not run the PHP API or admin panel. All three tools work with browser storage and backup files; Scoreboard snapshot sharing uses URL fragments. Leaderboards and Brackets also export PNGs. On a home computer, you can preview the export with `npm run preview`.
 
 For Apache shared hosting with the PHP admin backend, use the external private `.env` and automatic `npm run build` process described in the [deployment guide](docs/DEPLOYMENT.md). The admin URL defaults to `/admin`; set `ADMIN_PATH` in that external file to override it.
 
 ## Data, backups, and updates
 
-- Each browser stores its own scoreboards in IndexedDB. Export a JSON backup before clearing that browser's site data or moving to another device or address.
+- Each browser stores its own Scoreboards in the `scoreboard` IndexedDB database and manually saved Leaderboards/Brackets in the separate `scoreboard-studio` database. Export a JSON backup before clearing that browser's site data or moving to another device or address.
 - Docker stores the database, policy revisions, sessions, and certificates in named volumes. Keep the private `.env` and protect backups.
 - Follow [Backup and recovery](docs/BACKUPS.md) for server-data backup and restore commands.
 - To update, back up first, pull the new source, then run `docker compose build app` and `docker compose up -d`.

@@ -271,7 +271,11 @@ const overview =
   "# Third-party licenses\n\nOriginal Baran's Scoreboard application code: MIT, Copyright (c) 2026 Baran Ahmedov. See [LICENSE](LICENSE). Third-party components retain their own licenses and copyright notices. MIT permits commercial use and redistribution while retaining its notices; it does not require visible interface attribution.\n\nThis inventory is generated from the installed npm lockfile and lists the pinned PHP Docker runtime separately. Optional platform packages in the lockfile may vary by build machine. Regenerate with `npm ci && npm run licenses` on the distribution builder. Full verbatim license and copyright notices, including vendored Next.js notices and the PHP runtime notice, are in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) and deployed at `/THIRD-PARTY-NOTICES.txt`. The favicon at public/icon.png and wordmark at public/wordmark.png were supplied by the project owner for this MIT-licensed project. The original social preview image is an MIT-licensed application asset. Inter and Inter Tight static font subsets retain OFL-1.1; they are bundled with the app and are not sold separately. No remote fonts, photos, or unlicensed stock assets are used. Apache, MySQL/MariaDB, Node.js and optional Docker are separately installed runtimes; their upstream distributions carry their own notices. Docker service images retain their upstream licenses. Cloudflare is optional external performance analytics, not a required software dependency.\n\n| Package | Version | License | Upstream |\n| --- | --- | --- | --- |\n" +
   allRows.map((r) => `| ${r.name} | ${r.version} | ${r.license} | ${r.source} |`).join("\n") +
   "\n";
-writeFileSync("LICENSES.md", overview);
+writeFileSync(
+  "LICENSES.md",
+  overview +
+    "\n## CI actions\n\nThese build-only actions are referenced, not bundled into the website. Both use MIT: [actions/checkout](https://github.com/actions/checkout/blob/d23441a48e516b6c34aea4fa41551a30e30af803/LICENSE) at `d23441a48e516b6c34aea4fa41551a30e30af803` and [actions/setup-node](https://github.com/actions/setup-node/blob/249970729cb0ef3589644e2896645e5dc5ba9c38/LICENSE) at `249970729cb0ef3589644e2896645e5dc5ba9c38`. Their upstream distributions retain their notices.\n",
+);
 const full = unique
   .map((n) => `${"=".repeat(72)}\n${n.name}\n${n.source}\n${"=".repeat(72)}\n${n.text}`)
   .join("\n\n");
