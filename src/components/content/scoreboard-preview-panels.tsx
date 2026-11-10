@@ -26,6 +26,7 @@ import type {
 } from "./scoreboard-preview-types";
 import { iconIds } from "@/lib/board-icons";
 import { BoardIcon } from "../scoreboard/board-icon";
+import { DemoPlaybackControls } from "./demo-playback-controls";
 
 function VisualButton({
   children,
@@ -79,9 +80,15 @@ function PreviewCheck({
 export function PreviewToolbar({
   copy,
   labels,
+  playing,
+  onToggle,
+  onReset,
 }: {
   copy: LandingContent["preview"];
   labels: PreviewLabels;
+  playing: boolean;
+  onToggle: () => void;
+  onReset: () => void;
 }) {
   return (
     <div className="mb-3 flex min-w-0 items-center justify-between gap-2 [@media(max-height:600px)]:mb-1">
@@ -95,7 +102,13 @@ export function PreviewToolbar({
         <span className="truncate">{copy.boardName}</span>
       </h2>
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-        <div aria-hidden="true" className="flex items-center gap-1 sm:gap-2">
+        <DemoPlaybackControls
+          playing={playing}
+          labels={{ play: labels.playPreview, pause: labels.pausePreview, reset: labels.resetDemo }}
+          onToggle={onToggle}
+          onReset={onReset}
+        />
+        <div aria-hidden="true" className="hidden items-center gap-1 sm:flex sm:gap-2">
           <VisualButton>
             <Share2 aria-hidden="true" className="h-4 w-4" />
             <span className="sr-only sm:not-sr-only">{labels.share}</span>
@@ -149,11 +162,23 @@ export function PreviewTeamCard({
   index,
   name,
   score,
+  labels,
+  editingName,
+  onEditName,
+  onDoneEditingName,
+  onNameChange,
+  onScoreChange,
 }: {
   state: PreviewState;
   index: number;
   name: string;
   score: number;
+  labels: PreviewLabels;
+  editingName: boolean;
+  onEditName: () => void;
+  onDoneEditingName: () => void;
+  onNameChange: (name: string) => void;
+  onScoreChange: (amount: -1 | 1) => void;
 }) {
   const palette = teamPalette[state.teamPalettes[index]];
   const darkBackground = themePaletteColor(palette.background, "dark");
@@ -185,25 +210,57 @@ export function PreviewTeamCard({
       style={style}
       className={`[container-type:inline-size] flex min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-1.5 py-2 text-[var(--team-fg)] transition-[opacity,transform,background-color] duration-300 motion-reduce:transition-none sm:flex-1 sm:px-2 sm:py-4 dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] [@media(max-height:600px)]:py-0 ${leaving ? "scale-[.96] opacity-0" : "scale-100 opacity-100"} motion-safe:animate-[appear_180ms_ease-out]`}
     >
-      <h3 className="max-w-full truncate px-1 py-1 text-center font-display text-sm font-semibold sm:px-2 sm:text-lg [@media(max-height:600px)]:px-1 [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-sm">
-        {name}
+      <h3 className="w-full min-w-0 px-1 py-1 text-center font-display text-sm font-semibold sm:px-2 sm:text-lg [@media(max-height:600px)]:px-1 [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-sm">
+        {editingName ? (
+          <input
+            aria-label={`${labels.teamName} ${index + 1}`}
+            autoFocus
+            maxLength={64}
+            className="min-h-9 w-full min-w-0 rounded-md border border-action bg-paper px-1.5 text-center text-sm text-ink ring-2 ring-action/20 outline-none sm:text-base"
+            value={name}
+            onChange={(event) => onNameChange(event.target.value)}
+            onBlur={onDoneEditingName}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.currentTarget.blur();
+              if (event.key === "Escape") event.currentTarget.blur();
+            }}
+          />
+        ) : (
+          <button
+            type="button"
+            aria-label={`${labels.editParticipant}: ${name}`}
+            onClick={onEditName}
+            className="inline-flex min-h-9 max-w-full items-center justify-center gap-1 truncate rounded-md px-1.5 text-center hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-current dark:hover:bg-white/10"
+          >
+            <span className="truncate">{name}</span>
+            <Pencil aria-hidden="true" className="size-3 shrink-0 opacity-65" />
+          </button>
+        )}
       </h3>
       <p className="my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums sm:text-[calc(min(48cqw,7rem))] [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-[calc(min(30cqw,4rem))]">
         {score}
       </p>
-      <div className="mt-1 flex items-center gap-1 min-[480px]:gap-2 [@media(max-height:600px)]:mt-0">
-        <span
+      <div
+        className={`mt-1 flex items-center gap-1 min-[480px]:gap-2 [@media(max-height:600px)]:mt-0 ${state.teamCount === 3 ? "flex-col sm:flex-row" : "flex-row"}`}
+      >
+        <button
+          type="button"
+          aria-label={`${labels.decrease} ${name}`}
+          onClick={() => onScoreChange(-1)}
           data-demo-target={minusTarget ?? undefined}
-          className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-[background-color,transform] duration-150 min-[480px]:h-10 min-[480px]:w-11 sm:h-11 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] [@media(max-height:600px)]:h-8 [@media(max-height:600px)]:w-8 ${minusTarget !== null && state.pressed === minusTarget ? "scale-[.96]" : ""}`}
+          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-[background-color,transform] duration-150 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] ${minusTarget !== null && state.pressed === minusTarget ? "scale-[.96]" : ""}`}
         >
           <Minus aria-hidden="true" className="h-5 w-5" />
-        </span>
-        <span
+        </button>
+        <button
+          type="button"
+          aria-label={`${labels.increase} ${name}`}
+          onClick={() => onScoreChange(1)}
           data-demo-target={plusTarget}
-          className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-[background-color,transform] duration-150 min-[480px]:h-10 min-[480px]:w-11 sm:h-11 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] [@media(max-height:600px)]:h-8 [@media(max-height:600px)]:w-8 ${plusTarget !== null && state.pressed === plusTarget ? "scale-[.96] brightness-95" : ""}`}
+          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-[background-color,transform] duration-150 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] ${plusTarget !== null && state.pressed === plusTarget ? "scale-[.96] brightness-95" : ""}`}
         >
           <Plus aria-hidden="true" className="h-5 w-5" />
-        </span>
+        </button>
       </div>
     </article>
   );

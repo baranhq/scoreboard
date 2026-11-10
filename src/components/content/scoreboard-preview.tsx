@@ -1,6 +1,6 @@
 "use client";
 
-import { MousePointer2, Pause, Play, RotateCcw } from "lucide-react";
+import { MousePointer2, RotateCcw } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { LandingContent } from "@/lib/landing-content";
 import {
@@ -234,8 +234,12 @@ export function ScoreboardPreview({
   const layoutSnapshotRef = useRef<Map<number, TeamBounds> | null>(null);
   const demoPositionSnapshotRef = useRef<DemoPosition | null>(null);
   const remainingMs = useRef<number | null>(null);
+  const sequenceTimeout = useRef<number | null>(null);
+  const manuallyPausedRef = useRef(false);
+  const resettingPlayback = useRef(false);
   const stageIndexRef = useRef(0);
   const [state, setState] = useState(() => initialPreviewState(copy));
+  const [editingNameIndex, setEditingNameIndex] = useState<number | null>(null);
   const [inView, setInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const [mobileLayout, setMobileLayout] = useState(true);
@@ -401,6 +405,8 @@ export function ScoreboardPreview({
       startedAt = performance.now();
 
       timeout = window.setTimeout(() => {
+        if (manuallyPausedRef.current) return;
+        sequenceTimeout.current = null;
         if (stage.scroll) {
           const optionsPanel = previewRef.current?.querySelector<HTMLElement>(
             "[data-demo-scroll-panel]",
@@ -439,48 +445,50 @@ export function ScoreboardPreview({
         demo?.setAttribute("data-demo-stage", String(stageIndexRef.current));
         runNextStage();
       }, delay);
+      sequenceTimeout.current = timeout;
     };
 
     runNextStage();
 
     return () => {
       window.clearTimeout(timeout);
-      remainingMs.current = Math.max(0, delay - (performance.now() - startedAt));
+      sequenceTimeout.current = null;
+      remainingMs.current = resettingPlayback.current
+        ? null
+        : Math.max(0, delay - (performance.now() - startedAt));
+      resettingPlayback.current = false;
     };
   }, [mobileLayout, sequence, shouldAnimate]);
 
   const visibleTeams = state.teamNames.slice(0, state.teamCount);
+  const pausePlayback = () => {
+    manuallyPausedRef.current = true;
+    if (sequenceTimeout.current !== null) window.clearTimeout(sequenceTimeout.current);
+    sequenceTimeout.current = null;
+    setManuallyPaused(true);
+  };
+  const pauseForInteraction = () => pausePlayback();
+  const resetDemo = () => {
+    manuallyPausedRef.current = true;
+    resettingPlayback.current = shouldAnimate;
+    if (sequenceTimeout.current !== null) window.clearTimeout(sequenceTimeout.current);
+    sequenceTimeout.current = null;
+    remainingMs.current = null;
+    stageIndexRef.current = 0;
+    setState(initialPreviewState(copy));
+    setEditingNameIndex(null);
+    setManuallyPaused(true);
+  };
 
   return (
     <figure
       ref={previewRef}
       aria-labelledby="scoreboard-preview-caption"
-      className="group/demo relative mx-auto flex h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl pt-14 md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
+      className="group/demo relative mx-auto flex h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
     >
       <figcaption id="scoreboard-preview-caption" className="sr-only">
         {copy.accessibleDescription}
       </figcaption>
-      <button
-        type="button"
-        aria-label={playbackPaused ? labels.playPreview : labels.pausePreview}
-        aria-pressed={playbackPaused}
-        title={playbackPaused ? labels.playPreview : labels.pausePreview}
-        onClick={() => {
-          if (playbackPaused) {
-            setManuallyPaused(false);
-            setMotionPreferenceOverridden(true);
-          } else {
-            setManuallyPaused(true);
-          }
-        }}
-        className="absolute top-2 right-2 z-40 flex h-11 w-11 items-center justify-center rounded-lg border border-forest/20 bg-surface text-forest transition-colors duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none md:right-3"
-      >
-        {playbackPaused ? (
-          <Play aria-hidden="true" className="h-4 w-4" />
-        ) : (
-          <Pause aria-hidden="true" className="h-4 w-4" />
-        )}
-      </button>
       <div className="relative w-full min-w-0">
         <div
           data-scoreboard-demo
@@ -488,26 +496,74 @@ export function ScoreboardPreview({
           data-demo-stage="0"
           className="relative flex h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:h-auto md:max-h-[calc(100svh-12rem-1px)]"
         >
-          <PreviewToolbar copy={copy} labels={labels} />
-          <div aria-hidden="true" inert className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <PreviewToolbar
+            copy={copy}
+            labels={labels}
+            playing={!playbackPaused}
+            onToggle={() => {
+              if (playbackPaused) {
+                manuallyPausedRef.current = false;
+                setManuallyPaused(false);
+                setMotionPreferenceOverridden(true);
+              } else {
+                pausePlayback();
+              }
+            }}
+            onReset={resetDemo}
+          />
+          <div aria-hidden="true" inert>
             <PreviewTimer state={state} labels={labels} />
-            <div className={`grid gap-2 ${state.teamCount === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-              {visibleTeams.map((name, index) => (
-                <PreviewTeamCard
-                  key={index}
-                  state={state}
-                  index={index}
-                  name={name}
-                  score={state.scores[index]}
-                />
-              ))}
-            </div>
-            <div className="mt-2 flex justify-end [@media(max-height:600px)]:mt-1">
-              <span className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-forest/25 px-2 py-1 text-sm font-medium text-forest">
-                <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
-                {labels.reset}
-              </span>
-            </div>
+          </div>
+          <section
+            className={`grid min-h-0 gap-2 ${state.teamCount === 2 ? "grid-cols-2" : "grid-cols-3"}`}
+            aria-label={labels.teams}
+            onClickCapture={pauseForInteraction}
+            onFocusCapture={pauseForInteraction}
+            onInputCapture={pauseForInteraction}
+          >
+            {visibleTeams.map((name, index) => (
+              <PreviewTeamCard
+                key={index}
+                state={state}
+                index={index}
+                name={name}
+                score={state.scores[index]}
+                labels={labels}
+                editingName={editingNameIndex === index}
+                onEditName={() => setEditingNameIndex(index)}
+                onDoneEditingName={() => setEditingNameIndex(null)}
+                onNameChange={(value) =>
+                  setState((current) => {
+                    const teamNames = [...current.teamNames] as PreviewState["teamNames"];
+                    teamNames[index] = value;
+                    return { ...current, teamNames };
+                  })
+                }
+                onScoreChange={(amount) =>
+                  setState((current) => {
+                    const scores = [...current.scores] as PreviewState["scores"];
+                    scores[index] = Math.max(0, scores[index] + amount);
+                    return { ...current, scores };
+                  })
+                }
+              />
+            ))}
+          </section>
+          <div
+            className="mt-2 flex justify-end [@media(max-height:600px)]:mt-1"
+            onClickCapture={pauseForInteraction}
+          >
+            <button
+              type="button"
+              aria-label={labels.reset}
+              onClick={() => setState((current) => ({ ...current, scores: [0, 0, 0] }))}
+              className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-forest/25 px-2 py-1 text-sm font-medium text-forest hover:bg-forest/5"
+            >
+              <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
+              {labels.reset}
+            </button>
+          </div>
+          <div aria-hidden="true" inert className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <PreviewConfiguration state={state} copy={copy} labels={labels} />
           </div>
           {!prefersReducedMotion && (

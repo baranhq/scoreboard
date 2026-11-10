@@ -51,6 +51,11 @@ export type PreviewLabels = {
   timer: string;
   boardName: string;
   teamName: string;
+  editParticipant: string;
+  increase: string;
+  decrease: string;
+  close: string;
+  resetDemo: string;
   addTeam: string;
   scoreSize: string;
   medium: string;
