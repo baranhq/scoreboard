@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { isLang, languages, origin } from "@/lib/i18n";
 import type { Metadata } from "next";
 import Script from "next/script";
+import "../../font-faces.css";
+import "../../globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(origin),
   icons: { icon: "/icon.png" },
@@ -21,10 +23,10 @@ export default async function Layout({
   if (!isLang(lang)) notFound();
   return (
     <html lang={lang === "en" ? "en-GB" : lang} suppressHydrationWarning>
-      <head>
+      <body>
         <Script src="/theme-4940c847476b.js" strategy="beforeInteractive" />
-      </head>
-      <body>{children}</body>
+        {children}
+      </body>
     </html>
   );
 }
