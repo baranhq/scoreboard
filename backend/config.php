@@ -58,6 +58,9 @@ function configuration(): array {
     if ($file === '') $file = discover_environment_file();
     $settings = [];
     if ($file !== '') {
+        // Read current metadata instead of a previous configuration call's cached permissions.
+        // https://www.php.net/manual/en/function.clearstatcache.php
+        clearstatcache(true, $file);
         $resolved = realpath($file);
         if (normalise_absolute_path($file) === null || $resolved === false || !is_file($resolved) || !is_readable($resolved)) throw new RuntimeException('Private configuration unavailable');
         if (public_path($file) || public_path($resolved)) throw new RuntimeException('Private configuration must be outside the document root');
