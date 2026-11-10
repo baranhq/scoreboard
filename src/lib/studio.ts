@@ -1,32 +1,20 @@
+import { graphicPresets, type GraphicBase } from "./graphic-style.ts";
+export { graphicPresets } from "./graphic-style.ts";
 import { validColor } from "./colors.ts";
 import { bracketRounds, type Bracket } from "./brackets.ts";
 
-export type GraphicStyle = {
-  preset: "classic" | "editorial" | "night";
-  accent: string;
-  background: string;
-  font: "Inter" | "Inter Tight" | "Georgia";
-};
-export type GraphicBase = {
-  version: 1;
+export type LeaderboardRow = {
   id: string;
-  title: string;
-  subtitle: string;
-  updatedAt: number;
-  style: GraphicStyle;
+  cells: string[];
+  highlighted: boolean;
+  position?: string;
 };
-export type LeaderboardRow = { id: string; cells: string[]; highlighted: boolean };
 export type Leaderboard = GraphicBase & {
   kind: "leaderboard";
   columns: string[];
   rows: LeaderboardRow[];
 };
 export type StudioDocument = Leaderboard | Bracket;
-export const graphicPresets: Record<GraphicStyle["preset"], GraphicStyle> = {
-  classic: { preset: "classic", accent: "#285b35", background: "#f2f4eb", font: "Inter Tight" },
-  editorial: { preset: "editorial", accent: "#9c3d19", background: "#fff4df", font: "Georgia" },
-  night: { preset: "night", accent: "#b5d78b", background: "#18251f", font: "Inter" },
-};
 export function newLeaderboard(id = crypto.randomUUID()): Leaderboard {
   return {
     version: 1,
@@ -125,6 +113,7 @@ export function parseDocument(value: unknown): StudioDocument {
         !text(row.id, 100) ||
         !row.id ||
         typeof row.highlighted !== "boolean" ||
+        (row.position !== undefined && !text(row.position, 6)) ||
         !Array.isArray(row.cells) ||
         row.cells.length !== value.columns.length ||
         !row.cells.every((cell) => text(cell))

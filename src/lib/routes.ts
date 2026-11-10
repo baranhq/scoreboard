@@ -7,6 +7,11 @@ export const slugs = {
     licenses: "licenzi",
     help: "pomosht",
     scoreboard: "scoreboard",
+    scoreboardIntro: "tools/scoreboard",
+    leaderboards: "leaderboards",
+    brackets: "brackets",
+    leaderboardEditor: "leaderboards/edit",
+    bracketEditor: "brackets/edit",
   },
   tr: {
     home: "",
@@ -15,6 +20,11 @@ export const slugs = {
     licenses: "lisanslar",
     help: "yardim",
     scoreboard: "scoreboard",
+    scoreboardIntro: "tools/scoreboard",
+    leaderboards: "leaderboards",
+    brackets: "brackets",
+    leaderboardEditor: "leaderboards/edit",
+    bracketEditor: "brackets/edit",
   },
   en: {
     home: "",
@@ -23,6 +33,11 @@ export const slugs = {
     licenses: "licenses",
     help: "help",
     scoreboard: "scoreboard",
+    scoreboardIntro: "tools/scoreboard",
+    leaderboards: "leaderboards",
+    brackets: "brackets",
+    leaderboardEditor: "leaderboards/edit",
+    bracketEditor: "brackets/edit",
   },
 } as const;
 export type PageKey = keyof typeof slugs.en;
@@ -47,7 +62,7 @@ export function localizedAlternates(origin: string, page: PageKey): Record<strin
 export function pageForPath(path: string): PageKey | undefined {
   if (/^\/scoreboard\/?$/.test(path)) return "scoreboard";
   for (const lang of ["bg", "tr", "en"] as const)
-    for (const page of ["home", "saved", "privacy", "licenses", "help", "scoreboard"] as const)
+    for (const page of Object.keys(slugs.en) as PageKey[])
       if (path.replace(/\/?$/, "/") === route(lang, page)) return page;
   if (/^\/tr\/kayitli-tabelalar\/?$/.test(path)) return "saved";
   const alias = /^\/(bg|tr|en)\/(scoreboards|privacy|licenses)\/?$/.exec(path);

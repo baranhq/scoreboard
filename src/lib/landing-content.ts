@@ -33,7 +33,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       title: "Free online scoreboard.",
       description:
         "Keep score for games, sports and classroom activities. Add teams and start right away, with no account or payment needed.",
-      action: "Create scoreboard",
+      action: "Make a Scoreboard",
       featuresLink: "See features",
       benefits: ["Free to use", "No registration", "Open source"],
     },
@@ -74,7 +74,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       items: [
         {
           title: "Open your scoreboard",
-          description: "Choose Create scoreboard to open a ready-to-use board.",
+          description: "Choose Make a Scoreboard to open a ready-to-use board.",
         },
         {
           title: "Set up the teams",
@@ -111,8 +111,8 @@ export const landingContent: Record<Lang, LandingContent> = {
     },
     finalCta: {
       title: "Ready to keep score?",
-      description: "Create a free scoreboard and get started in seconds.",
-      action: "Create scoreboard",
+      description: "Make a free scoreboard and get started in seconds.",
+      action: "Make a Scoreboard",
     },
   },
   bg: {

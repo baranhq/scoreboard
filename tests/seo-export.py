@@ -11,6 +11,7 @@ from urllib.robotparser import RobotFileParser
 class Page(HTMLParser):
     def __init__(self, path):
         super().__init__(convert_charrefs=True)
+        self.svg_depth = 0
         self.lang = ''
         self.meta = {}
         self.links = []
@@ -21,6 +22,10 @@ class Page(HTMLParser):
         self.feed(path.read_text(encoding='utf-8'))
 
     def handle_starttag(self, tag, attributes):
+        if tag == "svg":
+            self.svg_depth += 1
+        if self.svg_depth:
+            return
         attrs = dict(attributes)
         if tag == 'html':
             self.lang = attrs.get('lang', '')
@@ -39,6 +44,11 @@ class Page(HTMLParser):
             self.buffer += data
 
     def handle_endtag(self, tag):
+        if tag == "svg":
+            self.svg_depth -= 1
+            return
+        if self.svg_depth:
+            return
         if tag == self.capture:
             self.text[tag].append(self.buffer)
             self.capture = None
@@ -75,7 +85,7 @@ ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9',
       'x': 'http://www.w3.org/1999/xhtml'}
 entries = ET.parse(root / 'sitemap.xml').getroot().findall('s:url', ns)
 urls = [entry.findtext('s:loc', namespaces=ns) for entry in entries]
-check(len(urls) == 15 and len(set(urls)) == 15, 'Expected 15 unique canonical sitemap URLs')
+check(len(urls) == 24 and len(set(urls)) == 24, 'Expected 24 unique canonical sitemap URLs')
 if not urls:
     raise SystemExit('SEO export checks require an indexable production build')
 origin = urlsplit(urls[0]).scheme + '://' + urlsplit(urls[0]).netloc
@@ -84,9 +94,9 @@ robots.parse((root / 'robots.txt').read_text(encoding='utf-8').splitlines())
 check(origin + '/sitemap.xml' in (robots.site_maps() or []), 'robots.txt must name the sitemap')
 
 slugs = {
-    'bg': ('', 'scoreboard', 'pomosht', 'poveritelnost', 'licenzi'),
-    'tr': ('', 'scoreboard', 'yardim', 'gizlilik', 'lisanslar'),
-    'en': ('', 'scoreboard', 'help', 'privacy', 'licenses'),
+    'bg': ('', 'scoreboard', 'pomosht', 'poveritelnost', 'licenzi', 'tools/scoreboard', 'leaderboards', 'brackets'),
+    'tr': ('', 'scoreboard', 'yardim', 'gizlilik', 'lisanslar', 'tools/scoreboard', 'leaderboards', 'brackets'),
+    'en': ('', 'scoreboard', 'help', 'privacy', 'licenses', 'tools/scoreboard', 'leaderboards', 'brackets'),
 }
 expected = {origin + f'/{lang}/' + (slug + '/' if slug else '')
             for lang, pages in slugs.items() for slug in pages}
@@ -142,6 +152,19 @@ for entry, url in zip(entries, urls):
                 check(app.get('url') == origin + f'/{lang}/scoreboard/', f'{url}: structured data must link to the localized app')
             except (ValueError, KeyError, TypeError, StopIteration):
                 check(False, f'{url}: invalid application structured data')
+
+for url, page in pages.items():
+    if any(url.endswith('/' + slug + '/') for slug in ('tools/scoreboard', 'leaderboards', 'brackets')):
+        check(len(page.text['script']) == 1, f'{url}: missing product structured data')
+        for content in page.text['script']:
+            try:
+                app = json.loads(content)
+                check(app.get('@type') == 'WebApplication' and app.get('url') == url, f'{url}: incorrect product schema')
+                check(app.get('isAccessibleForFree') is True and app.get('offers', {}).get('price') == 0, f'{url}: incorrect product price')
+                check('aggregateRating' not in app and 'review' not in app, f'{url}: fabricated review markup')
+                check(bool(app.get('featureList')), f'{url}: missing product capabilities')
+            except (ValueError, TypeError):
+                check(False, f'{url}: invalid product schema')
 
 for url, page in pages.items():
     for alternate in page.alternates().values():

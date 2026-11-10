@@ -450,7 +450,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                   {" "}
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                     <h2 className="min-w-0 font-display text-xl font-bold tracking-tight break-words sm:text-2xl">
-                      <span className="inline-flex items-center gap-2">
+                      <span className="flex min-w-0 items-start gap-2">
                         <span
                           style={
                             {
@@ -464,7 +464,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                         >
                           <BoardIcon id={board.icon} />
                         </span>
-                        {board.name}
+                        <span className="min-w-0 [overflow-wrap:anywhere]">{board.name}</span>
                       </span>
                     </h2>
                     <div className="flex shrink-0 items-center gap-2">
