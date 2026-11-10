@@ -9,7 +9,7 @@ export function CustomColorPicker({
 }: {
   value: string;
   change: (color: string) => void;
-  t: Messages;
+  t: Pick<Messages, "hue" | "saturation" | "brightness">;
 }) {
   const [hsv, setHsv] = useState(() => hexToHsv(value));
   const emitted = useRef(value);
