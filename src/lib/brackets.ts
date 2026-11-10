@@ -1,4 +1,4 @@
-import { graphicPresets, type GraphicBase } from "./studio.ts";
+import { graphicPresets, type GraphicBase } from "./graphic-style.ts";
 export type MatchResult = { winner: string | null; scores: [string, string] };
 export type Bracket = GraphicBase & {
   kind: "bracket";
@@ -37,7 +37,7 @@ export function resizeBracket(board: Bracket, count: number): Bracket {
     results: {},
     participants: Array.from(
       { length: count },
-      (_, i) => board.participants[i] || { id: `player-${i}`, name: `${i + 1}` },
+      (_, i) => board.participants[i] || { id: crypto.randomUUID(), name: `${i + 1}` },
     ),
   };
 }

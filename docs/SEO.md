@@ -6,6 +6,14 @@ Canonical public routes use the configured origin. The `/scoreboard/` compatibil
 
 The homepage JSON-LD describes one stable `WebSite` and `WebApplication` entity across locales, plus a localized `WebPage` for each homepage. The site and app link to Baran Ahmedov’s `Person` entity; the app also links to the official GitHub repository. It contains the free price, supported languages, real features, browser requirements, MIT licence and social image. It does not include reviews or ratings. Google requires an app review or aggregate rating for its software-app rich result; none is fabricated, so the markup should not be expected to qualify for that result.
 
+## Platform introductions
+
+The new canonical introductions are `/[lang]/tools/scoreboard/`, `/[lang]/leaderboards/` and `/[lang]/brackets/` in EN/BG/TR. Each has localized copy, a working example, reciprocal alternates and WebApplication JSON-LD describing real features. The new `/[lang]/leaderboards/edit/` and `/[lang]/brackets/edit/` routes are noindex and omitted from the sitemap. Existing Scoreboard editor URLs remain indexable for compatibility. There are 24 canonical public sitemap entries.
+
+On 10 November 2026, live `/en/` returned HTTP 200, `index, follow`, a canonical pointing to `/`, and no `X-Robots-Tag`. Live robots.txt allowed public crawling. The previously reported noindex issue was not reproducible. The current build loader already defaults the official production origin to indexable while retaining an explicit opt-out. Do not remove the staging safeguard or claim an unobserved hosting/Google issue was fixed. Search Console history and selected canonicals still require owner access.
+
+Google's [AI guidance](https://developers.google.com/search/docs/appearance/ai-features) calls for the same crawlability and helpful content used for Search, without special AI files. The new introductions follow that approach. [Software-app markup](https://developers.google.com/search/docs/appearance/structured-data/software-app) includes no fabricated reviews or ratings and makes no promise of rich-result eligibility.
+
 ## Before a public build
 
 For Apache hosting, put the real public origin and indexing choice in the automatically loaded private `.env`. Other builds can use the supported project `.env.local` or build environment. Set:
@@ -17,7 +25,7 @@ NEXT_PUBLIC_INDEXABLE=true
 
 The official production origin defaults to indexable when no indexing setting is supplied. An explicit `NEXT_PUBLIC_INDEXABLE=false` still disables indexing, including on production. Keep indexing off on development, preview and staging builds. Run `npm run build` and deploy the complete `out/` directory, including `robots.txt`, `sitemap.xml`, `.htaccess`, the social preview image, favicon, PHP API files and language pages. Rebuild when changing the origin, indexing choice or `ADMIN_PATH`. Robots rules express crawl preferences; they do not protect the administrator or API routes.
 
-The build and `npm run indexnow` use the same private environment loader and production defaults. IndexNow submits the canonical home, scoreboard, help, privacy and licence routes in all three languages when indexing is enabled. It does not submit the noncanonical `/en/` home alias, saved-game routes or snapshot links. Set a random 8–128 character `INDEXNOW_KEY` in the private build environment, deploy the generated `/<key>.txt` verification file, and run the command only after the public site is reachable over HTTPS. The key is public by design, not a password.
+The build and `npm run indexnow` use the same private environment loader and production defaults. IndexNow submits the canonical home, product introductions, scoreboard, help, privacy and licence routes in all three languages when indexing is enabled. It does not submit the noncanonical `/en/` home alias, saved-game routes or snapshot links. Set a random 8–128 character `INDEXNOW_KEY` in the private build environment, deploy the generated `/<key>.txt` verification file, and run the command only after the public site is reachable over HTTPS. The key is public by design, not a password.
 
 ## Production verification
 

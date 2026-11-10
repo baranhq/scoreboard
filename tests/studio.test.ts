@@ -86,3 +86,66 @@ test("new storage reopens documents without overwriting other saves", async () =
   await deleteDocument(a.id);
   assert.equal((await listDocuments())[0].id, b.id);
 });
+
+test("every supported bracket size resolves to one champion with each participant seeded once", () => {
+  for (let count = 2; count <= 64; count++) {
+    let board = resizeBracket(newBracket(), count);
+    const first = bracketRounds(board)[0];
+    assert.equal(new Set(first.flatMap((m) => m.players).filter(Boolean)).size, count);
+    for (let round = 0; round < bracketRounds(board).length; round++) {
+      for (const match of bracketRounds(board)[round]) {
+        if (match.players.every(Boolean))
+          board = setMatchResult(board, match.id, match.players[0], ["1", "0"]);
+      }
+    }
+    assert.ok(bracketRounds(board).at(-1)![0].winner, `count ${count}`);
+    assert.deepEqual(parseDocument(board), board);
+  }
+});
+
+test("maximum-size stress documents validate without affecting demo records", async () => {
+  const { stressDocument } = await import("../src/lib/studio-stress.ts");
+  for (const kind of ["leaderboard", "bracket"] as const) {
+    const doc = stressDocument(kind);
+    assert.deepEqual(parseDocument(doc), doc);
+    assert.ok(doc.id.startsWith("demo-"));
+  }
+});
+
+test("split layouts put the final between both wings and keep nodes inside the image", async () => {
+  const { bracketLayout, wrapText } = await import("../src/lib/graphic-layout.ts");
+  assert.deepEqual(wrapText("abcdefghij", 4), ["abcde", "fghij"]);
+  for (const count of [2, 3, 8, 32, 64]) {
+    const board = resizeBracket(newBracket(), count);
+    board.participants[0].name = "W".repeat(200);
+    const layout = bracketLayout(board);
+    for (const node of layout.nodes) {
+      assert.ok(node.x >= 0 && node.x + 220 <= layout.width);
+      assert.ok(node.y >= layout.header && node.y + layout.cardHeight <= layout.height);
+    }
+    const final = layout.nodes.at(-1)!;
+    if (count > 2) {
+      assert.ok(final.x > layout.nodes[0].x);
+      assert.ok(
+        final.x < layout.nodes[Math.floor(layout.nodes.length / 2) - 1].x ||
+          layout.nodes.some((node) => node.x > final.x),
+      );
+    }
+  }
+});
+
+test("shrinking and growing a reordered bracket never duplicates participant identities", () => {
+  let board = newBracket();
+  board.participants = moveItem(board.participants, 7, 0);
+  board = resizeBracket(board, 2);
+  board = resizeBracket(board, 8);
+  assert.equal(new Set(board.participants.map((p) => p.id)).size, 8);
+  assert.deepEqual(parseDocument(board), board);
+});
+
+test("text wrapping budgets wide glyphs and preserves emoji graphemes", async () => {
+  const { wrapText } = await import("../src/lib/graphic-layout.ts");
+  assert.deepEqual(wrapText("W".repeat(12), 196 / 16), ["W".repeat(11), "W"]);
+  assert.deepEqual(wrapText("Points", 128 / 18), ["Points"]);
+  assert.deepEqual(wrapText("👩🏽‍💻👩🏽‍💻", 1.3), ["👩🏽‍💻", "👩🏽‍💻"]);
+});

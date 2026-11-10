@@ -28,7 +28,7 @@ export type Board = {
 export const MAX_SCORE = 999999999;
 export const MAX_BACKUP_BYTES = 5 * 1024 * 1024;
 const MAX_BACKUP_BOARDS = 1000;
-const MAX_BACKUP_TEAMS = 200;
+// One shared team budget accepts older large local boards without unbounding imports.
 const MAX_BACKUP_TOTAL_TEAMS = 5000;
 export function validScore(value: number): boolean {
   return Number.isSafeInteger(value) && Math.abs(value) <= MAX_SCORE;
@@ -102,7 +102,7 @@ export function parseBackup(input: unknown): Board[] {
       !text(b.name) ||
       !Array.isArray(b.teams) ||
       b.teams.length < 1 ||
-      b.teams.length > MAX_BACKUP_TEAMS ||
+      b.teams.length > MAX_BACKUP_TOTAL_TEAMS ||
       !Number.isSafeInteger(b.updatedAt) ||
       (b.updatedAt as number) < 0
     )
