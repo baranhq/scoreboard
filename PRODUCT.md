@@ -25,13 +25,14 @@ One host usually sets up and edits a board while other people take part or watch
 ## Capabilities and Constraints
 
 - Scoreboards support teams, scores, periods, timers, appearance controls, fullscreen presentation, saved boards, URL sharing, and JSON backups.
-- Leaderboards support 1–100 entries and 1–10 columns, editable values, sorting, highlighted rows, appearance presets, browser saves, PNG export, and JSON backups.
-- Brackets support 2–64 participants, single or split layouts, automatic byes, match results, winner progression, browser saves, PNG export, and JSON backups.
+- Leaderboards support 1–100 entries and 1–10 data columns, one to three ranked display columns, direct preview editing, sorting, highlighted rows, colour controls, canvas aspect ratios and custom PNG dimensions.
+- Brackets support 2–64 participants, single or split layouts, automatic byes, match results, winner progression, direct preview editing, colour controls, canvas aspect ratios and custom PNG dimensions.
 - Existing Scoreboard records, `/scoreboard/` URLs, share fragments, and backup formats remain compatible. Leaderboard and bracket documents use a separate versioned browser store.
 - The site supports English, Bulgarian, and Turkish. Public introductions are indexable when enabled; editors and saved work are noindex.
 - The site remains a static Next.js export with its existing optional PHP/MySQL backend. Board creation does not require a new account system, cloud storage, or remote service.
 - Existing analytics consent, administrator authentication, privacy disclosures, and project licensing remain intact.
 - Keep user-provided text as text, validate imported and stored data, preserve visible keyboard focus, and respect reduced-motion preferences. Target WCAG 2.2 AA.
+- Built-in examples use only generic team and participant identifiers. Users can choose from in-app colour palettes or enter a custom colour; graphic typography uses the product's fixed typeface.
 
 ## Brand Commitments
 

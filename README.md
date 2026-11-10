@@ -13,8 +13,8 @@ It is **local-first**: no account is needed, and scoreboard names, teams, scores
 ## What it includes
 
 - **Scoreboard:** multiple teams, custom colours, layouts, icons, automatic local saves and snapshot sharing.
-- **Leaderboards:** editable rows/columns, manual ranks, sorting, reordering, highlights and visual presets; up to 100 rows and 10 columns.
-- **Brackets:** 2–64 participants, single-sided or two-sided layouts, automatic byes, manual scores and winner progression.
+- **Leaderboards:** editable rows and data columns, manual ranks, sorting, highlights, one to three display columns, custom colours and canvas sizes.
+- **Brackets:** 2–64 participants, single-sided or two-sided layouts, automatic byes, editable previews, match scores, winner progression and custom canvas sizes.
 - Leaderboard and bracket PNG export, editable JSON backups and browser-local saves in **My Tables**. Use Save before leaving an editor; these tools do not autosave.
 - Countdown and stopwatch timers, periods, and breaks.
 - Fullscreen display with keyboard and touch controls.
