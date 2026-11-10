@@ -41,10 +41,10 @@ export const landingContent: Record<Lang, LandingContent> = {
       accessibleDescription:
         "Animated scoreboard example showing team names, scores, colors, settings and a countdown timer.",
       boardName: "Friendly game",
-      firstTeam: "Team 1",
+      firstTeam: "Baran's Team",
       secondTeam: "Team 2",
       thirdTeam: "Team 3",
-      renamedFirstTeam: "Baran's Team",
+      renamedFirstTeam: "Team 1",
     },
     features: {
       title: "Everything you need to keep score",
@@ -128,10 +128,10 @@ export const landingContent: Record<Lang, LandingContent> = {
       accessibleDescription:
         "Анимирано табло с имена на отбори, точки, цветове, настройки и таймер за обратно броене.",
       boardName: "Приятелска игра",
-      firstTeam: "Отбор 1",
+      firstTeam: "Baran's Team",
       secondTeam: "Отбор 2",
       thirdTeam: "Отбор 3",
-      renamedFirstTeam: "Отборът на Баран",
+      renamedFirstTeam: "Team 1",
     },
     features: {
       title: "Всичко нужно за отчитане на точки",
@@ -216,10 +216,10 @@ export const landingContent: Record<Lang, LandingContent> = {
       accessibleDescription:
         "Takım adlarını, puanları, renkleri, ayarları ve geri sayım sayacını gösteren animasyonlu skor tabelası örneği.",
       boardName: "Dostluk maçı",
-      firstTeam: "Takım 1",
+      firstTeam: "Baran's Team",
       secondTeam: "Takım 2",
       thirdTeam: "Takım 3",
-      renamedFirstTeam: "Baran'ın Takımı",
+      renamedFirstTeam: "Team 1",
     },
     features: {
       title: "Skor tutmak için ihtiyacınız olanlar",
