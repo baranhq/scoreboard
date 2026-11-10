@@ -25,6 +25,8 @@ The repository can verify application behaviour, but not hosting-level settings,
 - Cloudflare Web Analytics is manually loaded by the application after consent. The repository cannot verify whether a separate Cloudflare automatic beacon injection is disabled in production; inspect actual production responses and requests.
 - Timers, theme selection, device-language suggestions and interface nudges do not contact third-party services.
 
+The platform upgrade adds a separate `scoreboard-studio` IndexedDB database for explicitly saved Leaderboards and Brackets. PNG and JSON generation are local. Edits keep a tab-session recovery draft in sessionStorage; successful saving removes that draft. No new server endpoint, identity, analytics event or remote service is introduced. The EN/BG/TR policies add the same factual paragraph about the stored fields, manual saving, deletion and backup/export behaviour. Existing server processing and provider disclosures remain unchanged. New tool paths are outside the existing first-party analytics allowlist; do not silently broaden it.
+
 ## Unresolved deployment and compliance items for operator review
 
 1. Identify the shared hosting provider, processing locations and sub-processors. Confirm retention/deletion criteria for raw access logs and AWStats reports, and which provider controls are available for those services.

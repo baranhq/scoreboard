@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { FolderOpen } from "lucide-react";
+import { ToolNavigation } from "./tool-navigation";
+import { studioCopy } from "@/lib/studio-copy";
 import { brand, repo } from "@/lib/site";
 import { operator } from "@/lib/operator";
 import { homeRoute, route } from "@/lib/routes";
@@ -34,8 +35,6 @@ function FooterGroup({
 }
 
 export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children: ReactNode }) {
-  const link =
-    "inline-flex min-h-11 items-center text-[17px] font-medium transition-colors duration-150 hover:bg-forest/10 underline-offset-4 motion-reduce:transition-none";
   const footerLink =
     "flex min-h-8 max-w-full items-center text-[15px] leading-[1.4] font-semibold text-[#f5f7ef] transition-colors duration-150 hover:text-[#c2ddc5] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c2ddc5] motion-reduce:transition-none min-[761px]:min-h-[27px]";
 
@@ -54,32 +53,23 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
             aria-label={t.home}
             className="mx-auto flex h-full max-w-6xl flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
           >
-            <div className="flex min-w-0 flex-1 items-center gap-0 sm:gap-2">
-              <Link
-                className={`${link.replace("hover:bg-forest/10", "")} shrink-0 rounded-lg px-1 max-md:hidden md:inline-flex md:px-2`}
-                href={route(lang, "scoreboard")}
-                aria-label={`${brand}: ${t.home}`}
-              >
-                <img
-                  src="/wordmark-62157c899159.webp"
-                  srcSet="/wordmark-56-82e25c28ac94.webp 56w, /wordmark-112-104bf045763f.webp 112w, /wordmark-128-492516610722.webp 128w, /wordmark-256-aaadf7f18229.webp 256w"
-                  sizes="(min-width: 640px) 128px, 56px"
-                  width="315"
-                  height="83"
-                  alt={brand}
-                  className="aspect-[315/83] h-auto w-16 min-[360px]:w-[4.5rem] sm:w-32 dark:brightness-0 dark:invert"
-                />
-              </Link>
-              <Link
-                aria-label={t.saved}
-                className={`${link} ml-0 min-w-0 gap-2 rounded-lg px-2 text-base md:ml-8 md:px-3`}
-                href={route(lang, "saved")}
-              >
-                <FolderOpen aria-hidden="true" className="h-4 w-4 shrink-0" />
-                <span className="whitespace-nowrap">{t.saved}</span>
-              </Link>
-            </div>
-            <div className="flex shrink-0 items-center">
+            <Link
+              href={homeRoute(lang)}
+              aria-label={`${brand}: ${t.home}`}
+              className="inline-flex min-h-11 shrink-0 items-center rounded-lg"
+            >
+              <img
+                src="/wordmark-62157c899159.webp"
+                srcSet="/wordmark-128-492516610722.webp 128w, /wordmark-256-aaadf7f18229.webp 256w"
+                sizes="128px"
+                width="315"
+                height="83"
+                alt={brand}
+                className="h-auto w-28 sm:w-32 dark:brightness-0 dark:invert"
+              />
+            </Link>
+            <div className="flex min-w-0 items-center gap-0 sm:gap-1">
+              <ToolNavigation lang={lang} />
               <ThemeToggle t={t} />
               <LanguageMenu lang={lang} languageLabel={t.language} />
             </div>
@@ -107,7 +97,17 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
             </li>
             <li>
               <Link className={footerLink} href={route(lang, "scoreboard")}>
-                {t.create}
+                {studioCopy[lang].scoreboard}
+              </Link>
+            </li>
+            <li>
+              <Link className={footerLink} href={route(lang, "leaderboards")}>
+                {studioCopy[lang].leaderboard}
+              </Link>
+            </li>
+            <li>
+              <Link className={footerLink} href={route(lang, "brackets")}>
+                {studioCopy[lang].bracket}
               </Link>
             </li>
             <li>

@@ -260,7 +260,7 @@ export function PreviewConfiguration({
         key={state.tab}
         data-demo-scroll-panel
         data-demo-target={state.tab === "timer" ? "timer-scroll" : undefined}
-        className="mt-3 min-h-0 flex-1 touch-pan-y [scrollbar-width:thin] [scrollbar-color:rgba(40,91,53,0.35)_transparent] overflow-x-hidden overflow-y-auto overscroll-contain rounded-b-md border-t border-forest/15 pt-3 pb-2 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-forest/5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/35"
+        className="mt-3 min-h-0 flex-1 touch-pan-y [scrollbar-width:thin] [scrollbar-color:rgba(40,91,53,0.35)_transparent] overflow-x-hidden overflow-y-auto overscroll-contain rounded-b-md border-t border-forest/15 pt-3 pb-2 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/35 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-forest/5"
       >
         {state.tab === "teams" && (
           <div className="space-y-2">

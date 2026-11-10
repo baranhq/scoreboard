@@ -254,7 +254,7 @@ test("backups and URL snapshots preserve customisation and treat markup as plain
   assert.throws(() =>
     parseBackup({
       ...backup([board]),
-      boards: [{ ...board, teams: Array(201).fill(board.teams[0]) }],
+      boards: [{ ...board, teams: Array(5001).fill(board.teams[0]) }],
     }),
   );
 });
@@ -282,4 +282,16 @@ test("dates display day, month and year without changing stored timestamps", asy
   const { policyDate } = await import("../src/lib/policy-document.ts");
   assert.equal(policyDate("2026-11-02"), "02.11.2026");
   assert.equal(europeanDateTime(new Date(2026, 10, 2, 9, 5).getTime()), "02.11.2026, 09:05");
+});
+
+test("a legacy scoreboard with more than 200 teams can reopen its own backup", () => {
+  const board = newBoard("Large class event", "Team");
+  board.teams = Array.from({ length: 201 }, (_, i) => ({
+    id: `team-${i}`,
+    name: `Team ${i + 1}`,
+    score: i,
+  }));
+  const restored = parseBackupText(JSON.stringify(backup([board])));
+  assert.equal(restored[0].teams.length, 201);
+  assert.equal(restored[0].teams[200].score, 200);
 });

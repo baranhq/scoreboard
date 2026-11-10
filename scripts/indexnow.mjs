@@ -32,9 +32,15 @@ const { languages } = await import("../src/lib/i18n.ts");
 const { homeRoute, route } = await import("../src/lib/routes.ts");
 const urls = [
   ...languages.map((lang) => origin + homeRoute(lang)),
-  ...["scoreboard", "privacy", "licenses", "help"].flatMap((page) =>
-    languages.map((lang) => origin + route(lang, page)),
-  ),
+  ...[
+    "scoreboard",
+    "scoreboardIntro",
+    "leaderboards",
+    "brackets",
+    "privacy",
+    "licenses",
+    "help",
+  ].flatMap((page) => languages.map((lang) => origin + route(lang, page))),
 ];
 const response = await fetch("https://api.indexnow.org/indexnow", {
   method: "POST",
