@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Menu } from "lucide-react";
+import { ArrowUpRight, ChevronDown, LayoutGrid, Menu } from "lucide-react";
+import { Fragment } from "react";
 import { Dropdown } from "@/components/ui/dropdown";
 import type { Lang } from "@/lib/i18n";
 import { homeRoute, route } from "@/lib/routes";
@@ -52,20 +53,27 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
   return (
     <>
       <div className="hidden items-center gap-0.5 lg:flex">
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none ${stateClass(link.href)}`}
-            aria-current={
-              pathname === normalize(link.href) ||
-              (pathname === "/scoreboard" && link.href === route(lang, "scoreboard"))
-                ? "page"
-                : undefined
-            }
-          >
-            {link.label}
-          </Link>
+        {links.map((link, index) => (
+          <Fragment key={link.href}>
+            {!inApplication && index === 1 && (
+              <span className="mx-1 inline-flex h-8 items-center gap-1.5 rounded-md bg-current/5 px-2 text-xs font-semibold text-current/70">
+                <LayoutGrid className="size-3.5" aria-hidden="true" />
+                {t.tools}
+              </span>
+            )}
+            <Link
+              href={link.href}
+              className={`inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none ${stateClass(link.href)}`}
+              aria-current={
+                pathname === normalize(link.href) ||
+                (pathname === "/scoreboard" && link.href === route(lang, "scoreboard"))
+                  ? "page"
+                  : undefined
+              }
+            >
+              {link.label}
+            </Link>
+          </Fragment>
         ))}
         {showAction && (
           <Dropdown
@@ -76,15 +84,18 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
                 <ChevronDown className="size-4" aria-hidden="true" />
               </>
             }
-            triggerClassName="ml-1 !min-h-11 !rounded-lg !bg-action !px-3 !text-sm !font-semibold !text-on-action hover:!brightness-95"
+            triggerClassName="ml-1 !min-h-11 !shrink-0 !rounded-lg !bg-action !px-3 !text-sm !font-semibold !text-on-action whitespace-nowrap hover:!brightness-95"
+            panelClassName="!w-[min(22rem,calc(100vw-2rem))] !border-[#72927a] !bg-[#30583d] !p-2"
           >
+            <p className="px-3 py-2 text-sm font-semibold text-white/75">{t.tools}</p>
             {actionDestinations.map((tool) => (
               <Link
                 key={tool.href}
                 href={tool.href}
-                className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-semibold hover:bg-forest/10"
+                className="flex min-h-12 items-center justify-between gap-3 rounded-lg px-3 py-2 text-base font-semibold transition-colors hover:bg-forest/10"
               >
                 {tool.label}
+                <ArrowUpRight size={16} aria-hidden="true" className="shrink-0 text-forest/70" />
               </Link>
             ))}
           </Dropdown>
@@ -101,26 +112,28 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
           }
           triggerClassName="!px-3"
         >
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex min-h-12 items-center rounded-lg px-3 py-2 text-base font-semibold ${stateClass(link.href)}`}
-              aria-current={
-                pathname === normalize(link.href) ||
-                (pathname === "/scoreboard" && link.href === route(lang, "scoreboard"))
-                  ? "page"
-                  : undefined
-              }
-            >
-              {link.label}
-            </Link>
+          {links.map((link, index) => (
+            <Fragment key={link.href}>
+              {!inApplication && index === 1 && (
+                <p className="px-3 pt-2 pb-1 text-sm font-semibold text-ink/65">{t.tools}</p>
+              )}
+              <Link
+                href={link.href}
+                className={`flex min-h-12 items-center rounded-lg px-3 py-2 text-base font-semibold ${stateClass(link.href)}`}
+                aria-current={
+                  pathname === normalize(link.href) ||
+                  (pathname === "/scoreboard" && link.href === route(lang, "scoreboard"))
+                    ? "page"
+                    : undefined
+                }
+              >
+                {link.label}
+              </Link>
+            </Fragment>
           ))}
           {showAction && (
             <>
-              <p className="px-3 pt-2 pb-1 text-xs font-bold tracking-wide text-ink/60 uppercase">
-                {t.makeA}
-              </p>
+              <p className="px-3 pt-2 pb-1 text-sm font-semibold text-ink/65">{t.makeA}</p>
               {actionDestinations.map((tool) => (
                 <Link
                   key={tool.href}

@@ -34,12 +34,12 @@ function Lines({
   weight?: number;
   edit?: PreviewField;
   labels?: StudioCopy;
-  onEdit?: (field: PreviewField) => void;
+  onEdit?: (field: PreviewField, target: SVGTextElement) => void;
   anchor?: "start" | "middle" | "end";
 }) {
   const editable = !!edit && !!labels && !!onEdit;
-  const openEdit = () => {
-    if (edit) onEdit?.(edit);
+  const openEdit = (target: SVGTextElement) => {
+    if (edit) onEdit?.(edit, target);
   };
   return (
     <text
@@ -55,13 +55,13 @@ function Lines({
       className={
         editable ? "cursor-text outline-none hover:underline focus-visible:underline" : undefined
       }
-      onClick={editable ? openEdit : undefined}
+      onClick={editable ? (event) => openEdit(event.currentTarget) : undefined}
       onKeyDown={
         editable
           ? (event) => {
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-                openEdit();
+                openEdit(event.currentTarget);
               }
             }
           : undefined
@@ -87,7 +87,7 @@ function Heading({
   width: number;
   text: string;
   labels: StudioCopy;
-  onEdit?: (field: PreviewField) => void;
+  onEdit?: (field: PreviewField, target: SVGTextElement) => void;
 }) {
   const titleLines =
     doc.style.titleVisible === false || !doc.title.trim()
@@ -95,7 +95,6 @@ function Heading({
       : wrapText(doc.title, (width - 80) / 36).length;
   return (
     <>
-      <rect width={width} height={8} fill={doc.style.accent} />
       {doc.style.titleVisible !== false && !!doc.title.trim() && (
         <Lines
           text={doc.title}
@@ -135,7 +134,7 @@ export function LeaderboardGraphic({
   board: Leaderboard;
   labels: StudioCopy;
   svgRef?: Ref<SVGSVGElement>;
-  onEdit?: (field: PreviewField) => void;
+  onEdit?: (field: PreviewField, target: SVGTextElement) => void;
 }) {
   const widths = board.columns.map(
     (column, i) =>
@@ -171,7 +170,7 @@ export function LeaderboardGraphic({
         ...row.cells.map((cell, i) => wrapText(cell, (widths[i] - 32) / 22).length * 29 + 26),
       );
       const placement = { row, index, x, y, height };
-      y += height;
+      y += height + (board.style.rowSeparators ? 14 : 0);
       return placement;
     });
   });
@@ -246,10 +245,18 @@ export function LeaderboardGraphic({
               x={0}
               y={0}
               width={columnWidth}
-              height={row.height - 4}
+              height={row.height - (board.style.rowSeparators ? 8 : 4)}
               rx={board.style.radius ?? (board.style.preset === "editorial" ? 0 : 6)}
-              stroke={board.style.borderColor}
-              strokeWidth={board.style.borderWidth ?? 0}
+              stroke={
+                board.style.rowSeparators
+                  ? board.style.borderColor || board.style.accent
+                  : board.style.borderColor
+              }
+              strokeWidth={
+                board.style.rowSeparators
+                  ? Math.max(board.style.borderWidth ?? 0, 1)
+                  : (board.style.borderWidth ?? 0)
+              }
               fill={row.row.color || (row.row.highlighted ? board.style.accent : text)}
               fillOpacity={
                 row.row.color || row.row.highlighted ? 1 : row.index % 2 === 0 ? 0.06 : 0.025
@@ -300,7 +307,7 @@ export function BracketGraphic({
   board: Bracket;
   labels: StudioCopy;
   svgRef?: Ref<SVGSVGElement>;
-  onEdit?: (field: PreviewField) => void;
+  onEdit?: (field: PreviewField, target: SVGTextElement) => void;
 }) {
   const { nodes, width, height, rowHeight, cardHeight, footerY } = bracketLayout(board);
   const outputWidth = board.canvas?.width || width;
@@ -477,7 +484,7 @@ export function Graphic({
   document: StudioDocument;
   labels: StudioCopy;
   svgRef?: Ref<SVGSVGElement>;
-  onEdit?: (field: PreviewField) => void;
+  onEdit?: (field: PreviewField, target: SVGTextElement) => void;
 }) {
   return document.kind === "leaderboard" ? (
     <LeaderboardGraphic board={document} labels={labels} svgRef={svgRef} onEdit={onEdit} />

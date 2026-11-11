@@ -44,7 +44,7 @@ export function newLeaderboard(id = crypto.randomUUID()): Leaderboard {
     subtitle: "Round 1",
     updatedAt: 0,
     exportScale: 1,
-    style: { ...graphicPresets.classic },
+    style: { ...graphicPresets.classic, rowSeparators: false },
     gridColumns: 1,
     columns: ["Team", "Points"],
     rows: ["Team 1", "Team 2", "Team 3"].map((team, index) => ({
@@ -142,6 +142,7 @@ const documentKeys = [
 const styleKeys = [
   "titleVisible",
   "subtitleVisible",
+  "rowSeparators",
   "showScores",
   "connectorColor",
   "connectorWidth",
@@ -196,7 +197,7 @@ export function parseDocument(value: unknown): StudioDocument {
     )
       throw new Error("Invalid style dimension");
   }
-  for (const key of ["titleVisible", "subtitleVisible", "showScores"])
+  for (const key of ["titleVisible", "subtitleVisible", "rowSeparators", "showScores"])
     if (style[key] !== undefined && typeof style[key] !== "boolean")
       throw new Error("Invalid visibility");
   for (const [key, min, max] of [
