@@ -163,13 +163,14 @@ export function LeaderboardGraphic({
     const x = 40 + groupIndex * (columnWidth + groupGap);
     return group.map((row) => {
       const index = board.rows.findIndex((item) => item.id === row.id);
-      const rank = row.position || String(index + 1);
+      const rank =
+        board.totalColumn === undefined ? row.position || String(index + 1) : String(index + 1);
       const height = Math.max(
         board.style.density === "spacious" ? 88 : 64,
         wrapText(rank, 3).length * 24 + 26,
         ...row.cells.map((cell, i) => wrapText(cell, (widths[i] - 32) / 22).length * 29 + 26),
       );
-      const placement = { row, index, x, y, height };
+      const placement = { row, index, rank, x, y, height };
       y += height + (board.style.rowSeparators ? 14 : 0);
       return placement;
     });
@@ -263,18 +264,22 @@ export function LeaderboardGraphic({
               }
             />
             <Lines
-              text={row.row.position || String(row.index + 1)}
+              text={row.rank}
               x={12}
               y={40}
-              size={Math.min(24, 60 / String(row.row.position || row.index + 1).length)}
+              size={Math.min(24, 60 / row.rank.length)}
               width={3}
               fill={
                 row.row.color ? foreground(row.row.color) : row.row.highlighted ? onAccent : text
               }
               weight={700}
-              edit={{ kind: "leaderboard-position", rowId: row.row.id }}
-              labels={onEdit ? labels : undefined}
-              onEdit={onEdit}
+              edit={
+                board.totalColumn === undefined
+                  ? { kind: "leaderboard-position", rowId: row.row.id }
+                  : undefined
+              }
+              labels={onEdit && board.totalColumn === undefined ? labels : undefined}
+              onEdit={board.totalColumn === undefined ? onEdit : undefined}
             />
             {row.row.cells.map((cell, i) => (
               <Lines
@@ -287,9 +292,13 @@ export function LeaderboardGraphic({
                   row.row.color ? foreground(row.row.color) : row.row.highlighted ? onAccent : text
                 }
                 weight={i === 0 ? 600 : 500}
-                edit={{ kind: "leaderboard-cell", rowId: row.row.id, column: i }}
-                labels={onEdit ? labels : undefined}
-                onEdit={onEdit}
+                edit={
+                  i === board.totalColumn
+                    ? undefined
+                    : { kind: "leaderboard-cell", rowId: row.row.id, column: i }
+                }
+                labels={onEdit && i !== board.totalColumn ? labels : undefined}
+                onEdit={i === board.totalColumn ? undefined : onEdit}
               />
             ))}
           </g>

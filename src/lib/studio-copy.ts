@@ -151,6 +151,17 @@ const en = {
   rankingRules: "Ranking rules",
   sortBy: "Sort by",
   manualOrderHint: "Rows stay in the order you set until you choose a sort.",
+  totalPoints: "Calculate total points",
+  totalColumnLabel: "Column to calculate",
+  noCalculatedTotal: "No calculated total",
+  totalPointsHint:
+    "Choose a column for the total. Numeric values in every other column are added automatically.",
+  calculatedTotalHint:
+    "This total updates when other numeric values change and ranks highest first.",
+  calculatedRankHint:
+    "Rows are ranked by total points, highest first. Other numeric columns add to this total.",
+  githubStarPrompt: "Finding Scoreboard useful? Consider giving the project a star on GitHub.",
+  starOnGithub: "Star on GitHub",
   emptyLeaderboard: "Add a participant to start building the table.",
   oneColumn: "One column",
   twoColumns: "Two columns",
@@ -392,6 +403,18 @@ const bg: Copy = {
   rankingRules: "Правила за класиране",
   sortBy: "Сортиране по",
   manualOrderHint: "Редовете остават подредени ръчно, докато не изберете сортиране.",
+  totalPoints: "Изчисляване на общия брой точки",
+  totalColumnLabel: "Колона за общия сбор",
+  noCalculatedTotal: "Без изчисляване",
+  totalPointsHint:
+    "Изберете колона за общия сбор. Числовите стойности във всички останали колони се събират автоматично.",
+  calculatedTotalHint:
+    "Общият сбор се обновява при промяна на числова стойност и класира най-високия резултат първи.",
+  calculatedRankHint:
+    "Редовете се класират по общия брой точки, от най-високия резултат. Числовите стойности в останалите колони се събират.",
+  githubStarPrompt:
+    "Харесва ли ви Scoreboard? Помислете дали да не дадете звезда на проекта в GitHub.",
+  starOnGithub: "Дайте звезда в GitHub",
   emptyLeaderboard: "Добавете участник, за да започнете таблицата.",
   oneColumn: "Една колона",
   twoColumns: "Две колони",
@@ -636,6 +659,17 @@ const tr: Copy = {
   rankingRules: "Sıralama kuralları",
   sortBy: "Şuna göre sırala",
   manualOrderHint: "Sıralama seçeneğini kullanana kadar satırlar belirlediğiniz sırada kalır.",
+  totalPoints: "Toplam puanı hesapla",
+  totalColumnLabel: "Hesaplanacak sütun",
+  noCalculatedTotal: "Hesaplanan toplam yok",
+  totalPointsHint:
+    "Toplamın yer alacağı sütunu seçin. Diğer tüm sütunlardaki sayısal değerler otomatik olarak toplanır.",
+  calculatedTotalHint:
+    "Diğer sayısal değerler değiştikçe toplam güncellenir ve en yüksek puan en üste çıkar.",
+  calculatedRankHint:
+    "Satırlar toplam puana göre en yüksekten en düşüğe sıralanır. Diğer sayısal sütunlar bu toplama eklenir.",
+  githubStarPrompt: "Scoreboard işinize yarıyor mu? GitHub'da projeye yıldız vermeyi düşünün.",
+  starOnGithub: "GitHub'da yıldız ver",
   emptyLeaderboard: "Tabloyu oluşturmak için bir katılımcı ekleyin.",
   oneColumn: "Tek sütun",
   twoColumns: "İki sütun",
