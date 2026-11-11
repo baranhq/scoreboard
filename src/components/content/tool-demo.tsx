@@ -1,14 +1,12 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { ArrowUpRight, ChartNoAxesColumn, GitBranch } from "lucide-react";
+import { ChartNoAxesColumn, GitBranch } from "lucide-react";
 import { Graphic } from "@/components/studio/graphic";
 import { DemoPlaybackControls } from "@/components/content/demo-playback-controls";
 import { ScoreboardPreview } from "@/components/content/scoreboard-preview";
 import { landingContent } from "@/lib/landing-content";
 import { bracketRounds, setMatchResult, type Bracket } from "@/lib/brackets";
-import { route } from "@/lib/routes";
 import { messages, type Lang } from "@/lib/i18n";
 import { advanceStudioDemo, studioDemo } from "@/lib/studio-demo";
 import { updateLeaderboardCell, type Leaderboard, type StudioDocument } from "@/lib/studio";
@@ -18,18 +16,6 @@ import { useAutoDemo } from "./use-auto-demo";
 import { HomeScoreboard } from "./home-scoreboard";
 
 export type Tool = "scoreboard" | "leaderboard" | "bracket";
-
-const editorRoutes = {
-  scoreboard: "scoreboard",
-  leaderboard: "leaderboardEditor",
-  bracket: "bracketEditor",
-} as const;
-
-const productRoutes = {
-  scoreboard: "scoreboardIntro",
-  leaderboard: "leaderboards",
-  bracket: "brackets",
-} as const;
 
 const demoInputClass =
   "min-h-9 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-2.5 py-1.5 text-sm text-ink";
@@ -75,7 +61,18 @@ function StudioToolDemo({
   compact: boolean;
 }) {
   const t = studioCopy[lang];
-  const initial = useMemo(() => studioDemo(tool, lang), [tool, lang]);
+  const initial = useMemo(() => {
+    const sample = studioDemo(tool, lang);
+    if (compact) {
+      sample.style = {
+        ...sample.style,
+        accent: tool === "bracket" ? "#ccf86b" : "#285b35",
+        background: tool === "bracket" ? "#14251b" : "#f5f2e8",
+      };
+      if (sample.kind === "bracket") sample.layout = "split";
+    }
+    return sample;
+  }, [tool, lang, compact]);
   const [document, setDocument] = useState(initial);
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
   const step = useRef(0);
@@ -101,7 +98,7 @@ function StudioToolDemo({
     <section
       ref={playbackRef}
       aria-label={t[tool]}
-      className="min-w-0 overflow-hidden rounded-xl border border-forest/20 bg-surface text-ink shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]"
+      className={`min-w-0 overflow-hidden bg-surface text-ink ${compact ? "rounded-none" : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]"}`}
     >
       <header className="flex items-center justify-between gap-3 border-b border-forest/15 px-3 py-2.5 sm:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
@@ -150,7 +147,7 @@ function StudioToolDemo({
 
         <section aria-label={t.preview} className="min-w-0">
           <div
-            className={`${compact ? "" : "max-h-[min(68svh,30rem)]"} min-h-52 overflow-auto overscroll-contain rounded-lg border border-forest/20 bg-paper p-2 sm:p-3`}
+            className={`${compact ? (tool === "bracket" ? "[&>svg]:min-w-[40rem]" : "[&>svg]:min-w-[28rem]") : "max-h-[min(68svh,30rem)] min-h-52"} overflow-auto overscroll-contain rounded-lg border border-forest/20 bg-paper p-2 sm:p-3`}
           >
             <Graphic
               document={document}
@@ -161,7 +158,9 @@ function StudioToolDemo({
               }}
             />
           </div>
-          <p className="mt-2 text-xs leading-relaxed text-ink/70">{t.clickToEdit}</p>
+          <p className="mt-2 text-xs leading-relaxed text-ink/70">
+            {compact ? `${t.exploreGraphic} · ${t.clickToEdit}` : t.clickToEdit}
+          </p>
           {activeField && (
             <div className="mt-2 flex min-w-0 items-end gap-2 rounded-lg border border-forest/15 bg-paper p-2">
               <label className="grid min-w-0 flex-1 gap-1 text-xs font-semibold">
@@ -358,64 +357,5 @@ function BracketFields({
         </select>
       </label>
     </fieldset>
-  );
-}
-
-export function PlatformDemo({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
-  const [tool, setTool] = useState<Tool>("scoreboard");
-  const t = studioCopy[lang];
-  const content = {
-    scoreboard: { action: t.scoreAction, editor: editorRoutes.scoreboard },
-    leaderboard: { action: t.leaderAction, editor: editorRoutes.leaderboard },
-    bracket: { action: t.bracketAction, editor: editorRoutes.bracket },
-  }[tool];
-
-  return (
-    <div className="min-w-0">
-      <div
-        className="mb-3 flex flex-wrap gap-1 border-b border-forest/20"
-        role="group"
-        aria-label={t.tools}
-      >
-        {(["scoreboard", "leaderboard", "bracket"] as const).map((key) => (
-          <button
-            key={key}
-            type="button"
-            aria-pressed={tool === key}
-            onClick={() => setTool(key)}
-            className={`min-h-11 rounded-t-lg border-b-2 px-3 py-2 text-sm font-semibold transition-colors motion-reduce:transition-none ${tool === key ? "border-action text-action" : "border-transparent text-ink/70 hover:text-ink"}`}
-          >
-            {t[key]}
-          </button>
-        ))}
-      </div>
-      <div
-        aria-label={t[tool]}
-        className={
-          compact
-            ? "h-[26rem] overflow-y-auto overscroll-contain sm:h-[29rem] [&>section]:min-h-full"
-            : undefined
-        }
-      >
-        <ToolDemo key={tool} tool={tool} lang={lang} compact={compact} />
-      </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        {tool !== "scoreboard" && (
-          <Link
-            href={route(lang, editorRoutes[tool])}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-action px-4 py-2 text-sm font-semibold text-on-action transition-[filter,transform] hover:brightness-95 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none"
-          >
-            {content.action}
-            <ArrowUpRight aria-hidden="true" className="size-4" />
-          </Link>
-        )}
-        <Link
-          href={route(lang, productRoutes[tool])}
-          className="inline-flex min-h-11 items-center text-sm font-semibold text-ink underline decoration-forest/35 underline-offset-4 hover:text-action"
-        >
-          {t.learn}
-        </Link>
-      </div>
-    </div>
   );
 }

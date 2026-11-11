@@ -2,9 +2,7 @@
 
 ## Direction
 
-Treat the product like a clear, modern game-night ledger: lively enough for a group to watch, precise enough for a host to run without stopping to learn the interface. Use restrained editorial typography, ruled tables, compact match labels, and real interactive product views. Avoid generic SaaS cards, stock imagery, decorative gradients, fake metrics, and ornamental UI that competes with scores.
-
-The existing Baran's Scoreboard name and wordmark remain. Use a clear forest-green identity with warm paper and charcoal surfaces. Keep the wordmark's own colours intact.
+Public landing pages use a digital sports campaign identity: oversized Inter Tight, forest `#14251b`, warm ivory `#f5f2e8` and selective lime `#ccf86b`. The homepage leads with a full-width broadcast scoreboard, then one ranking composition and one panoramic bracket. Avoid repeated demos, small editor forms, floating glass cards and decorative metrics. Each product introduction uses a distinct composition: broadcast display, ivory rankings, and a wide road to the final. Navigation blends into the current scene. Actual editors retain their existing task-focused design and all data contracts.
 
 ## Tokens and type
 
