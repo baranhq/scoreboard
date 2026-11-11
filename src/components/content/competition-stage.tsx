@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, MousePointer2 } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { ToolDemo, type Tool } from "./tool-demo";
 import { useAutoDemo } from "./use-auto-demo";
 import { ProductThemeShowcase } from "./product-theme-showcase";
@@ -51,18 +51,6 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
             {t[item]}
           </button>
         ))}
-        {!themes && active > 0 && (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 transition-[left] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
-            style={{ left: `${((active + 0.72) / tools.length) * 100}%` }}
-          >
-            <MousePointer2
-              key={active}
-              className="size-5 fill-lime text-campaign-ink drop-shadow motion-safe:animate-[stage-cursor-click_260ms_ease-out]"
-            />
-          </span>
-        )}
       </div>
       <div className={`min-w-0 ${themes ? "pt-4 sm:pt-6" : "pt-3 sm:pt-4"}`}>
         {themes ? (
