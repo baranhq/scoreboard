@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
-import { ChartNoAxesColumn, GitBranch } from "lucide-react";
+import { useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
+import { foreground } from "@/lib/colors";
 import { Graphic } from "@/components/studio/graphic";
 import { DemoPlaybackControls } from "@/components/content/demo-playback-controls";
 import { ScoreboardPreview } from "@/components/content/scoreboard-preview";
@@ -28,6 +28,7 @@ export function ToolDemo({
   theme,
   expanded = false,
   autoplay = true,
+  hideHeading = false,
 }: {
   tool: Tool;
   lang: Lang;
@@ -35,6 +36,7 @@ export function ToolDemo({
   theme?: ToolTheme;
   expanded?: boolean;
   autoplay?: boolean;
+  hideHeading?: boolean;
 }) {
   if (tool === "scoreboard" && compact)
     return <HomeScoreboard lang={lang} theme={theme} expanded={expanded} autoplay={autoplay} />;
@@ -65,6 +67,7 @@ export function ToolDemo({
       theme={theme}
       expanded={expanded}
       autoplay={autoplay}
+      hideHeading={hideHeading}
     />
   );
 }
@@ -76,12 +79,14 @@ function StudioToolDemo({
   theme,
   expanded,
   autoplay,
+  hideHeading,
 }: {
   tool: Exclude<Tool, "scoreboard">;
   lang: Lang;
   compact: boolean;
   expanded: boolean;
   autoplay: boolean;
+  hideHeading: boolean;
   theme?: ToolTheme;
 }) {
   const t = studioCopy[lang];
@@ -92,8 +97,10 @@ function StudioToolDemo({
       if (sample.kind === "bracket") sample.layout = expanded ? "single" : "split";
       else sample.gridColumns = expanded ? 2 : 1;
     }
+    if (hideHeading)
+      sample.style = { ...sample.style, titleVisible: false, subtitleVisible: false };
     return sample;
-  }, [tool, lang, compact, theme, expanded]);
+  }, [tool, lang, compact, theme, expanded, hideHeading]);
   const [document, setDocument] = useState(initial);
   const [configuration, setConfiguration] = useState({ theme, expanded });
   if (configuration.theme !== theme || configuration.expanded !== expanded) {
@@ -124,23 +131,41 @@ function StudioToolDemo({
     pause,
     reset: resetPlayback,
   } = useAutoDemo(advance, reset, 2900, autoplay);
+  const selectedParticipant =
+    activeField?.kind === "bracket-participant" ? activeField.participantId : null;
+  const selectedMatch =
+    document.kind === "bracket" && selectedParticipant
+      ? bracketRounds(document)
+          .flat()
+          .find(
+            (match) =>
+              !match.winner &&
+              match.players.every(Boolean) &&
+              match.players.includes(selectedParticipant),
+          )
+      : undefined;
   const labels = messages[lang];
 
   return (
     <section
       ref={playbackRef}
       aria-label={t[tool]}
+      style={
+        compact
+          ? ({
+              "--color-surface": document.style.background,
+              "--color-paper": document.style.background,
+              "--color-ink": document.style.textColor || "#202820",
+              "--color-forest": document.style.accent,
+              "--color-action": document.style.accent,
+              "--color-on-action": foreground(document.style.accent),
+            } as CSSProperties)
+          : undefined
+      }
       className={`min-w-0 overflow-hidden bg-surface text-ink ${compact ? "rounded-none" : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]"}`}
     >
       <header className="flex items-center justify-between gap-3 border-b border-forest/15 px-3 py-2.5 sm:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-action text-on-action">
-            {tool === "leaderboard" ? (
-              <ChartNoAxesColumn aria-hidden="true" className="size-5" />
-            ) : (
-              <GitBranch aria-hidden="true" className="size-5" />
-            )}
-          </span>
           <span className="truncate text-sm font-semibold">{t[tool]}</span>
         </div>
         <DemoPlaybackControls
@@ -179,7 +204,7 @@ function StudioToolDemo({
 
         <section aria-label={t.preview} className="min-w-0">
           <div
-            className={`${compact ? (tool === "bracket" ? "[&>svg]:min-w-[40rem]" : "[&>svg]:min-w-[28rem]") : "max-h-[min(68svh,30rem)] min-h-52"} overflow-auto overscroll-contain rounded-lg border border-forest/20 bg-paper p-2 sm:p-3`}
+            className={`${compact ? (tool === "bracket" ? "[&>svg]:min-w-[40rem]" : "[&>svg]:min-w-[28rem]") : "max-h-[min(68svh,30rem)] min-h-52"} overflow-auto overscroll-contain bg-paper`}
           >
             <Graphic
               document={document}
@@ -208,6 +233,24 @@ function StudioToolDemo({
                   }
                 />
               </label>
+              {document.kind === "bracket" && selectedMatch && selectedParticipant && (
+                <button
+                  type="button"
+                  className="min-h-11 bg-action px-3 text-sm font-semibold text-on-action"
+                  onClick={() =>
+                    setDocument(
+                      setMatchResult(
+                        document,
+                        selectedMatch.id,
+                        selectedParticipant,
+                        selectedMatch.scores,
+                      ),
+                    )
+                  }
+                >
+                  {t.chooseWinner}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setActiveField(null)}

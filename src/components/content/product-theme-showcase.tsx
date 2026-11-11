@@ -29,13 +29,13 @@ export function ProductThemeShowcase({
     <div data-product-themes className="min-w-0">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap gap-2" role="group" aria-label={t.style}>
-          {[0, 1, 6, 8].map((index) => (
+          {[1, 3, 2, 0, 5, 6].map((index) => (
             <button
               key={index}
               type="button"
               aria-pressed={theme === index}
               onClick={() => setTheme(index)}
-              className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors motion-reduce:transition-none ${theme === index ? "border-action bg-action text-on-action" : "border-forest/25 hover:bg-forest/10"}`}
+              className={`inline-flex min-h-11 items-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition-colors motion-reduce:transition-none ${theme === index ? "border-action bg-action text-on-action" : "border-forest/25 hover:bg-forest/10"}`}
             >
               <span
                 aria-hidden="true"
@@ -78,7 +78,7 @@ export function ProductThemeShowcase({
       </div>
       <Link
         href={`${route(lang, editor)}?new=1&theme=${selectedTheme.id}`}
-        className="mt-4 inline-flex min-h-11 items-center justify-center border border-forest bg-forest px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none"
+        className="mt-4 inline-flex min-h-11 items-center justify-center border border-action bg-action px-5 py-2 text-sm font-semibold text-on-action transition-colors hover:bg-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none"
       >
         {t.useTheme}: {themeLabels[lang][theme]}
       </Link>
