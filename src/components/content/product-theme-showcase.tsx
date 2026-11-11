@@ -12,6 +12,18 @@ import { ColorControl, accentColors, backgroundColors } from "@/components/studi
 import type { ToolTheme } from "@/lib/tool-themes";
 import { canAddScoreboardTeam, MAX_SCOREBOARD_TEAMS } from "@/lib/boards";
 import { DemoTeamLimit } from "./demo-team-limit";
+import { useSiteThemeMode } from "@/components/layout/theme-select";
+
+type ThemeColors = Pick<ToolTheme, "accent" | "background" | "textColor">;
+
+function themeColors(theme: ToolTheme): ThemeColors {
+  return {
+    accent: theme.accent,
+    background: theme.background,
+    textColor: theme.textColor,
+  };
+}
+
 export function ProductThemeShowcase({
   tool,
   lang,
@@ -21,16 +33,13 @@ export function ProductThemeShowcase({
   lang: Lang;
   hint: string;
 }) {
-  const [theme, setTheme] = useState(3);
+  const { dark } = useSiteThemeMode();
+  const [chosenTheme, setChosenTheme] = useState<number | null>(null);
+  const theme = chosenTheme ?? (dark ? 1 : 3);
   const [expanded, setExpanded] = useState(false);
   const [scoreTeamCount, setScoreTeamCount] = useState(2);
   const [showLimit, setShowLimit] = useState(false);
   const [customiseOpen, setCustomiseOpen] = useState(false);
-  const [customColors, setCustomColors] = useState(() => ({
-    accent: toolThemes[3].accent,
-    background: toolThemes[3].background,
-    textColor: toolThemes[3].textColor,
-  }));
   const t = studioCopy[lang];
   const editor =
     tool === "scoreboard"
@@ -39,25 +48,27 @@ export function ProductThemeShowcase({
         ? "leaderboardEditor"
         : "bracketEditor";
   const preset = toolThemes[theme];
+  const [customColors, setCustomColors] = useState<ThemeColors | null>(null);
+  const colors = customColors ?? themeColors(preset);
   const selectedTheme: ToolTheme = {
     ...preset,
-    ...customColors,
-    backgroundEnd: preset.gradient ? customColors.accent : preset.backgroundEnd,
+    ...colors,
+    backgroundEnd: preset.gradient ? colors.accent : preset.backgroundEnd,
   };
   const setPreset = (index: number) => {
-    setTheme(index);
-    setCustomColors({
-      accent: toolThemes[index].accent,
-      background: toolThemes[index].background,
-      textColor: toolThemes[index].textColor,
-    });
+    setChosenTheme(index);
+    setCustomColors(themeColors(toolThemes[index]));
+  };
+  const changeColors = (update: Partial<ThemeColors>) => {
+    setChosenTheme((current) => current ?? theme);
+    setCustomColors((current) => ({ ...(current ?? themeColors(preset)), ...update }));
   };
   const launchQuery = new URLSearchParams({
     new: "1",
     theme: preset.id || "",
-    accent: customColors.accent,
-    background: customColors.background,
-    textColor: customColors.textColor,
+    accent: colors.accent,
+    background: colors.background,
+    textColor: colors.textColor,
   });
   return (
     <div data-product-themes className="min-w-0">
@@ -157,6 +168,7 @@ export function ProductThemeShowcase({
           lang={lang}
           compact
           autoplay={false}
+          fillPreview={tool === "bracket"}
           readOnly
           showReadOnlyControls={tool === "scoreboard"}
           showPlaybackControls={false}
@@ -182,24 +194,24 @@ export function ProductThemeShowcase({
           <div className="grid gap-3 pb-1 sm:grid-cols-2">
             <ColorControl
               label={t.accent}
-              value={customColors.accent}
+              value={colors.accent}
               colors={accentColors}
               copy={t}
-              change={(accent) => setCustomColors((current) => ({ ...current, accent }))}
+              change={(accent) => changeColors({ accent })}
             />
             <ColorControl
               label={t.background}
-              value={customColors.background}
+              value={colors.background}
               colors={backgroundColors}
               copy={t}
-              change={(background) => setCustomColors((current) => ({ ...current, background }))}
+              change={(background) => changeColors({ background })}
             />
             <ColorControl
               label={t.textColour}
-              value={customColors.textColor}
+              value={colors.textColor}
               colors={accentColors}
               copy={t}
-              change={(textColor) => setCustomColors((current) => ({ ...current, textColor }))}
+              change={(textColor) => changeColors({ textColor })}
             />
           </div>
         </Modal>
