@@ -271,12 +271,12 @@ export function EditorShell({
             aria-label={t.preview}
             className={`flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-full"}`}
           >
-            <div className="mb-2 flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-2">
-              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
+            <div className="mb-2 grid min-w-0 shrink-0 gap-2 md:grid-cols-[minmax(10rem,0.7fr)_minmax(0,1.3fr)] md:items-center">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
                 <h2 className="text-base font-semibold">{t.preview}</h2>
                 {!fullscreen && <p className="text-sm text-ink/70">{t.clickToEdit}</p>}
               </div>
-              <div className="flex min-w-0 flex-wrap items-center justify-end gap-1 sm:gap-2">
+              <div className="flex min-w-0 flex-wrap items-center justify-start gap-1 sm:gap-2 md:justify-end">
                 <CanvasRatioSelect
                   canvas={doc.canvas}
                   changeCanvas={(canvas) => state.change({ ...doc, canvas })}

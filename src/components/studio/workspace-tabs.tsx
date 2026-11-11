@@ -33,7 +33,7 @@ export function WorkspaceTabs({
     <div
       role="tablist"
       aria-label={labels.workspaceTabs}
-      className={`grid ${includeTimer ? "grid-cols-5" : "grid-cols-4"} border-b border-forest/20`}
+      className={`flex min-w-0 [scrollbar-width:thin] [scrollbar-color:rgba(40,91,53,0.35)_transparent] overflow-x-auto overscroll-x-contain border-b border-forest/20 sm:grid [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/35 [&::-webkit-scrollbar-track]:bg-forest/5 ${includeTimer ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}
     >
       {tabs.map((tab, index) => (
         <button
@@ -59,7 +59,7 @@ export function WorkspaceTabs({
             change(tabs[next]);
             buttons.current[next]?.focus();
           }}
-          className={`min-h-12 min-w-0 border-b-2 px-1 py-2 text-xs font-semibold transition-colors duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest motion-reduce:transition-none sm:text-sm ${value === tab ? "border-action text-forest" : "border-transparent text-ink/70"}`}
+          className={`min-h-12 min-w-[5.5rem] shrink-0 border-b-2 px-2 py-2 text-xs font-semibold transition-colors duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest motion-reduce:transition-none sm:min-w-0 sm:px-1 sm:text-sm ${value === tab ? "border-action text-forest" : "border-transparent text-ink/70"}`}
         >
           {tabLabels[tab]}
         </button>
