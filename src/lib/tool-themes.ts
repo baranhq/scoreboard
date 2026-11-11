@@ -1,5 +1,7 @@
 import { validColor } from "./colors.ts";
+
 export type ToolTheme = {
+  id?: string;
   titleVisible?: boolean;
   subtitleVisible?: boolean;
   showScores?: boolean;
@@ -7,7 +9,6 @@ export type ToolTheme = {
   connectorWidth?: number;
   roundGap?: number;
   matchGap?: number;
-
   gradient?: boolean;
   backgroundEnd?: string;
   accent: string;
@@ -18,85 +19,248 @@ export type ToolTheme = {
   borderWidth: number;
   density: "compact" | "spacious";
 };
+
+const ids = [
+  "classic-green",
+  "modern-broadcast",
+  "stadium-night",
+  "clean-minimal",
+  "monochrome",
+  "retro-digital",
+  "editorial",
+  "high-contrast",
+  "neon-arena",
+  "warm-paper",
+  "tournament-pro",
+  "championship-gold",
+  "pastel",
+  "precision",
+  "colour-block",
+] as const;
+
 export const themeLabels = {
   en: [
     "Classic Green",
     "Modern Broadcast",
-    "Dark Stadium",
+    "Stadium Night",
     "Clean Minimal",
-    "Black & White",
-    "Retro Scoreboard",
+    "Monochrome",
+    "Retro Digital",
     "Editorial",
     "High Contrast",
-    "Neon Night",
+    "Neon Arena",
     "Warm Paper",
     "Tournament Pro",
-    "Colourful Competition",
+    "Championship Gold",
+    "Pastel",
+    "Precision",
+    "Colour Block",
   ],
   bg: [
     "Класическо зелено",
     "Модерно излъчване",
-    "Тъмен стадион",
+    "Нощен стадион",
     "Изчистен",
-    "Черно и бяло",
-    "Ретро табло",
+    "Монохромен",
+    "Ретро цифров",
     "Редакционен",
     "Висок контраст",
-    "Неонова нощ",
+    "Неонова арена",
     "Топла хартия",
     "Турнир Про",
-    "Цветно състезание",
+    "Шампионско злато",
+    "Пастелен",
+    "Прецизен",
+    "Цветни блокове",
   ],
   tr: [
     "Klasik Yeşil",
     "Modern Yayın",
-    "Karanlık Stadyum",
+    "Stadyum Gecesi",
     "Sade",
-    "Siyah Beyaz",
-    "Retro Skor",
+    "Monokrom",
+    "Retro Dijital",
     "Editoryal",
     "Yüksek Kontrast",
-    "Neon Gece",
-    "Sıcak Kağıt",
+    "Neon Arena",
+    "Sıcak Kâğıt",
     "Turnuva Pro",
-    "Renkli Yarışma",
+    "Şampiyonluk Altını",
+    "Pastel",
+    "Hassas",
+    "Renk Blokları",
   ],
 };
-const colors = [
-  ["#285b35", "#f2f4eb", "#17291c"],
-  ["#ccf86b", "#14251b", "#f5f2e8"],
-  ["#f4bc50", "#181c24", "#f3f4f6"],
-  ["#353f39", "#ffffff", "#111111"],
-  ["#000000", "#ffffff", "#000000"],
-  ["#ffbf47", "#212817", "#ffe7a2"],
-  ["#a43f28", "#fff3df", "#30251f"],
-  ["#ffff00", "#000000", "#ffffff"],
-  ["#7bf9ad", "#161324", "#ffffff"],
-  ["#775b40", "#f4e8d1", "#362b22"],
-  ["#d7e7ee", "#243b42", "#ffffff"],
-  ["#a54488", "#fff0dc", "#442840"],
+
+type ThemeDefinition = Omit<ToolTheme, "id">;
+
+const definitions: ThemeDefinition[] = [
+  {
+    accent: "#285b35",
+    background: "#f2f4eb",
+    textColor: "#17291c",
+    borderColor: "#b7c8b7",
+    radius: 8,
+    borderWidth: 1,
+    density: "spacious",
+  },
+  {
+    accent: "#ccf86b",
+    background: "#14251b",
+    textColor: "#f5f2e8",
+    borderColor: "#68816d",
+    radius: 4,
+    borderWidth: 2,
+    density: "compact",
+    gradient: true,
+    backgroundEnd: "#263d30",
+  },
+  {
+    accent: "#f4bc50",
+    background: "#181c24",
+    textColor: "#f3f4f6",
+    borderColor: "#71757d",
+    radius: 0,
+    borderWidth: 2,
+    density: "compact",
+  },
+  {
+    accent: "#353f39",
+    background: "#ffffff",
+    textColor: "#111111",
+    borderColor: "#d9dfd9",
+    radius: 4,
+    borderWidth: 1,
+    density: "spacious",
+  },
+  {
+    accent: "#000000",
+    background: "#ffffff",
+    textColor: "#000000",
+    borderColor: "#000000",
+    radius: 0,
+    borderWidth: 2,
+    density: "compact",
+  },
+  {
+    accent: "#ffbf47",
+    background: "#212817",
+    textColor: "#ffe7a2",
+    borderColor: "#83905d",
+    radius: 2,
+    borderWidth: 3,
+    density: "compact",
+  },
+  {
+    accent: "#a43f28",
+    background: "#fff3df",
+    textColor: "#30251f",
+    borderColor: "#c6a997",
+    radius: 0,
+    borderWidth: 0,
+    density: "spacious",
+  },
+  {
+    accent: "#ffff00",
+    background: "#000000",
+    textColor: "#ffffff",
+    borderColor: "#ffff00",
+    radius: 0,
+    borderWidth: 3,
+    density: "compact",
+  },
+  {
+    accent: "#7bf9ad",
+    background: "#161c19",
+    textColor: "#f5fff8",
+    borderColor: "#4a8c68",
+    radius: 8,
+    borderWidth: 2,
+    density: "compact",
+    gradient: true,
+    backgroundEnd: "#25362b",
+  },
+  {
+    accent: "#775b40",
+    background: "#f4e8d1",
+    textColor: "#362b22",
+    borderColor: "#cbb99c",
+    radius: 2,
+    borderWidth: 1,
+    density: "spacious",
+  },
+  {
+    accent: "#8fbea0",
+    background: "#1e3025",
+    textColor: "#f1f5ee",
+    borderColor: "#6c9074",
+    radius: 6,
+    borderWidth: 2,
+    density: "compact",
+  },
+  {
+    accent: "#d8b45a",
+    background: "#202018",
+    textColor: "#fff2c5",
+    borderColor: "#8e7741",
+    radius: 2,
+    borderWidth: 2,
+    density: "spacious",
+  },
+  {
+    accent: "#a96d7e",
+    background: "#fbf0e8",
+    textColor: "#40343b",
+    borderColor: "#d9b9c1",
+    radius: 16,
+    borderWidth: 1,
+    density: "spacious",
+    gradient: true,
+    backgroundEnd: "#edf2e5",
+  },
+  {
+    accent: "#394b41",
+    background: "#edf0eb",
+    textColor: "#151c17",
+    borderColor: "#758078",
+    radius: 0,
+    borderWidth: 1,
+    density: "compact",
+  },
+  {
+    accent: "#d65030",
+    background: "#fff0d8",
+    textColor: "#321b15",
+    borderColor: "#d65030",
+    radius: 0,
+    borderWidth: 4,
+    density: "compact",
+    gradient: true,
+    backgroundEnd: "#f5d7af",
+  },
 ];
-export const toolThemes: ToolTheme[] = colors.map(([accent, background, textColor], index) => ({
+
+export const toolThemes: ToolTheme[] = definitions.map((theme, index) => ({
+  id: ids[index],
   titleVisible: true,
   subtitleVisible: true,
   showScores: true,
-  connectorColor: accent,
-  connectorWidth: 2,
-  roundGap: 260,
-  matchGap: 40,
-  gradient: false,
-  backgroundEnd: background,
-  accent,
-  background,
-  textColor,
-  borderColor: accent,
-  radius: [8, 0, 12, 0, 0, 2, 0, 0, 16, 4, 6, 20][index],
-  borderWidth: [1, 2, 1, 0, 2, 3, 0, 3, 1, 1, 2, 2][index],
-  density: index % 2 ? "compact" : "spacious",
+  connectorColor: theme.accent,
+  connectorWidth: Math.max(1, theme.borderWidth),
+  roundGap: theme.density === "compact" ? 240 : 300,
+  matchGap: theme.density === "compact" ? 28 : 56,
+  ...theme,
 }));
+
+export function getToolTheme(id: string | null | undefined): ToolTheme | undefined {
+  return toolThemes.find((theme) => theme.id === id);
+}
+
 export function validToolTheme(value: unknown): value is ToolTheme {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
+  if (v.id !== undefined && (typeof v.id !== "string" || !/^[a-z0-9-]{1,80}$/.test(v.id)))
+    return false;
   for (const key of ["titleVisible", "subtitleVisible", "showScores"])
     if (v[key] !== undefined && typeof v[key] !== "boolean") return false;
   if (v.connectorColor !== undefined && !validColor(v.connectorColor)) return false;
@@ -126,6 +290,7 @@ export function validToolTheme(value: unknown): value is ToolTheme {
 
 export function cleanToolTheme(value: ToolTheme): ToolTheme {
   const {
+    id,
     titleVisible,
     subtitleVisible,
     showScores,
@@ -144,6 +309,7 @@ export function cleanToolTheme(value: ToolTheme): ToolTheme {
     backgroundEnd,
   } = value;
   return {
+    id,
     titleVisible,
     subtitleVisible,
     showScores,

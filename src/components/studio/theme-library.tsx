@@ -13,6 +13,26 @@ import { Button } from "@/components/ui/ui";
 import { ColorControl, accentColors, backgroundColors } from "./color-control";
 type SavedTheme = { id: string; name: string; value: ToolTheme };
 const key = "scoreboard-custom-themes-v1";
+const presetKeys = [
+  "accent",
+  "background",
+  "textColor",
+  "borderColor",
+  "radius",
+  "borderWidth",
+  "density",
+  "gradient",
+  "backgroundEnd",
+  "connectorColor",
+  "connectorWidth",
+  "roundGap",
+  "matchGap",
+] as const;
+
+function isPresetSelected(value: ToolTheme, preset: ToolTheme) {
+  return presetKeys.every((key) => value[key] === preset[key]);
+}
+
 export function ThemeLibrary({
   lang,
   value,
@@ -76,21 +96,38 @@ export function ThemeLibrary({
         {toolThemes.map((theme, index) => (
           <button
             type="button"
-            key={index}
+            key={theme.id}
             onClick={() => change(theme)}
-            className="min-h-24 border border-forest/20 p-2 text-left hover:border-action focus-visible:outline-2 focus-visible:outline-action"
+            aria-pressed={isPresetSelected(value, theme)}
+            className={`min-h-24 rounded-sm border p-2 text-left transition-[border-color,background-color] duration-150 hover:border-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action motion-reduce:transition-none ${isPresetSelected(value, theme) ? "border-action bg-forest/5 ring-1 ring-action" : "border-forest/20"}`}
           >
             <span
               aria-hidden="true"
-              className="mb-2 flex h-10 items-center gap-1 px-2"
+              className="mb-2 grid h-10 grid-cols-[1fr_0.6fr] gap-1 overflow-hidden p-1.5"
               style={{
-                background: theme.background,
+                background: theme.gradient
+                  ? `linear-gradient(135deg, ${theme.background}, ${theme.backgroundEnd || theme.accent})`
+                  : theme.background,
                 borderRadius: theme.radius,
-                border: `${theme.borderWidth}px solid ${theme.borderColor}`,
+                border: `${Math.max(1, theme.borderWidth)}px solid ${theme.borderColor}`,
               }}
             >
-              <span className="h-4 w-7" style={{ background: theme.accent }} />
-              <span className="h-1 flex-1" style={{ background: theme.textColor }} />
+              <span className="flex flex-col justify-center gap-1">
+                <span className="h-2.5 w-1/2" style={{ background: theme.accent }} />
+                <span className="h-1 w-full" style={{ background: theme.textColor }} />
+                <span
+                  className="h-1 w-4/5"
+                  style={{ background: theme.textColor, opacity: 0.65 }}
+                />
+              </span>
+              <span className="flex flex-col justify-center gap-1">
+                <span className="h-2.5 w-full" style={{ background: theme.accent }} />
+                <span className="h-1 w-full" style={{ background: theme.textColor }} />
+                <span
+                  className="h-1 w-3/5"
+                  style={{ background: theme.textColor, opacity: 0.65 }}
+                />
+              </span>
             </span>
             <span className="text-xs font-semibold">{themeLabels[lang][index]}</span>
           </button>
@@ -212,7 +249,14 @@ export function ThemeLibrary({
           <Button
             disabled={saved.length >= 50}
             onClick={() =>
-              store([...saved, { ...item, id: crypto.randomUUID(), name: `${item.name} (2)` }])
+              store([
+                ...saved,
+                {
+                  ...item,
+                  id: crypto.randomUUID(),
+                  name: `${item.name} (${t.copySuffix})`,
+                },
+              ])
             }
           >
             {t.duplicateTheme}

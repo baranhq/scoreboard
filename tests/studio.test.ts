@@ -17,12 +17,46 @@ import { applyGraphicPreset, graphicPresets } from "../src/lib/graphic-style.ts"
 import { distributeRows, fitContentToCanvas } from "../src/lib/graphic-layout.ts";
 import { previewFieldValue, updatePreviewField } from "../src/lib/studio-edit.ts";
 import { advanceStudioDemo, studioDemo } from "../src/lib/studio-demo.ts";
+import { getToolTheme, themeLabels, toolThemes, validToolTheme } from "../src/lib/tool-themes.ts";
+import { newBoard } from "../src/lib/boards.ts";
+import { applyToolTheme } from "../src/lib/board-theme.ts";
 
 test("custom colour values round-trip through the editor's HSL controls", () => {
   for (const color of ["#0d7480", "#b5d78b", "#000000", "#ffffff"]) {
     const [hue, saturation, lightness] = toHsl(color);
     assert.equal(fromHsl(hue, saturation, lightness), color);
   }
+});
+
+test("the shared theme catalog has 15 validated, addressable presets", () => {
+  assert.equal(toolThemes.length, 15);
+  assert.equal(themeLabels.en.length, 15);
+  assert.deepEqual(themeLabels.en.slice(-4), [
+    "Championship Gold",
+    "Pastel",
+    "Precision",
+    "Colour Block",
+  ]);
+  assert.ok(toolThemes.every(validToolTheme));
+  assert.equal(getToolTheme("championship-gold"), toolThemes[11]);
+  assert.equal(getToolTheme("missing-theme"), undefined);
+});
+
+test("scoreboard themes update the canvas and preserve teams and their individual colours", () => {
+  const board = newBoard("Match 1", "Team");
+  board.color = "#123456";
+  board.teams[0].color = "#aabbcc";
+  const themed = applyToolTheme(board, toolThemes[1]);
+
+  assert.equal(themed.background, toolThemes[1].background);
+  assert.equal(themed.color, undefined);
+  assert.equal(themed.accent, toolThemes[1].accent);
+  assert.equal(themed.teams[0].color, "#aabbcc");
+  assert.deepEqual(
+    themed.teams.map((team) => [team.name, team.score]),
+    board.teams.map((team) => [team.name, team.score]),
+  );
+  assert.equal(themed.appearance?.cornerRadius, toolThemes[1].radius);
 });
 
 test("appearance presets keep each saved graphic's existing typography", () => {
