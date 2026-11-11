@@ -119,9 +119,9 @@ export const landingContent: Record<Lang, LandingContent> = {
     hero: {
       title: "Безплатно онлайн табло за резултати.",
       description:
-        "Следете точки в игри, спорт и занимания в клас. Добавете отбори и започнете веднага, без регистрация и плащане.",
-      action: "Създай табло",
-      featuresLink: "Вижте функциите",
+        "Следете резултата в игри, спортни срещи и занимания в клас. Добавете отбори и започнете веднага, без регистрация и такса.",
+      action: "Създайте табло",
+      featuresLink: "Разгледайте функциите",
       benefits: ["Безплатно", "Без регистрация", "Отворен код"],
     },
     preview: {
@@ -134,7 +134,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       renamedFirstTeam: "Отбор 1",
     },
     features: {
-      title: "Всичко нужно за отчитане на точки",
+      title: "Всичко необходимо, за да следите резултата",
       items: [
         {
           title: "Променяйте резултата бързо",
@@ -152,7 +152,7 @@ export const landingContent: Record<Lang, LandingContent> = {
         {
           title: "Запазете или споделете табло",
           description:
-            "Запазете го в браузъра или изпратете моментно копие. Връзките не се актуализират при следващи промени.",
+            "Запазете го в браузъра или изпратете връзка към моментно копие. То не се актуализира при следващи промени.",
         },
       ],
     },
@@ -161,7 +161,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       items: [
         {
           title: "Отворете таблото",
-          description: "Натиснете „Създай табло“, за да отворите готово табло.",
+          description: "Изберете „Създайте табло“, за да отворите готово за игра табло.",
         },
         {
           title: "Настройте отборите",
@@ -177,7 +177,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       title: "За игри и занимания от ежедневието",
       items: [
         {
-          title: "В клас и на куиз вечери",
+          title: "В клас и на вечери с викторини",
           description:
             "Показвайте точките на групите по време на уроци, викторини и училищни игри.",
         },
@@ -200,21 +200,21 @@ export const landingContent: Record<Lang, LandingContent> = {
     finalCta: {
       title: "Готови ли сте да следите резултата?",
       description: "Създайте безплатно табло и започнете след секунди.",
-      action: "Създай табло",
+      action: "Създайте табло",
     },
   },
   tr: {
     hero: {
       title: "Ücretsiz çevrim içi skor tabelası.",
       description:
-        "Oyunlarda, sporda ve sınıf etkinliklerinde puanları takip edin. Takım ekleyip hemen başlayın; üyelik veya ödeme gerekmez.",
-      action: "Skor tablosu oluştur",
-      featuresLink: "Özellikleri gör",
+        "Oyunlarda, spor karşılaşmalarında ve sınıf etkinliklerinde skoru takip edin. Takım ekleyip hemen başlayın; üyelik veya ücret gerekmez.",
+      action: "Skor tabelası hazırlayın",
+      featuresLink: "Özellikleri inceleyin",
       benefits: ["Ücretsiz", "Üyelik gerekmez", "Açık kaynaklı"],
     },
     preview: {
       accessibleDescription:
-        "Takım adlarını, puanları, renkleri, ayarları ve geri sayım sayacını gösteren animasyonlu skor tabelası örneği.",
+        "Takım adlarını, puanları, renkleri, ayarları ve geri sayım zamanlayıcısını gösteren animasyonlu skor tabelası örneği.",
       boardName: "Dostluk maçı",
       firstTeam: "Takım 1",
       secondTeam: "Takım 2",
@@ -234,12 +234,12 @@ export const landingContent: Record<Lang, LandingContent> = {
         },
         {
           title: "Zamanlayıcı ve tam ekran",
-          description: "Geri sayım veya kronometre seçin, skoru her ekranda rahatça gösterin.",
+          description: "Geri sayım veya kronometre seçin; skoru her ekranda rahatça gösterin.",
         },
         {
           title: "Kaydedin veya paylaşın",
           description:
-            "Bu tarayıcıya kaydedin veya o anki görüntünün bağlantısını gönderin. Sonraki değişiklikler bağlantıyla eşitlenmez.",
+            "Bu tarayıcıya kaydedin veya mevcut durumun bağlantısını paylaşın. Sonraki değişiklikler bağlantıya yansımaz.",
         },
       ],
     },
@@ -248,7 +248,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       items: [
         {
           title: "Skor tabelasını açın",
-          description: "Skor tablosu oluştur seçeneğiyle kullanıma hazır bir tablo açın.",
+          description: "Skor tabelası hazırlayın seçeneğiyle kullanıma hazır bir tablo açın.",
         },
         {
           title: "Takımları düzenleyin",
@@ -264,7 +264,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       title: "Günlük oyunlar ve etkinlikler için",
       items: [
         {
-          title: "Sınıf oyunları ve quiz geceleri",
+          title: "Sınıf oyunları ve bilgi yarışmaları",
           description:
             "Derslerde, bilgi yarışmalarında ve okul etkinliklerinde grup puanlarını görünür tutun.",
         },
@@ -282,13 +282,13 @@ export const landingContent: Record<Lang, LandingContent> = {
     openSource: {
       title: "Ücretsiz. Açık kaynaklı.",
       description: "Projenin kaynak kodu MIT Lisansı ile GitHub’da herkese açıktır.",
-      starNote: "Skor tablosu işinize yarıyorsa projeye GitHub’da yıldız verebilirsiniz.",
+      starNote: "Skor tabelası işinize yarıyorsa projeye GitHub’da yıldız verebilirsiniz.",
       link: "Projeyi GitHub’da görüntüleyin",
     },
     finalCta: {
       title: "Skor tutmaya hazır mısınız?",
-      description: "Ücretsiz skor tabelanızı oluşturun ve saniyeler içinde başlayın.",
-      action: "Skor tablosu oluştur",
+      description: "Ücretsiz skor tabelanızı hazırlayın ve hemen başlayın.",
+      action: "Skor tabelası hazırlayın",
     },
   },
 };
