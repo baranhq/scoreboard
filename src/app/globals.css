@@ -42,6 +42,11 @@
 }
 :root {
   color-scheme: light;
+  --picker-white-overlay: linear-gradient(to right, #fff, transparent);
+  --picker-black-overlay: linear-gradient(to top, #000, transparent);
+  --picker-hue-spectrum: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  --picker-handle-shadow: 0 0 0 1px #000;
+  --picker-swatch-outline: inset 0 0 0 1px #ffffff55;
 }
 :root.dark {
   color-scheme: dark;

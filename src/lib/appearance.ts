@@ -6,7 +6,7 @@ export type Appearance = {
   borderColor?: string;
   scoreSize: "small" | "medium" | "large" | "xlarge";
   teamSize: "small" | "medium" | "large" | "xlarge";
-  layout: "auto" | "horizontal" | "grid";
+  layout: "auto" | "horizontal" | "vertical" | "grid";
   density: "compact" | "spacious";
   textScaleEnabled: boolean;
   textScale?: number;
@@ -73,7 +73,7 @@ export function parseAppearance(input: unknown): Partial<Appearance> | undefined
   for (const [key, values] of Object.entries({
     scoreSize: ["small", "medium", "large", "xlarge"],
     teamSize: ["small", "medium", "large", "xlarge"],
-    layout: ["auto", "horizontal", "grid"],
+    layout: ["auto", "horizontal", "vertical", "grid"],
     density: ["compact", "spacious"],
   })) {
     if (a[key] !== undefined) {

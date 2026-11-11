@@ -12,7 +12,13 @@ import type { Lang } from "@/lib/i18n";
 import { studioCopy } from "@/lib/studio-copy";
 import { moveItem } from "@/lib/studio";
 import { useDocument } from "./use-document";
-import { EditorShell, inputClass } from "./editor-shell";
+import {
+  CanvasControls,
+  EditorShell,
+  inputClass,
+  ThemeControls,
+  VisibilitySettings,
+} from "./editor-shell";
 export function BracketEditor({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
   const initial = useMemo(
@@ -40,10 +46,66 @@ export function BracketEditor({ lang }: { lang: Lang }) {
     state.change({ ...board, participants: moveItem(board.participants, index, to), results: {} });
   };
   return (
-    <EditorShell lang={lang} state={state}>
+    <EditorShell
+      lang={lang}
+      state={state}
+      design={<ThemeControls document={board} change={state.change} lang={lang} />}
+      settings={
+        <div className="space-y-5">
+          <label className="grid gap-1 text-sm font-semibold">
+            {t.layout}
+            <select
+              value={board.layout}
+              className={inputClass}
+              onChange={(event) =>
+                state.change({ ...board, layout: event.target.value as Bracket["layout"] })
+              }
+            >
+              <option value="single">{t.single}</option>
+              <option value="split">{t.split}</option>
+            </select>
+          </label>
+          <VisibilitySettings document={board} change={state.change} lang={lang} />
+        </div>
+      }
+      exportPanel={
+        <div className="space-y-5">
+          <CanvasControls document={board} change={state.change} lang={lang} />
+          <div className="flex flex-wrap gap-2 border-t border-forest/20 pt-4">
+            <Button disabled={!state.ready} onClick={state.backup}>
+              {t.backup}
+            </Button>
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 border border-forest/25 px-4 text-sm font-medium text-forest focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest">
+              {t.import}
+              <input
+                type="file"
+                accept="application/json,.json"
+                disabled={!state.ready || state.busy}
+                className="sr-only"
+                aria-label={t.import}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void state.importFile(file);
+                  event.target.value = "";
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      }
+    >
       <section className="space-y-3">
+        <label className="grid gap-1 text-sm font-semibold">
+          {t.subtitle}
+          <input
+            className={inputClass}
+            maxLength={200}
+            value={board.subtitle}
+            onChange={(event) => state.change({ ...board, subtitle: event.target.value })}
+          />
+        </label>
         <h2 className="text-lg font-semibold">{t.participants}</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div>
           <div>
             <label className="grid gap-1 text-sm font-semibold">
               {t.count}
@@ -81,19 +143,6 @@ export function BracketEditor({ lang }: { lang: Lang }) {
               {t.apply}
             </Button>
           </div>
-          <label className="grid content-start gap-1 text-sm font-semibold">
-            {t.layout}
-            <select
-              value={board.layout}
-              className={inputClass}
-              onChange={(e) =>
-                state.change({ ...board, layout: e.target.value as Bracket["layout"] })
-              }
-            >
-              <option value="single">{t.single}</option>
-              <option value="split">{t.split}</option>
-            </select>
-          </label>
         </div>
         <p className="text-sm leading-relaxed text-ink/75">{t.resetWarning}</p>
         <ol className="grid max-h-80 gap-2 overflow-auto overscroll-contain pr-1 sm:grid-cols-2">
