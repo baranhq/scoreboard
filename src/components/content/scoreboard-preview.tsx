@@ -464,6 +464,7 @@ export function ScoreboardPreview({
                 score={state.scores[index]}
                 labels={labels}
                 readOnly={readOnly}
+                compact={compact}
                 editingName={editingNameIndex === index}
                 onEditName={() => setEditingNameIndex(index)}
                 onDoneEditingName={() => setEditingNameIndex(null)}
