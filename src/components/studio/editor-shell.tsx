@@ -413,7 +413,7 @@ export function EditorShell({
               }}
               className="group hidden h-5 cursor-ns-resize touch-none items-center justify-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-action lg:flex"
             >
-              <span className="h-1 w-14 rounded-full bg-forest/20 transition-colors group-hover:bg-action group-focus-visible:bg-action" />
+              <span className="h-1 w-24 rounded-full bg-forest/20 transition-colors group-hover:bg-action group-focus-visible:bg-action" />
             </div>
           )}
 
