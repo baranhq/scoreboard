@@ -14,7 +14,14 @@ import {
   MAX_TIMER_DURATION_MS,
   timerRefreshDelay,
 } from "../src/lib/timer.ts";
-import { newBoard, backup, parseBackup, parseBackupText } from "../src/lib/boards.ts";
+import {
+  newBoard,
+  backup,
+  parseBackup,
+  parseBackupText,
+  MAX_BACKUP_BYTES,
+} from "../src/lib/boards.ts";
+import { readJsonFile } from "../src/lib/untrusted-json.ts";
 import { teamGridClass } from "../src/lib/team-layout.ts";
 import { parseAppearance } from "../src/lib/appearance.ts";
 import { encodeGame, decodeGame, shareUrl } from "../src/lib/sharing.ts";
@@ -247,6 +254,7 @@ test("backups and URL snapshots preserve customisation and treat markup as plain
   });
   board.teams[0].color = "#ffffff";
   board.teams[0].score = 42;
+  board.shareKey = "previous-share-key";
   const restored = parseBackup(backup([board]))[0];
   assert.equal(restored.name, board.name);
   assert.equal(restored.teams[0].score, 42);
@@ -255,6 +263,7 @@ test("backups and URL snapshots preserve customisation and treat markup as plain
   assert.deepEqual((restored as Record<string, unknown>).canvas, { width: 1920, height: 1080 });
   assert.equal((restored as Record<string, unknown>).exportScale, 2);
   assert.notEqual(restored.id, board.id);
+  assert.equal((backup([board]).boards[0] as Record<string, unknown>).shareKey, undefined);
   const shared = decodeGame(encodeGame(board));
   assert.equal(shared.sourceId, board.id);
   assert.equal(shared.board.accent, "#123456");
@@ -271,7 +280,32 @@ test("backups and URL snapshots preserve customisation and treat markup as plain
     parseBackup({ ...backup([board]), boards: [{ ...board, icon: "not-an-icon" }] }),
   );
   assert.throws(() => parseBackupText("[".repeat(40) + "0" + "]".repeat(40)));
+  assert.throws(() =>
+    parseBackupText(
+      '{"format":"scoreboard","version":2,"boards":[],"__proto__":{"polluted":true}}',
+    ),
+  );
+  assert.throws(() =>
+    parseBackupText(JSON.stringify(backup([board])).replace('"score":42', '"score":1e400')),
+  );
+  assert.throws(() =>
+    parseBackup({ ...backup([board]), boards: [{ ...board, updatedAt: 8_640_000_000_000_001 }] }),
+  );
   assert.throws(() => parseBackup({ ...backup([board]), boards: Array(1001).fill(board) }));
+  assert.equal(parseBackup({ ...backup([board]), version: 1 }).length, 1);
+  assert.throws(() => parseBackup({ ...backup([board]), extra: { nested: true } }));
+  assert.throws(() =>
+    parseBackup({
+      ...backup([board]),
+      boards: [{ ...board, teams: [{ ...board.teams[0], extra: { nested: true } }] }],
+    }),
+  );
+  assert.throws(() =>
+    parseBackup({
+      ...backup([board]),
+      boards: [{ ...board, appearance: { ...board.appearance, ignored: true } }],
+    }),
+  );
   assert.throws(() =>
     parseBackup({
       ...backup([board]),
@@ -298,6 +332,67 @@ test("IndexedDB initialisation is atomic and updates do not duplicate or erase o
   assert.equal((await loadBoards()).length, 1);
 });
 
+test("invalid multi-board writes do not partially restore projects", async () => {
+  const existing = newBoard("Existing project", "Team");
+  const imported = newBoard("Imported project", "Team");
+  await writeBoards([existing]);
+
+  await assert.rejects(
+    writeBoards([
+      imported,
+      { ...newBoard("Invalid project", "Team"), teams: "invalid" } as unknown as typeof existing,
+    ]),
+  );
+
+  const stored = await loadBoards();
+  assert.equal(
+    stored.some((board) => board.id === existing.id),
+    true,
+  );
+  assert.equal(
+    stored.some((board) => board.id === imported.id),
+    false,
+  );
+  await writeBoards([], existing.id);
+});
+
+test("corrupt stored scoreboards are rejected without deleting the stored record", async () => {
+  const db = await new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open("scoreboard", 1);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+  await new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction("boards", "readwrite");
+    transaction.objectStore("boards").put({ id: "corrupt-record", teams: "not a list" });
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+  });
+  db.close();
+
+  await assert.rejects(loadBoards());
+
+  const verify = await new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open("scoreboard", 1);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+  await new Promise<void>((resolve, reject) => {
+    const transaction = verify.transaction("boards", "readwrite");
+    const store = transaction.objectStore("boards");
+    const request = store.get("corrupt-record");
+    request.onsuccess = () => {
+      assert.deepEqual(request.result, { id: "corrupt-record", teams: "not a list" });
+      store.delete("corrupt-record");
+    };
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+  });
+  verify.close();
+});
+
 test("dates display day, month and year without changing stored timestamps", async () => {
   const { europeanDateTime } = await import("../src/lib/dates.ts");
   const { policyDate } = await import("../src/lib/policy-document.ts");
@@ -315,4 +410,25 @@ test("a legacy scoreboard with more than 200 teams can reopen its own backup", (
   const restored = parseBackupText(JSON.stringify(backup([board])));
   assert.equal(restored[0].teams.length, 201);
   assert.equal(restored[0].teams[200].score, 200);
+});
+
+test("backup file reading validates bytes and nesting before parsing", async () => {
+  const sample = newBoard("Match 1", "Team");
+  const valid = await readJsonFile(
+    new File([JSON.stringify(backup([sample]))], "backup.JSON", { type: "text/plain" }),
+    MAX_BACKUP_BYTES,
+  );
+  assert.equal(parseBackup(valid)[0].name, "Match 1");
+  await assert.rejects(
+    readJsonFile(
+      new File([JSON.stringify(backup([sample]))], "backup.html", { type: "application/json" }),
+      MAX_BACKUP_BYTES,
+    ),
+  );
+  await assert.rejects(readJsonFile(new File(["12345"], "backup.json"), 4));
+  await assert.rejects(readJsonFile(new File(["[[[0]]]"], "backup.json"), 64, 2));
+  await assert.rejects(
+    readJsonFile(new File([new Uint8Array([0x7b, 0xff, 0x7d])], "backup.json"), 64),
+  );
+  await assert.rejects(readJsonFile(new File([], "backup.json"), 64));
 });
