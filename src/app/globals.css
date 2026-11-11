@@ -119,6 +119,20 @@ html[data-scoreboard-fullscreen="true"] [data-frame-chrome] {
   summary {
     @apply select-none;
   }
+  button,
+  a,
+  summary {
+    touch-action: manipulation;
+  }
+  input,
+  textarea,
+  select {
+    caret-color: var(--color-forest);
+  }
+  ::selection {
+    background: var(--color-action);
+    color: var(--color-on-action);
+  }
   button:disabled {
     @apply cursor-not-allowed opacity-50;
   }

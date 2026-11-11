@@ -1,3 +1,4 @@
+import { studioCopy } from "./studio-copy";
 import { help } from "./help";
 import { brand, indexable, siteOrigin } from "./site";
 import type { Metadata } from "next";
@@ -51,6 +52,24 @@ export function pageMetadata(
   let description: string;
 
   switch (page) {
+    case "scoreboardIntro":
+      heading = {
+        en: "Online Scoreboard & Timer",
+        bg: "Онлайн табло и таймер",
+        tr: "Çevrim İçi Skor Tabelası ve Sayaç",
+      }[lang];
+      description = studioCopy[lang].scoreDescription;
+      break;
+    case "leaderboards":
+    case "leaderboardEditor":
+      heading = studioCopy[lang].leaderboard;
+      description = studioCopy[lang].leaderDescription;
+      break;
+    case "brackets":
+    case "bracketEditor":
+      heading = studioCopy[lang].bracket;
+      description = studioCopy[lang].bracketDescription;
+      break;
     case "help":
       heading = help[lang].title;
       description = seoContent[lang].pageDescriptions.help;
@@ -73,10 +92,13 @@ export function pageMetadata(
       break;
   }
 
+  if (page === "leaderboardEditor" || page === "bracketEditor")
+    heading = `${heading} · ${studioCopy[lang].editing}`;
   const title = page === "help" ? heading : `${heading} | ${brand}`;
   const url = siteOrigin + route(lang, page);
   const canonicalPath = currentPath === undefined || currentPath === route(lang, page);
-  const publicIndexable = indexable && page !== "saved" && canonicalPath;
+  const publicIndexable =
+    indexable && !["saved", "leaderboardEditor", "bracketEditor"].includes(page) && canonicalPath;
   return {
     metadataBase: new URL(siteOrigin),
     title,

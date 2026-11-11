@@ -366,3 +366,7 @@ This inventory is generated from the installed npm lockfile and lists the pinned
 | zod | 4.6.7 | MIT | https://github.com/colinhacks/zod |
 | zod-validation-error | 4.0.2 | MIT | git://github.com/causaly/zod-validation-error |
 | PHP Docker runtime | 8.4.27 | PHP-3.01 | https://github.com/php/php-src/tree/php-8.4.27 |
+
+## CI actions
+
+These build-only actions are referenced, not bundled into the website. Both use MIT: [actions/checkout](https://github.com/actions/checkout/blob/d23441a48e516b6c34aea4fa41551a30e30af803/LICENSE) at `d23441a48e516b6c34aea4fa41551a30e30af803` and [actions/setup-node](https://github.com/actions/setup-node/blob/249970729cb0ef3589644e2896645e5dc5ba9c38/LICENSE) at `249970729cb0ef3589644e2896645e5dc5ba9c38`. Their upstream distributions retain their notices.
