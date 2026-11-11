@@ -17,7 +17,13 @@ import { applyGraphicPreset, canvasRatios, graphicPresets } from "../src/lib/gra
 import { distributeRows, fitContentToCanvas } from "../src/lib/graphic-layout.ts";
 import { previewFieldValue, updatePreviewField } from "../src/lib/studio-edit.ts";
 import { advanceStudioDemo, studioDemo } from "../src/lib/studio-demo.ts";
-import { getToolTheme, themeLabels, toolThemes, validToolTheme } from "../src/lib/tool-themes.ts";
+import {
+  getToolTheme,
+  parseSavedToolThemes,
+  themeLabels,
+  toolThemes,
+  validToolTheme,
+} from "../src/lib/tool-themes.ts";
 import { newBoard } from "../src/lib/boards.ts";
 import { applyToolTheme } from "../src/lib/board-theme.ts";
 
@@ -40,6 +46,18 @@ test("the shared theme catalog has 15 validated, addressable presets", () => {
   assert.ok(toolThemes.every(validToolTheme));
   assert.equal(getToolTheme("championship-gold"), toolThemes[11]);
   assert.equal(getToolTheme("missing-theme"), undefined);
+});
+
+test("saved custom themes reject malformed, oversized and unexpected local data", () => {
+  const saved = { id: "custom-1", name: "Warm paper", value: toolThemes[0] };
+  assert.deepEqual(parseSavedToolThemes(JSON.stringify([saved])), [saved]);
+  assert.deepEqual(parseSavedToolThemes("{"), []);
+  assert.equal(parseSavedToolThemes(JSON.stringify(Array(51).fill(saved))).length, 50);
+  assert.deepEqual(parseSavedToolThemes(" ".repeat(128_001)), []);
+  assert.deepEqual(
+    parseSavedToolThemes(JSON.stringify([{ ...saved, value: { ...saved.value, prototype: {} } }])),
+    [],
+  );
 });
 
 test("scoreboard themes update the canvas and preserve teams and their individual colours", () => {
@@ -94,6 +112,7 @@ test("saved graphics accept bounded canvas sizes while older documents remain va
   delete legacy.gridColumns;
   delete legacy.canvas;
   assert.equal(parseDocument(legacy).kind, "leaderboard");
+  assert.throws(() => parseDocument({ ...board, updatedAt: 8_640_000_000_000_001 }));
   assert.throws(() => parseDocument({ ...board, canvas: { width: 200, height: 900 } }));
   assert.throws(() => parseDocument({ ...board, gridColumns: 4 }));
 });
@@ -279,6 +298,32 @@ test("document parsing rejects corrupt, oversized and hostile data", () => {
     }),
   );
   assert.throws(() => resizeBracket(newBracket(), 65));
+});
+
+test("document imports reject unknown and dangerous properties", () => {
+  const board = newLeaderboard();
+  assert.throws(() => parseDocument({ ...board, extra: { nested: true } }));
+  assert.throws(() =>
+    parseDocument({ ...board, style: { ...board.style, extra: { nested: true } } }),
+  );
+  assert.throws(() =>
+    parseDocument({ ...board, rows: [{ ...board.rows[0], extra: "ignored today" }] }),
+  );
+
+  const dangerous = JSON.parse(JSON.stringify(board)) as Record<string, unknown>;
+  Object.defineProperty(dangerous, "__proto__", {
+    value: { polluted: true },
+    enumerable: true,
+  });
+  assert.throws(() => parseDocument(dangerous));
+});
+
+test("studio text and theme storage reject excess size, depth and unknown fields", () => {
+  const board = newLeaderboard();
+  assert.deepEqual(studioApi.parseDocumentText(JSON.stringify(board)), board);
+  assert.throws(() => studioApi.parseDocumentText("[".repeat(33) + "0" + "]".repeat(33)));
+  assert.throws(() => studioApi.parseDocumentText(" ".repeat(2_000_001)));
+  assert.equal(validToolTheme({ ...toolThemes[0], arbitrary: { nested: true } }), false);
 });
 
 test("new storage reopens documents without overwriting other saves", async () => {

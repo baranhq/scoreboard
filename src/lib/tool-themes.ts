@@ -1,4 +1,5 @@
 import { validColor } from "./colors.ts";
+import { onlyKeys } from "./validation.ts";
 
 export type ToolTheme = {
   id?: string;
@@ -19,6 +20,7 @@ export type ToolTheme = {
   borderWidth: number;
   density: "compact" | "spacious";
 };
+export type SavedToolTheme = { id: string; name: string; value: ToolTheme };
 
 const ids = [
   "classic-green",
@@ -259,6 +261,28 @@ export function getToolTheme(id: string | null | undefined): ToolTheme | undefin
 export function validToolTheme(value: unknown): value is ToolTheme {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
+  if (
+    !onlyKeys(v, [
+      "id",
+      "titleVisible",
+      "subtitleVisible",
+      "showScores",
+      "connectorColor",
+      "connectorWidth",
+      "roundGap",
+      "matchGap",
+      "gradient",
+      "backgroundEnd",
+      "accent",
+      "background",
+      "textColor",
+      "borderColor",
+      "radius",
+      "borderWidth",
+      "density",
+    ])
+  )
+    return false;
   if (v.id !== undefined && (typeof v.id !== "string" || !/^[a-z0-9-]{1,80}$/.test(v.id)))
     return false;
   for (const key of ["titleVisible", "subtitleVisible", "showScores"])
@@ -327,4 +351,28 @@ export function cleanToolTheme(value: ToolTheme): ToolTheme {
     gradient,
     backgroundEnd,
   };
+}
+
+export function parseSavedToolThemes(stored: string): SavedToolTheme[] {
+  if (stored.length > 128_000) return [];
+  try {
+    const raw: unknown = JSON.parse(stored);
+    if (!Array.isArray(raw)) return [];
+    return raw.slice(0, 50).filter((value): value is SavedToolTheme => {
+      if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+      const item = value as Record<string, unknown>;
+      return (
+        onlyKeys(item, ["id", "name", "value"]) &&
+        typeof item.id === "string" &&
+        item.id.length > 0 &&
+        item.id.length <= 100 &&
+        typeof item.name === "string" &&
+        item.name.trim().length > 0 &&
+        item.name.length <= 80 &&
+        validToolTheme(item.value)
+      );
+    });
+  } catch {
+    return [];
+  }
 }

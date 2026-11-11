@@ -160,6 +160,9 @@ const en = {
     "Could not open or save this table. Your current changes are still here; download a backup and try again.",
   exportError: "PNG export failed. Try again, or download an editable backup.",
   importError: "This backup could not be opened. Check that it is a valid table backup.",
+  importSummary: "This opens as a separate, unsaved copy. Existing saved projects stay untouched.",
+  importConfirm: "Continue with this backup?",
+  importDraftWarning: "This replaces unsaved edits in this tab. Saved projects stay untouched.",
   loading: "Opening your table…",
   notFound: "This table is unavailable in this browser. Open a backup or start with the example.",
   rows: "Rows",
@@ -379,6 +382,11 @@ const bg: Copy = {
     "Таблицата не може да се отвори или запази. Промените са тук; изтеглете архив и опитайте отново.",
   exportError: "PNG не може да се изтегли. Опитайте отново или изтеглете редактируем архив.",
   importError: "Архивът не може да се отвори. Проверете дали е валиден архив на таблица.",
+  importSummary:
+    "Копието ще се отвори отделно и няма да е запазено. Запазените проекти остават непокътнати.",
+  importConfirm: "Да продължа ли с това копие?",
+  importDraftWarning:
+    "Незапазените промени в този раздел ще бъдат заменени. Запазените проекти остават непокътнати.",
   loading: "Отваряне на таблицата…",
   notFound: "Таблицата не е налична в този браузър. Отворете архив или започнете с примера.",
   rows: "Редове",
@@ -597,6 +605,10 @@ const tr: Copy = {
     "Tablo açılamadı veya kaydedilemedi. Değişiklikleriniz burada; yedek indirip tekrar deneyin.",
   exportError: "PNG indirilemedi. Tekrar deneyin veya düzenlenebilir yedek indirin.",
   importError: "Yedek açılamadı. Geçerli bir tablo yedeği olduğunu kontrol edin.",
+  importSummary: "Bu, ayrı ve kaydedilmemiş bir kopya olarak açılır. Kayıtlı projeler korunur.",
+  importConfirm: "Bu yedekle devam edilsin mi?",
+  importDraftWarning:
+    "Bu sekmedeki kaydedilmemiş değişiklikler değiştirilecek. Kayıtlı projeler korunur.",
   loading: "Tablonuz açılıyor…",
   notFound: "Bu tablo bu tarayıcıda yok. Yedek açın veya örnekle başlayın.",
   rows: "Satırlar",
