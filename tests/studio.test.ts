@@ -325,3 +325,55 @@ test("text wrapping budgets wide glyphs and preserves emoji graphemes", async ()
   assert.deepEqual(wrapText("Points", 128 / 18), ["Points"]);
   assert.deepEqual(wrapText("👩🏽‍💻👩🏽‍💻", 1.3), ["👩🏽‍💻", "👩🏽‍💻"]);
 });
+
+test("blank leaderboards remain valid editable documents", () => {
+  const board = { ...newLeaderboard(), rows: [] };
+  assert.deepEqual(parseDocument(board), board);
+});
+test("new graphic appearance fields reject unsafe stored values", () => {
+  const board = newLeaderboard();
+  assert.throws(() => parseDocument({ ...board, style: { ...board.style, radius: -1 } }));
+  assert.throws(() =>
+    parseDocument({ ...board, style: { ...board.style, textColor: "url(example)" } }),
+  );
+  assert.deepEqual(
+    parseDocument({ ...board, style: { ...board.style, radius: 20, borderWidth: 3 } }).style.radius,
+    20,
+  );
+});
+
+test("manual leaderboard edits do not silently reorder rows", () => {
+  const board = newLeaderboard();
+  const next = studioApi.updateLeaderboardCell(board, board.rows[3].id, 1, "999");
+  assert.deepEqual(
+    next.rows.map((row) => row.id),
+    board.rows.map((row) => row.id),
+  );
+});
+test("column width overrides and row colours round-trip through saved graphics", () => {
+  const board = newLeaderboard();
+  const edited = {
+    ...board,
+    columnWidths: [400, 180],
+    rows: board.rows.map((row) => ({ ...row, color: "#285b35" })),
+  };
+  assert.deepEqual(parseDocument(edited), edited);
+  assert.deepEqual(removeColumn(edited, 1).columnWidths, [400]);
+  assert.throws(() => parseDocument({ ...edited, columnWidths: [0, 180] }));
+});
+
+test("manual preview edits preserve row ordering", () => {
+  const board = newLeaderboard();
+  const edited = updatePreviewField(
+    board,
+    { kind: "leaderboard-cell", rowId: board.rows[3].id, column: 1 },
+    "999",
+    false,
+  );
+  assert.equal(edited.kind, "leaderboard");
+  if (edited.kind === "leaderboard")
+    assert.deepEqual(
+      edited.rows.map((row) => row.id),
+      board.rows.map((row) => row.id),
+    );
+});

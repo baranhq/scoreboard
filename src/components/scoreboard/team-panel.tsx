@@ -123,6 +123,12 @@ export function TeamPanel({
       data-scoreboard-team={team.id}
       style={
         {
+          backgroundImage: appearance.gradient
+            ? `linear-gradient(135deg, ${bg}, ${appearance.backgroundEnd || bg})`
+            : undefined,
+          borderRadius: appearance.cornerRadius,
+          borderWidth: appearance.borderWidth,
+          borderColor: appearance.borderColor,
           "--button-bg": lightButtons.primary,
           "--button-text": lightButtons.text,
           "--button-hover": lightButtons.hover,
