@@ -35,6 +35,7 @@ export function ToolDemo({
   controlledPlayback = false,
   showReadOnlyControls = false,
   useScoreboardPreview = false,
+  widePreview = false,
   teamCount,
 }: {
   tool: Tool;
@@ -50,6 +51,7 @@ export function ToolDemo({
   controlledPlayback?: boolean;
   showReadOnlyControls?: boolean;
   useScoreboardPreview?: boolean;
+  widePreview?: boolean;
   teamCount?: number;
 }) {
   if (tool === "scoreboard" && compact && !useScoreboardPreview)
@@ -103,6 +105,7 @@ export function ToolDemo({
       readOnly={readOnly}
       showResultControls={showResultControls}
       controlledPlayback={controlledPlayback}
+      widePreview={widePreview}
     />
   );
 }
@@ -119,6 +122,7 @@ function StudioToolDemo({
   readOnly,
   showResultControls,
   controlledPlayback,
+  widePreview,
 }: {
   tool: Exclude<Tool, "scoreboard">;
   lang: Lang;
@@ -130,6 +134,7 @@ function StudioToolDemo({
   readOnly: boolean;
   showResultControls: boolean;
   controlledPlayback: boolean;
+  widePreview: boolean;
   theme?: ToolTheme;
 }) {
   const t = studioCopy[lang];
@@ -140,17 +145,26 @@ function StudioToolDemo({
       sample.style = { ...sample.style, ...(theme || toolThemes[1]) };
       if (sample.kind === "bracket") {
         sample.layout = expanded ? "split" : "single";
-        sample.style = { ...sample.style, titleVisible: false, subtitleVisible: false };
-      } else sample.gridColumns = expanded ? 2 : 1;
+        sample.style = {
+          ...sample.style,
+          titleVisible: false,
+          subtitleVisible: false,
+          ...(widePreview && !expanded ? { density: "compact", roundGap: 400, matchGap: 28 } : {}),
+        };
+      } else sample.gridColumns = widePreview || expanded ? 2 : 1;
     }
     if (hideHeading)
       sample.style = { ...sample.style, titleVisible: false, subtitleVisible: false };
     return sample;
-  }, [tool, lang, compact, theme, expanded, hideHeading]);
+  }, [tool, lang, compact, theme, expanded, hideHeading, widePreview]);
   const [document, setDocument] = useState(initial);
-  const [configuration, setConfiguration] = useState({ theme, expanded });
-  if (configuration.theme !== theme || configuration.expanded !== expanded) {
-    setConfiguration({ theme, expanded });
+  const [configuration, setConfiguration] = useState({ theme, expanded, widePreview });
+  if (
+    configuration.theme !== theme ||
+    configuration.expanded !== expanded ||
+    configuration.widePreview !== widePreview
+  ) {
+    setConfiguration({ theme, expanded, widePreview });
     setDocument((current) => {
       if (current.kind === "bracket" && initial.kind === "bracket")
         return { ...current, style: initial.style, layout: initial.layout };
@@ -255,7 +269,7 @@ function StudioToolDemo({
           className={`min-w-0 ${compact ? "flex min-h-0 flex-1 flex-col" : ""}`}
         >
           <div
-            className={`${compact ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden" : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto"} overscroll-contain bg-paper [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full [&>svg]:!w-auto [&>svg]:!max-w-full`}
+            className={`${compact ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden" : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto"} overscroll-contain bg-paper [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${compact && widePreview ? "[&>svg]:!w-full" : "[&>svg]:!w-auto"} [&>svg]:!max-w-full`}
           >
             <Graphic
               document={document}
