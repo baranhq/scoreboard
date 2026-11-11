@@ -4,7 +4,7 @@
 
 # Baran's Scoreboard
 
-Baran's Scoreboard is a free, open-source scoreboard for classroom activities, sports, and friendly competitions. Create teams, keep score, customise colours, and use the timer on a projector or shared screen.
+Baran's Scoreboard is a free, open-source toolkit for keeping score, designing leaderboards and making tournament brackets.
 
 [Open Scoreboard](https://scoreboard.baranhq.com/) · [Български](README.bg.md) · [Türkçe](README.tr.md)
 
@@ -12,7 +12,10 @@ It is **local-first**: no account is needed, and scoreboard names, teams, scores
 
 ## What it includes
 
-- Multiple teams, saved scoreboards, custom colours, layouts, and icons.
+- **Scoreboard:** multiple teams, custom colours, layouts, icons, automatic local saves and snapshot sharing.
+- **Leaderboards:** editable rows/columns, manual ranks, sorting, reordering, highlights and visual presets; up to 100 rows and 10 columns.
+- **Brackets:** 2–64 participants, single-sided or two-sided layouts, automatic byes, manual scores and winner progression.
+- Leaderboard and bracket PNG export, editable JSON backups and browser-local saves in **My Tables**. Use Save before leaving an editor; these tools do not autosave.
 - Countdown and stopwatch timers, periods, and breaks.
 - Fullscreen display with keyboard and touch controls.
 - Bulgarian, Turkish, and British English; light, dark, and system themes.
@@ -57,6 +60,14 @@ You can run it privately at home, on a home server/NAS, or on a rented Linux ser
 ➡️ **[Read the self-hosting guide](SELF_HOSTING.md)**
 
 For PHP/Apache shared hosting, keep the source checkout outside the document root and store server settings in `$HOME/scoreboard-private/.env`. Run `npm ci` and `npm run build`; the build loads that file automatically, defaults the admin URL to `/admin`, and writes the matching Apache rewrite into `out/.htaccess`. Set `ADMIN_PATH` in the private file to use a different path. Upload the complete `out/` contents. See the [deployment guide](docs/DEPLOYMENT.md) for PHP, database, and one-time hosting setup.
+
+## Tools and storage
+
+`/` introduces the platform. Each language has `/[lang]/tools/scoreboard/`, `/[lang]/leaderboards/` and `/[lang]/brackets/` introductions. The existing `/scoreboard/` and `/[lang]/scoreboard/` editors still work; new editors are at `/[lang]/leaderboards/edit/` and `/[lang]/brackets/edit/`.
+
+Existing Scoreboards keep their original `scoreboard` IndexedDB store and version 1/2 backup compatibility. New tables use a separate `scoreboard-studio` database and version 1 JSON documents. Import opens an independent copy. Untouched examples do not write to storage. Edits have a tab-session recovery draft; Save makes a durable library entry. Clearing browser data removes local saves; download backups before moving devices or domains. PNGs are rendered locally from the same SVG as the preview, normally at 2× resolution; exceptionally large graphics are scaled to stay within a 32-megapixel / 16,384px canvas budget.
+
+No new runtime dependencies, trackers or accounts are required. Existing AWStats, optional first-party analytics and consent-controlled Cloudflare Web Analytics disclosures remain in place. Self-hosters with privately published policy overrides must publish the updated EN/BG/TR local-storage paragraph themselves.
 
 ## Project files
 

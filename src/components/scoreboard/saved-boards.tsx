@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { SavedGraphics } from "@/components/studio/saved-graphics";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import type { Lang, Messages } from "@/lib/i18n";
@@ -205,6 +206,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
             }
           }}
         />
+        <SavedGraphics lang={lang} />
         {message && (
           <p role="status" className="mb-4 rounded-lg border border-forest/20 px-4 py-3 text-base">
             {message}
