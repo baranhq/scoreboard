@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
 import { Dropdown } from "@/components/ui/dropdown";
 import type { Lang } from "@/lib/i18n";
 import { homeRoute, route } from "@/lib/routes";
@@ -33,18 +33,11 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
       (["scoreboardIntro", "leaderboards", "brackets"] as const).some(
         (page) => pathname === normalize(route(lang, page)),
       ));
-  const productRoute =
-    pathname === route(lang, "leaderboards").replace(/\/$/, "")
-      ? "leaderboardEditor"
-      : pathname === route(lang, "brackets").replace(/\/$/, "")
-        ? "bracketEditor"
-        : "scoreboard";
-  const action =
-    productRoute === "leaderboardEditor"
-      ? { href: route(lang, productRoute), label: t.openLeaderboards }
-      : productRoute === "bracketEditor"
-        ? { href: route(lang, productRoute), label: t.openBrackets }
-        : { href: route(lang, productRoute), label: t.openScoreboard };
+  const toolDestinations = [
+    { href: route(lang, "scoreboard"), label: t.scoreboard },
+    { href: route(lang, "leaderboardEditor"), label: t.leaderboard },
+    { href: route(lang, "bracketEditor"), label: t.bracket },
+  ];
   const stateClass = (href: string) =>
     pathname === normalize(href) ||
     (pathname === "/scoreboard" && href === route(lang, "scoreboard"))
@@ -69,12 +62,26 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
           </Link>
         ))}
         {showAction && (
-          <Link
-            href={action.href}
-            className="ml-1 inline-flex min-h-11 items-center rounded-lg bg-action px-3 text-sm font-semibold text-on-action transition-[filter,transform] hover:brightness-95 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none"
+          <Dropdown
+            ariaLabel={`${t.open} ${t.tools}`}
+            label={
+              <>
+                {t.open}
+                <ChevronDown className="size-4" aria-hidden="true" />
+              </>
+            }
+            triggerClassName="ml-1 !min-h-11 !rounded-lg !bg-action !px-3 !text-sm !font-semibold !text-on-action hover:!brightness-95"
           >
-            {action.label}
-          </Link>
+            {toolDestinations.map((tool) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-semibold hover:bg-forest/10"
+              >
+                {tool.label}
+              </Link>
+            ))}
+          </Dropdown>
         )}
       </div>
       <div className="order-last lg:hidden">
@@ -104,12 +111,20 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
             </Link>
           ))}
           {showAction && (
-            <Link
-              href={action.href}
-              className="my-1 flex min-h-12 items-center rounded-lg bg-action px-3 py-2 text-base font-semibold text-on-action"
-            >
-              {action.label}
-            </Link>
+            <>
+              <p className="px-3 pt-2 pb-1 text-xs font-bold tracking-wide text-ink/60 uppercase">
+                {t.open}
+              </p>
+              {toolDestinations.map((tool) => (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="flex min-h-12 items-center rounded-lg px-3 py-2 text-base font-semibold hover:bg-forest/10"
+                >
+                  {tool.label}
+                </Link>
+              ))}
+            </>
           )}
         </Dropdown>
       </div>
