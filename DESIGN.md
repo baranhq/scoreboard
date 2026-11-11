@@ -10,7 +10,7 @@ Public landing pages follow Modern Competition Editorial: oversized Inter Tight,
 - Dark surfaces: paper `#151d17`, surface `#202a22`, ink `#eef2ec`, forest `#9cc99f`, action `#79bb83`.
 - Use green for site actions and progress. Preserve clear success, warning, and error states.
 - Use the locally bundled Inter Tight for display text and Inter for body and controls. Use tabular numerals for scores and times.
-- Use a consistent 8px spacing rhythm, clear rules between data groups, restrained corner rounding, and one primary button treatment.
+- Use a consistent 8px spacing rhythm, spacing and typography to organise groups, restrained corner rounding, and one primary button treatment. Reserve separators for genuine task boundaries.
 
 ## Public pages
 
@@ -26,15 +26,15 @@ The homepage provides direct actions to all three applications. Product introduc
 
 ### Shared editing pattern
 
-Keep each product's familiar task visible. Place save and PNG export where users expect them, give every editor a clear path to its product introduction, and group appearance and graphic-format settings plainly. Use Content, Design, Settings, and Export tabs; keep saving explicit, preserve browser-local drafts, and show storage and export errors. Examples belong only in landing-page demonstrations.
+Keep each product's familiar task visible. Place save and PNG export where users expect them, give every editor a clear path to its product introduction, and group appearance and graphic-format settings plainly. Use Content, Design, Settings, and Export tabs on desktop, with an Edit/Preview switch on narrow screens. Start previews fitted to their available space and offer a compact aspect-ratio selector, full-size view, and fullscreen. Keep saving explicit, preserve browser-local drafts, and show storage and export errors. Examples belong only in landing-page demonstrations.
 
 ### Leaderboard
 
-Start with an empty, editable ranking and an obvious Add participant action. Edit entries and values directly in the graphic or table; reorder by points when requested. Let users place ranked entries in one, two or three side-by-side groups. Support custom canvas dimensions and aspect ratios without cropping content. Keep table scrolling inside its own region and controls comfortably touchable.
+Start with three editable teams at zero points. Edit entries and values directly in the graphic or table; use quick score controls, add or remove rows, and reorder by points when requested. Let users place ranked entries in one, two or three side-by-side groups. Support custom canvas dimensions and aspect ratios without cropping content. Keep table scrolling inside its own region and controls comfortably touchable.
 
 ### Bracket
 
-Start with numbered participant placeholders and undecided matches. Let users edit a name or score from the preview, keep match selection straightforward, and advance the chosen winner. Show one round at a time on narrow screens. Support custom canvas dimensions and aspect ratios without cropping the bracket. If changing a winner or participant count would clear entered results in later rounds, explain the consequence and ask before applying it.
+Start with numbered participant placeholders and undecided matches. Let users add, remove, rename, and reorder participants, edit a name or score from the preview, and advance the chosen winner. Show one round at a time on narrow screens. Support custom canvas dimensions and aspect ratios without cropping the bracket. Confirm only when a participant or winner change invalidates results, and retain unaffected match results.
 
 ### Scoreboard
 
@@ -42,6 +42,6 @@ Preserve score controls, periods, timers, customization, fullscreen, URL sharing
 
 ## Motion and accessibility
 
-Animate only meaningful state changes: score feedback, a leaderboard row changing rank, a winner moving into the next round, and a compact public-page entrance. Use transforms and opacity for spatial changes, keep feedback brief, and pause any optional demo sequence when it is offscreen or the page is hidden. Under `prefers-reduced-motion`, remove spatial movement while keeping the changed score, rank, and winner states immediately clear.
+Use short opacity and transform feedback for score changes, leaderboard reordering, participant changes, menus, and dialogs. Use a restrained cross-fade for route changes, with the page surface remaining themed beneath it. Pause optional demos when offscreen or when the page is hidden. Under `prefers-reduced-motion`, remove spatial movement while keeping changed values and ordering immediately clear.
 
 Use labelled native inputs, visible keyboard focus, 44px ordinary touch targets, readable contrast, keyboard-operable menus and dialogs, and no horizontal overflow in ordinary editing screens. Never shrink the whole page to fit a large bracket; keep the graphic in a focused, scrollable preview.

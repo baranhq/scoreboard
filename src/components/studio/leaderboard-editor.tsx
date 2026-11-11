@@ -1,11 +1,12 @@
 "use client";
-import { ArrowDown, ArrowUp, ArrowLeft, ArrowRight, Trash2, Star, Plus } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Minus, Plus, Star, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ColorControl, accentColors } from "./color-control";
 import { Button } from "@/components/ui/ui";
 import {
   newLeaderboard,
   moveItem,
+  nextAvailableName,
   removeColumn,
   sortRows,
   updateLeaderboardCell,
@@ -16,27 +17,39 @@ import { studioCopy } from "@/lib/studio-copy";
 import { useDocument } from "./use-document";
 import { CanvasControls } from "./canvas-controls";
 import { EditorShell, inputClass, ThemeControls, VisibilitySettings } from "./editor-shell";
+import { useListMotion } from "./use-list-motion";
 export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
-  const initial = useMemo(
-    () => ({
-      ...newLeaderboard(),
+  const initial = useMemo(() => {
+    const board = newLeaderboard();
+
+    return {
+      ...board,
       title: t.leaderboard,
       subtitle: "",
-      columns: [t.participant, t.points],
-      rows: [],
-    }),
-    [t.leaderboard, t.participant, t.points],
-  );
+      columns: [t.team, t.points],
+      rows: board.rows.map((row, index) => ({
+        ...row,
+        cells: [`${t.team} ${index + 1}`, "0"],
+      })),
+    };
+  }, [t.leaderboard, t.points, t.team]);
   const state = useDocument(initial, t);
   const board = state.document as Leaderboard;
+  const { list: rowList, capture: captureRows } = useListMotion<HTMLTableSectionElement>();
   const [sortColumn, setSortColumn] = useState("1");
   const changeCell = (rowId: string, column: number, value: string) =>
     state.change(updateLeaderboardCell(board, rowId, column, value));
+  const setRows = (rows: Leaderboard["rows"]) => {
+    if (rows.map((row) => row.id).join("\u0000") !== board.rows.map((row) => row.id).join("\u0000"))
+      captureRows();
+    state.change({ ...board, rows });
+  };
   return (
     <EditorShell
       lang={lang}
       state={state}
+      confirmationDialog={state.confirmationDialog}
       design={<ThemeControls document={board} change={state.change} lang={lang} />}
       settings={
         <div className="space-y-5">
@@ -79,17 +92,13 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             <div className="flex flex-wrap gap-2">
               <Button
                 disabled={!board.rows.length}
-                onClick={() =>
-                  state.change({ ...board, rows: sortRows(board.rows, Number(sortColumn), "desc") })
-                }
+                onClick={() => setRows(sortRows(board.rows, Number(sortColumn), "desc"))}
               >
                 {t.sortDesc}
               </Button>
               <Button
                 disabled={!board.rows.length}
-                onClick={() =>
-                  state.change({ ...board, rows: sortRows(board.rows, Number(sortColumn), "asc") })
-                }
+                onClick={() => setRows(sortRows(board.rows, Number(sortColumn), "asc"))}
               >
                 {t.sortAsc}
               </Button>
@@ -151,19 +160,27 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
         <div className="flex flex-wrap gap-2">
           <Button
             disabled={board.rows.length >= 100}
-            onClick={() =>
-              state.change({
-                ...board,
-                rows: [
-                  ...board.rows,
-                  {
-                    id: crypto.randomUUID(),
-                    cells: board.columns.map(() => ""),
-                    highlighted: false,
-                  },
-                ],
-              })
-            }
+            onClick={() => {
+              const teamColumn = Math.max(0, board.columns.indexOf(t.team));
+              const pointsColumn = Math.max(
+                teamColumn === 0 ? 1 : 0,
+                board.columns.indexOf(t.points),
+              );
+              const name = nextAvailableName(
+                t.team,
+                board.rows.map((row) => row.cells[teamColumn] || ""),
+              );
+              setRows([
+                ...board.rows,
+                {
+                  id: crypto.randomUUID(),
+                  cells: board.columns.map((_, index) =>
+                    index === teamColumn ? name : index === pointsColumn ? "0" : "",
+                  ),
+                  highlighted: false,
+                },
+              ]);
+            }}
           >
             <Plus size={16} />
             {t.addRow}
@@ -198,7 +215,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                   #
                 </th>
                 {board.columns.map((column, i) => (
-                  <th scope="col" key={i} className="min-w-52 border-l border-forest/15 p-2">
+                  <th scope="col" key={i} className="min-w-36 border-l border-forest/15 p-2">
                     <input
                       aria-label={`${t.column} ${i + 1}`}
                       className={inputClass}
@@ -305,10 +322,14 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody ref={rowList}>
               {board.rows.map((row, index) => (
-                <tr key={row.id} className={row.highlighted ? "bg-forest/10" : ""}>
-                  <th scope="row" className="min-w-28 border-t border-forest/15 p-2 text-sm">
+                <tr
+                  key={row.id}
+                  data-motion-item={row.id}
+                  className={row.highlighted ? "bg-forest/10" : ""}
+                >
+                  <th scope="row" className="min-w-24 border-t border-forest/15 p-2 text-sm">
                     <input
                       aria-label={`${t.position} ${index + 1}`}
                       className={`${inputClass} !w-20 text-center tabular-nums`}
@@ -332,18 +353,14 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                         <IconButton
                           label={`${t.up} ${index + 1}`}
                           disabled={index === 0}
-                          onClick={() =>
-                            state.change({ ...board, rows: moveItem(board.rows, index, index - 1) })
-                          }
+                          onClick={() => setRows(moveItem(board.rows, index, index - 1))}
                         >
                           <ArrowUp size={14} />
                         </IconButton>
                         <IconButton
                           label={`${t.down} ${index + 1}`}
                           disabled={index === board.rows.length - 1}
-                          onClick={() =>
-                            state.change({ ...board, rows: moveItem(board.rows, index, index + 1) })
-                          }
+                          onClick={() => setRows(moveItem(board.rows, index, index + 1))}
                         >
                           <ArrowDown size={14} />
                         </IconButton>
@@ -363,12 +380,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                         </IconButton>
                         <IconButton
                           label={`${t.remove} ${index + 1}`}
-                          onClick={() =>
-                            state.change({
-                              ...board,
-                              rows: board.rows.filter((r) => r.id !== row.id),
-                            })
-                          }
+                          onClick={() => setRows(board.rows.filter((r) => r.id !== row.id))}
                         >
                           <Trash2 size={14} />
                         </IconButton>
@@ -389,17 +401,57 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                       />
                     </details>
                   </th>
-                  {row.cells.map((cell, column) => (
-                    <td key={column} className="border-t border-l border-forest/15 p-2">
-                      <input
-                        className={inputClass}
-                        aria-label={`${t.rows} ${index + 1}, ${board.columns[column]}`}
-                        maxLength={200}
-                        value={cell}
-                        onChange={(e) => changeCell(row.id, column, e.target.value)}
-                      />
-                    </td>
-                  ))}
+                  {row.cells.map((cell, column) => {
+                    const numericValue = Number(cell);
+                    const numeric = cell.trim() !== "" && Number.isFinite(numericValue);
+                    const adjust = (amount: number) =>
+                      changeCell(row.id, column, String(numericValue + amount));
+                    const label = `${t.rows} ${index + 1}, ${board.columns[column]}`;
+
+                    return (
+                      <td key={column} className="border-t border-l border-forest/15 p-2">
+                        <div className="flex min-w-0 items-center gap-1">
+                          {numeric && column > 0 && (
+                            <button
+                              type="button"
+                              aria-label={`${t.decreasePoints}: ${label}`}
+                              title={t.decreasePoints}
+                              onClick={() => adjust(-1)}
+                              className="inline-flex min-h-11 min-w-10 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
+                            >
+                              <Minus aria-hidden="true" size={15} />
+                            </button>
+                          )}
+                          <input
+                            className={`${inputClass} min-w-28 flex-1 ${numeric && column > 0 ? "text-center tabular-nums" : ""}`}
+                            aria-label={label}
+                            maxLength={200}
+                            inputMode={numeric && column > 0 ? "decimal" : undefined}
+                            value={cell}
+                            onChange={(event) => changeCell(row.id, column, event.target.value)}
+                            onKeyDown={(event) => {
+                              if (!numeric || column === 0) return;
+                              if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                                event.preventDefault();
+                                adjust(event.key === "ArrowUp" ? 1 : -1);
+                              }
+                            }}
+                          />
+                          {numeric && column > 0 && (
+                            <button
+                              type="button"
+                              aria-label={`${t.increasePoints}: ${label}`}
+                              title={t.increasePoints}
+                              onClick={() => adjust(1)}
+                              className="inline-flex min-h-11 min-w-10 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
+                            >
+                              <Plus aria-hidden="true" size={15} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>

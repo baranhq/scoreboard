@@ -727,11 +727,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                             teams: b.teams.map((team) => ({ ...team, score: 0 })),
                           }));
 
-                        if (window.matchMedia("(pointer: coarse), (max-width: 767px)").matches) {
-                          if (window.confirm(t.resetConfirm)) reset();
-                          return;
-                        }
-
                         ask(t.resetConfirm, reset);
                       }}
                     >

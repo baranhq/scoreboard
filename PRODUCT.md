@@ -32,7 +32,7 @@ One host usually sets up and edits a board while other people take part or watch
 - The site remains a static Next.js export with its existing optional PHP/MySQL backend. Board creation does not require a new account system, cloud storage, or remote service.
 - Existing analytics consent, administrator authentication, privacy disclosures, and project licensing remain intact.
 - Keep user-provided text as text, validate imported and stored data, preserve visible keyboard focus, and respect reduced-motion preferences. Target WCAG 2.2 AA.
-- New graphic projects start blank; sample results and stress controls belong only to marketing demonstrations. Fifteen appearance presets and locally saved custom themes are shared across the tools.
+- New leaderboards start with Team 1, Team 2 and Team 3 at zero points; brackets start with numbered participants and undecided matches. Sample results and stress controls belong only to marketing demonstrations. Fifteen appearance presets and locally saved custom themes are shared across the tools.
 - Built-in examples use only generic team and participant identifiers. Users can choose from in-app colour palettes or enter a custom colour; graphic typography uses the product's fixed typeface.
 
 ## Brand Commitments

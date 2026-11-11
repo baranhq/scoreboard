@@ -64,7 +64,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
           <>
             <div
               key={tool}
-              className="min-w-0 motion-safe:animate-[preview-intro_400ms_ease-out_both]"
+              className="min-w-0 motion-safe:animate-[surface-enter_300ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none"
             >
               <ToolDemo tool={tool} lang={lang} compact />
             </div>

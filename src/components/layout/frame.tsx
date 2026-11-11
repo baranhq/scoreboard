@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { ViewTransition, type ReactNode } from "react";
 import { ToolNavigation } from "./tool-navigation";
 import { studioCopy } from "@/lib/studio-copy";
 import { brand, repo } from "@/lib/site";
@@ -78,7 +78,9 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
       </div>
       <FrameLanguageSuggestion lang={lang} t={t} />
       <div data-frame-content className="flex-1">
-        {children}
+        <ViewTransition default="none" enter="route-enter" exit="route-exit">
+          {children}
+        </ViewTransition>
       </div>
       <footer data-frame-chrome className="border-t border-white/10 bg-[#213f29] text-white">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-[14px] px-5 py-10 min-[761px]:grid-cols-3 min-[761px]:gap-10 sm:px-6">
