@@ -52,7 +52,7 @@ function Lines({
       role={editable ? "button" : undefined}
       tabIndex={editable ? 0 : undefined}
       aria-label={editable && labels ? `${labels.clickToEdit}: ${text}` : undefined}
-      className={`motion-safe:transition-[fill] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none ${editable ? "cursor-text outline-none hover:underline focus-visible:underline" : ""}`}
+      className={`motion-safe:transition-[fill] motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${editable ? "cursor-text outline-none hover:underline focus-visible:underline" : ""}`}
       onClick={editable ? (event) => openEdit(event.currentTarget) : undefined}
       onKeyDown={
         editable
@@ -169,7 +169,7 @@ export function LeaderboardGraphic({
         ...row.cells.map((cell, i) => wrapText(cell, (widths[i] - 32) / 22).length * 29 + 26),
       );
       const placement = { row, index, rank, x, y, height };
-      y += height + (board.style.rowSeparators ? 8 : 4);
+      y += height + (board.style.rowSeparators ? 12 : 8);
       return placement;
     });
   });
@@ -200,14 +200,22 @@ export function LeaderboardGraphic({
       <title>{board.title}</title>
       <defs>
         <linearGradient id={gradientId} x2="1" y2="1">
-          <stop stopColor={board.style.background} />
-          <stop offset="1" stopColor={board.style.backgroundEnd || board.style.accent} />
+          <stop
+            stopColor={board.style.background}
+            className="motion-safe:transition-[stop-color] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
+          />
+          <stop
+            offset="1"
+            stopColor={board.style.backgroundEnd || board.style.accent}
+            className="motion-safe:transition-[stop-color] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
+          />
         </linearGradient>
       </defs>
       <rect
         width={outputWidth}
         height={outputHeight}
         fill={board.style.gradient ? `url(#${gradientId})` : board.style.background}
+        className="motion-safe:transition-[fill] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
       />
       <g transform={`translate(${placement.x} ${placement.y}) scale(${placement.scale})`}>
         <Heading doc={board} width={width} text={text} labels={labels} onEdit={onEdit} />
@@ -243,29 +251,25 @@ export function LeaderboardGraphic({
           <g
             key={row.row.id}
             transform={`translate(${row.x} ${row.y})`}
-            className="motion-safe:transition-transform motion-safe:duration-[280ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+            className="motion-safe:transition-transform motion-safe:duration-[250ms] motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
           >
             <rect
               x={0}
               y={0}
               width={columnWidth}
-              height={row.height - (board.style.rowSeparators ? 8 : 4)}
+              height={row.height}
               rx={board.style.radius ?? (board.style.preset === "editorial" ? 0 : 8)}
               stroke={
-                board.style.rowSeparators
-                  ? board.style.borderColor || board.style.accent
-                  : board.style.borderColor
+                board.style.rowSeparators ? board.style.borderColor || board.style.accent : "none"
               }
               strokeWidth={
-                board.style.rowSeparators
-                  ? Math.max(Math.min(board.style.borderWidth ?? 0, 2), 1)
-                  : Math.min(board.style.borderWidth ?? 0, 1)
+                board.style.rowSeparators ? Math.min(board.style.borderWidth ?? 1, 1.5) : 0
               }
-              strokeOpacity={board.style.rowSeparators ? 0.48 : 0.3}
-              className="motion-safe:transition-[fill,fill-opacity,stroke,stroke-opacity] motion-safe:duration-[220ms] motion-safe:ease-out motion-reduce:transition-none"
+              strokeOpacity={board.style.rowSeparators ? 0.28 : 0}
+              className="motion-safe:transition-[fill,fill-opacity,stroke,stroke-opacity,stroke-width] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
               fill={row.row.color || (row.row.highlighted ? board.style.accent : text)}
               fillOpacity={
-                row.row.color || row.row.highlighted ? 1 : row.index % 2 === 0 ? 0.06 : 0.025
+                row.row.color || row.row.highlighted ? 1 : row.index % 2 === 0 ? 0.09 : 0.045
               }
             />
             <Lines
@@ -352,14 +356,25 @@ export function BracketGraphic({
       <title>{board.title}</title>
       <defs>
         <linearGradient id={gradientId} x2="1" y2="1">
-          <stop stopColor={board.style.background} />
-          <stop offset="1" stopColor={board.style.backgroundEnd || board.style.accent} />
+          <stop
+            stopColor={board.style.background}
+            className="motion-safe:transition-[stop-color] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
+          />
+          <stop
+            offset="1"
+            stopColor={board.style.backgroundEnd || board.style.accent}
+            className="motion-safe:transition-[stop-color] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
+          />
         </linearGradient>
+        <clipPath id={`${gradientId}-match`} clipPathUnits="userSpaceOnUse">
+          <rect width={220} height={cardHeight} rx={board.style.radius ?? 8} />
+        </clipPath>
       </defs>
       <rect
         width={outputWidth}
         height={outputHeight}
         fill={board.style.gradient ? `url(#${gradientId})` : board.style.background}
+        className="motion-safe:transition-[fill] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
       />
       <g transform={`translate(${placement.x} ${placement.y}) scale(${placement.scale})`}>
         <Heading doc={board} width={width} text={text} labels={labels} onEdit={onEdit} />
@@ -374,18 +389,22 @@ export function BracketGraphic({
               const toX = node.x + (child.right ? 220 : 0);
               const fromY = child.y + cardHeight / 2;
               const toY = node.y + cardHeight / 2;
+              const advanced = !!child.winner && node.players.includes(child.winner);
+              const connectorColor = board.style.connectorColor || board.style.borderColor || text;
+              const connectorWidth = board.style.connectorWidth ?? board.style.borderWidth ?? 1.5;
               return (
                 <path
                   key={`${node.id}-${side}`}
                   d={`M${fromX},${fromY} H${(fromX + toX) / 2} V${toY} H${toX}`}
                   fill="none"
-                  stroke={board.style.connectorColor || board.style.borderColor || text}
-                  strokeOpacity={0.34}
-                  strokeWidth={Math.min(
-                    board.style.connectorWidth ?? board.style.borderWidth ?? 2,
-                    2,
-                  )}
-                  className="motion-safe:transition-[stroke,stroke-opacity] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
+                  stroke={advanced ? board.style.accent : connectorColor}
+                  strokeOpacity={advanced ? 0.58 : 0.22}
+                  strokeWidth={
+                    advanced ? Math.min(connectorWidth, 2) : Math.min(connectorWidth, 1.4)
+                  }
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="motion-safe:transition-[stroke,stroke-opacity,stroke-width] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
                 />
               );
             }),
@@ -394,9 +413,9 @@ export function BracketGraphic({
           <g
             key={node.id}
             transform={`translate(${node.x} ${node.y})`}
-            className="motion-safe:transition-transform motion-safe:duration-[280ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+            className="motion-safe:transition-transform motion-safe:duration-[250ms] motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
           >
-            <text x={0} y={-12} fill={text} fontSize={13} fontWeight={600}>
+            <text x={0} y={-12} fill={text} fillOpacity={0.76} fontSize={13} fontWeight={600}>
               {node.round === Math.log2(nodes.length + 1) - 1
                 ? labels.final
                 : `${labels.round} ${node.round + 1}`}{" "}
@@ -409,11 +428,8 @@ export function BracketGraphic({
               height={cardHeight}
               rx={board.style.radius ?? 8}
               fill={text}
-              fillOpacity={0.06}
-              stroke={board.style.borderColor || text}
-              strokeOpacity={0.22}
-              strokeWidth={Math.min(board.style.borderWidth ?? 1, 1.5)}
-              className="motion-safe:transition-[fill,fill-opacity,stroke,stroke-opacity] motion-safe:duration-[220ms] motion-safe:ease-out motion-reduce:transition-none"
+              fillOpacity={0.045}
+              stroke="none"
             />
             {node.players.map((id, i) => {
               const participant = board.participants.find((player) => player.id === id);
@@ -434,10 +450,11 @@ export function BracketGraphic({
                     y={i * rowHeight}
                     width={220}
                     height={rowHeight}
-                    rx={board.style.radius ?? 8}
+                    rx={Math.min(board.style.radius ?? 8, 4)}
+                    clipPath={`url(#${gradientId}-match)`}
                     fill={rowColor}
                     fillOpacity={highlighted ? 1 : 0}
-                    className="motion-safe:transition-[fill,fill-opacity] motion-safe:duration-[220ms] motion-safe:ease-out motion-reduce:transition-none"
+                    className="motion-safe:transition-[fill,fill-opacity] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
                   />
                   <Lines
                     text={id ? name(id) : node.pending ? labels.pending : labels.bye}
@@ -473,13 +490,26 @@ export function BracketGraphic({
               );
             })}
             <line
-              x1={0}
-              x2={220}
+              x1={12}
+              x2={208}
               y1={rowHeight}
               y2={rowHeight}
               stroke={board.style.borderColor || text}
-              strokeOpacity={0.16}
-              className="motion-safe:transition-[stroke,stroke-opacity] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
+              strokeOpacity={0.2}
+              className="motion-safe:transition-[stroke,stroke-opacity] motion-safe:duration-[180ms] motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
+            />
+            <rect
+              x={0}
+              y={0}
+              width={220}
+              height={cardHeight}
+              rx={board.style.radius ?? 8}
+              fill="none"
+              stroke={board.style.borderColor || text}
+              strokeOpacity={0.24}
+              strokeWidth={Math.min(board.style.borderWidth ?? 1, 1.5)}
+              pointerEvents="none"
+              className="motion-safe:transition-[stroke,stroke-opacity,stroke-width] motion-safe:duration-[180ms] motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
             />
           </g>
         ))}
