@@ -21,7 +21,11 @@ import {
 import { saveDocument, listDocuments, deleteDocument } from "../src/store/studio.ts";
 import { fromHsl, toHsl } from "../src/lib/colors.ts";
 import { applyGraphicPreset, canvasRatios, graphicPresets } from "../src/lib/graphic-style.ts";
-import { distributeRows, fitContentToCanvas } from "../src/lib/graphic-layout.ts";
+import {
+  distributeRows,
+  fitContentToCanvas,
+  graphicHeaderHeight,
+} from "../src/lib/graphic-layout.ts";
 import { previewFieldValue, updatePreviewField } from "../src/lib/studio-edit.ts";
 import { advanceStudioDemo, studioDemo } from "../src/lib/studio-demo.ts";
 import {
@@ -189,6 +193,14 @@ test("graphic content stays centered and uncropped inside custom canvas ratios",
     x: 0,
     y: 500,
   });
+});
+
+test("empty graphic headings do not reserve blank subtitle space", () => {
+  const title = { title: "Standings", subtitle: "", style: graphicPresets.classic };
+  const withSubtitle = { ...title, subtitle: "Round 1" };
+
+  assert.equal(graphicHeaderHeight(withSubtitle, 608) - graphicHeaderHeight(title, 608), 26);
+  assert.equal(graphicHeaderHeight({ ...title, title: "" }, 608), 48);
 });
 
 test("preview edits update the selected leaderboard cell and bracket participant", () => {
