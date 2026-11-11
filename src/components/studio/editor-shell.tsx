@@ -3,15 +3,17 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Download, Save, Upload, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/ui";
+import { ThemeLibrary } from "./theme-library";
+import { toolThemes } from "@/lib/tool-themes";
 import { Graphic } from "./graphic";
+import { bracketRounds, setMatchResult } from "@/lib/brackets";
 import type { StudioDocument } from "@/lib/studio";
-import { applyGraphicPreset, canvasRatios } from "@/lib/graphic-style";
+import { canvasRatios } from "@/lib/graphic-style";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
 import { route } from "@/lib/routes";
 import { exportPng } from "@/lib/export-png";
 import type { useDocument } from "./use-document";
-import { accentColors, backgroundColors, ColorControl } from "./color-control";
 import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
 export const inputClass =
   "min-h-11 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-3 py-2 text-base text-ink";
@@ -35,6 +37,19 @@ export function EditorShell({
   const previewInput = useRef<HTMLInputElement>(null);
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
   const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
+  const previewParticipant =
+    activeField?.kind === "bracket-participant" ? activeField.participantId : null;
+  const advanceMatch =
+    doc.kind === "bracket" && previewParticipant
+      ? bracketRounds(doc)
+          .flat()
+          .find(
+            (match) =>
+              !match.winner &&
+              match.players.every(Boolean) &&
+              match.players.includes(previewParticipant),
+          )
+      : undefined;
 
   useEffect(() => {
     if (activeField) previewInput.current?.focus();
@@ -81,6 +96,12 @@ export function EditorShell({
           (!state.ready ? t.loading : state.dirty ? t.unsaved : t.saveHint)}
       </p>
       <div className="mb-4 flex flex-wrap gap-2">
+        <Button disabled={!state.ready} onClick={state.newProject}>
+          {t.newProject}
+        </Button>
+        <Button disabled={!state.canUndo} onClick={state.undo}>
+          {t.undoEdit}
+        </Button>
         <Button onClick={() => setPreviewOnly(!previewOnly)}>
           {previewOnly ? t.editing : t.previewOnly}
         </Button>
@@ -112,7 +133,7 @@ export function EditorShell({
         }
       >
         {!previewOnly && (
-          <div className="min-w-0 space-y-6">
+          <div className="order-2 min-w-0 space-y-6 lg:order-1">
             <fieldset disabled={!state.ready || state.busy} className="min-w-0 space-y-5">
               <legend className="sr-only">{t.editing}</legend>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -136,11 +157,16 @@ export function EditorShell({
                 </label>
               </div>
               {children}
-              <StyleControls document={doc} change={state.change} lang={lang} />
+              <details className="border-t border-forest/20 pt-3">
+                <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">
+                  {t.style}
+                </summary>
+                <StyleControls document={doc} change={state.change} lang={lang} />
+              </details>
             </fieldset>
           </div>
         )}
-        <section aria-label={t.preview} className="min-w-0 lg:sticky lg:top-20">
+        <section aria-label={t.preview} className="order-1 min-w-0 lg:sticky lg:top-20 lg:order-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h2 className="text-lg font-semibold">{t.preview}</h2>
             <Button aria-pressed={fullSize} onClick={() => setFullSize(!fullSize)}>
@@ -169,10 +195,22 @@ export function EditorShell({
                   value={activeValue}
                   className={inputClass}
                   onChange={(event) =>
-                    state.change(updatePreviewField(doc, activeField, event.target.value))
+                    state.change(updatePreviewField(doc, activeField, event.target.value, false))
                   }
                 />
               </label>
+              {doc.kind === "bracket" && advanceMatch && previewParticipant && (
+                <Button
+                  primary
+                  onClick={() =>
+                    state.change(
+                      setMatchResult(doc, advanceMatch.id, previewParticipant, advanceMatch.scores),
+                    )
+                  }
+                >
+                  {t.chooseWinner}
+                </Button>
+              )}
               <Button onClick={() => setActiveField(null)}>{t.done}</Button>
             </div>
           )}
@@ -204,34 +242,11 @@ function StyleControls({
   return (
     <fieldset className="space-y-3 border-t border-forest/20 pt-4">
       <legend className="pt-4 text-lg font-semibold">{t.style}</legend>
-      <div className="flex flex-wrap gap-2">
-        {(["classic", "editorial", "night"] as const).map((preset) => (
-          <Button
-            key={preset}
-            aria-pressed={doc.style.preset === preset}
-            accent={doc.style.preset === preset}
-            onClick={() => change({ ...doc, style: applyGraphicPreset(doc.style, preset) })}
-          >
-            {t[preset]}
-          </Button>
-        ))}
-      </div>
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-        <ColorControl
-          label={t.accent}
-          value={doc.style.accent}
-          colors={accentColors}
-          copy={t}
-          change={(accent) => change({ ...doc, style: { ...doc.style, accent } })}
-        />
-        <ColorControl
-          label={t.background}
-          value={doc.style.background}
-          colors={backgroundColors}
-          copy={t}
-          change={(background) => change({ ...doc, style: { ...doc.style, background } })}
-        />
-      </div>
+      <ThemeLibrary
+        lang={lang}
+        value={{ ...toolThemes[0], ...doc.style }}
+        change={(style) => change({ ...doc, style: { ...doc.style, ...style } })}
+      />
       <CanvasControls document={doc} change={change} labels={t} />
     </fieldset>
   );

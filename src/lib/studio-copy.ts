@@ -1,5 +1,16 @@
 import type { Lang } from "./i18n";
 const en = {
+  gradientBackground: "Gradient background",
+  newProject: "New project",
+  undoEdit: "Undo",
+  textColour: "Text colour",
+  borderColour: "Border colour",
+  cornerRadius: "Corner radius",
+  borderThickness: "Border thickness",
+  spaciousDisplay: "Spacious display",
+  themeName: "Theme name",
+  saveTheme: "Save theme",
+  duplicateTheme: "Duplicate",
   tools: "Tools",
   menu: "Menu",
   home: "Home",
@@ -116,7 +127,7 @@ const en = {
   unsaved: "Unsaved changes",
   draftWarning: "Tab recovery is unavailable. Save or download a backup before leaving.",
   discardQuestion: "Leave without saving your changes?",
-  saveHint: "Save your changes before leaving. Examples stay separate from saved work.",
+  saveHint: "Save your project to reopen it from My Tables.",
   storageError:
     "Could not open or save this table. Your current changes are still here; download a backup and try again.",
   exportError: "PNG export failed. Try again, or download an editable backup.",
@@ -179,6 +190,17 @@ const en = {
 };
 type Copy = { [K in keyof typeof en]: string };
 const bg: Copy = {
+  gradientBackground: "Градиентен фон",
+  newProject: "Нов проект",
+  undoEdit: "Отмени",
+  textColour: "Цвят на текста",
+  borderColour: "Цвят на контура",
+  cornerRadius: "Заобляне",
+  borderThickness: "Дебелина на контура",
+  spaciousDisplay: "Просторен изглед",
+  themeName: "Име на темата",
+  saveTheme: "Запазете тема",
+  duplicateTheme: "Дублиране",
   tools: "Инструменти",
   menu: "Меню",
   home: "Начало",
@@ -296,7 +318,7 @@ const bg: Copy = {
   draftWarning:
     "Възстановяването в раздела не е налично. Запазете или изтеглете архив преди излизане.",
   discardQuestion: "Да се излезе ли без запазване на промените?",
-  saveHint: "Запазете промените преди излизане. Примерите са отделни от запазените таблици.",
+  saveHint: "Запазете проекта, за да го отворите от Моите таблици.",
   storageError:
     "Таблицата не може да се отвори или запази. Промените са тук; изтеглете архив и опитайте отново.",
   exportError: "PNG не може да се изтегли. Опитайте отново или изтеглете редактируем архив.",
@@ -359,6 +381,17 @@ const bg: Copy = {
   worst: "Краен случай",
 };
 const tr: Copy = {
+  gradientBackground: "Degrade arka plan",
+  newProject: "Yeni proje",
+  undoEdit: "Geri al",
+  textColour: "Metin rengi",
+  borderColour: "Kenarlık rengi",
+  cornerRadius: "Köşe yuvarlaklığı",
+  borderThickness: "Kenarlık kalınlığı",
+  spaciousDisplay: "Geniş görünüm",
+  themeName: "Tema adı",
+  saveTheme: "Temayı kaydet",
+  duplicateTheme: "Çoğalt",
   tools: "Araçlar",
   menu: "Menü",
   home: "Ana sayfa",
@@ -475,7 +508,7 @@ const tr: Copy = {
   unsaved: "Kaydedilmemiş değişiklikler",
   draftWarning: "Sekme kurtarma kullanılamıyor. Ayrılmadan önce kaydedin veya yedek indirin.",
   discardQuestion: "Değişiklikler kaydedilmeden ayrılsın mı?",
-  saveHint: "Ayrılmadan önce değişiklikleri kaydedin. Örnekler kayıtlı çalışmalardan ayrıdır.",
+  saveHint: "Projeyi Tablolarım bölümünden yeniden açmak için kaydedin.",
   storageError:
     "Tablo açılamadı veya kaydedilemedi. Değişiklikleriniz burada; yedek indirip tekrar deneyin.",
   exportError: "PNG indirilemedi. Tekrar deneyin veya düzenlenebilir yedek indirin.",

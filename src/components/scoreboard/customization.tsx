@@ -1,4 +1,7 @@
 "use client";
+import { ThemeLibrary } from "@/components/studio/theme-library";
+import { toolThemes } from "@/lib/tool-themes";
+import type { Lang } from "@/lib/i18n";
 import { useId, useRef, useState } from "react";
 import type { Board } from "@/lib/boards";
 import { defaultTimer, resetTimer } from "@/lib/timer";
@@ -53,12 +56,14 @@ function SizeSlider({
   );
 }
 export function Customization({
+  lang,
   board,
   t,
   change,
   remove,
   renameBoard,
 }: {
+  lang: Lang;
   board: Board;
   t: Messages;
   change: (update: (board: Board) => Board) => void;
@@ -288,6 +293,45 @@ export function Customization({
         )}
         {tab === "appearance" && (
           <div>
+            <ThemeLibrary
+              lang={lang}
+              value={{
+                ...toolThemes[0],
+                gradient: a.gradient,
+                backgroundEnd: a.backgroundEnd,
+                accent: board.accent || toolThemes[0].accent,
+                background: board.color || toolThemes[0].background,
+                textColor: board.textColor || toolThemes[0].textColor,
+                radius: a.cornerRadius ?? 8,
+                borderWidth: a.borderWidth ?? 1,
+                borderColor: a.borderColor || toolThemes[0].borderColor,
+                density: a.density,
+              }}
+              change={(theme) =>
+                change((current) => ({
+                  ...current,
+                  accent: theme.accent,
+                  background: theme.background,
+                  color: theme.background,
+                  textColor: theme.textColor,
+                  teams: current.teams.map((team) => ({
+                    ...team,
+                    color: theme.background,
+                    textColor: theme.textColor,
+                  })),
+                  appearance: {
+                    ...current.appearance,
+                    gradient: theme.gradient,
+                    backgroundEnd: theme.backgroundEnd,
+                    density: theme.density,
+                    cornerRadius: theme.radius,
+                    borderWidth: theme.borderWidth,
+                    borderColor: theme.borderColor,
+                  },
+                }))
+              }
+            />
+
             <fieldset>
               <legend className="mb-2 font-semibold">{t.layoutLabel}</legend>
               <div className="grid grid-cols-3 gap-2">
