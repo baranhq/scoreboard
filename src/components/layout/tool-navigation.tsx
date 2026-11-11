@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronDown, LayoutGrid, Menu } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Menu } from "lucide-react";
 import { Fragment } from "react";
 import { Dropdown } from "@/components/ui/dropdown";
 import type { Lang } from "@/lib/i18n";
@@ -53,27 +53,20 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
   return (
     <>
       <div className="hidden items-center gap-0.5 lg:flex">
-        {links.map((link, index) => (
-          <Fragment key={link.href}>
-            {!inApplication && index === 1 && (
-              <span className="mx-1 inline-flex h-8 items-center gap-1.5 rounded-md bg-current/5 px-2 text-xs font-semibold text-current/70">
-                <LayoutGrid className="size-3.5" aria-hidden="true" />
-                {t.tools}
-              </span>
-            )}
-            <Link
-              href={link.href}
-              className={`inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none ${stateClass(link.href)}`}
-              aria-current={
-                pathname === normalize(link.href) ||
-                (pathname === "/scoreboard" && link.href === route(lang, "scoreboard"))
-                  ? "page"
-                  : undefined
-              }
-            >
-              {link.label}
-            </Link>
-          </Fragment>
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none ${stateClass(link.href)}`}
+            aria-current={
+              pathname === normalize(link.href) ||
+              (pathname === "/scoreboard" && link.href === route(lang, "scoreboard"))
+                ? "page"
+                : undefined
+            }
+          >
+            {link.label}
+          </Link>
         ))}
         {showAction && (
           <Dropdown
