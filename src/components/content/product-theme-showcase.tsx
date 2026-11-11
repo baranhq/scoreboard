@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { ToolDemo, type Tool } from "./tool-demo";
 import { toolThemes, themeLabels } from "@/lib/tool-themes";
 import { studioCopy } from "@/lib/studio-copy";
 import { messages, type Lang } from "@/lib/i18n";
+import { route } from "@/lib/routes";
 export function ProductThemeShowcase({
   tool,
   lang,
@@ -16,6 +18,13 @@ export function ProductThemeShowcase({
   const [theme, setTheme] = useState(tool === "leaderboard" ? 0 : 1);
   const [expanded, setExpanded] = useState(false);
   const t = studioCopy[lang];
+  const editor =
+    tool === "scoreboard"
+      ? "scoreboard"
+      : tool === "leaderboard"
+        ? "leaderboardEditor"
+        : "bracketEditor";
+  const selectedTheme = toolThemes[theme];
   return (
     <div data-product-themes className="min-w-0">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
@@ -67,6 +76,12 @@ export function ProductThemeShowcase({
           expanded={expanded}
         />
       </div>
+      <Link
+        href={`${route(lang, editor)}?new=1&theme=${selectedTheme.id}`}
+        className="mt-4 inline-flex min-h-11 items-center justify-center border border-forest bg-forest px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none"
+      >
+        {t.useTheme}: {themeLabels[lang][theme]}
+      </Link>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-ink/70">{hint}</p>
     </div>
   );

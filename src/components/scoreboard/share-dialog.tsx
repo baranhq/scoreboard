@@ -118,7 +118,7 @@ export function ShareDialog({
               className="mb-4 inline-flex min-h-11 items-center font-medium underline underline-offset-4"
               href={route(lang, "saved")}
             >
-              {t.saved} →
+              {t.saved}
             </Link>
           )}
           {tooLarge ? (

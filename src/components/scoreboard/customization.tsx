@@ -2,7 +2,7 @@
 import { ThemeLibrary } from "@/components/studio/theme-library";
 import { toolThemes } from "@/lib/tool-themes";
 import type { Lang } from "@/lib/i18n";
-import { useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import type { Board } from "@/lib/boards";
 import { defaultTimer, resetTimer } from "@/lib/timer";
 import { resolveAppearance, type Appearance } from "@/lib/appearance";
@@ -15,8 +15,9 @@ import { Select } from "../ui/select";
 import { DurationInput } from "./duration-input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/ui";
-type Tab = "teams" | "colors" | "appearance" | "controls" | "timer";
-const tabs: Tab[] = ["teams", "colors", "appearance", "controls", "timer"];
+import { WorkspaceTabs, type WorkspaceTab } from "@/components/studio/workspace-tabs";
+import { download } from "@/lib/boards";
+import { studioCopy } from "@/lib/studio-copy";
 function SizeSlider({
   id,
   label,
@@ -61,17 +62,15 @@ export function Customization({
   t,
   change,
   remove,
-  renameBoard,
 }: {
   lang: Lang;
   board: Board;
   t: Messages;
   change: (update: (board: Board) => Board) => void;
   remove: (id: string) => void;
-  renameBoard: (value: string) => void;
 }) {
-  const [tab, setTab] = useState<Tab>("teams");
-  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const [tab, setTab] = useState<WorkspaceTab>("content");
+  const copy = studioCopy[lang];
   const scaleId = useId();
   const a = resolveAppearance(board.appearance);
   const set = (key: keyof Appearance, value: Appearance[keyof Appearance]) =>
@@ -90,60 +89,17 @@ export function Customization({
   return (
     <section
       aria-label={t.customize}
-      className="mt-4 rounded-xl border border-forest/20 bg-surface p-3 sm:p-4"
+      className="mt-5 border-y border-forest/20 bg-surface py-3 sm:py-4"
     >
+      <WorkspaceTabs lang={lang} value={tab} change={setTab} />
       <div
-        role="tablist"
-        aria-label={t.customize}
-        className="grid grid-cols-3 gap-1 sm:flex sm:overflow-x-auto"
+        id="workspace-panel"
+        role="tabpanel"
+        aria-labelledby={`workspace-tab-${tab}`}
+        className="pt-4"
       >
-        {tabs.map((key, index) => (
-          <button
-            key={key}
-            ref={(el) => {
-              buttons.current[index] = el;
-            }}
-            id={`tab-${key}`}
-            role="tab"
-            aria-selected={tab === key}
-            aria-controls={`panel-${key}`}
-            tabIndex={tab === key ? 0 : -1}
-            onClick={() => setTab(key)}
-            onKeyDown={(e) => {
-              let next = index;
-              if (e.key === "ArrowRight") next = (index + 1) % tabs.length;
-              else if (e.key === "ArrowLeft") next = (index + tabs.length - 1) % tabs.length;
-              else if (e.key === "Home") next = 0;
-              else if (e.key === "End") next = tabs.length - 1;
-              else return;
-              e.preventDefault();
-              setTab(tabs[next]);
-              buttons.current[next]?.focus();
-            }}
-            className={`min-h-11 min-w-0 rounded-lg px-1 py-2 text-sm font-semibold transition-[color,background-color,transform] duration-150 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none sm:min-w-24 sm:flex-1 sm:px-3 sm:text-base ${tab === key ? "bg-action text-on-action" : "text-forest hover:bg-forest/5"}`}
-          >
-            {t[key]}
-          </button>
-        ))}
-      </div>
-      <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} className="pt-4">
-        {tab === "teams" && (
+        {tab === "content" && (
           <div className="space-y-3">
-            <label className="grid gap-2 text-base sm:grid-cols-[12rem_1fr] sm:items-center">
-              <span className="font-medium">{t.boardName}</span>
-              <input
-                key={board.id}
-                defaultValue={board.name}
-                maxLength={200}
-                onChange={(e) => {
-                  if (e.target.value.trim()) renameBoard(e.target.value);
-                }}
-                onBlur={(e) => {
-                  if (!e.target.value.trim()) e.target.value = board.name;
-                }}
-                className="min-h-11 min-w-0 rounded-lg border border-forest/25 bg-paper px-3"
-              />
-            </label>
             <div className="border-t border-forest/15 pt-3">
               {board.teams.map((team, index) => (
                 <div key={team.id} className="mb-2 flex items-center gap-1.5">
@@ -233,7 +189,7 @@ export function Customization({
             </Button>
           </div>
         )}
-        {tab === "colors" && (
+        {tab === "design" && (
           <div>
             <h2 className="mb-3 font-display text-xl font-bold">{t.teamColors}</h2>
             <div className="space-y-3">
@@ -291,7 +247,7 @@ export function Customization({
             </Button>
           </div>
         )}
-        {tab === "appearance" && (
+        {tab === "design" && (
           <div>
             <ThemeLibrary
               lang={lang}
@@ -300,7 +256,7 @@ export function Customization({
                 gradient: a.gradient,
                 backgroundEnd: a.backgroundEnd,
                 accent: board.accent || toolThemes[0].accent,
-                background: board.color || toolThemes[0].background,
+                background: board.background || toolThemes[0].background,
                 textColor: board.textColor || toolThemes[0].textColor,
                 radius: a.cornerRadius ?? 8,
                 borderWidth: a.borderWidth ?? 1,
@@ -312,13 +268,9 @@ export function Customization({
                   ...current,
                   accent: theme.accent,
                   background: theme.background,
-                  color: theme.background,
+                  color: undefined,
                   textColor: theme.textColor,
-                  teams: current.teams.map((team) => ({
-                    ...team,
-                    color: theme.background,
-                    textColor: theme.textColor,
-                  })),
+                  teams: current.teams,
                   appearance: {
                     ...current.appearance,
                     gradient: theme.gradient,
@@ -334,11 +286,12 @@ export function Customization({
 
             <fieldset>
               <legend className="mb-2 font-semibold">{t.layoutLabel}</legend>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {(
                   [
                     ["auto", t.automatic],
                     ["horizontal", t.horizontal],
+                    ["vertical", t.vertical],
                     ["grid", t.grid],
                   ] as const
                 ).map(([layout, label]) => (
@@ -465,7 +418,7 @@ export function Customization({
             </Button>
           </div>
         )}
-        {tab === "controls" && (
+        {tab === "settings" && (
           <div className="mx-auto max-w-3xl divide-y divide-forest/15">
             <label className="flex min-h-14 items-center justify-between gap-4 py-2 text-base">
               <span className="font-medium">{t.step}</span>
@@ -499,7 +452,7 @@ export function Customization({
             ))}
           </div>
         )}
-        {tab === "timer" && (
+        {tab === "settings" && (
           <div className="space-y-4">
             <Checkbox
               checked={board.timer?.enabled || false}
@@ -677,6 +630,12 @@ export function Customization({
                 </details>
               </>
             )}
+          </div>
+        )}
+        {tab === "export" && (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="max-w-xl text-sm leading-5 text-ink/75">{t.backupHint}</p>
+            <Button onClick={() => download([board])}>{copy.backup}</Button>
           </div>
         )}
       </div>

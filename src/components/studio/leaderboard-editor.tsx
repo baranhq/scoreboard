@@ -1,6 +1,6 @@
 "use client";
 import { ArrowDown, ArrowUp, ArrowLeft, ArrowRight, Trash2, Star, Plus } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ColorControl, accentColors } from "./color-control";
 import { Button } from "@/components/ui/ui";
 import {
@@ -14,7 +14,13 @@ import {
 import type { Lang } from "@/lib/i18n";
 import { studioCopy } from "@/lib/studio-copy";
 import { useDocument } from "./use-document";
-import { EditorShell, inputClass } from "./editor-shell";
+import {
+  CanvasControls,
+  EditorShell,
+  inputClass,
+  ThemeControls,
+  VisibilitySettings,
+} from "./editor-shell";
 export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
   const initial = useMemo(
@@ -29,12 +35,111 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
   );
   const state = useDocument(initial, t);
   const board = state.document as Leaderboard;
+  const [sortColumn, setSortColumn] = useState("1");
   const changeCell = (rowId: string, column: number, value: string) =>
     state.change(updateLeaderboardCell(board, rowId, column, value));
   return (
-    <EditorShell lang={lang} state={state}>
+    <EditorShell
+      lang={lang}
+      state={state}
+      design={<ThemeControls document={board} change={state.change} lang={lang} />}
+      settings={
+        <div className="space-y-5">
+          <fieldset className="space-y-3">
+            <legend className="mb-2 font-semibold">{t.leaderboardLayout}</legend>
+            <div className="flex flex-wrap gap-2" role="group" aria-label={t.leaderboardLayout}>
+              {([1, 2, 3] as const).map((gridColumns) => (
+                <Button
+                  key={gridColumns}
+                  aria-pressed={(board.gridColumns || 1) === gridColumns}
+                  accent={(board.gridColumns || 1) === gridColumns}
+                  onClick={() => state.change({ ...board, gridColumns })}
+                >
+                  {gridColumns === 1
+                    ? t.oneColumn
+                    : gridColumns === 2
+                      ? t.twoColumns
+                      : t.threeColumns}
+                </Button>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset className="space-y-3 border-t border-forest/20 pt-4">
+            <legend className="mb-2 font-semibold">{t.rankingRules}</legend>
+            <label className="grid gap-1 text-sm font-semibold">
+              {t.sortBy}
+              <select
+                className={inputClass}
+                value={sortColumn}
+                onChange={(event) => setSortColumn(event.target.value)}
+              >
+                {board.columns.map((column, index) => (
+                  <option key={index} value={index}>
+                    {column || `${t.column} ${index + 1}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="text-sm leading-5 text-ink/75">{t.manualOrderHint}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                disabled={!board.rows.length}
+                onClick={() =>
+                  state.change({ ...board, rows: sortRows(board.rows, Number(sortColumn), "desc") })
+                }
+              >
+                {t.sortDesc}
+              </Button>
+              <Button
+                disabled={!board.rows.length}
+                onClick={() =>
+                  state.change({ ...board, rows: sortRows(board.rows, Number(sortColumn), "asc") })
+                }
+              >
+                {t.sortAsc}
+              </Button>
+            </div>
+          </fieldset>
+          <VisibilitySettings document={board} change={state.change} lang={lang} />
+        </div>
+      }
+      exportPanel={
+        <div className="space-y-5">
+          <CanvasControls document={board} change={state.change} lang={lang} />
+          <div className="flex flex-wrap gap-2 border-t border-forest/20 pt-4">
+            <Button disabled={!state.ready} onClick={state.backup}>
+              {t.backup}
+            </Button>
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 border border-forest/25 px-4 text-sm font-medium text-forest focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest">
+              {t.import}
+              <input
+                type="file"
+                accept="application/json,.json"
+                disabled={!state.ready || state.busy}
+                className="sr-only"
+                aria-label={t.import}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void state.importFile(file);
+                  event.target.value = "";
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      }
+    >
       <section className="min-w-0 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <label className="grid gap-1 text-sm font-semibold">
+          {t.subtitle}
+          <input
+            className={inputClass}
+            maxLength={200}
+            value={board.subtitle}
+            onChange={(event) => state.change({ ...board, subtitle: event.target.value })}
+          />
+        </label>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-forest/20 pt-4">
           <h2 className="text-lg font-semibold">
             {t.rows} & {t.columns}
           </h2>
@@ -77,26 +182,9 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             {t.addColumn}
           </Button>
         </div>
-        <fieldset className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-forest/15 bg-surface p-3">
-          <legend className="px-1 text-sm font-semibold">{t.leaderboardLayout}</legend>
-          <div className="flex flex-wrap gap-2" role="group" aria-label={t.leaderboardLayout}>
-            {([1, 2, 3] as const).map((gridColumns) => (
-              <Button
-                key={gridColumns}
-                aria-pressed={(board.gridColumns || 1) === gridColumns}
-                accent={(board.gridColumns || 1) === gridColumns}
-                className="!min-h-10 !px-3 !text-sm"
-                onClick={() => state.change({ ...board, gridColumns })}
-              >
-                {gridColumns === 1
-                  ? t.oneColumn
-                  : gridColumns === 2
-                    ? t.twoColumns
-                    : t.threeColumns}
-              </Button>
-            ))}
-          </div>
-        </fieldset>
+        {board.rows.length === 0 && (
+          <p className="text-sm leading-5 text-ink/75">{t.emptyLeaderboard}</p>
+        )}
         <div
           tabIndex={0}
           aria-label={`${t.rows} & ${t.columns}`}

@@ -2,7 +2,7 @@
 
 ## Direction
 
-Public landing pages use a digital sports campaign identity: oversized Inter Tight, forest `#14251b`, warm ivory `#f5f2e8` and selective lime `#ccf86b`. The homepage leads with a full-width broadcast scoreboard, then one ranking composition and one panoramic bracket. Avoid repeated demos, small editor forms, floating glass cards and decorative metrics. Each product introduction uses a distinct composition: broadcast display, ivory rankings, and a wide road to the final. Navigation blends into the current scene. Actual editors retain their existing task-focused design and all data contracts.
+Public landing pages use a digital sports campaign identity: oversized Inter Tight, forest `#14251b`, warm ivory `#f5f2e8` and selective lime `#ccf86b`. The homepage leads with a full-width broadcast scoreboard, then one ranking composition and one panoramic bracket. Avoid repeated demos, small editor forms, floating glass cards and decorative metrics. Each product introduction uses a distinct composition: broadcast display, ivory rankings, and a wide road to the final. Navigation blends into the current scene. Actual builders share a compact project toolbar, four editing areas, a large live preview, and the existing data contracts.
 
 ## Tokens and type
 
@@ -26,15 +26,15 @@ The homepage provides direct actions to all three applications. Product introduc
 
 ### Shared editing pattern
 
-Keep each product's familiar task visible. Place save and PNG export where users expect them, give every editor a clear path to its product introduction, and group appearance and graphic-format settings plainly. Keep saving explicit, preserve browser-local drafts, show storage and export errors, and mark examples so they cannot be mistaken for saved work.
+Keep each product's familiar task visible. Place save and PNG export where users expect them, give every editor a clear path to its product introduction, and group appearance and graphic-format settings plainly. Use Content, Design, Settings, and Export tabs; keep saving explicit, preserve browser-local drafts, and show storage and export errors. Examples belong only in landing-page demonstrations.
 
 ### Leaderboard
 
-Open a useful sample with participant and points data. Edit entries and values in the graphic preview or the table, use simple add/remove actions, and reorder by points when scores change. Let users place ranked entries in one, two or three side-by-side groups. Support preset and custom canvas dimensions and aspect ratios without cropping content. Keep table scrolling inside its own region and compact controls at least 36px tall.
+Start with an empty, editable ranking and an obvious Add participant action. Edit entries and values directly in the graphic or table; reorder by points when requested. Let users place ranked entries in one, two or three side-by-side groups. Support custom canvas dimensions and aspect ratios without cropping content. Keep table scrolling inside its own region and controls comfortably touchable.
 
 ### Bracket
 
-Start with a small participant list and a generated bracket using numbered sample identifiers. Let users edit a name or score from the preview, keep match selection straightforward, and advance the chosen winner. Show one round at a time on narrow screens. Support custom canvas dimensions and aspect ratios without cropping the bracket. If changing a winner or participant count would clear entered results in later rounds, explain the consequence and ask before applying it.
+Start with numbered participant placeholders and undecided matches. Let users edit a name or score from the preview, keep match selection straightforward, and advance the chosen winner. Show one round at a time on narrow screens. Support custom canvas dimensions and aspect ratios without cropping the bracket. If changing a winner or participant count would clear entered results in later rounds, explain the consequence and ask before applying it.
 
 ### Scoreboard
 
