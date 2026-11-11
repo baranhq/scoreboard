@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Download, Save, Upload, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download, Expand, Save } from "lucide-react";
 import { Button } from "@/components/ui/ui";
-import { ColorControl, accentColors } from "./color-control";
+import { ColorControl, accentColors, backgroundColors } from "./color-control";
 import { ThemeLibrary } from "./theme-library";
 import { toolThemes } from "@/lib/tool-themes";
 import { Graphic } from "./graphic";
@@ -16,24 +16,36 @@ import { route } from "@/lib/routes";
 import { exportPng } from "@/lib/export-png";
 import type { useDocument } from "./use-document";
 import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
+import { WorkspaceTabs, type WorkspaceTab } from "./workspace-tabs";
+
 export const inputClass =
-  "min-h-11 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-3 py-2 text-base text-ink";
+  "min-h-11 w-full min-w-0 rounded-md border border-forest/25 bg-surface px-3 py-2 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
+
 export function EditorShell({
   lang,
   state,
   children,
+  design,
+  settings,
+  exportPanel,
 }: {
   lang: Lang;
   state: ReturnType<typeof useDocument>;
   children: ReactNode;
+  design: ReactNode;
+  settings: ReactNode;
+  exportPanel: ReactNode;
 }) {
   const t = studioCopy[lang];
   const doc = state.document;
   const svg = useRef<SVGSVGElement>(null);
+  const preview = useRef<HTMLElement>(null);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
   const [fullSize, setFullSize] = useState(doc.kind === "bracket");
   const [previewOnly, setPreviewOnly] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>("content");
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
   const previewInput = useRef<HTMLInputElement>(null);
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
@@ -55,6 +67,13 @@ export function EditorShell({
   useEffect(() => {
     if (activeField) previewInput.current?.focus();
   }, [activeField]);
+
+  useEffect(() => {
+    const syncFullscreen = () => setFullscreen(document.fullscreenElement === preview.current);
+    document.addEventListener("fullscreenchange", syncFullscreen);
+    return () => document.removeEventListener("fullscreenchange", syncFullscreen);
+  }, []);
+
   const exportImage = async () => {
     if (!svg.current) return;
     setExporting(true);
@@ -67,116 +86,109 @@ export function EditorShell({
       setExporting(false);
     }
   };
+
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await preview.current?.requestFullscreen();
+    } catch {
+      setExportError(t.fullscreenError);
+    }
+  };
+
+  const panels: Record<WorkspaceTab, ReactNode> = {
+    content: children,
+    design,
+    settings,
+    export: exportPanel,
+  };
+
   return (
-    <main id="main" className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-forest/20 pb-4">
-        <div>
+    <main id="main" className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6">
+      <h1 className="sr-only">{doc.title}</h1>
+      <header className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-forest/20 pb-4">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <Link
             href={route(lang, doc.kind === "leaderboard" ? "leaderboards" : "brackets")}
-            className="mb-2 inline-flex min-h-8 items-center gap-1 text-sm text-forest"
+            aria-label={t.back}
+            className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-forest hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
           >
-            <ArrowLeft size={14} />
-            {t.back}
+            <ArrowLeft aria-hidden="true" size={18} />
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight">{t[doc.kind]}</h1>
+          <label className="min-w-0 flex-1">
+            <span className="sr-only">{t.title}</span>
+            <input
+              className="min-h-12 w-full min-w-0 border-b border-transparent bg-transparent px-1 font-display text-2xl font-bold tracking-tight text-ink hover:border-forest/25 focus:border-forest focus-visible:outline-none sm:text-3xl"
+              maxLength={200}
+              value={doc.title}
+              disabled={!state.ready || state.busy}
+              onChange={(event) => state.change({ ...doc, title: event.target.value })}
+            />
+          </label>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <span role="status" className="mr-1 hidden text-sm text-forest sm:inline">
+            {exportError ||
+              state.message ||
+              (!state.ready ? t.loading : state.dirty ? t.unsaved : t.saveHint)}
+          </span>
+          <Button disabled={!state.canUndo || !state.ready} onClick={state.undo}>
+            {t.undoEdit}
+          </Button>
+          <Button disabled={!state.ready || state.busy} onClick={state.newProject}>
+            {t.newProject}
+          </Button>
           <Button disabled={!state.ready || state.busy} onClick={() => void state.save()}>
-            <Save size={17} />
+            <Save aria-hidden="true" size={16} />
             {t.save}
           </Button>
           <Button primary disabled={!state.ready || exporting} onClick={() => void exportImage()}>
-            <Download size={17} />
+            <Download aria-hidden="true" size={16} />
             {exporting ? t.exporting : t.export}
           </Button>
         </div>
-      </div>
-      <p role="status" className="mb-3 text-sm font-medium text-forest">
-        {exportError ||
-          state.message ||
-          (!state.ready ? t.loading : state.dirty ? t.unsaved : t.saveHint)}
-      </p>
-      <div className="mb-4 flex flex-wrap gap-2">
-        <Button disabled={!state.ready} onClick={state.newProject}>
-          {t.newProject}
-        </Button>
-        <Button disabled={!state.canUndo} onClick={state.undo}>
-          {t.undoEdit}
-        </Button>
-        <Button onClick={() => setPreviewOnly(!previewOnly)}>
-          {previewOnly ? t.editing : t.previewOnly}
-        </Button>
-        <Button disabled={!state.ready} onClick={state.backup}>
-          {t.backup}
-        </Button>
-        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-forest/25 px-4 text-base font-medium text-forest focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-forest">
-          <Upload size={16} />
-          {t.import}
-          <input
-            type="file"
-            accept="application/json,.json"
-            disabled={!state.ready || state.busy}
-            className="sr-only"
-            aria-label={t.import}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void state.importFile(file);
-              event.target.value = "";
-            }}
-          />
-        </label>
-      </div>
+        <p role="status" className="w-full text-sm text-forest sm:hidden">
+          {exportError ||
+            state.message ||
+            (!state.ready ? t.loading : state.dirty ? t.unsaved : t.saveHint)}
+        </p>
+      </header>
+
       <div
         className={
           previewOnly
             ? ""
-            : "grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]"
+            : "grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.8fr)]"
         }
       >
-        {!previewOnly && (
-          <div className="order-2 min-w-0 space-y-6 lg:order-1">
-            <fieldset disabled={!state.ready || state.busy} className="min-w-0 space-y-5">
-              <legend className="sr-only">{t.editing}</legend>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-1 text-sm font-semibold">
-                  {t.title}
-                  <input
-                    className={inputClass}
-                    maxLength={200}
-                    value={doc.title}
-                    onChange={(e) => state.change({ ...doc, title: e.target.value })}
-                  />
-                </label>
-                <label className="grid gap-1 text-sm font-semibold">
-                  {t.subtitle}
-                  <input
-                    className={inputClass}
-                    maxLength={200}
-                    value={doc.subtitle}
-                    onChange={(e) => state.change({ ...doc, subtitle: e.target.value })}
-                  />
-                </label>
-              </div>
-              {children}
-              <details className="border-t border-forest/20 pt-3">
-                <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">
-                  {t.style}
-                </summary>
-                <StyleControls document={doc} change={state.change} lang={lang} />
-              </details>
-            </fieldset>
+        <section
+          ref={preview}
+          aria-label={t.preview}
+          className={`order-1 min-w-0 bg-paper lg:sticky lg:top-4 lg:order-2 ${fullscreen ? "flex h-dvh flex-col overflow-hidden p-4" : ""}`}
+        >
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-base font-semibold">{t.preview}</h2>
+            <div className="flex flex-wrap gap-2">
+              <Button aria-pressed={fullSize} onClick={() => setFullSize(!fullSize)}>
+                {fullSize ? t.fit : t.actual}
+              </Button>
+              <Button aria-pressed={fullscreen} onClick={() => void toggleFullscreen()}>
+                <Expand aria-hidden="true" size={16} />
+                {t.fullscreen}
+              </Button>
+              <Button
+                aria-pressed={previewOnly}
+                onClick={() => setPreviewOnly((current) => !current)}
+              >
+                {previewOnly ? t.editing : t.previewOnly}
+              </Button>
+            </div>
           </div>
-        )}
-        <section aria-label={t.preview} className="order-1 min-w-0 lg:sticky lg:top-20 lg:order-2">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold">{t.preview}</h2>
-            <Button aria-pressed={fullSize} onClick={() => setFullSize(!fullSize)}>
-              {fullSize ? t.fit : t.actual}
-            </Button>
-          </div>
-          <p className="mb-2 text-sm leading-relaxed text-ink/75">{t.clickToEdit}</p>
+          {!fullscreen && (
+            <p className="mb-2 text-sm leading-relaxed text-ink/75">{t.clickToEdit}</p>
+          )}
           {activeField && (
-            <div className="mb-3 flex flex-wrap items-end gap-2 rounded-xl border border-action/30 bg-surface p-3 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none">
+            <div className="mb-3 flex flex-wrap items-end gap-2 border-y border-action/35 bg-surface px-3 py-3 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none">
               <label className="grid min-w-0 flex-1 gap-1 text-sm font-semibold">
                 <span>
                   {t.selectedPreview}: {activeLabel}
@@ -216,7 +228,7 @@ export function EditorShell({
             </div>
           )}
           <div
-            className="max-h-[75svh] overflow-auto overscroll-contain rounded-xl border border-forest/20 bg-forest/5 p-3 focus-visible:outline-offset-0 sm:p-5"
+            className={`min-h-64 overflow-auto overscroll-contain border border-forest/20 bg-forest/5 p-2 focus-visible:outline-offset-0 sm:p-4 ${fullscreen ? "min-h-0 flex-1" : "max-h-[68svh]"}`}
             tabIndex={0}
             aria-label={t.scrollHint}
           >
@@ -224,13 +236,31 @@ export function EditorShell({
               <Graphic document={doc} labels={t} svgRef={svg} onEdit={setActiveField} />
             </div>
           </div>
-          <p className="mt-2 text-sm leading-relaxed text-ink/75">{t.scrollHint}</p>
+          {!fullscreen && (
+            <p className="mt-2 text-sm leading-relaxed text-ink/75">{t.scrollHint}</p>
+          )}
         </section>
+
+        {!previewOnly && (
+          <aside className="order-2 min-w-0 border-t border-forest/20 pt-4 lg:order-1 lg:border-t-0 lg:pt-0">
+            <WorkspaceTabs lang={lang} value={activeTab} change={setActiveTab} />
+            <fieldset
+              id="workspace-panel"
+              role="tabpanel"
+              aria-labelledby={`workspace-tab-${activeTab}`}
+              disabled={!state.ready || state.busy}
+              className="max-h-[72svh] min-w-0 space-y-5 overflow-y-auto overscroll-contain px-1 py-4 lg:max-h-[calc(100dvh-13rem)]"
+            >
+              {panels[activeTab]}
+            </fieldset>
+          </aside>
+        )}
       </div>
     </main>
   );
 }
-function StyleControls({
+
+export function ThemeControls({
   document: doc,
   change,
   lang,
@@ -240,173 +270,272 @@ function StyleControls({
   lang: Lang;
 }) {
   const t = studioCopy[lang];
-  const [participant, setParticipant] = useState("");
-  const player =
+  const [participantId, setParticipantId] = useState("");
+  const applyTheme = (theme: (typeof toolThemes)[number]) => {
+    const style = { ...theme };
+    delete style.id;
+    change({
+      ...doc,
+      style: {
+        ...doc.style,
+        ...style,
+        titleVisible: theme.titleVisible ?? true,
+        subtitleVisible: theme.subtitleVisible ?? true,
+        showScores: theme.showScores ?? true,
+        connectorColor: theme.connectorColor,
+        connectorWidth: theme.connectorWidth,
+        roundGap: theme.roundGap,
+        matchGap: theme.matchGap,
+        gradient: theme.gradient,
+        backgroundEnd: theme.backgroundEnd,
+      },
+    });
+  };
+  const participant =
     doc.kind === "bracket"
-      ? doc.participants.find((item) => item.id === participant) || doc.participants[0]
+      ? doc.participants.find((item) => item.id === participantId) || doc.participants[0]
       : undefined;
   return (
-    <fieldset className="space-y-3 border-t border-forest/20 pt-4">
-      <legend className="pt-4 text-lg font-semibold">{t.style}</legend>
-      <ThemeLibrary
-        lang={lang}
-        value={{ ...toolThemes[0], ...doc.style }}
-        change={(style) => change({ ...doc, style: { ...doc.style, ...style } })}
-      />
+    <div className="space-y-5">
+      <ThemeLibrary lang={lang} value={{ ...toolThemes[0], ...doc.style }} change={applyTheme} />
       <details className="border-t border-forest/20 pt-3">
         <summary className="min-h-11 cursor-pointer py-2 font-semibold">{t.more}</summary>
         <div className="grid gap-3 py-3 sm:grid-cols-2">
-          {(
-            [
-              ["titleVisible", t.title],
-              ["subtitleVisible", t.subtitle],
-            ] as const
-          ).map(([key, label]) => (
-            <label key={key} className="flex min-h-11 items-center gap-2">
-              <input
-                type="checkbox"
-                checked={doc.style[key] !== false}
-                onChange={(e) =>
-                  change({ ...doc, style: { ...doc.style, [key]: e.target.checked } })
-                }
-              />
-              {label}
-            </label>
-          ))}
-          {doc.kind === "bracket" && (
-            <>
-              <label className="flex min-h-11 items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={doc.style.showScores !== false}
-                  onChange={(e) =>
-                    change({ ...doc, style: { ...doc.style, showScores: e.target.checked } })
-                  }
-                />
-                {t.score}
+          <ColorControl
+            label={doc.kind === "bracket" ? t.connectorColour : t.borderColour}
+            value={
+              doc.kind === "bracket"
+                ? doc.style.connectorColor || doc.style.accent
+                : doc.style.borderColor || doc.style.accent
+            }
+            colors={accentColors}
+            copy={t}
+            change={(color) =>
+              change({
+                ...doc,
+                style:
+                  doc.kind === "bracket"
+                    ? { ...doc.style, connectorColor: color }
+                    : { ...doc.style, borderColor: color },
+              })
+            }
+          />
+          {participant && doc.kind === "bracket" && (
+            <div className="space-y-2">
+              <label className="grid gap-1 text-sm font-semibold">
+                {t.participant}
+                <select
+                  value={participant.id}
+                  className={inputClass}
+                  onChange={(event) => setParticipantId(event.target.value)}
+                >
+                  {doc.participants.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
               </label>
               <ColorControl
-                label={t.connectorColour}
-                value={doc.style.connectorColor || doc.style.accent}
+                label={`${t.participantColour}: ${participant.name}`}
+                value={participant.color || doc.style.accent}
                 colors={accentColors}
                 copy={t}
-                change={(connectorColor) =>
-                  change({ ...doc, style: { ...doc.style, connectorColor } })
+                change={(color) =>
+                  change({
+                    ...doc,
+                    participants: doc.participants.map((item) =>
+                      item.id === participant.id ? { ...item, color } : item,
+                    ),
+                  })
                 }
               />
-              {(
-                [
-                  ["connectorWidth", "connectorThickness", 0, 8, 2],
-                  ["roundGap", "roundSpacing", 240, 400, 260],
-                  ["matchGap", "matchSpacing", 8, 100, 40],
-                ] as const
-              ).map(([key, label, min, max, fallback]) => (
-                <label key={key} className="grid gap-2 text-sm font-semibold">
-                  {t[label]}: {doc.style[key] ?? fallback}
-                  <input
-                    type="range"
-                    min={min}
-                    max={max}
-                    value={doc.style[key] ?? fallback}
-                    onChange={(e) =>
-                      change({ ...doc, style: { ...doc.style, [key]: Number(e.target.value) } })
-                    }
-                  />
-                </label>
-              ))}
-              {player && (
-                <div className="space-y-2">
-                  <label className="grid gap-1 text-sm font-semibold">
-                    {t.participant}
-                    <select
-                      value={player.id}
-                      onChange={(e) => setParticipant(e.target.value)}
-                      className={inputClass}
-                    >
-                      {doc.participants.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <ColorControl
-                    label={t.participantColour}
-                    value={player.color || doc.style.accent}
-                    colors={accentColors}
-                    copy={t}
-                    change={(color) =>
-                      change({
-                        ...doc,
-                        participants: doc.participants.map((item) =>
-                          item.id === player.id ? { ...item, color } : item,
-                        ),
-                      })
-                    }
-                  />
-                </div>
-              )}
-            </>
+            </div>
           )}
         </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ColorControl
+            label={t.accent}
+            value={doc.style.accent}
+            colors={accentColors}
+            copy={t}
+            change={(accent) => change({ ...doc, style: { ...doc.style, accent } })}
+          />
+          <ColorControl
+            label={t.background}
+            value={doc.style.background}
+            colors={backgroundColors}
+            copy={t}
+            change={(background) => change({ ...doc, style: { ...doc.style, background } })}
+          />
+          <ColorControl
+            label={t.textColour}
+            value={doc.style.textColor || "#111111"}
+            colors={accentColors}
+            copy={t}
+            change={(textColor) => change({ ...doc, style: { ...doc.style, textColor } })}
+          />
+        </div>
+        <div className="grid gap-3 pt-3 sm:grid-cols-2">
+          {(
+            [
+              ["radius", t.cornerRadius, 40],
+              ["borderWidth", t.borderThickness, 8],
+            ] as const
+          ).map(([field, label, max]) => (
+            <label key={field} className="grid gap-2 text-sm font-semibold">
+              {label}: {doc.style[field] ?? 0}
+              <input
+                type="range"
+                min="0"
+                max={max}
+                value={doc.style[field] ?? 0}
+                onChange={(event) =>
+                  change({
+                    ...doc,
+                    style: { ...doc.style, [field]: Number(event.target.value) },
+                  })
+                }
+              />
+            </label>
+          ))}
+        </div>
+        {doc.kind === "bracket" && (
+          <fieldset className="grid gap-3 border-t border-forest/15 pt-4 sm:grid-cols-2">
+            <legend className="px-1 font-semibold">{t.layout}</legend>
+            {(
+              [
+                ["connectorWidth", t.connectorThickness, 0, 8, 2],
+                ["roundGap", t.roundSpacing, 240, 400, 260],
+                ["matchGap", t.matchSpacing, 8, 100, 40],
+              ] as const
+            ).map(([field, label, min, max, fallback]) => (
+              <label key={field} className="grid gap-2 text-sm font-semibold">
+                {label}: {doc.style[field] ?? fallback}
+                <input
+                  type="range"
+                  min={min}
+                  max={max}
+                  value={doc.style[field] ?? fallback}
+                  onChange={(event) =>
+                    change({
+                      ...doc,
+                      style: { ...doc.style, [field]: Number(event.target.value) },
+                    })
+                  }
+                />
+              </label>
+            ))}
+          </fieldset>
+        )}
+        <label className="mt-3 flex min-h-11 items-center gap-3">
+          <input
+            type="checkbox"
+            checked={!!doc.style.gradient}
+            onChange={(event) =>
+              change({
+                ...doc,
+                style: {
+                  ...doc.style,
+                  gradient: event.target.checked,
+                  backgroundEnd: doc.style.backgroundEnd || doc.style.accent,
+                },
+              })
+            }
+          />
+          {t.gradientBackground}
+        </label>
       </details>
-      <CanvasControls document={doc} change={change} labels={t} />
+    </div>
+  );
+}
+
+export function VisibilitySettings({
+  document: doc,
+  change,
+  lang,
+}: {
+  document: StudioDocument;
+  change: (doc: StudioDocument) => void;
+  lang: Lang;
+}) {
+  const t = studioCopy[lang];
+  const options = [
+    ["titleVisible", t.title],
+    ["subtitleVisible", t.subtitle],
+  ] as const;
+  return (
+    <fieldset className="space-y-3">
+      <legend className="mb-2 font-semibold">{t.displayElements}</legend>
+      {options.map(([key, label]) => (
+        <label key={key} className="flex min-h-11 items-center gap-3">
+          <input
+            type="checkbox"
+            checked={doc.style[key] !== false}
+            onChange={(event) =>
+              change({ ...doc, style: { ...doc.style, [key]: event.target.checked } })
+            }
+          />
+          {label}
+        </label>
+      ))}
+      {doc.kind === "bracket" && (
+        <label className="flex min-h-11 items-center gap-3">
+          <input
+            type="checkbox"
+            checked={doc.style.showScores !== false}
+            onChange={(event) =>
+              change({ ...doc, style: { ...doc.style, showScores: event.target.checked } })
+            }
+          />
+          {t.score}
+        </label>
+      )}
     </fieldset>
   );
 }
 
-function CanvasControls({
+export function CanvasControls({
   document: doc,
   change,
-  labels: t,
+  lang,
 }: {
   document: StudioDocument;
   change: (doc: StudioDocument) => void;
-  labels: (typeof studioCopy)[Lang];
+  lang: Lang;
 }) {
+  const t = studioCopy[lang];
   const [customOpen, setCustomOpen] = useState(false);
-  const widthValue = String(doc.canvas?.width || canvasRatios.landscape.width);
-  const heightValue = String(doc.canvas?.height || canvasRatios.landscape.height);
-  const [widthDraft, setWidthDraft] = useState(widthValue);
-  const [heightDraft, setHeightDraft] = useState(heightValue);
-  const [previousDimensions, setPreviousDimensions] = useState({ widthValue, heightValue });
+  const width = doc.canvas?.width || canvasRatios.landscape.width;
+  const height = doc.canvas?.height || canvasRatios.landscape.height;
+  const dimensionSignature = `${width}:${height}`;
+  const [dimensionDraft, setDimensionDraft] = useState({
+    width: String(width),
+    height: String(height),
+    signature: dimensionSignature,
+  });
+  const currentDraft =
+    dimensionDraft.signature === dimensionSignature
+      ? dimensionDraft
+      : { width: String(width), height: String(height), signature: dimensionSignature };
   const choices = [
     { label: t.landscapeRatio, size: canvasRatios.landscape },
     { label: t.portraitRatio, size: canvasRatios.portrait },
     { label: t.squareRatio, size: canvasRatios.square },
     { label: t.storyRatio, size: canvasRatios.story },
   ];
-
-  if (
-    widthValue !== previousDimensions.widthValue ||
-    heightValue !== previousDimensions.heightValue
-  ) {
-    setPreviousDimensions({ widthValue, heightValue });
-    setWidthDraft(widthValue);
-    setHeightDraft(heightValue);
-  }
-
   const updateDimension = (key: "width" | "height", value: string) => {
-    if (key === "width") setWidthDraft(value);
-    else setHeightDraft(value);
-
+    setDimensionDraft({ ...currentDraft, [key]: value });
     if (!/^\d+$/.test(value)) return;
-    const dimension = Number(value);
-    if (dimension < 320 || dimension > 4096) return;
-
+    const next = Number(value);
+    if (next < 320 || next > 4096) return;
     change({
       ...doc,
       canvas: {
-        width: key === "width" ? dimension : doc.canvas?.width || canvasRatios.landscape.width,
-        height: key === "height" ? dimension : doc.canvas?.height || canvasRatios.landscape.height,
+        width: key === "width" ? next : width,
+        height: key === "height" ? next : height,
       },
     });
-  };
-
-  const resetDraft = (key: "width" | "height") => {
-    const value = doc.canvas?.[key] || canvasRatios.landscape[key];
-    if (key === "width") setWidthDraft(String(value));
-    else setHeightDraft(String(value));
   };
 
   return (
@@ -433,51 +562,44 @@ function CanvasControls({
               aria-pressed={selected}
               accent={selected}
               className="!min-h-10 !px-3 !text-sm"
-              onClick={() => {
-                change({ ...doc, canvas: { ...size } });
-                setCustomOpen(false);
-              }}
+              onClick={() => change({ ...doc, canvas: size })}
             >
               {label}
             </Button>
           );
         })}
-        <Button
-          aria-expanded={customOpen}
-          aria-pressed={customOpen}
-          accent={customOpen}
-          className="!min-h-10 !px-3 !text-sm"
-          onClick={() => {
-            if (!customOpen && !doc.canvas)
-              change({ ...doc, canvas: { ...canvasRatios.landscape } });
-            setCustomOpen((open) => !open);
-          }}
-        >
+        <Button aria-expanded={customOpen} onClick={() => setCustomOpen(!customOpen)}>
           {t.customSize}
         </Button>
       </div>
       {customOpen && (
-        <div className="grid grid-cols-2 gap-3 rounded-xl border border-forest/15 bg-surface p-3 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none">
-          {(["width", "height"] as const).map((key) => (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              ["width", t.width, currentDraft.width],
+              ["height", t.height, currentDraft.height],
+            ] as const
+          ).map(([key, label, value]) => (
             <label key={key} className="grid gap-1 text-sm font-semibold">
-              {t[key]}
+              {label} · {t.pixelRange}
               <input
                 type="number"
-                min={320}
-                max={4096}
-                step={1}
-                value={key === "width" ? widthDraft : heightDraft}
-                inputMode="numeric"
-                aria-describedby="canvas-size-hint"
-                onChange={(event) => updateDimension(key, event.target.value)}
-                onBlur={() => resetDraft(key)}
+                min="320"
+                max="4096"
+                value={value}
                 className={inputClass}
+                onChange={(event) => updateDimension(key, event.target.value)}
+                onBlur={() => {
+                  if (!/^\d+$/.test(value) || Number(value) < 320 || Number(value) > 4096)
+                    setDimensionDraft({
+                      width: String(width),
+                      height: String(height),
+                      signature: dimensionSignature,
+                    });
+                }}
               />
             </label>
           ))}
-          <p id="canvas-size-hint" className="col-span-2 text-sm text-ink/70">
-            {t.pixelRange}
-          </p>
         </div>
       )}
     </fieldset>
@@ -488,25 +610,11 @@ function previewFieldLabel(
   doc: StudioDocument,
   field: PreviewField,
   labels: (typeof studioCopy)[Lang],
-): string {
-  if (field.kind === "title") return labels.title;
-  if (field.kind === "subtitle") return labels.subtitle;
-  if (field.kind === "leaderboard-column") return `${labels.column} ${field.column + 1}`;
-  if (field.kind === "leaderboard-position" && doc.kind === "leaderboard") {
-    const index = doc.rows.findIndex((row) => row.id === field.rowId);
-    return `${labels.position} ${index + 1}`;
-  }
-  if (field.kind === "leaderboard-cell" && doc.kind === "leaderboard") {
-    const index = doc.rows.findIndex((row) => row.id === field.rowId);
-    return `${labels.rows} ${index + 1} · ${doc.columns[field.column] || labels.cell}`;
-  }
-  if (field.kind === "bracket-participant" && doc.kind === "bracket") {
-    const index = doc.participants.findIndex((player) => player.id === field.participantId);
-    return `${labels.participant} ${index + 1}`;
-  }
-  if (field.kind === "bracket-score") {
-    const matchNumber = Number(field.matchId.split("-")[1]) + 1;
-    return `${labels.match} ${matchNumber} · ${labels.score} ${field.side + 1}`;
-  }
-  return labels.cell;
+) {
+  if (field.kind === "leaderboard-cell")
+    return doc.kind === "leaderboard" ? doc.columns[field.column] : labels.cell;
+  if (field.kind === "leaderboard-column") return labels.column;
+  if (field.kind === "leaderboard-position") return labels.position;
+  if (field.kind === "bracket-score") return labels.score;
+  return labels.participant;
 }

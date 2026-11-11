@@ -4,6 +4,7 @@ import { parseDocument, type StudioDocument } from "@/lib/studio";
 import { readDocument, saveDocument } from "@/store/studio";
 import type { StudioCopy } from "@/lib/studio-copy";
 import { downloadBlob, safeFilename } from "@/lib/export-png";
+import { getToolTheme } from "@/lib/tool-themes";
 export function useDocument(initial: StudioDocument, labels: StudioCopy) {
   const [document, setDocument] = useState(initial);
   const [ready, setReady] = useState(false);
@@ -15,6 +16,7 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
   const [canUndo, setCanUndo] = useState(false);
   const draftKey = useRef("");
   const loading = useRef(true);
+  const freshTemplate = useRef(initial);
   useEffect(() => {
     let active = true;
     let generation = 0;
@@ -23,7 +25,32 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       const currentRevision = revision.current;
       loading.current = true;
       const id = new URLSearchParams(window.location.hash.slice(1)).get("table");
-      const key = `scoreboard-draft:${initial.kind}:${id || "new"}`;
+      const search = new URLSearchParams(window.location.search);
+      const launchTheme =
+        !id && search.get("new") === "1" ? getToolTheme(search.get("theme")) : undefined;
+      let template = initial;
+      let draftSuffix = id || "new";
+      if (launchTheme) {
+        const instance = search.get("instance") || crypto.randomUUID();
+        if (!search.has("instance")) {
+          search.set("instance", instance);
+          window.history.replaceState(
+            window.history.state,
+            "",
+            `${window.location.pathname}?${search.toString()}${window.location.hash}`,
+          );
+        }
+        template = {
+          ...initial,
+          id: instance,
+          style: { ...initial.style, ...launchTheme },
+        };
+        freshTemplate.current = template;
+        draftSuffix = `theme-${instance}`;
+      } else {
+        freshTemplate.current = initial;
+      }
+      const key = `scoreboard-draft:${initial.kind}:${draftSuffix}`;
       try {
         let saved: StudioDocument | undefined;
         let storageProblem = false;
@@ -46,7 +73,7 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
         history.current = [];
         setCanUndo(false);
         setDocument(
-          draft?.kind === initial.kind ? draft : saved?.kind === initial.kind ? saved : initial,
+          draft?.kind === initial.kind ? draft : saved?.kind === initial.kind ? saved : template,
         );
         setDirty(draft?.kind === initial.kind);
         setMessage(
@@ -137,8 +164,20 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
     revision.current++;
     history.current = [];
     setCanUndo(false);
-    setDocument({ ...initial, id: crypto.randomUUID() });
-    draftKey.current = `scoreboard-draft:${initial.kind}:new`;
+    const id = crypto.randomUUID();
+    setDocument({ ...freshTemplate.current, id });
+    const search = new URLSearchParams(window.location.search);
+    if (search.get("new") === "1" && getToolTheme(search.get("theme"))) {
+      search.set("instance", id);
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}?${search.toString()}${window.location.hash}`,
+      );
+      draftKey.current = `scoreboard-draft:${initial.kind}:theme-${id}`;
+    } else {
+      draftKey.current = `scoreboard-draft:${initial.kind}:new`;
+    }
     try {
       window.sessionStorage.removeItem(draftKey.current);
     } catch {
