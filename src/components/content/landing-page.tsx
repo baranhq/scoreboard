@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { ArrowUpRight, ArrowDown, Code2, Check } from "lucide-react";
-import { PlatformDemo, ToolDemo, type Tool } from "./tool-demo";
+import { ArrowUpRight, ArrowDown, Code2 } from "lucide-react";
+import { ToolDemo, type Tool } from "./tool-demo";
+import { HomeScoreboard } from "./home-scoreboard";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
 import { route } from "@/lib/routes";
 import { repo } from "@/lib/site";
 
 export const primaryLinkClass =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-action px-5 py-3 text-base font-semibold text-on-action transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-action px-6 py-3 text-base font-semibold text-on-action transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none";
 
 export const toolPages = {
   scoreboard: "scoreboardIntro",
@@ -54,39 +55,15 @@ export function toolContent(lang: Lang, tool: Tool) {
 const homeCopy = {
   en: {
     headline: "Every point.\nEvery position.\nEvery win.",
-    heading: "A great game deserves a clear view.",
-    steps: ["Pick your tool", "Make it yours", "Show the result"],
-    descriptions: [
-      "Keep a score, rank the field or build a tournament.",
-      "Add your teams, enter results and choose your colours.",
-      "Present the action, save locally or export a supported format.",
-    ],
     ownership: "Your game. Your rules. Your browser.",
-    source: "Built in the open.",
   },
   bg: {
     headline: "Всяка точка.\nВсяко място.\nВсяка победа.",
-    heading: "Добрата игра заслужава ясна картина.",
-    steps: ["Изберете инструмент", "Направете го свой", "Покажете резултата"],
-    descriptions: [
-      "Следете резултат, подредете класиране или създайте турнир.",
-      "Добавете отбори, въведете резултати и изберете цветове.",
-      "Представете играта, запазете локално или експортирайте в поддържан формат.",
-    ],
     ownership: "Вашата игра. Вашите правила. Вашият браузър.",
-    source: "С отворен код.",
   },
   tr: {
     headline: "Her sayı.\nHer sıra.\nHer galibiyet.",
-    heading: "İyi bir oyun, net bir görünümü hak eder.",
-    steps: ["Aracınızı seçin", "Kendinize uyarlayın", "Sonucu gösterin"],
-    descriptions: [
-      "Skor tutun, sıralama yapın veya turnuva oluşturun.",
-      "Takımları ekleyin, sonuçları girin ve renkleri seçin.",
-      "Oyunu sunun, cihazınıza kaydedin veya desteklenen bir biçimde dışa aktarın.",
-    ],
     ownership: "Sizin oyununuz. Sizin kurallarınız. Sizin tarayıcınız.",
-    source: "Açık kaynakla geliştirildi.",
   },
 };
 
@@ -94,133 +71,99 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
   const t = studioCopy[lang];
   const copy = homeCopy[lang];
   return (
-    <main id="main" data-landing-home>
-      <section className="overflow-hidden bg-[#edf1e8] dark:bg-[#213027]">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pt-10 pb-12 sm:px-8 sm:pt-14 lg:min-h-[43rem] lg:grid-cols-[1fr_1.05fr] lg:gap-12 lg:py-16">
-          <header className="min-w-0">
-            <p className="mb-5 text-xs font-bold tracking-[0.16em] text-forest uppercase">
-              {t.homeEyebrow}
-            </p>
-            <h1 className="font-display text-[clamp(2.8rem,5.6vw,5.25rem)] leading-[0.98] font-bold tracking-[-0.065em] whitespace-pre-line">
+    <main id="main" data-campaign="dark" data-landing-home>
+      <section className="overflow-hidden bg-[#14251b] text-[#f5f2e8]">
+        <div className="mx-auto max-w-7xl px-5 pt-10 sm:px-8 sm:pt-14">
+          <div className="grid items-end gap-6 motion-safe:animate-[preview-intro_600ms_ease-out_both] lg:grid-cols-[1.3fr_0.7fr]">
+            <h1 className="font-display text-[clamp(3.5rem,8vw,7rem)] leading-[0.88] font-bold tracking-[-0.065em] whitespace-pre-line">
               {copy.headline}
             </h1>
-            <p className="mt-6 max-w-[43ch] text-base leading-7 text-ink/75 sm:text-lg">
-              {t.intro}
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link href={route(lang, toolEditors.scoreboard)} className={primaryLinkClass}>
-                {t.scoreAction}
-                <ArrowUpRight aria-hidden="true" size={18} />
-              </Link>
-              <a
-                href="#tools"
-                className="inline-flex min-h-12 items-center gap-2 font-semibold text-forest"
-              >
-                {t.explore}
-                <ArrowDown aria-hidden="true" size={16} />
-              </a>
+            <div className="lg:pb-2">
+              <p className="max-w-[42ch] text-base leading-7 text-white/75 sm:text-lg">{t.intro}</p>
+              <div className="mt-6 flex flex-wrap items-center gap-5">
+                <Link
+                  href={route(lang, toolEditors.scoreboard)}
+                  className="inline-flex min-h-12 items-center gap-3 rounded-full bg-[#ccf86b] px-6 py-3 font-semibold text-[#14251b] transition-transform active:scale-95 motion-reduce:transform-none"
+                >
+                  {t.scoreAction}
+                  <ArrowUpRight size={18} aria-hidden="true" />
+                </Link>
+                <a
+                  href="#tools"
+                  className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold"
+                >
+                  {t.explore}
+                  <ArrowDown size={16} aria-hidden="true" />
+                </a>
+              </div>
             </div>
-            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-forest sm:text-sm">
-              {[t.free, t.local].map((text) => (
-                <span key={text} className="inline-flex items-center gap-1.5">
-                  <Check size={14} aria-hidden="true" />
-                  {text}
-                </span>
-              ))}
+          </div>
+          <div className="mt-10 border-t border-white/25 pt-3 pb-7 sm:mt-12">
+            <div className="mb-3 flex flex-wrap justify-between gap-2 text-xs font-semibold tracking-wide text-[#ccf86b]">
+              <span>{t.scoreboard}</span>
+              <span>
+                {t.free} · {t.local}
+              </span>
             </div>
-          </header>
-          <div className="relative min-w-0 border-t border-b border-forest/25 py-4 lg:translate-y-3">
-            <PlatformDemo lang={lang} compact />
+            <HomeScoreboard lang={lang} />
           </div>
         </div>
       </section>
-
-      <section id="tools" aria-labelledby="tools-title" className="scroll-mt-24">
-        <div className="mx-auto max-w-7xl px-5 pt-14 sm:px-8 sm:pt-20">
-          <h2
-            id="tools-title"
-            className="max-w-[20ch] font-display text-4xl leading-[1.04] font-bold tracking-[-0.045em] sm:text-5xl"
-          >
-            {copy.heading}
-          </h2>
+      <section id="tools" className="mx-auto max-w-7xl scroll-mt-20 px-5 py-14 sm:px-8 sm:py-20">
+        <div className="grid items-center gap-9 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+          <div>
+            <p className="mb-4 text-sm font-semibold text-action">{t.leaderboard}</p>
+            <h2 className="font-display text-[clamp(2.75rem,5vw,5rem)] leading-[0.98] font-bold tracking-[-0.055em]">
+              {t.leaderTitle}
+            </h2>
+            <p className="mt-5 max-w-[40ch] leading-7 text-ink/75">{t.leaderDescription}</p>
+            <Link href={route(lang, toolPages.leaderboard)} className={`${primaryLinkClass} mt-7`}>
+              {t.leaderAction}
+              <ArrowUpRight size={18} aria-hidden="true" />
+            </Link>
+          </div>
+          <div className="min-w-0 border-t-[6px] border-[#285b35] bg-[#e6ebdd] p-3 sm:p-7 dark:bg-[#243b2b]">
+            <ToolDemo tool="leaderboard" lang={lang} compact />
+          </div>
         </div>
-        {(["scoreboard", "leaderboard", "bracket"] as const).map((tool, index) => {
-          const content = toolContent(lang, tool);
-          return (
-            <article
-              key={tool}
-              className={tool === "bracket" ? "bg-[#e5ecdf] dark:bg-[#213027]" : ""}
-            >
-              <div
-                className={`mx-auto grid max-w-7xl items-center gap-7 px-5 py-12 sm:px-8 sm:py-16 lg:gap-16 ${index === 1 ? "lg:grid-cols-[1.2fr_0.8fr]" : "lg:grid-cols-[0.8fr_1.2fr]"}`}
-              >
-                <div className={index === 1 ? "lg:order-2" : ""}>
-                  <p className="mb-3 text-sm font-semibold text-forest">{t[tool]}</p>
-                  <h3 className="max-w-[20ch] font-display text-3xl leading-[1.08] font-bold tracking-[-0.04em] sm:text-4xl">
-                    {content.title}
-                  </h3>
-                  <p className="mt-4 max-w-[45ch] leading-7 text-ink/75">{content.description}</p>
-                  <p className="mt-5 max-w-[44ch] text-sm leading-6 font-medium text-forest">
-                    {content.features}
-                  </p>
-                  <Link
-                    href={route(lang, toolPages[tool])}
-                    className="mt-5 inline-flex min-h-11 items-center gap-2 font-semibold text-action underline decoration-action/35 underline-offset-4"
-                  >
-                    {t.learn}
-                    <ArrowUpRight size={17} aria-hidden="true" />
-                  </Link>
-                </div>
-                <div className={`min-w-0 ${index === 1 ? "lg:order-1" : ""}`}>
-                  <ToolDemo tool={tool} lang={lang} compact />
-                </div>
-              </div>
-            </article>
-          );
-        })}
       </section>
-
-      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
-        <ol className="grid gap-8 md:grid-cols-3 md:gap-10">
-          {copy.steps.map((title, index) => (
-            <li key={title} className="border-t border-forest/30 pt-4">
-              <span className="font-display text-4xl font-semibold tracking-tight text-forest/50">
-                0{index + 1}
-              </span>
-              <h2 className="mt-4 font-display text-2xl font-bold tracking-tight">{title}</h2>
-              <p className="mt-2 max-w-[32ch] text-sm leading-6 text-ink/75">
-                {copy.descriptions[index]}
-              </p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section className="bg-[#213f29] text-[#f7f7f0] dark:bg-[#172b20]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 sm:py-20 lg:grid-cols-2 lg:gap-20">
-          <h2 className="max-w-[15ch] font-display text-5xl leading-[1.02] font-bold tracking-[-0.05em] sm:text-6xl">
-            {copy.ownership}
-          </h2>
-          <div className="self-end">
-            <p className="mb-4 text-xl font-semibold text-[#a9d5a5]">{copy.source}</p>
-            <p className="max-w-[55ch] leading-7 text-white/75">{t.ownershipText}</p>
-            <div className="mt-6 flex flex-wrap items-center gap-6">
-              <a
-                href={repo}
-                className="inline-flex min-h-12 items-center gap-2 font-semibold text-[#a9d5a5] underline underline-offset-4"
-              >
-                <Code2 size={20} aria-hidden="true" />
-                GitHub
-                <ArrowUpRight size={16} aria-hidden="true" />
-              </a>
+      <section className="overflow-hidden bg-[#d8eead] text-[#14251b] dark:bg-[#263c28] dark:text-[#f5f2e8]">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
+          <div className="grid items-end gap-5 pb-8 md:grid-cols-[1.2fr_0.8fr]">
+            <h2 className="max-w-[17ch] font-display text-[clamp(2.75rem,6vw,5.5rem)] leading-[0.98] font-bold tracking-[-0.055em]">
+              {t.bracketTitle}
+            </h2>
+            <div>
+              <p className="max-w-[45ch] leading-7 opacity-80">{t.bracketDescription}</p>
               <Link
-                href={route(lang, toolEditors.scoreboard)}
-                className="inline-flex min-h-12 items-center gap-2 rounded-lg bg-[#a9d5a5] px-5 py-3 font-semibold text-[#19251c]"
+                href={route(lang, toolPages.bracket)}
+                className="mt-3 inline-flex min-h-11 items-center gap-2 font-semibold underline underline-offset-4"
               >
-                {t.scoreAction}
+                {t.bracketAction}
                 <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
             </div>
+          </div>
+          <div className="mx-auto max-w-4xl min-w-0">
+            <ToolDemo tool="bracket" lang={lang} compact />
+          </div>
+        </div>
+      </section>
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
+        <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+          <h2 className="font-display text-4xl leading-[1.02] font-bold tracking-[-0.04em] sm:text-5xl">
+            {copy.ownership}
+          </h2>
+          <div>
+            <p className="max-w-[65ch] leading-7 text-ink/75">{t.ownershipText}</p>
+            <a
+              href={repo}
+              className="mt-5 inline-flex min-h-11 items-center gap-2 font-semibold text-action"
+            >
+              <Code2 size={18} aria-hidden="true" />
+              GitHub
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </a>
           </div>
         </div>
       </section>
