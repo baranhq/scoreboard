@@ -74,13 +74,14 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
           <>
             <div
               key={tool}
-              className="h-[20rem] min-w-0 overflow-hidden motion-safe:animate-[surface-enter_300ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:h-[22rem] lg:h-[clamp(20rem,36svh,27rem)]"
+              className="h-[20rem] min-w-0 overflow-hidden motion-safe:animate-[surface-enter_360ms_cubic-bezier(0.22,1,0.36,1)_both] motion-reduce:animate-none sm:h-[22rem] lg:h-[clamp(20rem,36svh,27rem)]"
             >
               <ToolDemo
                 tool={tool}
                 lang={lang}
                 compact
                 widePreview={widePreview}
+                fillPreview={tool === "bracket"}
                 autoplay={playing}
                 readOnly
                 showReadOnlyControls

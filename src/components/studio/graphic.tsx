@@ -52,9 +52,7 @@ function Lines({
       role={editable ? "button" : undefined}
       tabIndex={editable ? 0 : undefined}
       aria-label={editable && labels ? `${labels.clickToEdit}: ${text}` : undefined}
-      className={
-        editable ? "cursor-text outline-none hover:underline focus-visible:underline" : undefined
-      }
+      className={`motion-safe:transition-[fill] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none ${editable ? "cursor-text outline-none hover:underline focus-visible:underline" : ""}`}
       onClick={editable ? (event) => openEdit(event.currentTarget) : undefined}
       onKeyDown={
         editable
@@ -171,7 +169,7 @@ export function LeaderboardGraphic({
         ...row.cells.map((cell, i) => wrapText(cell, (widths[i] - 32) / 22).length * 29 + 26),
       );
       const placement = { row, index, rank, x, y, height };
-      y += height + (board.style.rowSeparators ? 14 : 0);
+      y += height + (board.style.rowSeparators ? 8 : 4);
       return placement;
     });
   });
@@ -222,12 +220,17 @@ export function LeaderboardGraphic({
                 <Lines
                   key={i}
                   text={column}
-                  x={x + 68 + widths.slice(0, i).reduce((a, b) => a + b, 0)}
+                  x={
+                    i === board.columns.length - 1
+                      ? x + columnWidth - 12
+                      : x + 68 + widths.slice(0, i).reduce((a, b) => a + b, 0)
+                  }
                   y={header + 26}
                   width={(widths[i] - 32) / 18}
                   fill={text}
                   size={18}
                   weight={600}
+                  anchor={i === board.columns.length - 1 ? "end" : "start"}
                   edit={{ kind: "leaderboard-column", column: i }}
                   labels={onEdit ? labels : undefined}
                   onEdit={onEdit}
@@ -240,14 +243,14 @@ export function LeaderboardGraphic({
           <g
             key={row.row.id}
             transform={`translate(${row.x} ${row.y})`}
-            className="motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
+            className="motion-safe:transition-transform motion-safe:duration-[280ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
           >
             <rect
               x={0}
               y={0}
               width={columnWidth}
               height={row.height - (board.style.rowSeparators ? 8 : 4)}
-              rx={board.style.radius ?? (board.style.preset === "editorial" ? 0 : 6)}
+              rx={board.style.radius ?? (board.style.preset === "editorial" ? 0 : 8)}
               stroke={
                 board.style.rowSeparators
                   ? board.style.borderColor || board.style.accent
@@ -255,9 +258,11 @@ export function LeaderboardGraphic({
               }
               strokeWidth={
                 board.style.rowSeparators
-                  ? Math.max(board.style.borderWidth ?? 0, 1)
-                  : (board.style.borderWidth ?? 0)
+                  ? Math.max(Math.min(board.style.borderWidth ?? 0, 2), 1)
+                  : Math.min(board.style.borderWidth ?? 0, 1)
               }
+              strokeOpacity={board.style.rowSeparators ? 0.48 : 0.3}
+              className="motion-safe:transition-[fill,fill-opacity,stroke,stroke-opacity] motion-safe:duration-[220ms] motion-safe:ease-out motion-reduce:transition-none"
               fill={row.row.color || (row.row.highlighted ? board.style.accent : text)}
               fillOpacity={
                 row.row.color || row.row.highlighted ? 1 : row.index % 2 === 0 ? 0.06 : 0.025
@@ -285,13 +290,18 @@ export function LeaderboardGraphic({
               <Lines
                 key={i}
                 text={cell}
-                x={68 + widths.slice(0, i).reduce((a, b) => a + b, 0)}
+                x={
+                  i === board.columns.length - 1
+                    ? columnWidth - 12
+                    : 68 + widths.slice(0, i).reduce((a, b) => a + b, 0)
+                }
                 y={39}
                 width={(widths[i] - 32) / 22}
                 fill={
                   row.row.color ? foreground(row.row.color) : row.row.highlighted ? onAccent : text
                 }
                 weight={i === 0 ? 600 : 500}
+                anchor={i === board.columns.length - 1 ? "end" : "start"}
                 edit={
                   i === board.totalColumn
                     ? undefined
@@ -370,102 +380,106 @@ export function BracketGraphic({
                   d={`M${fromX},${fromY} H${(fromX + toX) / 2} V${toY} H${toX}`}
                   fill="none"
                   stroke={board.style.connectorColor || board.style.borderColor || text}
-                  strokeOpacity={0.4}
-                  strokeWidth={board.style.connectorWidth ?? board.style.borderWidth ?? 2}
+                  strokeOpacity={0.34}
+                  strokeWidth={Math.min(
+                    board.style.connectorWidth ?? board.style.borderWidth ?? 2,
+                    2,
+                  )}
+                  className="motion-safe:transition-[stroke,stroke-opacity] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
                 />
               );
             }),
           )}
         {nodes.map((node) => (
-          <g key={node.id}>
-            <text x={node.x} y={node.y - 12} fill={text} fontSize={13} fontWeight={600}>
+          <g
+            key={node.id}
+            transform={`translate(${node.x} ${node.y})`}
+            className="motion-safe:transition-transform motion-safe:duration-[280ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+          >
+            <text x={0} y={-12} fill={text} fontSize={13} fontWeight={600}>
               {node.round === Math.log2(nodes.length + 1) - 1
                 ? labels.final
                 : `${labels.round} ${node.round + 1}`}{" "}
               · {node.index + 1}
             </text>
             <rect
-              x={node.x}
-              y={node.y}
+              x={0}
+              y={0}
               width={220}
               height={cardHeight}
-              rx={board.style.radius ?? 6}
+              rx={board.style.radius ?? 8}
               fill={text}
               fillOpacity={0.06}
               stroke={board.style.borderColor || text}
-              strokeOpacity={0.28}
+              strokeOpacity={0.22}
+              strokeWidth={Math.min(board.style.borderWidth ?? 1, 1.5)}
+              className="motion-safe:transition-[fill,fill-opacity,stroke,stroke-opacity] motion-safe:duration-[220ms] motion-safe:ease-out motion-reduce:transition-none"
             />
-            {node.players.map((id, i) => (
-              <g key={i}>
-                {id &&
-                  (node.winner === id ||
-                    board.participants.find((player) => player.id === id)?.color) && (
-                    <rect
-                      x={node.x}
-                      y={node.y + i * rowHeight}
-                      width={220}
-                      height={rowHeight}
-                      rx={board.style.radius ?? 5}
-                      fill={
-                        node.winner === id
-                          ? board.style.accent
-                          : board.participants.find((player) => player.id === id)?.color
-                      }
-                    />
-                  )}
-                <Lines
-                  text={id ? name(id) : node.pending ? labels.pending : labels.bye}
-                  x={node.x + 12}
-                  y={node.y + i * rowHeight + 25}
-                  width={196 / 16}
-                  size={16}
-                  fill={
-                    id && node.winner === id
-                      ? onAccent
-                      : board.participants.find((player) => player.id === id)?.color
-                        ? foreground(board.participants.find((player) => player.id === id)!.color!)
-                        : text
-                  }
-                  weight={node.winner === id ? 700 : 500}
-                  edit={id ? { kind: "bracket-participant", participantId: id } : undefined}
-                  labels={onEdit ? labels : undefined}
-                  onEdit={onEdit}
-                />
-                {board.style.showScores !== false && (
+            {node.players.map((id, i) => {
+              const participant = board.participants.find((player) => player.id === id);
+              const highlighted = !!id && (node.winner === id || !!participant?.color);
+              const rowColor =
+                node.winner === id ? board.style.accent : participant?.color || "transparent";
+              const rowText =
+                node.winner === id
+                  ? onAccent
+                  : participant?.color
+                    ? foreground(participant.color)
+                    : text;
+
+              return (
+                <g key={i}>
+                  <rect
+                    x={0}
+                    y={i * rowHeight}
+                    width={220}
+                    height={rowHeight}
+                    rx={board.style.radius ?? 8}
+                    fill={rowColor}
+                    fillOpacity={highlighted ? 1 : 0}
+                    className="motion-safe:transition-[fill,fill-opacity] motion-safe:duration-[220ms] motion-safe:ease-out motion-reduce:transition-none"
+                  />
                   <Lines
-                    text={node.scores[i] || "—"}
-                    x={node.x + 206}
-                    y={node.y + i * rowHeight + rowHeight - 8}
-                    width={8}
-                    size={12}
-                    fill={
-                      id && node.winner === id
-                        ? onAccent
-                        : board.participants.find((player) => player.id === id)?.color
-                          ? foreground(
-                              board.participants.find((player) => player.id === id)!.color!,
-                            )
-                          : text
-                    }
-                    anchor="end"
-                    edit={
-                      id && node.players.every(Boolean)
-                        ? { kind: "bracket-score", matchId: node.id, side: i as 0 | 1 }
-                        : undefined
-                    }
+                    text={id ? name(id) : node.pending ? labels.pending : labels.bye}
+                    x={12}
+                    y={i * rowHeight + 25}
+                    width={196 / 16}
+                    size={16}
+                    fill={rowText}
+                    weight={node.winner === id ? 700 : 500}
+                    edit={id ? { kind: "bracket-participant", participantId: id } : undefined}
                     labels={onEdit ? labels : undefined}
                     onEdit={onEdit}
                   />
-                )}
-              </g>
-            ))}
+                  {board.style.showScores !== false && (
+                    <Lines
+                      text={node.scores[i] || "—"}
+                      x={206}
+                      y={i * rowHeight + rowHeight - 8}
+                      width={8}
+                      size={12}
+                      fill={rowText}
+                      anchor="end"
+                      edit={
+                        id && node.players.every(Boolean)
+                          ? { kind: "bracket-score", matchId: node.id, side: i as 0 | 1 }
+                          : undefined
+                      }
+                      labels={onEdit ? labels : undefined}
+                      onEdit={onEdit}
+                    />
+                  )}
+                </g>
+              );
+            })}
             <line
-              x1={node.x}
-              x2={node.x + 220}
-              y1={node.y + rowHeight}
-              y2={node.y + rowHeight}
+              x1={0}
+              x2={220}
+              y1={rowHeight}
+              y2={rowHeight}
               stroke={board.style.borderColor || text}
-              strokeOpacity={0.2}
+              strokeOpacity={0.16}
+              className="motion-safe:transition-[stroke,stroke-opacity] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
             />
           </g>
         ))}

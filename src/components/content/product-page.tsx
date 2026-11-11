@@ -17,7 +17,7 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
     ? "h-[clamp(24rem,46svh,35rem)] lg:min-h-0"
     : tool === "leaderboard"
       ? "h-[25rem] rounded-2xl border border-white/15 bg-white/[0.035] p-2 sm:h-[32rem] sm:p-3 lg:h-[min(72svh,44rem)]"
-      : "h-[18rem] rounded-2xl border border-white/15 bg-white/[0.035] p-2 sm:h-[27rem] sm:p-3 lg:h-[min(60svh,38rem)]";
+      : "h-[24rem] rounded-2xl border border-white/15 bg-white/[0.035] p-2 sm:h-[30rem] sm:p-3 lg:h-[min(70svh,44rem)]";
   const heroLayoutClass = isScoreboard
     ? "flex flex-col py-5 lg:h-[calc(100svh-4rem)] lg:overflow-hidden lg:py-3"
     : "grid gap-x-8 gap-y-6 pt-8 pb-10 sm:pt-12 sm:pb-14 lg:min-h-[calc(100svh-4rem)] lg:grid-cols-[minmax(17rem,0.72fr)_minmax(0,1.28fr)] lg:content-center lg:items-center lg:py-7";
@@ -93,7 +93,7 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
                 {content.features}
               </p>
             ) : (
-              <ul className="grid grid-cols-2 gap-x-5 gap-y-2 border-t border-white/15 pt-4 text-sm leading-5 text-white/80 sm:grid-cols-4 lg:col-span-2">
+              <ul className="grid grid-cols-1 gap-x-5 gap-y-2 border-t border-white/15 pt-4 text-sm leading-5 text-white/80 min-[480px]:grid-cols-2 sm:grid-cols-4 lg:col-span-2">
                 {content.features.split(" · ").map((feature) => (
                   <li key={feature}>{feature}</li>
                 ))}
