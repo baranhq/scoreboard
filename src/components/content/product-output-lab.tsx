@@ -22,6 +22,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
   const [showLimit, setShowLimit] = useState(false);
   const [timer, setTimer] = useState<GameTimer>({ ...defaultTimer, enabled: true, periodCount: 2 });
   const t = studioCopy[lang];
+  const bracketPreviewWidth = view === 1 ? "min-w-[42rem]" : "mx-auto w-[42rem]";
   const document = useMemo(() => {
     if (tool === "scoreboard") return null;
     const sample = studioDemo(tool, lang);
@@ -108,7 +109,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
             aria-label={t.exploreGraphic}
             className="overflow-auto overscroll-contain border border-forest/20 bg-forest/5 p-3 sm:p-7"
           >
-            <div className={tool === "bracket" ? "min-w-[42rem]" : "min-w-[30rem]"}>
+            <div className={tool === "bracket" ? bracketPreviewWidth : "min-w-[30rem]"}>
               <Graphic document={document} labels={t} />
             </div>
           </div>
