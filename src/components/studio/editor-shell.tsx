@@ -55,8 +55,15 @@ export function EditorShell({
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
   const [activePosition, setActivePosition] = useState<CSSProperties | null>(null);
   const previewInput = useRef<HTMLInputElement>(null);
+  const workspace = useRef<HTMLDivElement>(null);
+  const [editorPaneRatio, setEditorPaneRatio] = useState(36);
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
   const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
+  const resizeEditorPane = (clientX: number) => {
+    const bounds = workspace.current?.getBoundingClientRect();
+    if (!bounds) return;
+    setEditorPaneRatio(Math.min(60, Math.max(28, ((clientX - bounds.left) / bounds.width) * 100)));
+  };
   const previewParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
   const advanceMatch =
@@ -246,12 +253,19 @@ export function EditorShell({
         </div>
 
         <div
-          className={`min-h-0 min-w-0 flex-1 overflow-hidden ${previewOnly ? "" : "grid gap-4 lg:grid-cols-[minmax(19rem,0.85fr)_minmax(0,1.55fr)]"}`}
+          ref={workspace}
+          style={
+            {
+              "--editor-pane-width": `${editorPaneRatio}fr`,
+              "--preview-pane-width": `${100 - editorPaneRatio}fr`,
+            } as CSSProperties
+          }
+          className={`min-h-0 min-w-0 flex-1 overflow-hidden ${previewOnly ? "" : "grid grid-cols-1 gap-4 lg:grid-cols-[minmax(19rem,var(--editor-pane-width))_20px_minmax(0,var(--preview-pane-width))] lg:gap-2"}`}
         >
           <section
             ref={preview}
             aria-label={t.preview}
-            className={`order-1 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 lg:order-2 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-full"}`}
+            className={`order-1 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 lg:order-3 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-full"}`}
           >
             <div className="mb-2 flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-2">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
@@ -359,8 +373,37 @@ export function EditorShell({
           </section>
 
           {!previewOnly && (
+            <div
+              role="separator"
+              aria-label={`${t.editing}, ${t.preview}`}
+              aria-orientation="vertical"
+              aria-valuemin={28}
+              aria-valuemax={60}
+              aria-valuenow={Math.round(editorPaneRatio)}
+              tabIndex={0}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                resizeEditorPane(event.clientX);
+              }}
+              onPointerMove={(event) => {
+                if (event.buttons === 1) resizeEditorPane(event.clientX);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                event.preventDefault();
+                const change = event.key === "ArrowRight" ? 2 : -2;
+                setEditorPaneRatio((ratio) => Math.min(60, Math.max(28, ratio + change)));
+              }}
+              className="group order-2 hidden cursor-col-resize touch-none items-center justify-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-action lg:order-2 lg:flex"
+            >
+              <span className="h-14 w-1 rounded-full bg-forest/20 transition-colors group-hover:bg-action group-focus-visible:bg-action" />
+            </div>
+          )}
+
+          {!previewOnly && (
             <aside
-              className={`order-2 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-surface shadow-sm lg:order-1 ${mobilePanel === "edit" ? "" : "hidden lg:flex"}`}
+              className={`order-3 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-surface shadow-sm lg:order-1 ${mobilePanel === "edit" ? "" : "hidden lg:flex"}`}
             >
               <WorkspaceTabs lang={lang} value={activeTab} change={setActiveTab} />
               <fieldset

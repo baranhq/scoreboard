@@ -91,23 +91,6 @@ html[data-scoreboard-fullscreen="true"] [data-frame-content] {
 html[data-scoreboard-fullscreen="true"] [data-frame-chrome] {
   display: none;
 }
-html:has([data-editor-shell]) {
-  height: 100%;
-  overflow: hidden;
-}
-html:has([data-editor-shell]) body,
-html:has([data-editor-shell]) [data-frame-root] {
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
-}
-html:has([data-editor-shell]) [data-frame-content] {
-  min-height: 0;
-  overflow: hidden;
-}
-html:has([data-editor-shell]) [data-frame-root] > footer[data-frame-chrome] {
-  display: none;
-}
 .custom-range {
   width: 100%;
   height: 1.5rem;
@@ -154,11 +137,11 @@ html:has([data-editor-shell]) [data-frame-root] > footer[data-frame-chrome] {
 }
 * {
   scrollbar-color: color-mix(in srgb, var(--color-forest) 38%, transparent) transparent;
-  scrollbar-width: thin;
+  scrollbar-width: auto;
 }
 *::-webkit-scrollbar {
-  width: 0.5rem;
-  height: 0.5rem;
+  width: 0.75rem;
+  height: 0.75rem;
 }
 *::-webkit-scrollbar-track,
 *::-webkit-scrollbar-corner {
@@ -251,66 +234,6 @@ html:has([data-editor-shell]) [data-frame-root] > footer[data-frame-chrome] {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-@keyframes score-demo-cursor {
-  0%,
-  8% {
-    left: 27%;
-    top: 16%;
-    transform: translate(-15%, -25%) scale(1);
-  }
-  14%,
-  20% {
-    left: 27%;
-    top: 16%;
-    transform: translate(-15%, -25%) scale(0.82);
-  }
-  28%,
-  34% {
-    left: 31%;
-    top: 90%;
-    transform: translate(-15%, -25%) scale(1);
-  }
-  38%,
-  45% {
-    left: 34%;
-    top: 91%;
-    transform: translate(-15%, -25%) scale(0.82);
-  }
-  58%,
-  65% {
-    left: 80%;
-    top: 91%;
-    transform: translate(-15%, -25%) scale(0.82);
-  }
-  74%,
-  81% {
-    left: 76%;
-    top: 16%;
-    transform: translate(-15%, -25%) scale(1);
-  }
-  86%,
-  92% {
-    left: 76%;
-    top: 16%;
-    transform: translate(-15%, -25%) scale(0.82);
-  }
-  100% {
-    left: 27%;
-    top: 16%;
-    transform: translate(-15%, -25%) scale(1);
-  }
-}
-.score-demo-cursor {
-  animation: score-demo-cursor 9s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .score-demo-cursor {
-    top: 91%;
-    left: 34%;
-    transform: translate(-15%, -25%);
-    animation: none;
   }
 }
 @keyframes stage-cursor-click {

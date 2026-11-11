@@ -58,12 +58,12 @@ export function TeamPanel({
   const teamScale = appearance.textScaleEnabled ? appearance.teamScale / 100 : 1;
   const regularSize = fitCompactGrid
     ? digits > 6
-      ? "text-[calc(min(10cqw,2.75rem)*var(--score-text-scale))]"
+      ? "text-[calc(min(9cqw,1.5rem)*var(--score-text-scale))]"
       : digits > 4
-        ? "text-[calc(min(14cqw,3.5rem)*var(--score-text-scale))]"
+        ? "text-[calc(min(11cqw,1.75rem)*var(--score-text-scale))]"
         : digits > 2
-          ? "text-[calc(min(18cqw,4rem)*var(--score-text-scale))]"
-          : "text-[calc(min(22cqw,4.5rem)*var(--score-text-scale))]"
+          ? "text-[calc(min(13cqw,2rem)*var(--score-text-scale))]"
+          : "text-[calc(min(16cqw,2.5rem)*var(--score-text-scale))]"
     : digits > 6
       ? "text-[calc(13cqw*var(--score-text-scale))]"
       : digits > 4
@@ -135,12 +135,18 @@ export function TeamPanel({
             xlarge: "text-[calc(clamp(3rem,8vh,6.5rem)*var(--team-text-scale))]",
           } as const
         )[teamPreset];
-  const teamNameSize = full ? fullNameSize : regularNameSize;
-  const scoreButtonSize = full
-    ? count > 6
-      ? "h-8 w-10 sm:h-8 sm:w-10"
-      : "h-12 w-14 sm:h-12 sm:w-20"
-    : "h-11 w-12 sm:h-12 sm:w-20";
+  const teamNameSize = fitCompactGrid
+    ? "text-[clamp(0.75rem,5cqw,1rem)]"
+    : full
+      ? fullNameSize
+      : regularNameSize;
+  const scoreButtonSize = fitCompactGrid
+    ? "h-8 w-9"
+    : full
+      ? count > 6
+        ? "h-8 w-10 sm:h-8 sm:w-10"
+        : "h-12 w-14 sm:h-12 sm:w-20"
+      : "h-11 w-12 sm:h-12 sm:w-20";
   const ScoreTag = full || !interactive ? "div" : "button";
   useEffect(() => {
     const element = scoreValue.current;
@@ -195,7 +201,7 @@ export function TeamPanel({
           "--team-text-scale": teamScale,
         } as CSSProperties
       }
-      className={`[container-type:inline-size] relative flex min-h-0 min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-2 text-[var(--team-fg)] transition-colors duration-150 focus-visible:outline-[var(--secondary-text)] disabled:cursor-not-allowed disabled:border-dashed motion-safe:animate-[appear_200ms_ease-out] motion-reduce:transition-none dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${className} ${full ? (count > 6 ? "gap-1 py-1" : "gap-2 py-3") : appearance.density === "spacious" ? "py-6 sm:py-10" : "py-3 sm:py-4"}`}
+      className={`[container-type:inline-size] relative flex min-h-0 min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-2 text-[var(--team-fg)] transition-colors duration-150 focus-visible:outline-[var(--secondary-text)] motion-safe:animate-[appear_200ms_ease-out] motion-reduce:transition-none dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${className} ${fitCompactGrid ? "gap-0.5 py-1" : full ? (count > 6 ? "gap-1 py-1" : "gap-2 py-3") : appearance.density === "spacious" ? "py-6 sm:py-10" : "py-3 sm:py-4"}`}
     >
       <h3
         className={`max-w-full rounded px-2 py-1 text-center font-display font-semibold break-words ${teamNameSize}`}
@@ -228,11 +234,13 @@ export function TeamPanel({
             onClick={() => interactive && change(-1)}
             data-fullscreen-control
             aria-label={`${t.decrement}: ${team.name}`}
-            className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transition-none dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)]`}
+            className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:bg-[var(--button-hover)] disabled:cursor-not-allowed motion-reduce:transition-none dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)] ${!interactive ? "disabled:border-solid disabled:opacity-100" : "disabled:border-dashed"}`}
           >
             <Minus
               aria-hidden="true"
-              className={full && count > 6 ? "h-4 w-4" : "h-6 w-6 sm:h-7 sm:w-7"}
+              className={
+                fitCompactGrid || (full && count > 6) ? "h-4 w-4" : "h-6 w-6 sm:h-7 sm:w-7"
+              }
               strokeWidth={2.3}
             />
           </button>
@@ -244,11 +252,13 @@ export function TeamPanel({
             onClick={() => interactive && change(1)}
             data-fullscreen-control
             aria-label={`${t.increment}: ${team.name}`}
-            className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transition-none dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)]`}
+            className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:bg-[var(--button-hover)] disabled:cursor-not-allowed motion-reduce:transition-none dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)] ${!interactive ? "disabled:border-solid disabled:opacity-100" : "disabled:border-dashed"}`}
           >
             <Plus
               aria-hidden="true"
-              className={full && count > 6 ? "h-4 w-4" : "h-6 w-6 sm:h-7 sm:w-7"}
+              className={
+                fitCompactGrid || (full && count > 6) ? "h-4 w-4" : "h-6 w-6 sm:h-7 sm:w-7"
+              }
               strokeWidth={2.3}
             />
           </button>
