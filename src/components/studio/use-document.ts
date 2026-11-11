@@ -1,10 +1,16 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { parseDocument, type StudioDocument } from "@/lib/studio";
+import {
+  parseDocument,
+  parseDocumentText,
+  MAX_STUDIO_BACKUP_BYTES,
+  type StudioDocument,
+} from "@/lib/studio";
 import { readDocument, saveDocument } from "@/store/studio";
 import type { StudioCopy } from "@/lib/studio-copy";
 import { downloadBlob, safeFilename } from "@/lib/export-png";
 import { getToolTheme } from "@/lib/tool-themes";
+import { readJsonFile } from "@/lib/untrusted-json";
 export function useDocument(initial: StudioDocument, labels: StudioCopy) {
   const [document, setDocument] = useState(initial);
   const [ready, setReady] = useState(false);
@@ -63,7 +69,7 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
         let draftProblem = false;
         try {
           const draftText = window.sessionStorage.getItem(key);
-          const recovered = draftText ? parseDocument(JSON.parse(draftText)) : undefined;
+          const recovered = draftText ? parseDocumentText(draftText) : undefined;
           if (recovered && (!saved || recovered.updatedAt > saved.updatedAt)) draft = recovered;
         } catch {
           draftProblem = true;
@@ -232,13 +238,20 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
     );
   const importFile = async (file: File) => {
     if (loading.current || busy) return;
+    setBusy(true);
+    setMessage("");
     try {
-      if (file.size > 2_000_000) throw new Error("Too large");
-      const next = parseDocument(JSON.parse(await file.text()));
+      const next = parseDocument(await readJsonFile(file, MAX_STUDIO_BACKUP_BYTES));
       if (next.kind !== initial.kind) throw new Error("Wrong tool");
+      const count = next.kind === "leaderboard" ? next.rows.length : next.participants.length;
+      const summary = `${labels.importSummary}\n\n${labels.title}: ${next.title}\n${labels.participants}: ${count}`;
+      const confirmation = dirty ? labels.importDraftWarning : labels.importConfirm;
+      if (!window.confirm(`${summary}\n\n${confirmation}`)) return;
       change({ ...next, id: crypto.randomUUID(), updatedAt: 0 });
     } catch {
       setMessage(labels.importError);
+    } finally {
+      setBusy(false);
     }
   };
   return {
