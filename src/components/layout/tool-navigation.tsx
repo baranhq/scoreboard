@@ -73,7 +73,7 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
             }
             triggerClassName="ml-1 !min-h-11 !rounded-lg !bg-action !px-3 !text-sm !font-semibold !text-on-action hover:!brightness-95"
           >
-            {toolDestinations.map((tool) => (
+            {[...toolDestinations, { href: route(lang, "saved"), label: t.saved }].map((tool) => (
               <Link
                 key={tool.href}
                 href={tool.href}
@@ -116,7 +116,7 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
               <p className="px-3 pt-2 pb-1 text-xs font-bold tracking-wide text-ink/60 uppercase">
                 {t.open}
               </p>
-              {toolDestinations.map((tool) => (
+              {[...toolDestinations, { href: route(lang, "saved"), label: t.saved }].map((tool) => (
                 <Link
                   key={tool.href}
                   href={tool.href}
