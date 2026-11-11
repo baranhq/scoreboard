@@ -16,7 +16,10 @@ import type { Tool } from "./tool-demo";
 import { canAddScoreboardTeam, MAX_SCOREBOARD_TEAMS } from "@/lib/boards";
 import { Button } from "@/components/ui/ui";
 import { DemoTeamLimit } from "./demo-team-limit";
+import { useSiteThemeMode } from "@/components/layout/theme-select";
 export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
+  const { dark } = useSiteThemeMode();
+  const defaultTheme = toolThemes[dark ? 1 : 3];
   const [view, setView] = useState(0);
   const [teamCount, setTeamCount] = useState(2);
   const [showLimit, setShowLimit] = useState(false);
@@ -27,7 +30,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
     if (tool === "scoreboard") return null;
     const sample = studioDemo(tool, lang);
     if (sample.kind === "leaderboard") {
-      const board: Leaderboard = { ...sample, style: { ...sample.style, ...toolThemes[6] } };
+      const board: Leaderboard = { ...sample, style: { ...sample.style, ...defaultTheme } };
       if (view === 1) {
         board.columns = [t.team, t.points, t.round];
         board.rows = board.rows.map((row) => ({ ...row, cells: [...row.cells, "3"] }));
@@ -35,8 +38,12 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
       return board;
     }
     const board: Bracket = view === 2 ? resizeBracket(sample, 3) : sample;
-    return { ...board, layout: view === 1 ? ("split" as const) : ("single" as const) };
-  }, [tool, lang, view, t]);
+    return {
+      ...board,
+      layout: view === 1 ? ("split" as const) : ("single" as const),
+      style: { ...board.style, ...defaultTheme },
+    };
+  }, [tool, lang, view, t, defaultTheme]);
   return (
     <div className="min-w-0">
       {tool === "scoreboard" ? (
@@ -89,7 +96,13 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
       {tool === "scoreboard" ? (
         <>
           <div className="h-[clamp(28rem,58svh,38rem)] min-w-0 overflow-hidden rounded-xl border border-forest/20">
-            <HomeScoreboard lang={lang} teamCount={teamCount} compact autoplay={false} />
+            <HomeScoreboard
+              lang={lang}
+              theme={defaultTheme}
+              teamCount={teamCount}
+              compact
+              autoplay={false}
+            />
           </div>
           <div className="mt-5 border-y border-forest/25 py-6">
             <TimerDisplay
