@@ -248,7 +248,7 @@ export function PreviewTeamCard({
           aria-label={`${labels.decrease} ${name}`}
           onClick={() => onScoreChange(-1)}
           data-demo-target={minusTarget ?? undefined}
-          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-[background-color,transform] duration-150 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] ${minusTarget !== null && state.pressed === minusTarget ? "scale-[.96]" : ""}`}
+          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${minusTarget !== null && state.pressed === minusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
         >
           <Minus aria-hidden="true" className="h-5 w-5" />
         </button>
@@ -257,7 +257,7 @@ export function PreviewTeamCard({
           aria-label={`${labels.increase} ${name}`}
           onClick={() => onScoreChange(1)}
           data-demo-target={plusTarget}
-          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-[background-color,transform] duration-150 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] ${plusTarget !== null && state.pressed === plusTarget ? "scale-[.96] brightness-95" : ""}`}
+          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${plusTarget !== null && state.pressed === plusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
         >
           <Plus aria-hidden="true" className="h-5 w-5" />
         </button>

@@ -1,6 +1,6 @@
 "use client";
 import { Plus, Minus } from "lucide-react";
-import type { CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { type Team } from "@/lib/boards";
 import { teamPalette, readableText, buttonColors, themePaletteColor } from "@/lib/colors";
 import type { Appearance } from "@/lib/appearance";
@@ -35,6 +35,8 @@ export function TeamPanel({
   change,
   manual,
 }: Props) {
+  const scoreValue = useRef<HTMLSpanElement>(null);
+  const previousScore = useRef(team.score);
   const palette = teamPalette[index % teamPalette.length];
   const bg = team.color || color || palette.background;
   const darkBg = themePaletteColor(bg, "dark");
@@ -117,6 +119,26 @@ export function TeamPanel({
   )[teamPreset];
   const teamNameSize = full ? fullNameSize : regularNameSize;
   const ScoreTag = full ? "div" : "button";
+  useEffect(() => {
+    const element = scoreValue.current;
+    if (previousScore.current === team.score) return;
+    previousScore.current = team.score;
+    if (
+      !element ||
+      typeof element.animate !== "function" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+
+    const animation = element.animate(
+      [
+        { opacity: 0.75, transform: "translateY(2px)" },
+        { opacity: 1, transform: "translateY(0)" },
+      ],
+      { duration: 130, easing: "ease-out" },
+    );
+    return () => animation.cancel();
+  }, [team.score]);
   const size = full ? fullSize : regularSize;
   return (
     <article
@@ -164,7 +186,7 @@ export function TeamPanel({
         title={full ? undefined : t.score}
         className={`my-0 w-full overflow-hidden rounded-lg bg-transparent py-1 text-center font-display leading-[1.15] font-bold tracking-[-0.06em] tabular-nums ${full ? "flex min-h-0 flex-1 items-center justify-center" : ""} ${size}`}
       >
-        {team.score}
+        <span ref={scoreValue}>{team.score}</span>
       </ScoreTag>
       <span className="sr-only" aria-live="polite">
         {team.name}: {team.score}
@@ -181,7 +203,7 @@ export function TeamPanel({
             onClick={() => change(-1)}
             data-fullscreen-control
             aria-label={`${t.decrement}: ${team.name}`}
-            className={`flex ${full ? "h-12 w-14" : "h-11 w-12"} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] transition-[color,background-color,border-color,transform] duration-150 hover:border-2 focus-visible:outline-[var(--secondary-text)] active:scale-[.97] active:border-2 disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transform-none motion-reduce:transition-none sm:h-12 sm:w-20 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)]`}
+            className={`flex ${full ? "h-12 w-14" : "h-11 w-12"} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transition-none sm:h-12 sm:w-20 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)]`}
           >
             <Minus aria-hidden="true" className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2.3} />
           </button>
@@ -191,7 +213,7 @@ export function TeamPanel({
             onClick={() => change(1)}
             data-fullscreen-control
             aria-label={`${t.increment}: ${team.name}`}
-            className={`flex ${full ? "h-12 w-14" : "h-11 w-12"} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] transition-[color,background-color,border-color,transform] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:scale-[.97] active:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transform-none motion-reduce:transition-none sm:h-12 sm:w-20 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)]`}
+            className={`flex ${full ? "h-12 w-14" : "h-11 w-12"} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-dashed motion-reduce:transition-none sm:h-12 sm:w-20 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)]`}
           >
             <Plus aria-hidden="true" className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2.3} />
           </button>

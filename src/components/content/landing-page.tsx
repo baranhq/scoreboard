@@ -61,7 +61,7 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
       <section className="overflow-hidden bg-campaign text-campaign-ink">
         <div className="mx-auto max-w-7xl px-5 pt-10 pb-10 sm:px-8 sm:pt-10 lg:pb-12">
           <div className="grid gap-7 border-b border-white/20 pb-8 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">
-            <h1 className="font-display text-[clamp(3.5rem,8.5vw,7.5rem)] leading-[0.9] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[preview-intro_600ms_ease-out_both]">
+            <h1 className="font-display text-[clamp(3.5rem,8.5vw,7.5rem)] leading-[0.9] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
               {copy.headline}
             </h1>
             <div>
