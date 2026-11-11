@@ -25,6 +25,8 @@ import { MatchPreview } from "./match-preview";
 import { ShareDialog } from "./share-dialog";
 import { BoardIcon } from "./board-icon";
 import { BoardIdentity } from "./board-identity";
+import { studioCopy } from "@/lib/studio-copy";
+import { useConfirmation } from "@/components/ui/use-confirmation";
 
 function readSavedBoardPositions(list: HTMLUListElement | null) {
   if (!list) return null;
@@ -39,6 +41,7 @@ function readSavedBoardPositions(list: HTMLUListElement | null) {
 
 export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
   const router = useRouter();
+  const { confirm, dialog } = useConfirmation(studioCopy[lang]);
   const [boards, setBoards] = useState<Board[]>([]);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState("");
@@ -144,6 +147,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
   };
   return (
     <>
+      {dialog}
       <main id="main" className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-5">
         <div className="mb-4 grid gap-3 border-b border-forest/20 pb-3 sm:mb-5 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:pb-4">
           <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{t.saved}</h1>
@@ -198,7 +202,11 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
               const summary = t.importSummary
                 .replace("{boards}", String(items.length))
                 .replace("{teams}", String(teamCount));
-              if (!window.confirm(`${summary}\n\n${t.importNote}\n\n${t.importConfirm}`)) return;
+              const choice = await confirm(`${summary}\n\n${t.importNote}\n\n${t.importConfirm}`, {
+                cancelLabel: t.cancel,
+                confirmLabel: studioCopy[lang].continue,
+              });
+              if (choice !== "confirm") return;
               await writeBoards(items);
               layoutSnapshot.current = readSavedBoardPositions(list.current);
               items.forEach((item) => enteringBoardIds.current.add(item.id));

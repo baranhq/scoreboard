@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   parseDocument,
   parseDocumentText,
@@ -11,7 +12,18 @@ import type { StudioCopy } from "@/lib/studio-copy";
 import { downloadBlob, safeFilename } from "@/lib/export-png";
 import { getToolTheme } from "@/lib/tool-themes";
 import { readJsonFile } from "@/lib/untrusted-json";
+import { useConfirmation } from "@/components/ui/use-confirmation";
+
+function contentKey(document: StudioDocument) {
+  const content = Object.fromEntries(
+    Object.entries(document).filter(([key]) => key !== "updatedAt"),
+  );
+  return JSON.stringify(content);
+}
+
 export function useDocument(initial: StudioDocument, labels: StudioCopy) {
+  const router = useRouter();
+  const { confirm, dialog } = useConfirmation(labels);
   const [document, setDocument] = useState(initial);
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -21,8 +33,10 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
   const history = useRef<StudioDocument[]>([]);
   const [canUndo, setCanUndo] = useState(false);
   const draftKey = useRef("");
+  const baseline = useRef("");
   const loading = useRef(true);
   const freshTemplate = useRef(initial);
+  const saveRef = useRef<() => Promise<boolean>>(async () => false);
   useEffect(() => {
     let active = true;
     let generation = 0;
@@ -78,10 +92,11 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
         draftKey.current = key;
         history.current = [];
         setCanUndo(false);
-        setDocument(
-          draft?.kind === initial.kind ? draft : saved?.kind === initial.kind ? saved : template,
-        );
-        setDirty(draft?.kind === initial.kind);
+        const original = saved?.kind === initial.kind ? saved : template;
+        const current = draft?.kind === initial.kind ? draft : original;
+        baseline.current = contentKey(original);
+        setDocument(current);
+        setDirty(contentKey(current) !== baseline.current);
         setMessage(
           storageProblem
             ? labels.storageError
@@ -126,12 +141,31 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       if (!(anchor instanceof HTMLAnchorElement) || anchor.download || anchor.target === "_blank")
         return;
       const target = new URL(anchor.href);
-      if (target.pathname === window.location.pathname && target.origin === window.location.origin)
+      if (target.origin !== window.location.origin || target.href === window.location.href) return;
+      if (
+        target.pathname === window.location.pathname &&
+        target.search === window.location.search &&
+        !target.hash.startsWith("#table=")
+      )
         return;
-      if (!window.confirm(labels.discardQuestion)) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
+      event.preventDefault();
+      event.stopPropagation();
+      void confirm(labels.discardQuestion, {
+        cancelLabel: labels.stay,
+        secondaryLabel: labels.leaveWithoutSaving,
+        confirmLabel: labels.saveAndLeave,
+      }).then(async (choice) => {
+        if (choice === "secondary") {
+          try {
+            window.sessionStorage.removeItem(draftKey.current);
+          } catch {
+            setMessage(labels.draftWarning);
+          }
+          router.push(`${target.pathname}${target.search}${target.hash}`);
+        }
+        if (choice === "confirm" && (await saveRef.current()))
+          router.push(`${target.pathname}${target.search}${target.hash}`);
+      });
     };
     window.addEventListener("beforeunload", warn);
     window.document.addEventListener("click", protectNavigation, true);
@@ -139,14 +173,24 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       window.removeEventListener("beforeunload", warn);
       window.document.removeEventListener("click", protectNavigation, true);
     };
-  }, [dirty, labels.discardQuestion]);
+  }, [
+    confirm,
+    dirty,
+    labels.discardQuestion,
+    labels.draftWarning,
+    labels.leaveWithoutSaving,
+    labels.saveAndLeave,
+    labels.stay,
+    router,
+  ]);
   const change = (next: StudioDocument) => {
     if (loading.current) return;
+    if (contentKey(next) === contentKey(document)) return;
     history.current = [...history.current.slice(-49), document];
     setCanUndo(true);
     revision.current++;
     setDocument(next);
-    setDirty(true);
+    setDirty(contentKey(next) !== baseline.current);
     setMessage("");
     try {
       window.sessionStorage.setItem(
@@ -165,13 +209,15 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       setCanUndo(history.current.length > 0);
     }
   };
-  const newProject = () => {
-    if (dirty && !window.confirm(labels.discardQuestion)) return;
+  const startNewProject = () => {
+    const previousDraftKey = draftKey.current;
     revision.current++;
     history.current = [];
     setCanUndo(false);
     const id = crypto.randomUUID();
-    setDocument({ ...freshTemplate.current, id });
+    const next = { ...freshTemplate.current, id };
+    baseline.current = contentKey(next);
+    setDocument(next);
     const search = new URLSearchParams(window.location.search);
     if (search.get("new") === "1" && getToolTheme(search.get("theme"))) {
       search.set("instance", id);
@@ -185,6 +231,7 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       draftKey.current = `scoreboard-draft:${initial.kind}:new`;
     }
     try {
+      if (previousDraftKey) window.sessionStorage.removeItem(previousDraftKey);
       window.sessionStorage.removeItem(draftKey.current);
     } catch {
       setMessage(labels.draftWarning);
@@ -197,8 +244,21 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
     setDirty(false);
     setMessage("");
   };
+  const newProject = () => {
+    if (!dirty) {
+      startNewProject();
+      return;
+    }
+
+    void confirm(labels.newProjectQuestion, {
+      cancelLabel: labels.stay,
+      confirmLabel: labels.newProject,
+    }).then((choice) => {
+      if (choice === "confirm") startNewProject();
+    });
+  };
   const save = async () => {
-    if (busy || loading.current) return;
+    if (busy || loading.current) return false;
     setBusy(true);
     const current = revision.current;
     const next = {
@@ -206,11 +266,13 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       id: document.id.startsWith("demo-") ? crypto.randomUUID() : document.id,
       updatedAt: Date.now(),
     };
+    let saved = false;
     try {
       await saveDocument(next);
       let draftProblem = false;
       if (current === revision.current) {
         setDocument(next);
+        baseline.current = contentKey(next);
         setDirty(false);
         try {
           window.sessionStorage.removeItem(draftKey.current);
@@ -225,12 +287,17 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
         `#table=${encodeURIComponent(next.id)}`,
       );
       setMessage(draftProblem ? `${labels.savedOk} ${labels.draftWarning}` : labels.savedOk);
+      saved = true;
     } catch {
       setMessage(labels.storageError);
     } finally {
       setBusy(false);
     }
+    return saved;
   };
+  useEffect(() => {
+    saveRef.current = save;
+  });
   const backup = () =>
     downloadBlob(
       new Blob([JSON.stringify(document, null, 2)], { type: "application/json" }),
@@ -246,7 +313,10 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       const count = next.kind === "leaderboard" ? next.rows.length : next.participants.length;
       const summary = `${labels.importSummary}\n\n${labels.title}: ${next.title}\n${labels.participants}: ${count}`;
       const confirmation = dirty ? labels.importDraftWarning : labels.importConfirm;
-      if (!window.confirm(`${summary}\n\n${confirmation}`)) return;
+      const choice = await confirm(`${summary}\n\n${confirmation}`, {
+        confirmLabel: labels.continue,
+      });
+      if (choice !== "confirm") return;
       change({ ...next, id: crypto.randomUUID(), updatedAt: 0 });
     } catch {
       setMessage(labels.importError);
@@ -256,6 +326,8 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
   };
   return {
     document,
+    confirmationDialog: dialog,
+    confirm,
     change,
     undo,
     newProject,
