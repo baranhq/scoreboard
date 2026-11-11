@@ -1,8 +1,18 @@
 "use client";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Minus, Plus, Star, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  Minus,
+  Pencil,
+  Plus,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { ColorControl, accentColors } from "./color-control";
-import { Button } from "@/components/ui/ui";
+import { Button, Modal } from "@/components/ui/ui";
 import {
   newLeaderboard,
   moveItem,
@@ -38,6 +48,8 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const board = state.document as Leaderboard;
   const { list: rowList, capture: captureRows } = useListMotion<HTMLTableSectionElement>();
   const [sortColumn, setSortColumn] = useState("1");
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const editingRow = board.rows.find((row) => row.id === editingRowId);
   const changeCell = (rowId: string, column: number, value: string) =>
     state.change(updateLeaderboardCell(board, rowId, column, value));
   const setRows = (rows: Leaderboard["rows"]) => {
@@ -120,7 +132,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             <Button disabled={!state.ready} onClick={state.backup}>
               {t.backup}
             </Button>
-            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 border border-forest/25 px-4 text-sm font-medium text-forest focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest">
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-forest/25 px-4 text-sm font-medium text-forest transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest hover:bg-forest/5 has-[:disabled]:pointer-events-none has-[:disabled]:opacity-50">
               {t.import}
               <input
                 type="file"
@@ -213,9 +225,10 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
           <p className="text-sm leading-5 text-ink/75">{t.emptyLeaderboard}</p>
         )}
         <div
+          data-editor-table
           tabIndex={0}
           aria-label={`${t.rows} & ${t.columns}`}
-          className="max-h-[min(54dvh,34rem)] [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25"
+          className="max-h-[min(54dvh,34rem)] max-w-full [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25"
         >
           <table className="w-max min-w-full border-collapse text-sm sm:text-base">
             <thead className="sticky top-0 z-10 bg-paper">
@@ -224,7 +237,11 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                   #
                 </th>
                 {board.columns.map((column, i) => (
-                  <th scope="col" key={i} className="min-w-36 border-l border-forest/15 p-2">
+                  <th
+                    scope="col"
+                    key={i}
+                    className="min-w-28 border-l border-forest/15 p-1.5 sm:min-w-36 sm:p-2"
+                  >
                     <input
                       aria-label={`${t.column} ${i + 1}`}
                       className={inputClass}
@@ -338,25 +355,39 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                   data-motion-item={row.id}
                   className={row.highlighted ? "bg-forest/10" : ""}
                 >
-                  <th scope="row" className="min-w-24 border-t border-forest/15 p-2 text-sm">
-                    <input
-                      aria-label={`${t.position} ${index + 1}`}
-                      className={`${inputClass} !w-20 text-center tabular-nums`}
-                      maxLength={6}
-                      placeholder={String(index + 1)}
-                      value={row.position || ""}
-                      onChange={(e) =>
-                        state.change({
-                          ...board,
-                          rows: board.rows.map((r) =>
-                            r.id === row.id ? { ...r, position: e.target.value } : r,
-                          ),
-                        })
-                      }
-                    />
+                  <th
+                    scope="row"
+                    className="min-w-28 border-t border-forest/15 p-1.5 text-sm sm:p-2"
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      <input
+                        aria-label={`${t.position} ${index + 1}`}
+                        className={`${inputClass} !w-14 px-1.5 text-center tabular-nums sm:!w-20 sm:px-3`}
+                        maxLength={6}
+                        placeholder={String(index + 1)}
+                        value={row.position || ""}
+                        onChange={(e) =>
+                          state.change({
+                            ...board,
+                            rows: board.rows.map((r) =>
+                              r.id === row.id ? { ...r, position: e.target.value } : r,
+                            ),
+                          })
+                        }
+                      />
+                      <button
+                        type="button"
+                        aria-label={`${t.editing}: ${row.cells[0] || `${t.rows} ${index + 1}`}`}
+                        title={t.editing}
+                        onClick={() => setEditingRowId(row.id)}
+                        className="inline-flex min-h-11 min-w-9 shrink-0 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                      >
+                        <Pencil aria-hidden="true" size={15} />
+                      </button>
+                    </div>
                     <details className="mt-1">
-                      <summary className="cursor-pointer py-2 font-medium text-action">
-                        {t.editing}
+                      <summary className="cursor-pointer py-2 text-xs font-medium text-action">
+                        {t.advanced}
                       </summary>
                       <div className="grid grid-cols-2 gap-1">
                         <IconButton
@@ -426,13 +457,13 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                               aria-label={`${t.decreasePoints}: ${label}`}
                               title={t.decreasePoints}
                               onClick={() => adjust(-1)}
-                              className="inline-flex min-h-11 min-w-10 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
+                              className="inline-flex min-h-10 min-w-9 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none sm:min-h-11 sm:min-w-10"
                             >
                               <Minus aria-hidden="true" size={15} />
                             </button>
                           )}
                           <input
-                            className={`${inputClass} min-w-28 flex-1 ${numeric && column > 0 ? "text-center tabular-nums" : ""}`}
+                            className={`${inputClass} min-w-20 flex-1 px-2 sm:min-w-28 sm:px-3 ${numeric && column > 0 ? "text-center tabular-nums" : ""}`}
                             aria-label={label}
                             maxLength={200}
                             inputMode={numeric && column > 0 ? "decimal" : undefined}
@@ -452,7 +483,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                               aria-label={`${t.increasePoints}: ${label}`}
                               title={t.increasePoints}
                               onClick={() => adjust(1)}
-                              className="inline-flex min-h-11 min-w-10 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
+                              className="inline-flex min-h-10 min-w-9 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none sm:min-h-11 sm:min-w-10"
                             >
                               <Plus aria-hidden="true" size={15} />
                             </button>
@@ -466,6 +497,53 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             </tbody>
           </table>
         </div>
+        {editingRow && (
+          <Modal
+            title={`${t.editing}: ${editingRow.cells[0] || t.rows}`}
+            close={() => setEditingRowId(null)}
+            closeLabel={t.close}
+            size="wide"
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-1 text-sm font-semibold">
+                {t.position}
+                <input
+                  className={inputClass}
+                  maxLength={6}
+                  value={editingRow.position || ""}
+                  onChange={(event) =>
+                    state.change({
+                      ...board,
+                      rows: board.rows.map((row) =>
+                        row.id === editingRow.id ? { ...row, position: event.target.value } : row,
+                      ),
+                    })
+                  }
+                />
+              </label>
+              {board.columns.map((column, index) => (
+                <label key={index} className="grid gap-1 text-sm font-semibold">
+                  {column || `${t.column} ${index + 1}`}
+                  <input
+                    className={inputClass}
+                    maxLength={200}
+                    value={editingRow.cells[index] || ""}
+                    onChange={(event) => {
+                      const cells = [...editingRow.cells];
+                      cells[index] = event.target.value;
+                      state.change({
+                        ...board,
+                        rows: board.rows.map((row) =>
+                          row.id === editingRow.id ? { ...row, cells } : row,
+                        ),
+                      });
+                    }}
+                  />
+                </label>
+              ))}
+            </div>
+          </Modal>
+        )}
       </section>
     </EditorShell>
   );

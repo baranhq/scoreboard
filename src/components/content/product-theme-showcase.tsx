@@ -158,6 +158,7 @@ export function ProductThemeShowcase({
           compact
           autoplay={false}
           readOnly
+          showReadOnlyControls={tool === "scoreboard"}
           showPlaybackControls={false}
           theme={selectedTheme}
           expanded={expanded}
