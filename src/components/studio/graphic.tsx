@@ -83,33 +83,38 @@ function Heading({
   labels: StudioCopy;
   onEdit?: (field: PreviewField) => void;
 }) {
-  const titleLines = wrapText(doc.title, (width - 80) / 36).length;
+  const titleLines =
+    doc.style.titleVisible === false ? 0 : wrapText(doc.title, (width - 80) / 36).length;
   return (
     <>
       <rect width={width} height={8} fill={doc.style.accent} />
-      <Lines
-        text={doc.title}
-        x={40}
-        y={66}
-        size={36}
-        width={(width - 80) / 36}
-        fill={text}
-        weight={700}
-        edit={{ kind: "title" }}
-        labels={onEdit ? labels : undefined}
-        onEdit={onEdit}
-      />
-      <Lines
-        text={doc.subtitle}
-        x={40}
-        y={76 + titleLines * 47}
-        size={20}
-        width={(width - 80) / 20}
-        fill={text}
-        edit={{ kind: "subtitle" }}
-        labels={onEdit ? labels : undefined}
-        onEdit={onEdit}
-      />
+      {doc.style.titleVisible !== false && (
+        <Lines
+          text={doc.title}
+          x={40}
+          y={66}
+          size={36}
+          width={(width - 80) / 36}
+          fill={text}
+          weight={700}
+          edit={{ kind: "title" }}
+          labels={onEdit ? labels : undefined}
+          onEdit={onEdit}
+        />
+      )}
+      {doc.style.subtitleVisible !== false && (
+        <Lines
+          text={doc.subtitle}
+          x={40}
+          y={76 + titleLines * 47}
+          size={20}
+          width={(width - 80) / 20}
+          fill={text}
+          edit={{ kind: "subtitle" }}
+          labels={onEdit ? labels : undefined}
+          onEdit={onEdit}
+        />
+      )}
     </>
   );
 }
@@ -144,8 +149,12 @@ export function LeaderboardGraphic({
   const width = 80 + groups.length * columnWidth + (groups.length - 1) * groupGap;
   const header =
     110 +
-    wrapText(board.title, (width - 80) / 36).length * 47 +
-    wrapText(board.subtitle, (width - 80) / 20).length * 26;
+    (board.style.titleVisible === false
+      ? 0
+      : wrapText(board.title, (width - 80) / 36).length * 47) +
+    (board.style.subtitleVisible === false
+      ? 0
+      : wrapText(board.subtitle, (width - 80) / 20).length * 26);
   const columnHeight =
     Math.max(...board.columns.map((c, i) => wrapText(c, (widths[i] - 32) / 18).length)) * 28 + 22;
   const rowStart = header + columnHeight;
@@ -343,9 +352,9 @@ export function BracketGraphic({
                   key={`${node.id}-${side}`}
                   d={`M${fromX},${fromY} H${(fromX + toX) / 2} V${toY} H${toX}`}
                   fill="none"
-                  stroke={board.style.borderColor || text}
+                  stroke={board.style.connectorColor || board.style.borderColor || text}
                   strokeOpacity={0.4}
-                  strokeWidth={board.style.borderWidth ?? 2}
+                  strokeWidth={board.style.connectorWidth ?? board.style.borderWidth ?? 2}
                 />
               );
             }),
@@ -371,44 +380,66 @@ export function BracketGraphic({
             />
             {node.players.map((id, i) => (
               <g key={i}>
-                {id && node.winner === id && (
-                  <rect
-                    x={node.x}
-                    y={node.y + i * rowHeight}
-                    width={220}
-                    height={rowHeight}
-                    rx={5}
-                    fill={board.style.accent}
-                  />
-                )}
+                {id &&
+                  (node.winner === id ||
+                    board.participants.find((player) => player.id === id)?.color) && (
+                    <rect
+                      x={node.x}
+                      y={node.y + i * rowHeight}
+                      width={220}
+                      height={rowHeight}
+                      rx={board.style.radius ?? 5}
+                      fill={
+                        node.winner === id
+                          ? board.style.accent
+                          : board.participants.find((player) => player.id === id)?.color
+                      }
+                    />
+                  )}
                 <Lines
                   text={id ? name(id) : node.pending ? labels.pending : labels.bye}
                   x={node.x + 12}
                   y={node.y + i * rowHeight + 25}
                   width={196 / 16}
                   size={16}
-                  fill={id && node.winner === id ? onAccent : text}
+                  fill={
+                    id && node.winner === id
+                      ? onAccent
+                      : board.participants.find((player) => player.id === id)?.color
+                        ? foreground(board.participants.find((player) => player.id === id)!.color!)
+                        : text
+                  }
                   weight={node.winner === id ? 700 : 500}
                   edit={id ? { kind: "bracket-participant", participantId: id } : undefined}
                   labels={onEdit ? labels : undefined}
                   onEdit={onEdit}
                 />
-                <Lines
-                  text={node.scores[i] || "—"}
-                  x={node.x + 206}
-                  y={node.y + i * rowHeight + rowHeight - 8}
-                  width={8}
-                  size={12}
-                  fill={id && node.winner === id ? onAccent : text}
-                  anchor="end"
-                  edit={
-                    id && node.players.every(Boolean)
-                      ? { kind: "bracket-score", matchId: node.id, side: i as 0 | 1 }
-                      : undefined
-                  }
-                  labels={onEdit ? labels : undefined}
-                  onEdit={onEdit}
-                />
+                {board.style.showScores !== false && (
+                  <Lines
+                    text={node.scores[i] || "—"}
+                    x={node.x + 206}
+                    y={node.y + i * rowHeight + rowHeight - 8}
+                    width={8}
+                    size={12}
+                    fill={
+                      id && node.winner === id
+                        ? onAccent
+                        : board.participants.find((player) => player.id === id)?.color
+                          ? foreground(
+                              board.participants.find((player) => player.id === id)!.color!,
+                            )
+                          : text
+                    }
+                    anchor="end"
+                    edit={
+                      id && node.players.every(Boolean)
+                        ? { kind: "bracket-score", matchId: node.id, side: i as 0 | 1 }
+                        : undefined
+                    }
+                    labels={onEdit ? labels : undefined}
+                    onEdit={onEdit}
+                  />
+                )}
               </g>
             ))}
             <line

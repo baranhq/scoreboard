@@ -3,7 +3,7 @@ export type MatchResult = { winner: string | null; scores: [string, string] };
 export type Bracket = GraphicBase & {
   kind: "bracket";
   layout: "single" | "split";
-  participants: { id: string; name: string }[];
+  participants: { id: string; name: string; color?: string }[];
   results: Record<string, MatchResult>;
 };
 export type BracketMatch = {
