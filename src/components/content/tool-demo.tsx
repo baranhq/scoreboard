@@ -13,6 +13,7 @@ import { updateLeaderboardCell, type Leaderboard, type StudioDocument } from "@/
 import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
 import { studioCopy } from "@/lib/studio-copy";
 import { useAutoDemo } from "./use-auto-demo";
+import { toolThemes, type ToolTheme } from "@/lib/tool-themes";
 import { HomeScoreboard } from "./home-scoreboard";
 
 export type Tool = "scoreboard" | "leaderboard" | "bracket";
@@ -24,12 +25,19 @@ export function ToolDemo({
   tool,
   lang,
   compact = false,
+  theme,
+  expanded = false,
+  autoplay = true,
 }: {
   tool: Tool;
   lang: Lang;
   compact?: boolean;
+  theme?: ToolTheme;
+  expanded?: boolean;
+  autoplay?: boolean;
 }) {
-  if (tool === "scoreboard" && compact) return <HomeScoreboard lang={lang} />;
+  if (tool === "scoreboard" && compact)
+    return <HomeScoreboard lang={lang} theme={theme} expanded={expanded} autoplay={autoplay} />;
   if (tool === "scoreboard") {
     return (
       <ScoreboardPreview
@@ -48,32 +56,56 @@ export function ToolDemo({
     );
   }
 
-  return <StudioToolDemo key={tool} tool={tool} lang={lang} compact={compact} />;
+  return (
+    <StudioToolDemo
+      key={tool}
+      tool={tool}
+      lang={lang}
+      compact={compact}
+      theme={theme}
+      expanded={expanded}
+      autoplay={autoplay}
+    />
+  );
 }
 
 function StudioToolDemo({
   tool,
   lang,
   compact,
+  theme,
+  expanded,
+  autoplay,
 }: {
   tool: Exclude<Tool, "scoreboard">;
   lang: Lang;
   compact: boolean;
+  expanded: boolean;
+  autoplay: boolean;
+  theme?: ToolTheme;
 }) {
   const t = studioCopy[lang];
   const initial = useMemo(() => {
     const sample = studioDemo(tool, lang);
     if (compact) {
-      sample.style = {
-        ...sample.style,
-        accent: tool === "bracket" ? "#ccf86b" : "#285b35",
-        background: tool === "bracket" ? "#14251b" : "#f5f2e8",
-      };
-      if (sample.kind === "bracket") sample.layout = "split";
+      sample.style = { ...sample.style, ...(theme || toolThemes[tool === "bracket" ? 1 : 0]) };
+      if (sample.kind === "bracket") sample.layout = expanded ? "single" : "split";
+      else sample.gridColumns = expanded ? 2 : 1;
     }
     return sample;
-  }, [tool, lang, compact]);
+  }, [tool, lang, compact, theme, expanded]);
   const [document, setDocument] = useState(initial);
+  const [configuration, setConfiguration] = useState({ theme, expanded });
+  if (configuration.theme !== theme || configuration.expanded !== expanded) {
+    setConfiguration({ theme, expanded });
+    setDocument((current) => {
+      if (current.kind === "bracket" && initial.kind === "bracket")
+        return { ...current, style: initial.style, layout: initial.layout };
+      if (current.kind === "leaderboard" && initial.kind === "leaderboard")
+        return { ...current, style: initial.style, gridColumns: initial.gridColumns };
+      return current;
+    });
+  }
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
   const step = useRef(0);
   const advance = useCallback(() => {
@@ -91,7 +123,7 @@ function StudioToolDemo({
     toggle: togglePlayback,
     pause,
     reset: resetPlayback,
-  } = useAutoDemo(advance, reset, 2900);
+  } = useAutoDemo(advance, reset, 2900, autoplay);
   const labels = messages[lang];
 
   return (
