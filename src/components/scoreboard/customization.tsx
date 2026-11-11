@@ -3,7 +3,7 @@ import { ThemeLibrary } from "@/components/studio/theme-library";
 import { toolThemes } from "@/lib/tool-themes";
 import type { Lang } from "@/lib/i18n";
 import { useId, useState } from "react";
-import type { Board } from "@/lib/boards";
+import { canAddScoreboardTeam, MAX_SCOREBOARD_TEAMS, type Board } from "@/lib/boards";
 import { defaultTimer, resetTimer } from "@/lib/timer";
 import { resolveAppearance, type Appearance } from "@/lib/appearance";
 import { defaultColor, teamPalette } from "@/lib/colors";
@@ -44,12 +44,12 @@ function SizeSlider({
       <input
         id={id}
         type="range"
+        className="custom-range w-full cursor-pointer accent-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
         min="80"
         max="240"
         step="5"
         value={value}
         onChange={(event) => change(Number(event.target.value))}
-        className="w-full cursor-pointer accent-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
       />
       <span className="flex justify-between text-sm text-forest/75">
         <span>{t.smaller}</span>
@@ -176,23 +176,31 @@ export function Customization({
               ))}
             </div>
             <Button
+              disabled={!canAddScoreboardTeam(board.teams.length)}
               onClick={() =>
                 change((b) => ({
                   ...b,
-                  teams: [
-                    ...b.teams,
-                    {
-                      id: crypto.randomUUID(),
-                      name: `${t.team} ${b.teams.length + 1}`,
-                      automaticName: true,
-                      score: 0,
-                    },
-                  ],
+                  teams: !canAddScoreboardTeam(b.teams.length)
+                    ? b.teams
+                    : [
+                        ...b.teams,
+                        {
+                          id: crypto.randomUUID(),
+                          name: `${t.team} ${b.teams.length + 1}`,
+                          automaticName: true,
+                          score: 0,
+                        },
+                      ],
                 }))
               }
             >
               ＋ {t.add}
             </Button>
+            {board.teams.length >= MAX_SCOREBOARD_TEAMS && (
+              <p className="text-sm text-ink/70" role="status">
+                {studioCopy[lang].maxTeams}
+              </p>
+            )}
           </div>
         )}
         {tab === "design" && (

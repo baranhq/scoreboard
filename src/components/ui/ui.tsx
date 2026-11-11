@@ -45,6 +45,7 @@ export function Modal({
   variant = "default",
   closeLabel,
   closeDisabled = false,
+  size = "default",
   footerActions,
   onAction,
 }: {
@@ -56,6 +57,7 @@ export function Modal({
   variant?: "default" | "privacy";
   closeLabel: string;
   closeDisabled?: boolean;
+  size?: "default" | "wide";
   footerActions?: ModalAction[];
   onAction?: (id: string) => void;
 }) {
@@ -104,7 +106,7 @@ export function Modal({
         if (closing && e.target === e.currentTarget) finishClose();
       }}
       aria-labelledby={titleId}
-      className={`m-auto flex max-h-[90dvh] ${variant === "privacy" ? "w-[min(94vw,44rem)] bg-surface text-ink backdrop:bg-black/50 sm:p-9" : "w-[min(94vw,28rem)] bg-surface text-ink backdrop:bg-[#102116]/60 sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 p-4 shadow-lg transition-colors duration-150 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_160ms_ease-out_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
+      className={`m-auto flex max-h-[90dvh] ${size === "wide" ? "w-[min(94vw,56rem)]" : variant === "privacy" ? "w-[min(94vw,44rem)]" : "w-[min(94vw,28rem)]"} bg-surface text-ink ${variant === "privacy" ? "backdrop:bg-black/50 sm:p-9" : "backdrop:bg-[#102116]/60 sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 p-4 shadow-lg transition-colors duration-150 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_160ms_ease-out_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
     >
       <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <h2 id={titleId} className="min-w-0 pt-1 font-display text-xl font-bold tracking-tight">
@@ -129,14 +131,14 @@ export function Modal({
         <div className="mt-3 shrink-0 border-t border-forest/15 pt-3">{afterScrollable}</div>
       )}
       {footerActions && (
-        <div className="mt-3 flex shrink-0 flex-wrap justify-end gap-2 border-t border-forest/15 pt-3">
-          {footerActions.map((action) => (
+        <div className="mt-3 grid shrink-0 grid-cols-2 gap-2 border-t border-forest/15 pt-3 sm:flex sm:justify-end">
+          {footerActions.map((action, index) => (
             <Button
               key={action.id}
               autoFocus={action.autoFocus}
               disabled={closeDisabled || closing}
               primary={action.primary}
-              className={action.className}
+              className={`w-full sm:w-auto ${index === footerActions.length - 1 ? "col-span-2 justify-self-end sm:col-auto" : ""} ${action.className || ""}`}
               onClick={() => {
                 if (closingRef.current) return;
                 onAction?.(action.id);

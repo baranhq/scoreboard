@@ -101,7 +101,9 @@ export function bracketLayout(board: Bracket) {
   const pitch = cardHeight + (board.style.matchGap ?? 40);
   const roundPitch = board.style.roundGap ?? 260;
   const width = (split ? rounds.length * 2 - 1 : rounds.length) * roundPitch + 40;
-  const header = graphicHeaderHeight(board, width);
+  const hasTitle = board.style.titleVisible !== false && !!board.title.trim();
+  const hasSubtitle = board.style.subtitleVisible !== false && !!board.subtitle.trim();
+  const header = graphicHeaderHeight(board, width) + (hasSubtitle ? 56 : hasTitle ? 28 : 12);
   const fieldHeight = (rounds[0].length / (split ? 2 : 1)) * pitch;
   const footerHeight = Math.max(
     50,

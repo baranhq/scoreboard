@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/ui";
+import { Dropdown, MenuItem } from "@/components/ui/dropdown";
 import { canvasRatios, type CanvasSize } from "@/lib/graphic-style";
 import type { Lang } from "@/lib/i18n";
 import { studioCopy } from "@/lib/studio-copy";
@@ -15,6 +17,36 @@ const ratioChoices = [
   ["portrait", "portrait"],
   ["story", "story"],
 ] as const;
+type RatioChoice = (typeof ratioChoices)[number][0];
+
+function RatioGlyph({ ratio }: { ratio: RatioChoice | "auto" | "custom" }) {
+  const sizes: Record<RatioChoice | "auto" | "custom", [number, number]> = {
+    square: [1, 1],
+    landscape: [16, 9],
+    standard: [4, 3],
+    portrait: [4, 5],
+    story: [9, 16],
+    auto: [16, 9],
+    custom: [1.35, 1],
+  };
+  const [ratioWidth, ratioHeight] = sizes[ratio];
+  const width = ratioWidth >= ratioHeight ? 24 : (16 * ratioWidth) / ratioHeight;
+  const height = ratioHeight >= ratioWidth ? 16 : (24 * ratioHeight) / ratioWidth;
+  return (
+    <svg viewBox="0 0 28 20" className="h-5 w-7 shrink-0" aria-hidden="true">
+      <rect
+        x={(28 - width) / 2}
+        y={(20 - height) / 2}
+        width={width}
+        height={height}
+        rx="1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+    </svg>
+  );
+}
 
 function selectedRatio(canvas?: CanvasSize) {
   if (!canvas) return "auto";
@@ -38,7 +70,7 @@ export function CanvasRatioSelect({
   disabled?: boolean;
 }) {
   const t = studioCopy[lang];
-  const options = {
+  const options: Record<RatioChoice, readonly [string, CanvasSize]> = {
     landscape: [t.landscapeRatio, canvasRatios.landscape],
     standard: [t.standardRatio, canvasRatios.standard],
     square: [t.squareRatio, canvasRatios.square],
@@ -46,30 +78,53 @@ export function CanvasRatioSelect({
     story: [t.storyRatio, canvasRatios.story],
   } as const;
   const ratio = selectedRatio(canvas);
+  const currentLabel =
+    ratio === "auto" ? t.fitContent : ratio === "custom" ? t.customSize : options[ratio][0];
 
   return (
-    <label className="min-w-0">
-      <span className="sr-only">{t.canvasSize}</span>
-      <select
-        aria-label={t.canvasSize}
-        disabled={disabled}
-        className={`${dimensionInputClass} !w-40`}
-        value={ratio}
-        onChange={(event) => {
-          const next = event.target.value as keyof typeof options | "auto" | "custom";
-          if (next === "auto") changeCanvas(undefined);
-          else if (next !== "custom") changeCanvas(options[next][1]);
-        }}
+    <Dropdown
+      ariaLabel={t.canvasSize}
+      disabled={disabled}
+      triggerClassName="!min-h-11 !w-44 !justify-between !rounded-md !border !border-forest/25 !bg-surface !px-3 !text-sm !text-ink"
+      label={
+        <>
+          <RatioGlyph ratio={ratio} />
+          <span className="min-w-0 flex-1 truncate text-left">{currentLabel}</span>
+          <ChevronDown size={16} aria-hidden="true" />
+        </>
+      }
+    >
+      <MenuItem
+        type="button"
+        role="menuitemradio"
+        aria-checked={ratio === "auto"}
+        onClick={() => changeCanvas(undefined)}
       >
-        <option value="auto">{t.fitContent}</option>
-        {ratioChoices.map(([value]) => (
-          <option key={value} value={value}>
-            {options[value][0]}
-          </option>
-        ))}
-        {ratio === "custom" && <option value="custom">{t.customSize}</option>}
-      </select>
-    </label>
+        <RatioGlyph ratio="auto" />
+        {t.fitContent}
+        {ratio === "auto" && <Check className="ml-auto size-4" aria-hidden="true" />}
+      </MenuItem>
+      {ratioChoices.map(([value]) => (
+        <MenuItem
+          key={value}
+          type="button"
+          role="menuitemradio"
+          aria-checked={ratio === value}
+          onClick={() => changeCanvas(options[value][1])}
+        >
+          <RatioGlyph ratio={value} />
+          {options[value][0]}
+          {ratio === value && <Check className="ml-auto size-4" aria-hidden="true" />}
+        </MenuItem>
+      ))}
+      {ratio === "custom" && (
+        <MenuItem type="button" role="menuitemradio" aria-checked="true" disabled>
+          <RatioGlyph ratio="custom" />
+          {t.customSize}
+          <Check className="ml-auto size-4" aria-hidden="true" />
+        </MenuItem>
+      )}
+    </Dropdown>
   );
 }
 

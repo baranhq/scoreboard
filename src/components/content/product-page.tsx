@@ -36,47 +36,39 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
       />
-      <main id="main" data-campaign={tool === "leaderboard" ? "light" : "dark"}>
-        <section
-          className={
-            tool === "scoreboard"
-              ? "overflow-hidden bg-campaign text-campaign-ink"
-              : tool === "leaderboard"
-                ? "overflow-hidden bg-paper text-ink"
-                : "overflow-hidden bg-campaign text-campaign-ink"
-          }
-        >
+      <main id="main" data-campaign="dark">
+        <section className="bg-campaign text-campaign-ink lg:min-h-[calc(100svh-4rem)]">
           <div
-            className={`mx-auto max-w-7xl px-5 pt-10 pb-12 sm:px-8 sm:pt-16 sm:pb-16 ${tool === "leaderboard" ? "grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start" : ""}`}
+            className={`mx-auto max-w-7xl px-5 sm:px-8 ${tool === "scoreboard" ? "flex flex-col py-5 lg:h-[calc(100svh-4rem)] lg:overflow-hidden lg:py-3" : tool === "leaderboard" ? "pt-8 pb-10 sm:pt-12 sm:pb-14 lg:grid lg:min-h-[calc(100svh-4rem)] lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-8 lg:py-5" : "pt-8 pb-10 sm:pt-12 sm:pb-14 lg:grid lg:min-h-[calc(100svh-4rem)] lg:grid-cols-[0.7fr_1.3fr] lg:items-center lg:gap-8 lg:py-5"}`}
           >
             <header
               className={
                 tool === "scoreboard"
-                  ? "grid gap-7 pb-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end"
+                  ? "grid gap-5 pb-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-end"
                   : tool === "bracket"
-                    ? "flex flex-wrap items-end justify-between gap-8 pb-10"
+                    ? "flex flex-col items-start justify-center gap-4 lg:pb-0"
                     : ""
               }
             >
               <div>
                 <p
-                  className={`mb-6 font-display text-xl font-semibold ${tool === "leaderboard" ? "text-action" : "text-lime"}`}
+                  className={`mb-3 font-display text-lg font-semibold ${tool === "leaderboard" ? "text-action" : "text-lime"}`}
                 >
                   {t[tool]}
                 </p>
-                <h1 className="max-w-[18ch] font-display text-[clamp(3rem,6.5vw,6rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
+                <h1 className="max-w-[18ch] font-display text-[clamp(2.75rem,5vw,5rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
                   {campaignCopy[lang].headlines[tool]}
                 </h1>
               </div>
               <div className={tool === "bracket" ? "max-w-sm" : ""}>
                 <p
-                  className={`mt-6 max-w-[45ch] text-lg leading-8 ${tool === "leaderboard" ? "text-ink/75" : "text-white/80"}`}
+                  className={`mt-3 max-w-[45ch] text-base leading-6 ${tool === "leaderboard" ? "text-ink/75" : "text-white/80"}`}
                 >
                   {content.description}
                 </p>
                 <Link
                   href={route(lang, toolEditors[tool])}
-                  className={`mt-6 inline-flex min-h-12 items-center gap-3 px-6 py-3 font-semibold transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:translate-y-0 motion-reduce:transform-none ${tool === "leaderboard" ? "bg-action text-on-action" : "bg-lime text-campaign"}`}
+                  className={`mt-4 inline-flex min-h-11 items-center gap-3 px-5 py-2.5 font-semibold transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:translate-y-0 motion-reduce:transform-none ${tool === "leaderboard" ? "bg-action text-on-action" : "bg-lime text-campaign"}`}
                 >
                   {content.action}
                   <ArrowUpRight size={18} aria-hidden="true" />
@@ -84,12 +76,21 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
               </div>
             </header>
             <div
-              className={`min-w-0 ${tool === "leaderboard" ? "border-t-[6px] border-action bg-forest/5 p-3 sm:p-6 lg:mt-14" : tool === "bracket" ? "border-y border-white/25 py-6" : ""}`}
+              className={`min-w-0 ${tool === "scoreboard" ? "h-[clamp(24rem,46svh,35rem)] lg:min-h-0" : tool === "leaderboard" ? "bg-forest/5 p-3 sm:p-5 lg:h-[min(72svh,46rem)]" : "bg-forest/5 p-3 sm:p-5 lg:h-[min(72svh,46rem)]"}`}
             >
-              <ToolDemo tool={tool} lang={lang} compact hideHeading={tool === "bracket"} />
+              <ToolDemo
+                tool={tool}
+                lang={lang}
+                compact
+                readOnly
+                showReadOnlyControls
+                showResultControls={false}
+              />
             </div>
             {tool !== "leaderboard" && (
-              <p className="mt-6 max-w-4xl text-sm leading-7 text-white/75">{content.features}</p>
+              <p className="mt-4 max-w-4xl text-sm leading-6 text-white/75 lg:col-span-2">
+                {content.features}
+              </p>
             )}
           </div>
         </section>
