@@ -36,7 +36,7 @@ export const campaignCopy = {
   bg: {
     intro:
       "Създавайте табла с резултати, класирания и турнирни схеми. Настройте изгледа, следете състезанието и представете резултатите.",
-    headline: "Всеки момент\nима значение.",
+    headline: "Направете всяка игра\nнезабравима.",
     design: "Едно състезание.\nВашият почерк.",
     workflow: "Готови преди първата точка.",
     steps: [
@@ -69,7 +69,7 @@ export const campaignCopy = {
   tr: {
     intro:
       "Skor tabloları, sıralamalar ve turnuva eşleşmeleri oluşturun. Görünümü özelleştirin, oyunu yönetin ve sonucu sunun.",
-    headline: "Her anı\ndeğerli kılın.",
+    headline: "Oyunun heyecanını\nbirlikte yaşayın.",
     design: "Tek yarışma.\nSizin imzanız.",
     workflow: "İlk sayıdan önce hazır.",
     steps: [

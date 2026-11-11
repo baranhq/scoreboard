@@ -71,17 +71,24 @@ export function LanguageMenu({ lang, languageLabel }: { lang: Lang; languageLabe
             <Link
               key={l}
               href={translatedPath(pathname, l)}
+              data-preserve-draft
               lang={l}
               hrefLang={l}
               aria-current={lang === l ? "page" : undefined}
               onClick={(event) => {
+                if (
+                  event.button !== 0 ||
+                  event.metaKey ||
+                  event.ctrlKey ||
+                  event.shiftKey ||
+                  event.altKey
+                )
+                  return;
+                event.preventDefault();
                 try {
                   localStorage.setItem("scoreboard-language", l);
                 } catch {}
-                if (location.hash) {
-                  event.preventDefault();
-                  router.push(`${translatedPath(pathname, l)}${location.hash}`);
-                }
+                router.push(`${translatedPath(pathname, l)}${location.search}${location.hash}`);
               }}
               className={`flex min-h-11 items-center justify-between rounded-lg px-3 text-base hover:bg-forest/5 ${lang === l ? "font-semibold" : ""}`}
             >

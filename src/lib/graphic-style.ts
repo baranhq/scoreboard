@@ -3,6 +3,7 @@ import { onlyKeys } from "./validation.ts";
 export type GraphicStyle = {
   titleVisible?: boolean;
   subtitleVisible?: boolean;
+  rowSeparators?: boolean;
   showScores?: boolean;
   connectorColor?: string;
   connectorWidth?: number;

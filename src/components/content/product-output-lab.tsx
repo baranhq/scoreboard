@@ -1,4 +1,5 @@
 "use client";
+import { Minus, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Graphic } from "@/components/studio/graphic";
 import { TimerDisplay } from "@/components/scoreboard/game-timer";
@@ -12,8 +13,13 @@ import { studioCopy } from "@/lib/studio-copy";
 import { campaignCopy } from "@/lib/campaign-copy";
 import { toolThemes } from "@/lib/tool-themes";
 import type { Tool } from "./tool-demo";
+import { canAddScoreboardTeam, MAX_SCOREBOARD_TEAMS } from "@/lib/boards";
+import { Button } from "@/components/ui/ui";
+import { DemoTeamLimit } from "./demo-team-limit";
 export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
   const [view, setView] = useState(0);
+  const [teamCount, setTeamCount] = useState(2);
+  const [showLimit, setShowLimit] = useState(false);
   const [timer, setTimer] = useState<GameTimer>({ ...defaultTimer, enabled: true, periodCount: 2 });
   const t = studioCopy[lang];
   const document = useMemo(() => {
@@ -32,22 +38,58 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
   }, [tool, lang, view, t]);
   return (
     <div className="min-w-0">
-      <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label={t.layout}>
-        {campaignCopy[lang].views[tool].map((label, index) => (
-          <button
-            key={label}
-            type="button"
-            aria-pressed={view === index}
-            onClick={() => setView(index)}
-            className={`min-h-12 border px-5 py-2 text-sm font-semibold transition-colors ${view === index ? "border-action bg-action text-on-action" : "border-forest/30 hover:bg-forest/10"}`}
+      {tool === "scoreboard" ? (
+        <div className="relative mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div
+            className="flex flex-wrap items-center gap-2"
+            role="group"
+            aria-label={messages[lang].teams}
           >
-            {label}
-          </button>
-        ))}
-      </div>
+            <span className="mr-1 text-sm font-semibold tabular-nums">
+              {messages[lang].teams}: {teamCount}
+            </span>
+            <Button
+              disabled={teamCount <= 1}
+              onClick={() => {
+                setTeamCount((current) => Math.max(1, current - 1));
+                setShowLimit(false);
+              }}
+            >
+              <Minus size={16} aria-hidden="true" />
+              {t.removeTeam}
+            </Button>
+            <Button
+              onClick={() => {
+                if (!canAddScoreboardTeam(teamCount)) setShowLimit(true);
+                else setTeamCount((current) => Math.min(MAX_SCOREBOARD_TEAMS, current + 1));
+              }}
+            >
+              <Plus size={16} aria-hidden="true" />
+              {t.addTeam}
+            </Button>
+          </div>
+          {showLimit && <DemoTeamLimit lang={lang} close={() => setShowLimit(false)} />}
+        </div>
+      ) : (
+        <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label={t.layout}>
+          {campaignCopy[lang].views[tool].map((label, index) => (
+            <button
+              key={label}
+              type="button"
+              aria-pressed={view === index}
+              onClick={() => setView(index)}
+              className={`min-h-12 border px-5 py-2 text-sm font-semibold transition-colors ${view === index ? "border-action bg-action text-on-action" : "border-forest/30 hover:bg-forest/10"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
       {tool === "scoreboard" ? (
         <>
-          <HomeScoreboard lang={lang} expanded={view === 1} autoplay={false} />
+          <div className="h-[clamp(28rem,58svh,38rem)] min-w-0 overflow-hidden rounded-xl border border-forest/20">
+            <HomeScoreboard lang={lang} teamCount={teamCount} compact autoplay={false} />
+          </div>
           <div className="mt-5 border-y border-forest/25 py-6">
             <TimerDisplay
               timer={timer}

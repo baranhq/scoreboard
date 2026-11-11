@@ -27,11 +27,17 @@ export function studioDemo(kind: StudioDocument["kind"], lang: Lang): StudioDocu
     return board;
   }
   let board = resizeBracket(newBracket("demo-bracket"), 4);
+  board = {
+    ...board,
+    participants: board.participants.map((participant, index) => ({
+      ...participant,
+      name: index === 3 ? "Baran’s Team" : `${t.team} ${index + 1}`,
+    })),
+  };
   board.title = title[1];
   board.subtitle = t.participants;
   board.layout = "single";
-  for (const match of bracketRounds(board)[0].slice(0, 1))
-    board = setMatchResult(board, match.id, match.players[0], ["2", "1"]);
+  board = setMatchResult(board, "0-0", "player-3", ["1", "2"]);
   return board;
 }
 

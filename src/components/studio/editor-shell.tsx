@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, Download, Expand, Save } from "lucide-react";
+import { ArrowLeft, Download, Expand, FilePlus2, Save, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/ui";
 import { ColorControl, accentColors } from "./color-control";
 import { ThemeLibrary } from "./theme-library";
@@ -17,6 +17,7 @@ import type { useDocument } from "./use-document";
 import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
 import { WorkspaceTabs, type WorkspaceTab } from "./workspace-tabs";
 import { CanvasRatioSelect } from "./canvas-controls";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const inputClass =
   "min-h-11 w-full min-w-0 rounded-md border border-forest/25 bg-surface px-3 py-2 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
@@ -42,6 +43,8 @@ export function EditorShell({
   const doc = state.document;
   const svg = useRef<SVGSVGElement>(null);
   const preview = useRef<HTMLElement>(null);
+  const previewViewport = useRef<HTMLDivElement>(null);
+  const previewCanvas = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
   const [fullSize, setFullSize] = useState(false);
@@ -50,6 +53,7 @@ export function EditorShell({
   const [fullscreen, setFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("content");
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
+  const [activePosition, setActivePosition] = useState<CSSProperties | null>(null);
   const previewInput = useRef<HTMLInputElement>(null);
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
   const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
@@ -70,6 +74,28 @@ export function EditorShell({
   useEffect(() => {
     if (activeField) previewInput.current?.focus();
   }, [activeField]);
+
+  const editPreviewField = (field: PreviewField, target: SVGTextElement) => {
+    const canvas = previewCanvas.current;
+    if (!canvas) return;
+    const targetRect = target.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const fontSize = Number.parseFloat(getComputedStyle(target).fontSize);
+    setActivePosition({
+      left: targetRect.left - canvasRect.left,
+      top: targetRect.top - canvasRect.top + Math.max(0, (targetRect.height - 44) / 2),
+      width: Math.max(96, Math.min(360, targetRect.width + 28)),
+      height: Math.max(44, targetRect.height),
+      fontSize: Math.max(14, Math.min(32, fontSize || 18)),
+      textAlign:
+        target.getAttribute("text-anchor") === "middle"
+          ? "center"
+          : target.getAttribute("text-anchor") === "end"
+            ? "right"
+            : "left",
+    });
+    setActiveField(field);
+  };
 
   useEffect(() => {
     const syncFullscreen = () => setFullscreen(document.fullscreenElement === preview.current);
@@ -109,10 +135,14 @@ export function EditorShell({
   return (
     <>
       {confirmationDialog}
-      <main id="main" className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6">
+      <main
+        id="main"
+        data-editor-shell
+        className="mx-auto flex h-[calc(100dvh-4rem)] min-h-0 w-full max-w-[1600px] flex-col overflow-hidden px-3 py-2 sm:px-5 sm:py-3"
+      >
         <h1 className="sr-only">{doc.title}</h1>
-        <header className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-forest/20 pb-4">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+        <header className="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-forest/20 pb-2 sm:mb-3 sm:gap-3 sm:pb-3">
+          <div className="flex min-w-0 flex-1 basis-full items-center gap-2 sm:basis-auto sm:gap-3">
             <Link
               href={route(lang, doc.kind === "leaderboard" ? "leaderboards" : "brackets")}
               aria-label={t.back}
@@ -123,7 +153,7 @@ export function EditorShell({
             <label className="min-w-0 flex-1">
               <span className="sr-only">{t.title}</span>
               <input
-                className="min-h-12 w-full min-w-0 border-b border-transparent bg-transparent px-1 font-display text-2xl font-bold tracking-tight text-ink hover:border-forest/25 focus:border-forest focus-visible:outline-none sm:text-3xl"
+                className="min-h-11 w-full min-w-0 border-b border-transparent bg-transparent px-1 font-display text-xl font-bold tracking-tight text-ink hover:border-forest/25 focus:border-forest focus-visible:outline-none sm:text-2xl"
                 maxLength={200}
                 value={doc.title}
                 disabled={!state.ready || state.busy}
@@ -131,31 +161,61 @@ export function EditorShell({
               />
             </label>
           </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <span role="status" className="mr-1 hidden text-sm text-forest sm:inline">
+          <div className="flex w-full items-center justify-end gap-1.5 sm:w-auto sm:gap-2">
+            <span
+              role="status"
+              className="mr-auto hidden max-w-56 text-xs leading-4 text-forest md:inline"
+            >
               {exportError ||
                 state.message ||
-                (!state.ready ? t.loading : state.dirty ? t.unsaved : t.saveHint)}
+                (!state.ready ? t.loading : state.dirty ? t.draftSaved : t.saveHint)}
             </span>
-            <Button disabled={!state.canUndo || !state.ready || state.busy} onClick={state.undo}>
-              {t.undoEdit}
+            <Button
+              aria-label={t.undoEdit}
+              title={t.undoEdit}
+              className="!min-h-11 !min-w-11 !px-2 sm:!px-3"
+              disabled={!state.canUndo || !state.ready || state.busy}
+              onClick={state.undo}
+            >
+              <Undo2 aria-hidden="true" size={16} />
+              <span className="hidden sm:inline">{t.undoEdit}</span>
             </Button>
-            <Button disabled={!state.ready || state.busy} onClick={state.newProject}>
-              {t.newProject}
+            <Button
+              aria-label={t.newProject}
+              title={t.newProject}
+              className="!min-h-11 !min-w-11 !px-2 sm:!px-3"
+              disabled={!state.ready || state.busy}
+              onClick={state.newProject}
+            >
+              <FilePlus2 aria-hidden="true" size={16} />
+              <span className="hidden sm:inline">{t.newProject}</span>
             </Button>
-            <Button disabled={!state.ready || state.busy} onClick={() => void state.save()}>
+            <Button
+              aria-label={t.saveToTables}
+              title={t.saveToTables}
+              className="!min-h-11 !min-w-11 !px-2 sm:!px-3"
+              disabled={!state.ready || state.busy}
+              onClick={() => void state.save()}
+            >
               <Save aria-hidden="true" size={16} />
-              {t.save}
+              <span className="hidden sm:inline">{t.saveToTables}</span>
             </Button>
-            <Button primary disabled={!state.ready || exporting} onClick={() => void exportImage()}>
+            <Button
+              primary
+              aria-label={exporting ? t.exporting : t.export}
+              title={exporting ? t.exporting : t.export}
+              className="!min-h-11 !min-w-11 !px-2 sm:!px-3"
+              disabled={!state.ready || exporting}
+              onClick={() => void exportImage()}
+            >
               <Download aria-hidden="true" size={16} />
-              {exporting ? t.exporting : t.export}
+              <span className="hidden sm:inline">{exporting ? t.exporting : t.export}</span>
             </Button>
           </div>
-          <p role="status" className="w-full text-sm text-forest sm:hidden">
+          <p role="status" className="w-full text-xs leading-4 text-forest md:hidden">
             {exportError ||
               state.message ||
-              (!state.ready ? t.loading : state.dirty ? t.unsaved : t.saveHint)}
+              (!state.ready ? t.loading : state.dirty ? t.draftSaved : t.saveHint)}
           </p>
         </header>
 
@@ -186,23 +246,19 @@ export function EditorShell({
         </div>
 
         <div
-          className={
-            previewOnly
-              ? ""
-              : "grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(22rem,0.85fr)_minmax(0,1.65fr)]"
-          }
+          className={`min-h-0 min-w-0 flex-1 overflow-hidden ${previewOnly ? "" : "grid gap-4 lg:grid-cols-[minmax(19rem,0.85fr)_minmax(0,1.55fr)]"}`}
         >
           <section
             ref={preview}
             aria-label={t.preview}
-            className={`order-1 min-w-0 bg-paper lg:sticky lg:top-4 lg:order-2 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:block"} ${fullscreen ? "flex h-dvh flex-col overflow-hidden p-4" : ""}`}
+            className={`order-1 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 lg:order-2 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-full"}`}
           >
-            <div className="mb-2 flex min-w-0 flex-wrap items-center justify-between gap-2">
+            <div className="mb-2 flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-2">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
                 <h2 className="text-base font-semibold">{t.preview}</h2>
                 {!fullscreen && <p className="text-sm text-ink/70">{t.clickToEdit}</p>}
               </div>
-              <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+              <div className="flex min-w-0 flex-wrap items-center justify-end gap-1 sm:gap-2">
                 <CanvasRatioSelect
                   canvas={doc.canvas}
                   changeCanvas={(canvas) => state.change({ ...doc, canvas })}
@@ -228,14 +284,27 @@ export function EditorShell({
                 </Button>
               </div>
             </div>
-            {activeField && (
-              <div className="mb-3 flex flex-wrap items-end gap-2 border-y border-action/35 bg-surface px-3 py-3 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none">
-                <label className="grid min-w-0 flex-1 gap-1 text-sm font-semibold">
-                  <span>
-                    {t.selectedPreview}: {activeLabel}
-                  </span>
+            <div
+              ref={previewViewport}
+              className="min-h-0 flex-1 overflow-auto overscroll-contain rounded-lg border border-forest/20 bg-forest/5 p-2 focus-visible:outline-offset-0 sm:p-4"
+              tabIndex={0}
+              aria-label={t.scrollHint}
+            >
+              <div
+                ref={previewCanvas}
+                className={`relative ${fullSize ? "w-max [&>svg]:!h-auto [&>svg]:!w-auto" : "flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-auto [&>svg]:!max-h-full [&>svg]:!w-auto [&>svg]:!max-w-full"}`}
+              >
+                <Graphic
+                  document={doc}
+                  labels={t}
+                  svgRef={svg}
+                  onEdit={state.busy ? undefined : editPreviewField}
+                />
+                {activeField && activePosition && (
                   <input
                     ref={previewInput}
+                    aria-label={`${t.selectedPreview}: ${activeLabel}`}
+                    autoComplete="off"
                     disabled={state.busy}
                     maxLength={
                       activeField.kind === "leaderboard-column"
@@ -248,17 +317,29 @@ export function EditorShell({
                     }
                     inputMode={activeField.kind === "bracket-score" ? "numeric" : undefined}
                     value={activeValue}
-                    className={inputClass}
+                    style={{ ...activePosition, position: "absolute" }}
+                    className="z-10 min-w-0 rounded-md border-2 border-action bg-paper/95 px-2 font-semibold text-ink shadow-md outline-none"
                     onChange={(event) =>
                       state.change(updatePreviewField(doc, activeField, event.target.value, false))
                     }
+                    onKeyDown={(event) => {
+                      if (event.key === "Escape") setActiveField(null);
+                      if (event.key === "Enter") event.currentTarget.blur();
+                    }}
+                    onBlur={() => setActiveField(null)}
                   />
-                </label>
-                {doc.kind === "bracket" && advanceMatch && previewParticipant && (
+                )}
+                {doc.kind === "bracket" && advanceMatch && previewParticipant && activePosition && (
                   <Button
                     primary
                     disabled={state.busy}
-                    onClick={() =>
+                    className="absolute z-10 !min-h-9 !px-2 !py-1 !text-xs"
+                    style={{
+                      left: activePosition.left,
+                      top: Number(activePosition.top) + Number(activePosition.height) + 4,
+                    }}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
                       state.change(
                         setMatchResult(
                           doc,
@@ -266,34 +347,20 @@ export function EditorShell({
                           previewParticipant,
                           advanceMatch.scores,
                         ),
-                      )
-                    }
+                      );
+                      setActiveField(null);
+                    }}
                   >
                     {t.chooseWinner}
                   </Button>
                 )}
-                <Button onClick={() => setActiveField(null)}>{t.done}</Button>
-              </div>
-            )}
-            <div
-              className={`min-h-64 overflow-auto overscroll-contain border border-forest/20 bg-forest/5 p-2 focus-visible:outline-offset-0 sm:p-4 ${fullscreen ? "min-h-0 flex-1" : "max-h-[68svh]"}`}
-              tabIndex={0}
-              aria-label={t.scrollHint}
-            >
-              <div className={fullSize ? "w-max [&>svg]:h-auto [&>svg]:w-auto" : "min-w-0"}>
-                <Graphic
-                  document={doc}
-                  labels={t}
-                  svgRef={svg}
-                  onEdit={state.busy ? undefined : setActiveField}
-                />
               </div>
             </div>
           </section>
 
           {!previewOnly && (
             <aside
-              className={`order-2 min-w-0 border-t border-forest/20 pt-4 lg:order-1 lg:border-t-0 lg:pt-0 ${mobilePanel === "edit" ? "" : "hidden lg:block"}`}
+              className={`order-2 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-surface shadow-sm lg:order-1 ${mobilePanel === "edit" ? "" : "hidden lg:flex"}`}
             >
               <WorkspaceTabs lang={lang} value={activeTab} change={setActiveTab} />
               <fieldset
@@ -301,7 +368,7 @@ export function EditorShell({
                 role="tabpanel"
                 aria-labelledby={`workspace-tab-${activeTab}`}
                 disabled={!state.ready || state.busy}
-                className="max-h-[72svh] min-w-0 space-y-5 overflow-y-auto overscroll-contain px-1 py-4 lg:max-h-[calc(100dvh-13rem)]"
+                className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4"
               >
                 {panels[activeTab]}
               </fieldset>
@@ -410,6 +477,7 @@ export function ThemeControls({
                 {label}: {doc.style[field] ?? fallback}
                 <input
                   type="range"
+                  className="custom-range"
                   min={min}
                   max={max}
                   value={doc.style[field] ?? fallback}
@@ -447,28 +515,26 @@ export function VisibilitySettings({
     <fieldset className="space-y-3">
       <legend className="mb-2 font-semibold">{t.displayElements}</legend>
       {options.map(([key, label]) => (
-        <label key={key} className="flex min-h-11 items-center gap-3">
-          <input
-            type="checkbox"
-            checked={doc.style[key] !== false}
-            onChange={(event) =>
-              change({ ...doc, style: { ...doc.style, [key]: event.target.checked } })
-            }
-          />
-          {label}
-        </label>
+        <Checkbox
+          key={key}
+          checked={doc.style[key] !== false}
+          label={label}
+          change={(checked) => change({ ...doc, style: { ...doc.style, [key]: checked } })}
+        />
       ))}
+      {doc.kind === "leaderboard" && (
+        <Checkbox
+          checked={doc.style.rowSeparators === true}
+          label={t.rowSeparation}
+          change={(rowSeparators) => change({ ...doc, style: { ...doc.style, rowSeparators } })}
+        />
+      )}
       {doc.kind === "bracket" && (
-        <label className="flex min-h-11 items-center gap-3">
-          <input
-            type="checkbox"
-            checked={doc.style.showScores !== false}
-            onChange={(event) =>
-              change({ ...doc, style: { ...doc.style, showScores: event.target.checked } })
-            }
-          />
-          {t.score}
-        </label>
+        <Checkbox
+          checked={doc.style.showScores !== false}
+          label={t.score}
+          change={(showScores) => change({ ...doc, style: { ...doc.style, showScores } })}
+        />
       )}
     </fieldset>
   );

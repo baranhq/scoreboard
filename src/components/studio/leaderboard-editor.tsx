@@ -141,6 +141,15 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
     >
       <section className="min-w-0 space-y-3">
         <label className="grid gap-1 text-sm font-semibold">
+          {t.title}
+          <input
+            className={inputClass}
+            maxLength={200}
+            value={board.title}
+            onChange={(event) => state.change({ ...board, title: event.target.value })}
+          />
+        </label>
+        <label className="grid gap-1 text-sm font-semibold">
           {t.subtitle}
           <input
             className={inputClass}
@@ -206,9 +215,9 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
         <div
           tabIndex={0}
           aria-label={`${t.rows} & ${t.columns}`}
-          className="max-h-[65svh] overflow-auto overscroll-contain rounded-lg border border-forest/25"
+          className="max-h-[min(54dvh,34rem)] [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25"
         >
-          <table className="w-full border-collapse text-base">
+          <table className="w-max min-w-full border-collapse text-sm sm:text-base">
             <thead className="sticky top-0 z-10 bg-paper">
               <tr>
                 <th scope="col" className="p-2 text-sm">

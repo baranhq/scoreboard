@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, MousePointer2 } from "lucide-react";
 import { ToolDemo, type Tool } from "./tool-demo";
 import { useAutoDemo } from "./use-auto-demo";
 import { ProductThemeShowcase } from "./product-theme-showcase";
@@ -36,7 +36,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
       className={themes ? "min-w-0" : "min-w-0 [&_[data-demo-setup]]:hidden"}
     >
       <div
-        className="grid grid-cols-3 border-y border-current/20"
+        className="relative grid grid-cols-3 border-y border-current/20"
         role="group"
         aria-label={t.tools}
       >
@@ -51,8 +51,20 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
             {t[item]}
           </button>
         ))}
+        {!themes && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 transition-[left] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
+            style={{ left: `${((active + 0.72) / tools.length) * 100}%` }}
+          >
+            <MousePointer2
+              key={active}
+              className="size-5 fill-lime text-campaign-ink drop-shadow motion-safe:animate-[stage-cursor-click_260ms_ease-out]"
+            />
+          </span>
+        )}
       </div>
-      <div className="min-w-0 pt-4 sm:pt-6">
+      <div className={`min-w-0 ${themes ? "pt-4 sm:pt-6" : "pt-3 sm:pt-4"}`}>
         {themes ? (
           <ProductThemeShowcase
             key={tool}
@@ -64,9 +76,19 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
           <>
             <div
               key={tool}
-              className="min-w-0 motion-safe:animate-[surface-enter_300ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none"
+              className="h-[29rem] min-w-0 overflow-hidden motion-safe:animate-[surface-enter_300ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none lg:h-[clamp(23rem,46svh,32rem)]"
             >
-              <ToolDemo tool={tool} lang={lang} compact />
+              <ToolDemo
+                tool={tool}
+                lang={lang}
+                compact
+                autoplay={playing}
+                readOnly
+                showReadOnlyControls
+                showPlaybackControls={false}
+                showResultControls={false}
+                controlledPlayback
+              />
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <Link

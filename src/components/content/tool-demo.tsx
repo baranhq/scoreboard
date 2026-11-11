@@ -6,7 +6,7 @@ import { Graphic } from "@/components/studio/graphic";
 import { DemoPlaybackControls } from "@/components/content/demo-playback-controls";
 import { ScoreboardPreview } from "@/components/content/scoreboard-preview";
 import { landingContent } from "@/lib/landing-content";
-import { bracketRounds, setMatchResult, type Bracket } from "@/lib/brackets";
+import { bracketRounds, resizeBracket, setMatchResult, type Bracket } from "@/lib/brackets";
 import { messages, type Lang } from "@/lib/i18n";
 import { advanceStudioDemo, studioDemo } from "@/lib/studio-demo";
 import { updateLeaderboardCell, type Leaderboard, type StudioDocument } from "@/lib/studio";
@@ -29,6 +29,12 @@ export function ToolDemo({
   expanded = false,
   autoplay = true,
   hideHeading = false,
+  readOnly = false,
+  showPlaybackControls = true,
+  showResultControls = true,
+  controlledPlayback = false,
+  showReadOnlyControls = false,
+  teamCount,
 }: {
   tool: Tool;
   lang: Lang;
@@ -37,9 +43,28 @@ export function ToolDemo({
   expanded?: boolean;
   autoplay?: boolean;
   hideHeading?: boolean;
+  readOnly?: boolean;
+  showPlaybackControls?: boolean;
+  showResultControls?: boolean;
+  controlledPlayback?: boolean;
+  showReadOnlyControls?: boolean;
+  teamCount?: number;
 }) {
   if (tool === "scoreboard" && compact)
-    return <HomeScoreboard lang={lang} theme={theme} expanded={expanded} autoplay={autoplay} />;
+    return (
+      <HomeScoreboard
+        lang={lang}
+        theme={theme}
+        expanded={expanded}
+        autoplay={autoplay}
+        compact
+        readOnly={readOnly}
+        showPlaybackControls={showPlaybackControls}
+        controlledPlayback={controlledPlayback}
+        showReadOnlyControls={showReadOnlyControls}
+        teamCount={teamCount}
+      />
+    );
   if (tool === "scoreboard") {
     return (
       <ScoreboardPreview
@@ -68,6 +93,10 @@ export function ToolDemo({
       expanded={expanded}
       autoplay={autoplay}
       hideHeading={hideHeading}
+      showPlaybackControls={showPlaybackControls}
+      readOnly={readOnly}
+      showResultControls={showResultControls}
+      controlledPlayback={controlledPlayback}
     />
   );
 }
@@ -80,6 +109,10 @@ function StudioToolDemo({
   expanded,
   autoplay,
   hideHeading,
+  showPlaybackControls,
+  readOnly,
+  showResultControls,
+  controlledPlayback,
 }: {
   tool: Exclude<Tool, "scoreboard">;
   lang: Lang;
@@ -87,15 +120,22 @@ function StudioToolDemo({
   expanded: boolean;
   autoplay: boolean;
   hideHeading: boolean;
+  showPlaybackControls: boolean;
+  readOnly: boolean;
+  showResultControls: boolean;
+  controlledPlayback: boolean;
   theme?: ToolTheme;
 }) {
   const t = studioCopy[lang];
   const initial = useMemo(() => {
-    const sample = studioDemo(tool, lang);
+    let sample = studioDemo(tool, lang);
     if (compact) {
-      sample.style = { ...sample.style, ...(theme || toolThemes[tool === "bracket" ? 1 : 0]) };
-      if (sample.kind === "bracket") sample.layout = expanded ? "single" : "split";
-      else sample.gridColumns = expanded ? 2 : 1;
+      if (sample.kind === "bracket") sample = resizeBracket(sample, 4);
+      sample.style = { ...sample.style, ...(theme || toolThemes[1]) };
+      if (sample.kind === "bracket") {
+        sample.layout = expanded ? "split" : "single";
+        sample.style = { ...sample.style, titleVisible: false, subtitleVisible: false };
+      } else sample.gridColumns = expanded ? 2 : 1;
     }
     if (hideHeading)
       sample.style = { ...sample.style, titleVisible: false, subtitleVisible: false };
@@ -130,7 +170,7 @@ function StudioToolDemo({
     toggle: togglePlayback,
     pause,
     reset: resetPlayback,
-  } = useAutoDemo(advance, reset, 2900, autoplay);
+  } = useAutoDemo(advance, reset, 2900, autoplay, controlledPlayback);
   const selectedParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
   const selectedMatch =
@@ -162,26 +202,28 @@ function StudioToolDemo({
             } as CSSProperties)
           : undefined
       }
-      className={`min-w-0 overflow-hidden bg-surface text-ink ${compact ? "rounded-none" : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]"}`}
+      className={`flex min-w-0 flex-col overflow-hidden bg-surface text-ink ${compact ? "h-full rounded-none" : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]"}`}
     >
       <header className="flex items-center justify-between gap-3 border-b border-forest/15 px-3 py-2.5 sm:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
           <span className="truncate text-sm font-semibold">{t[tool]}</span>
         </div>
-        <DemoPlaybackControls
-          playing={playing}
-          labels={{
-            play: labels.playPreview,
-            pause: labels.pausePreview,
-            reset: t.resetDemo,
-          }}
-          onToggle={togglePlayback}
-          onReset={resetPlayback}
-        />
+        {showPlaybackControls && (
+          <DemoPlaybackControls
+            playing={playing}
+            labels={{
+              play: labels.playPreview,
+              pause: labels.pausePreview,
+              reset: t.resetDemo,
+            }}
+            onToggle={togglePlayback}
+            onReset={resetPlayback}
+          />
+        )}
       </header>
 
       <div
-        className={`grid min-w-0 items-start gap-3 p-3 sm:p-4 ${compact ? "" : "lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
+        className={`min-w-0 gap-3 p-3 sm:p-4 ${compact ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "grid items-start lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
         onFocusCapture={pause}
         onInputCapture={pause}
         onChangeCapture={pause}
@@ -195,29 +237,38 @@ function StudioToolDemo({
           )}
         </div>
 
-        {compact && document.kind === "bracket" && (
+        {compact && showResultControls && !readOnly && document.kind === "bracket" && (
           <details className="rounded-lg border border-forest/20 px-3 py-2 text-sm">
             <summary className="cursor-pointer py-1 font-semibold text-action">{t.results}</summary>
             <BracketFields board={document} setDocument={setDocument} lang={lang} />
           </details>
         )}
 
-        <section aria-label={t.preview} className="min-w-0">
+        <section
+          aria-label={t.preview}
+          className={`min-w-0 ${compact ? "flex min-h-0 flex-1 flex-col" : ""}`}
+        >
           <div
-            className={`${compact ? (tool === "bracket" ? "[&>svg]:min-w-[40rem]" : "[&>svg]:min-w-[28rem]") : "max-h-[min(68svh,30rem)] min-h-52"} overflow-auto overscroll-contain bg-paper`}
+            className={`${compact ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden" : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto"} overscroll-contain bg-paper [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full [&>svg]:!w-auto [&>svg]:!max-w-full`}
           >
             <Graphic
               document={document}
               labels={t}
-              onEdit={(field) => {
-                pause();
-                setActiveField(field);
-              }}
+              onEdit={
+                readOnly
+                  ? undefined
+                  : (field) => {
+                      pause();
+                      setActiveField(field);
+                    }
+              }
             />
           </div>
-          <p className="mt-2 text-xs leading-relaxed text-ink/70">
-            {compact ? `${t.exploreGraphic} · ${t.clickToEdit}` : t.clickToEdit}
-          </p>
+          {!readOnly && (
+            <p className="mt-2 text-xs leading-relaxed text-ink/70">
+              {compact ? `${t.exploreGraphic} · ${t.clickToEdit}` : t.clickToEdit}
+            </p>
+          )}
           {activeField && (
             <div className="mt-2 flex min-w-0 items-end gap-2 rounded-lg border border-forest/15 bg-paper p-2">
               <label className="grid min-w-0 flex-1 gap-1 text-xs font-semibold">

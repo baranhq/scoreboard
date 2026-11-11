@@ -20,6 +20,8 @@ import {
   parseBackup,
   parseBackupText,
   MAX_BACKUP_BYTES,
+  MAX_SCOREBOARD_TEAMS,
+  canAddScoreboardTeam,
 } from "../src/lib/boards.ts";
 import { readJsonFile } from "../src/lib/untrusted-json.ts";
 import { teamGridClass } from "../src/lib/team-layout.ts";
@@ -202,16 +204,14 @@ test("software schema uses stable multilingual entities and omits unsupported ra
   assert.equal(tr[2].url, "https://scoreboard.baranhq.com/tr/");
   assert.equal(tr[1].url, "https://scoreboard.baranhq.com/tr/scoreboard/");
 });
-test("automatic and fullscreen scoreboard grids use the same team columns", () => {
-  for (const count of [1, 2, 3, 4, 5, 9, 10]) {
-    const columns = (classes: string) =>
-      classes.split(/\s+/).filter((value) => value && value !== "grid" && value !== "auto-rows-fr");
-    assert.deepEqual(
-      columns(teamGridClass(count, "auto", false)),
-      columns(teamGridClass(count, "auto", true)),
-    );
-  }
+test("scoreboard limits added teams and reflows panels to fit fullscreen", () => {
+  assert.equal(MAX_SCOREBOARD_TEAMS, 6);
+  assert.equal(canAddScoreboardTeam(5), true);
+  assert.equal(canAddScoreboardTeam(6), false);
+  assert.equal(canAddScoreboardTeam(12), false);
   assert.match(teamGridClass(1, "auto", true), /grid-cols-1/);
+  assert.match(teamGridClass(2, "auto", true), /grid-cols-2/);
+  assert.match(teamGridClass(6, "auto", true), /min-\[720px\]:grid-cols-3/);
   assert.match(teamGridClass(4, "auto", false), /grid-cols-2/);
 });
 test("scoreboard supports explicit vertical, horizontal, and grid arrangements", () => {
