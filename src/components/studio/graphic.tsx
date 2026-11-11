@@ -1,4 +1,4 @@
-import type { Ref } from "react";
+import { useId, type Ref } from "react";
 import type { Bracket } from "@/lib/brackets";
 import type { Leaderboard, StudioDocument } from "@/lib/studio";
 import { foreground } from "@/lib/colors";
@@ -124,18 +124,22 @@ export function LeaderboardGraphic({
   svgRef?: Ref<SVGSVGElement>;
   onEdit?: (field: PreviewField) => void;
 }) {
-  const widths = board.columns.map((column, i) =>
-    Math.max(
-      i === 0 ? 300 : 160,
-      Math.min(
-        480,
-        Math.max(column.length, ...board.rows.map((row) => Array.from(row.cells[i]).length)) * 14 +
-          40,
+  const widths = board.columns.map(
+    (column, i) =>
+      board.columnWidths?.[i] ??
+      Math.max(
+        i === 0 ? 300 : 160,
+        Math.min(
+          480,
+          Math.max(column.length, ...board.rows.map((row) => Array.from(row.cells[i]).length)) *
+            14 +
+            40,
+        ),
       ),
-    ),
   );
   const columnWidth = 68 + widths.reduce((sum, w) => sum + w, 0);
   const groups = distributeRows(board.rows, board.gridColumns || 1);
+  if (!groups.length) groups.push([]);
   const groupGap = 32;
   const width = 80 + groups.length * columnWidth + (groups.length - 1) * groupGap;
   const header =
@@ -152,7 +156,7 @@ export function LeaderboardGraphic({
       const index = board.rows.findIndex((item) => item.id === row.id);
       const rank = row.position || String(index + 1);
       const height = Math.max(
-        64,
+        board.style.density === "spacious" ? 88 : 64,
         wrapText(rank, 3).length * 24 + 26,
         ...row.cells.map((cell, i) => wrapText(cell, (widths[i] - 32) / 22).length * 29 + 26),
       );
@@ -161,12 +165,13 @@ export function LeaderboardGraphic({
       return placement;
     });
   });
-  const height = Math.max(...rowGroups.map((rows) => rows.at(-1)!.y + rows.at(-1)!.height)) + 44;
+  const height = Math.max(rowStart + 72, ...rowGroups.flat().map((row) => row.y + row.height)) + 44;
   const rows = rowGroups.flat();
   const outputWidth = board.canvas?.width || width;
   const outputHeight = board.canvas?.height || height;
   const placement = fitContentToCanvas(width, height, outputWidth, outputHeight);
-  const text = foreground(board.style.background);
+  const gradientId = useId();
+  const text = board.style.textColor || foreground(board.style.background);
   const onAccent = foreground(board.style.accent);
   return (
     <svg
@@ -185,7 +190,17 @@ export function LeaderboardGraphic({
       fontFamily={`${board.style.font}, Arial, sans-serif`}
     >
       <title>{board.title}</title>
-      <rect width={outputWidth} height={outputHeight} fill={board.style.background} />
+      <defs>
+        <linearGradient id={gradientId} x2="1" y2="1">
+          <stop stopColor={board.style.background} />
+          <stop offset="1" stopColor={board.style.backgroundEnd || board.style.accent} />
+        </linearGradient>
+      </defs>
+      <rect
+        width={outputWidth}
+        height={outputHeight}
+        fill={board.style.gradient ? `url(#${gradientId})` : board.style.background}
+      />
       <g transform={`translate(${placement.x} ${placement.y}) scale(${placement.scale})`}>
         <Heading doc={board} width={width} text={text} labels={labels} onEdit={onEdit} />
         {groups.map((_, groupIndex) => {
@@ -222,9 +237,13 @@ export function LeaderboardGraphic({
               y={0}
               width={columnWidth}
               height={row.height - 4}
-              rx={board.style.preset === "editorial" ? 0 : 6}
-              fill={row.row.highlighted ? board.style.accent : text}
-              fillOpacity={row.row.highlighted ? 1 : row.index % 2 === 0 ? 0.06 : 0.025}
+              rx={board.style.radius ?? (board.style.preset === "editorial" ? 0 : 6)}
+              stroke={board.style.borderColor}
+              strokeWidth={board.style.borderWidth ?? 0}
+              fill={row.row.color || (row.row.highlighted ? board.style.accent : text)}
+              fillOpacity={
+                row.row.color || row.row.highlighted ? 1 : row.index % 2 === 0 ? 0.06 : 0.025
+              }
             />
             <Lines
               text={row.row.position || String(row.index + 1)}
@@ -232,7 +251,9 @@ export function LeaderboardGraphic({
               y={40}
               size={Math.min(24, 60 / String(row.row.position || row.index + 1).length)}
               width={3}
-              fill={row.row.highlighted ? onAccent : text}
+              fill={
+                row.row.color ? foreground(row.row.color) : row.row.highlighted ? onAccent : text
+              }
               weight={700}
               edit={{ kind: "leaderboard-position", rowId: row.row.id }}
               labels={onEdit ? labels : undefined}
@@ -245,7 +266,9 @@ export function LeaderboardGraphic({
                 x={68 + widths.slice(0, i).reduce((a, b) => a + b, 0)}
                 y={39}
                 width={(widths[i] - 32) / 22}
-                fill={row.row.highlighted ? onAccent : text}
+                fill={
+                  row.row.color ? foreground(row.row.color) : row.row.highlighted ? onAccent : text
+                }
                 weight={i === 0 ? 600 : 500}
                 edit={{ kind: "leaderboard-cell", rowId: row.row.id, column: i }}
                 labels={onEdit ? labels : undefined}
@@ -273,7 +296,8 @@ export function BracketGraphic({
   const outputWidth = board.canvas?.width || width;
   const outputHeight = board.canvas?.height || height;
   const placement = fitContentToCanvas(width, height, outputWidth, outputHeight);
-  const text = foreground(board.style.background);
+  const gradientId = useId();
+  const text = board.style.textColor || foreground(board.style.background);
   const onAccent = foreground(board.style.accent);
   const name = (id: string | null) =>
     board.participants.find((p) => p.id === id)?.name || labels.pending;
@@ -290,7 +314,17 @@ export function BracketGraphic({
       fontFamily={`${board.style.font}, Arial, sans-serif`}
     >
       <title>{board.title}</title>
-      <rect width={outputWidth} height={outputHeight} fill={board.style.background} />
+      <defs>
+        <linearGradient id={gradientId} x2="1" y2="1">
+          <stop stopColor={board.style.background} />
+          <stop offset="1" stopColor={board.style.backgroundEnd || board.style.accent} />
+        </linearGradient>
+      </defs>
+      <rect
+        width={outputWidth}
+        height={outputHeight}
+        fill={board.style.gradient ? `url(#${gradientId})` : board.style.background}
+      />
       <g transform={`translate(${placement.x} ${placement.y}) scale(${placement.scale})`}>
         <Heading doc={board} width={width} text={text} labels={labels} onEdit={onEdit} />
         {nodes
@@ -309,9 +343,9 @@ export function BracketGraphic({
                   key={`${node.id}-${side}`}
                   d={`M${fromX},${fromY} H${(fromX + toX) / 2} V${toY} H${toX}`}
                   fill="none"
-                  stroke={text}
+                  stroke={board.style.borderColor || text}
                   strokeOpacity={0.4}
-                  strokeWidth={2}
+                  strokeWidth={board.style.borderWidth ?? 2}
                 />
               );
             }),
@@ -329,10 +363,10 @@ export function BracketGraphic({
               y={node.y}
               width={220}
               height={cardHeight}
-              rx={6}
+              rx={board.style.radius ?? 6}
               fill={text}
               fillOpacity={0.06}
-              stroke={text}
+              stroke={board.style.borderColor || text}
               strokeOpacity={0.28}
             />
             {node.players.map((id, i) => (
@@ -382,7 +416,7 @@ export function BracketGraphic({
               x2={node.x + 220}
               y1={node.y + rowHeight}
               y2={node.y + rowHeight}
-              stroke={text}
+              stroke={board.style.borderColor || text}
               strokeOpacity={0.2}
             />
           </g>

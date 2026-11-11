@@ -4,6 +4,7 @@ import { validColor } from "./colors.ts";
 import { bracketRounds, type Bracket } from "./brackets.ts";
 
 export type LeaderboardRow = {
+  color?: string;
   id: string;
   cells: string[];
   highlighted: boolean;
@@ -12,6 +13,7 @@ export type LeaderboardRow = {
 export type Leaderboard = GraphicBase & {
   kind: "leaderboard";
   gridColumns?: 1 | 2 | 3;
+  columnWidths?: number[];
   columns: string[];
   rows: LeaderboardRow[];
 };
@@ -46,6 +48,7 @@ export function removeColumn(board: Leaderboard, index: number): Leaderboard {
   return {
     ...board,
     columns: board.columns.filter((_, i) => i !== index),
+    columnWidths: board.columnWidths?.filter((_, i) => i !== index),
     rows: board.rows.map((row) => ({ ...row, cells: row.cells.filter((_, i) => i !== index) })),
   };
 }
@@ -116,6 +119,26 @@ export function parseDocument(value: unknown): StudioDocument {
     !validColor(style.background)
   )
     throw new Error("Invalid style");
+  for (const [key, max] of [
+    ["radius", 40],
+    ["borderWidth", 8],
+  ] as const) {
+    if (
+      style[key] !== undefined &&
+      (typeof style[key] !== "number" ||
+        !Number.isFinite(style[key]) ||
+        style[key] < 0 ||
+        style[key] > max)
+    )
+      throw new Error("Invalid style dimension");
+  }
+  if (style.gradient !== undefined && typeof style.gradient !== "boolean")
+    throw new Error("Invalid gradient");
+  for (const key of ["borderColor", "textColor", "backgroundEnd"])
+    if (style[key] !== undefined && !validColor(style[key]))
+      throw new Error("Invalid style colour");
+  if (style.density !== undefined && !["compact", "spacious"].includes(String(style.density)))
+    throw new Error("Invalid density");
   if (
     value.canvas !== undefined &&
     (!record(value.canvas) ||
@@ -138,16 +161,26 @@ export function parseDocument(value: unknown): StudioDocument {
       value.columns.length > 10 ||
       !value.columns.every((c) => text(c, 80)) ||
       !Array.isArray(value.rows) ||
-      value.rows.length < 1 ||
       value.rows.length > 100
     )
       throw new Error("Invalid table size");
+    if (
+      value.columnWidths !== undefined &&
+      (!Array.isArray(value.columnWidths) ||
+        value.columnWidths.length !== value.columns.length ||
+        !value.columnWidths.every(
+          (width) =>
+            typeof width === "number" && Number.isFinite(width) && width >= 80 && width <= 800,
+        ))
+    )
+      throw new Error("Invalid column widths");
     for (const row of value.rows) {
       if (
         !record(row) ||
         !text(row.id, 100) ||
         !row.id ||
         typeof row.highlighted !== "boolean" ||
+        (row.color !== undefined && !validColor(row.color)) ||
         (row.position !== undefined && !text(row.position, 6)) ||
         !Array.isArray(row.cells) ||
         row.cells.length !== value.columns.length ||

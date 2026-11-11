@@ -1,17 +1,32 @@
 "use client";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/ui";
-import { bracketRounds, resizeBracket, setMatchResult, type Bracket } from "@/lib/brackets";
+import {
+  newBracket,
+  bracketRounds,
+  resizeBracket,
+  setMatchResult,
+  type Bracket,
+} from "@/lib/brackets";
 import type { Lang } from "@/lib/i18n";
 import { studioCopy } from "@/lib/studio-copy";
-import { studioDemo } from "@/lib/studio-demo";
 import { moveItem } from "@/lib/studio";
-import { StressControls } from "./stress-controls";
 import { useDocument } from "./use-document";
 import { EditorShell, inputClass } from "./editor-shell";
 export function BracketEditor({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
-  const initial = useMemo(() => studioDemo("bracket", lang), [lang]);
+  const initial = useMemo(
+    () => ({
+      ...newBracket(),
+      title: t.bracket,
+      subtitle: "",
+      participants: newBracket().participants.map((player, index) => ({
+        ...player,
+        name: `${t.participant} ${index + 1}`,
+      })),
+    }),
+    [t.bracket, t.participant],
+  );
   const state = useDocument(initial, t);
   const board = state.document as Bracket;
   const [count, setCount] = useState("");
@@ -20,11 +35,12 @@ export function BracketEditor({ lang }: { lang: Lang }) {
   const round = Math.min(selectedRound, rounds.length - 1);
   const participantName = (id: string | null) =>
     board.participants.find((p) => p.id === id)?.name || t.pending;
-  const reorder = (index: number, to: number) =>
+  const reorder = (index: number, to: number) => {
+    if (Object.keys(board.results).length && !window.confirm(t.confirmClearResults)) return;
     state.change({ ...board, participants: moveItem(board.participants, index, to), results: {} });
+  };
   return (
     <EditorShell lang={lang} state={state}>
-      <StressControls initial={initial} change={state.change} labels={t} />
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">{t.participants}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -51,6 +67,8 @@ export function BracketEditor({ lang }: { lang: Lang }) {
                 Number(count) === board.participants.length
               }
               onClick={() => {
+                if (Object.keys(board.results).length && !window.confirm(t.confirmClearResults))
+                  return;
                 state.change(resizeBracket(board, Number(count)));
                 setCount("");
                 setSelectedRound(0);

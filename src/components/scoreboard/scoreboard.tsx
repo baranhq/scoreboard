@@ -65,6 +65,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const current = useRef(boards);
   const [id, setId] = useState<string>(initialBoardId);
   const [ready, setReady] = useState(false);
+  const [undoBoards, setUndoBoards] = useState<Board[]>([]);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [showStarPrompt, setShowStarPrompt] = useState(true);
@@ -185,6 +186,9 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
         }
       } catch {
         if (alive) {
+          const fallback = newBoard(t.board, t.team);
+          replace([fallback]);
+          setId(fallback.id);
           setReady(true);
           setError(fragment.startsWith("#share=") ? t.shareInvalid : t.storageError);
         }
@@ -218,6 +222,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
       if (orderChanged && teamGridRef.current) {
         teamLayoutSnapshotRef.current = readTeamBounds(teamGridRef.current);
       }
+      setUndoBoards((previous) => [...previous.slice(-49), old]);
       const next = { ...changed, updatedAt: Date.now() };
       replace(all.map((b) => (b.id === id ? next : b)));
       persist([next]);
@@ -614,7 +619,22 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
             <>
               {ready && board && (
                 <>
-                  <div className="mt-3 flex justify-end">
+                  <div className="mt-3 flex justify-end gap-2">
+                    <Button
+                      disabled={!undoBoards.some((previous) => previous.id === id)}
+                      onClick={() => {
+                        const previous = undoBoards.findLast((saved) => saved.id === id);
+                        if (!previous) return;
+                        const index = undoBoards.lastIndexOf(previous);
+                        setUndoBoards(undoBoards.filter((_, position) => position !== index));
+                        replace(
+                          current.current.map((saved) => (saved.id === id ? previous : saved)),
+                        );
+                        persist([previous]);
+                      }}
+                    >
+                      {t.undoAction}
+                    </Button>
                     <Button
                       onClick={() => {
                         const reset = () =>
@@ -635,6 +655,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                     </Button>
                   </div>
                   <Customization
+                    lang={lang}
                     board={board}
                     t={t}
                     change={update}
