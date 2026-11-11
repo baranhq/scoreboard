@@ -494,7 +494,7 @@ export function ScoreboardPreview({
           data-scoreboard-demo
           data-demo-running={shouldAnimate}
           data-demo-stage="0"
-          className="relative flex h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:h-auto md:max-h-[calc(100svh-12rem-1px)]"
+          className="relative flex h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[surface-enter_280ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:h-auto md:max-h-[calc(100svh-12rem-1px)]"
         >
           <PreviewToolbar
             copy={copy}

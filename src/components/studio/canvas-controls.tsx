@@ -8,6 +8,71 @@ import { studioCopy } from "@/lib/studio-copy";
 const dimensionInputClass =
   "min-h-11 w-full min-w-0 rounded-md border border-forest/25 bg-surface px-3 py-2 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
 
+const ratioChoices = [
+  ["square", "square"],
+  ["landscape", "landscape"],
+  ["standard", "standard"],
+  ["portrait", "portrait"],
+  ["story", "story"],
+] as const;
+
+function selectedRatio(canvas?: CanvasSize) {
+  if (!canvas) return "auto";
+  return (
+    ratioChoices.find(([, key]) => {
+      const size = canvasRatios[key];
+      return canvas.width * size.height === canvas.height * size.width;
+    })?.[0] || "custom"
+  );
+}
+
+export function CanvasRatioSelect({
+  canvas,
+  changeCanvas,
+  lang,
+  disabled = false,
+}: {
+  canvas?: CanvasSize;
+  changeCanvas: (size?: CanvasSize) => void;
+  lang: Lang;
+  disabled?: boolean;
+}) {
+  const t = studioCopy[lang];
+  const options = {
+    landscape: [t.landscapeRatio, canvasRatios.landscape],
+    standard: [t.standardRatio, canvasRatios.standard],
+    square: [t.squareRatio, canvasRatios.square],
+    portrait: [t.portraitRatio, canvasRatios.portrait],
+    story: [t.storyRatio, canvasRatios.story],
+  } as const;
+  const ratio = selectedRatio(canvas);
+
+  return (
+    <label className="min-w-0">
+      <span className="sr-only">{t.canvasSize}</span>
+      <select
+        aria-label={t.canvasSize}
+        disabled={disabled}
+        className={`${dimensionInputClass} !w-40`}
+        value={ratio}
+        onChange={(event) => {
+          const next = event.target.value as keyof typeof options | "auto" | "custom";
+          if (next === "auto") changeCanvas(undefined);
+          else if (next !== "custom") changeCanvas(options[next][1]);
+        }}
+      >
+        <option value="auto">{t.fitContent}</option>
+        {ratioChoices.map(([value]) => (
+          <option key={value} value={value}>
+            {options[value][0]}
+          </option>
+        ))}
+        {ratio === "custom" && <option value="custom">{t.customSize}</option>}
+      </select>
+    </label>
+  );
+}
+
 export function CanvasControls({
   canvas,
   exportScale,
@@ -35,13 +100,6 @@ export function CanvasControls({
     dimensionDraft.signature === dimensionSignature
       ? dimensionDraft
       : { width: String(width), height: String(height), signature: dimensionSignature };
-  const choices = [
-    { label: t.landscapeRatio, size: canvasRatios.landscape },
-    { label: t.standardRatio, size: canvasRatios.standard },
-    { label: t.portraitRatio, size: canvasRatios.portrait },
-    { label: t.squareRatio, size: canvasRatios.square },
-    { label: t.storyRatio, size: canvasRatios.story },
-  ];
   const updateDimension = (key: "width" | "height", value: string) => {
     setDimensionDraft({ ...currentDraft, [key]: value });
     if (!/^\d+$/.test(value)) return;
@@ -56,32 +114,8 @@ export function CanvasControls({
   return (
     <fieldset className="space-y-3 border-t border-forest/15 pt-4">
       <legend className="px-1 text-base font-semibold">{t.canvasSize}</legend>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          aria-pressed={!canvas}
-          accent={!canvas}
-          className="!min-h-10 !px-3 !text-sm"
-          onClick={() => {
-            changeCanvas(undefined);
-            setCustomOpen(false);
-          }}
-        >
-          {t.fitContent}
-        </Button>
-        {choices.map(({ label, size }) => {
-          const selected = !!canvas && canvas.width * size.height === canvas.height * size.width;
-          return (
-            <Button
-              key={label}
-              aria-pressed={selected}
-              accent={selected}
-              className="!min-h-10 !px-3 !text-sm"
-              onClick={() => changeCanvas(size)}
-            >
-              {label}
-            </Button>
-          );
-        })}
+      <div className="flex flex-wrap items-center gap-2">
+        <CanvasRatioSelect canvas={canvas} changeCanvas={changeCanvas} lang={lang} />
         <Button aria-expanded={customOpen} onClick={() => setCustomOpen(!customOpen)}>
           {t.customSize}
         </Button>
