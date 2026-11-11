@@ -1,5 +1,12 @@
 export type GraphicStyle = {
+  gradient?: boolean;
+  backgroundEnd?: string;
   preset: "classic" | "editorial" | "night";
+  radius?: number;
+  borderWidth?: number;
+  borderColor?: string;
+  textColor?: string;
+  density?: "compact" | "spacious";
   accent: string;
   background: string;
   font: "Inter" | "Inter Tight" | "Georgia";

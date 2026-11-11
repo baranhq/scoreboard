@@ -1,4 +1,9 @@
 export type Appearance = {
+  gradient?: boolean;
+  backgroundEnd?: string;
+  cornerRadius?: number;
+  borderWidth?: number;
+  borderColor?: string;
   scoreSize: "small" | "medium" | "large" | "xlarge";
   teamSize: "small" | "medium" | "large" | "xlarge";
   layout: "auto" | "horizontal" | "grid";
@@ -41,7 +46,30 @@ export function parseAppearance(input: unknown): Partial<Appearance> | undefined
   if (input === undefined) return undefined;
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("appearance");
   const a = input as Record<string, unknown>;
+  for (const [key, max] of [
+    ["cornerRadius", 40],
+    ["borderWidth", 8],
+  ] as const)
+    if (
+      a[key] !== undefined &&
+      (typeof a[key] !== "number" || !Number.isFinite(a[key]) || a[key] < 0 || a[key] > max)
+    )
+      throw new Error("appearance");
+  if (
+    a.borderColor !== undefined &&
+    (typeof a.borderColor !== "string" || !/^#[0-9a-f]{6}$/i.test(a.borderColor))
+  )
+    throw new Error("appearance");
+  if (a.gradient !== undefined && typeof a.gradient !== "boolean") throw new Error("appearance");
+  if (
+    a.backgroundEnd !== undefined &&
+    (typeof a.backgroundEnd !== "string" || !/^#[0-9a-f]{6}$/i.test(a.backgroundEnd))
+  )
+    throw new Error("appearance");
   const result: Record<string, unknown> = {};
+  for (const key of ["gradient", "backgroundEnd"]) if (a[key] !== undefined) result[key] = a[key];
+  for (const key of ["cornerRadius", "borderWidth", "borderColor"])
+    if (a[key] !== undefined) result[key] = a[key];
   for (const [key, values] of Object.entries({
     scoreSize: ["small", "medium", "large", "xlarge"],
     teamSize: ["small", "medium", "large", "xlarge"],

@@ -36,6 +36,7 @@ export function updatePreviewField(
   document: StudioDocument,
   field: PreviewField,
   value: string,
+  rankScores = true,
 ): StudioDocument {
   if (
     value.length >
@@ -78,7 +79,7 @@ export function updatePreviewField(
       field.rowId,
       field.column,
       value,
-      field.column === 1 ? 1 : undefined,
+      rankScores && field.column === 1 ? 1 : undefined,
     );
 
   if (field.kind === "bracket-participant" && document.kind === "bracket")
