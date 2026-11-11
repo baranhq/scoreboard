@@ -2,6 +2,9 @@ import { graphicPresets, validCanvasSize, type GraphicBase } from "./graphic-sty
 export { graphicPresets } from "./graphic-style.ts";
 import { validColor } from "./colors.ts";
 import { bracketRounds, type Bracket } from "./brackets.ts";
+import { parseJsonText } from "./untrusted-json.ts";
+import { onlyKeys } from "./validation.ts";
+import { validTimestamp } from "./dates.ts";
 
 export type LeaderboardRow = {
   color?: string;
@@ -18,6 +21,12 @@ export type Leaderboard = GraphicBase & {
   rows: LeaderboardRow[];
 };
 export type StudioDocument = Leaderboard | Bracket;
+export const MAX_STUDIO_BACKUP_BYTES = 2_000_000;
+
+export function parseDocumentText(text: string): StudioDocument {
+  return parseDocument(parseJsonText(text, MAX_STUDIO_BACKUP_BYTES));
+}
+
 export function duplicateStudioDocument(document: StudioDocument, title: string): StudioDocument {
   return parseDocument({
     ...document,
@@ -107,23 +116,64 @@ function text(value: unknown, max = 200): value is string {
 function uniqueIds(items: { id: string }[]) {
   return new Set(items.map((item) => item.id)).size === items.length;
 }
+const documentKeys = [
+  "version",
+  "id",
+  "kind",
+  "title",
+  "subtitle",
+  "updatedAt",
+  "style",
+  "canvas",
+  "exportScale",
+  "gridColumns",
+  "columnWidths",
+  "columns",
+  "rows",
+  "layout",
+  "participants",
+  "results",
+];
+const styleKeys = [
+  "titleVisible",
+  "subtitleVisible",
+  "showScores",
+  "connectorColor",
+  "connectorWidth",
+  "roundGap",
+  "matchGap",
+  "gradient",
+  "backgroundEnd",
+  "preset",
+  "radius",
+  "borderWidth",
+  "borderColor",
+  "textColor",
+  "density",
+  "accent",
+  "background",
+  "font",
+];
 export function parseDocument(value: unknown): StudioDocument {
   if (
     !record(value) ||
+    !onlyKeys(value, documentKeys) ||
     value.version !== 1 ||
     !text(value.id, 100) ||
     !value.id ||
     !text(value.title) ||
     !text(value.subtitle) ||
-    !Number.isSafeInteger(value.updatedAt) ||
-    Number(value.updatedAt) < 0 ||
+    !validTimestamp(value.updatedAt) ||
     !record(value.style)
   )
     throw new Error("Invalid document");
   const style = value.style;
   if (
-    !["classic", "editorial", "night"].includes(String(style.preset)) ||
-    !["Inter", "Inter Tight", "Georgia"].includes(String(style.font)) ||
+    !onlyKeys(style, styleKeys) ||
+    typeof style.preset !== "string" ||
+    !["classic", "editorial", "night"].includes(style.preset) ||
+    typeof style.font !== "string" ||
+    !["Inter", "Inter Tight", "Georgia"].includes(style.font) ||
     !validColor(style.accent) ||
     !validColor(style.background)
   )
@@ -164,7 +214,10 @@ export function parseDocument(value: unknown): StudioDocument {
   for (const key of ["borderColor", "textColor", "backgroundEnd"])
     if (style[key] !== undefined && !validColor(style[key]))
       throw new Error("Invalid style colour");
-  if (style.density !== undefined && !["compact", "spacious"].includes(String(style.density)))
+  if (
+    style.density !== undefined &&
+    (typeof style.density !== "string" || !["compact", "spacious"].includes(style.density))
+  )
     throw new Error("Invalid density");
   if (value.canvas !== undefined && !validCanvasSize(value.canvas))
     throw new Error("Invalid canvas");
@@ -172,6 +225,21 @@ export function parseDocument(value: unknown): StudioDocument {
     throw new Error("Invalid export scale");
   if (value.kind === "leaderboard") {
     if (
+      !onlyKeys(value, [
+        "version",
+        "id",
+        "kind",
+        "title",
+        "subtitle",
+        "updatedAt",
+        "style",
+        "canvas",
+        "exportScale",
+        "gridColumns",
+        "columnWidths",
+        "columns",
+        "rows",
+      ]) ||
       (value.gridColumns !== undefined &&
         value.gridColumns !== 1 &&
         value.gridColumns !== 2 &&
@@ -197,6 +265,7 @@ export function parseDocument(value: unknown): StudioDocument {
     for (const row of value.rows) {
       if (
         !record(row) ||
+        !onlyKeys(row, ["id", "cells", "highlighted", "color", "position"]) ||
         !text(row.id, 100) ||
         !row.id ||
         typeof row.highlighted !== "boolean" ||
@@ -211,7 +280,22 @@ export function parseDocument(value: unknown): StudioDocument {
     if (!uniqueIds(value.rows)) throw new Error("Duplicate rows");
   } else if (value.kind === "bracket") {
     if (
-      !["single", "split"].includes(String(value.layout)) ||
+      !onlyKeys(value, [
+        "version",
+        "id",
+        "kind",
+        "title",
+        "subtitle",
+        "updatedAt",
+        "style",
+        "canvas",
+        "exportScale",
+        "layout",
+        "participants",
+        "results",
+      ]) ||
+      typeof value.layout !== "string" ||
+      !["single", "split"].includes(value.layout) ||
       !Array.isArray(value.participants) ||
       value.participants.length < 2 ||
       value.participants.length > 64 ||
@@ -221,6 +305,7 @@ export function parseDocument(value: unknown): StudioDocument {
     for (const p of value.participants)
       if (
         !record(p) ||
+        !onlyKeys(p, ["id", "name", "color"]) ||
         !text(p.id, 100) ||
         !p.id ||
         !text(p.name) ||
@@ -232,6 +317,7 @@ export function parseDocument(value: unknown): StudioDocument {
     for (const result of Object.values(value.results))
       if (
         !record(result) ||
+        !onlyKeys(result, ["winner", "scores"]) ||
         !(result.winner === null || text(result.winner, 100)) ||
         !Array.isArray(result.scores) ||
         result.scores.length !== 2 ||

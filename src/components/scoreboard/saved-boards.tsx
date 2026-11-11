@@ -9,10 +9,11 @@ import {
   type Board,
   download,
   newBoard,
-  parseBackupText,
+  parseBackup,
   displayBoard,
   MAX_BACKUP_BYTES,
 } from "@/lib/boards";
+import { readJsonFile } from "@/lib/untrusted-json";
 import { foreground, validColor } from "@/lib/colors";
 import { loadBoards, writeBoards } from "@/store/database";
 import { track } from "@/lib/analytics";
@@ -192,7 +193,12 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
             setBusy(true);
             try {
               if (file.size > MAX_BACKUP_BYTES) throw new Error();
-              const items = parseBackupText(await file.text());
+              const items = parseBackup(await readJsonFile(file, MAX_BACKUP_BYTES));
+              const teamCount = items.reduce((total, item) => total + item.teams.length, 0);
+              const summary = t.importSummary
+                .replace("{boards}", String(items.length))
+                .replace("{teams}", String(teamCount));
+              if (!window.confirm(`${summary}\n\n${t.importNote}\n\n${t.importConfirm}`)) return;
               await writeBoards(items);
               layoutSnapshot.current = readSavedBoardPositions(list.current);
               items.forEach((item) => enteringBoardIds.current.add(item.id));

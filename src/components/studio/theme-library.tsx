@@ -3,15 +3,15 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   toolThemes,
   themeLabels,
-  validToolTheme,
   cleanToolTheme,
+  parseSavedToolThemes,
   type ToolTheme,
+  type SavedToolTheme,
 } from "@/lib/tool-themes";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
 import { Button } from "@/components/ui/ui";
 import { ColorControl, accentColors, backgroundColors } from "./color-control";
-type SavedTheme = { id: string; name: string; value: ToolTheme };
 const key = "scoreboard-custom-themes-v1";
 const presetKeys = [
   "accent",
@@ -61,27 +61,10 @@ export function ThemeLibrary({
     },
     () => "[]",
   );
-  const saved = useMemo<SavedTheme[]>(() => {
-    try {
-      const raw: unknown = JSON.parse(stored);
-      return Array.isArray(raw)
-        ? raw
-            .filter(
-              (item): item is SavedTheme =>
-                !!item &&
-                typeof item.id === "string" &&
-                typeof item.name === "string" &&
-                validToolTheme(item.value),
-            )
-            .slice(0, 50)
-        : [];
-    } catch {
-      return [];
-    }
-  }, [stored]);
+  const saved = useMemo<SavedToolTheme[]>(() => parseSavedToolThemes(stored), [stored]);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const store = (next: SavedTheme[]) => {
+  const store = (next: SavedToolTheme[]) => {
     try {
       localStorage.setItem(key, JSON.stringify(next));
       window.dispatchEvent(new Event("scoreboard-themes"));

@@ -1,3 +1,5 @@
+import { onlyKeys } from "./validation.ts";
+
 export type Appearance = {
   gradient?: boolean;
   backgroundEnd?: string;
@@ -46,6 +48,29 @@ export function parseAppearance(input: unknown): Partial<Appearance> | undefined
   if (input === undefined) return undefined;
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("appearance");
   const a = input as Record<string, unknown>;
+  if (
+    !onlyKeys(a, [
+      "gradient",
+      "backgroundEnd",
+      "cornerRadius",
+      "borderWidth",
+      "borderColor",
+      "scoreSize",
+      "teamSize",
+      "layout",
+      "density",
+      "textScaleEnabled",
+      "textScale",
+      "scoreScale",
+      "teamScale",
+      "timerScale",
+      "showPausedNotice",
+      "fullscreenControls",
+      "increment",
+      "autoHideControls",
+    ])
+  )
+    throw new Error("appearance");
   for (const [key, max] of [
     ["cornerRadius", 40],
     ["borderWidth", 8],
