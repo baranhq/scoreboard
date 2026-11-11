@@ -5,6 +5,7 @@ export type ToolTheme = {
   id?: string;
   titleVisible?: boolean;
   subtitleVisible?: boolean;
+  rowSeparators?: boolean;
   showScores?: boolean;
   connectorColor?: string;
   connectorWidth?: number;
@@ -131,7 +132,7 @@ const definitions: ThemeDefinition[] = [
     background: "#ffffff",
     textColor: "#111111",
     borderColor: "#d9dfd9",
-    radius: 4,
+    radius: 10,
     borderWidth: 1,
     density: "spacious",
   },
@@ -246,6 +247,7 @@ export const toolThemes: ToolTheme[] = definitions.map((theme, index) => ({
   id: ids[index],
   titleVisible: true,
   subtitleVisible: true,
+  rowSeparators: false,
   showScores: true,
   connectorColor: theme.accent,
   connectorWidth: Math.max(1, theme.borderWidth),
@@ -266,6 +268,7 @@ export function validToolTheme(value: unknown): value is ToolTheme {
       "id",
       "titleVisible",
       "subtitleVisible",
+      "rowSeparators",
       "showScores",
       "connectorColor",
       "connectorWidth",
@@ -285,7 +288,7 @@ export function validToolTheme(value: unknown): value is ToolTheme {
     return false;
   if (v.id !== undefined && (typeof v.id !== "string" || !/^[a-z0-9-]{1,80}$/.test(v.id)))
     return false;
-  for (const key of ["titleVisible", "subtitleVisible", "showScores"])
+  for (const key of ["titleVisible", "subtitleVisible", "rowSeparators", "showScores"])
     if (v[key] !== undefined && typeof v[key] !== "boolean") return false;
   if (v.connectorColor !== undefined && !validColor(v.connectorColor)) return false;
   for (const [key, min, max] of [
@@ -317,6 +320,7 @@ export function cleanToolTheme(value: ToolTheme): ToolTheme {
     id,
     titleVisible,
     subtitleVisible,
+    rowSeparators,
     showScores,
     connectorColor,
     connectorWidth,
@@ -336,6 +340,7 @@ export function cleanToolTheme(value: ToolTheme): ToolTheme {
     id,
     titleVisible,
     subtitleVisible,
+    rowSeparators,
     showScores,
     connectorColor,
     connectorWidth,

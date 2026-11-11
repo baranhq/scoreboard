@@ -3,12 +3,16 @@ import { useEffect, useRef, type ReactNode, type ButtonHTMLAttributes } from "re
 export function Dropdown({
   label,
   ariaLabel,
+  disabled = false,
   triggerClassName = "",
+  panelClassName = "",
   children,
 }: {
   label: ReactNode;
   ariaLabel: string;
+  disabled?: boolean;
   triggerClassName?: string;
+  panelClassName?: string;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDetailsElement>(null);
@@ -47,7 +51,11 @@ export function Dropdown({
     >
       <summary
         aria-label={ariaLabel}
-        className={`flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center gap-2 rounded-lg px-3 text-base font-medium transition-colors duration-150 hover:bg-forest/10 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none ${triggerClassName}`}
+        aria-disabled={disabled || undefined}
+        onClick={(event) => {
+          if (disabled) event.preventDefault();
+        }}
+        className={`flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center gap-2 rounded-lg px-3 text-base font-medium transition-colors duration-150 hover:bg-forest/10 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none ${disabled ? "pointer-events-none opacity-60" : ""} ${triggerClassName}`}
       >
         <span className="contents [&_svg]:transition-transform [&_svg]:duration-150 group-open:[&_svg]:rotate-180 motion-reduce:[&_svg]:transition-none">
           {label}
@@ -58,7 +66,7 @@ export function Dropdown({
           if ((e.target as HTMLElement).closest("button,a") && ref.current)
             ref.current.open = false;
         }}
-        className="absolute top-full right-0 z-30 mt-1 w-[min(19rem,calc(100vw-2rem))] rounded-xl border border-forest/20 bg-paper p-1.5 text-ink shadow-sm motion-safe:animate-[appear_150ms_ease-out]"
+        className={`absolute top-full right-0 z-30 mt-1 w-[min(19rem,calc(100vw-2rem))] rounded-xl border border-forest/25 bg-paper p-1.5 text-ink shadow-[0_14px_40px_-16px_rgba(17,40,32,0.38)] ring-1 ring-black/5 motion-safe:animate-[appear_150ms_ease-out] ${panelClassName}`}
       >
         {children}
       </div>

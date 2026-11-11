@@ -76,6 +76,28 @@ test("saved custom themes reject malformed, oversized and unexpected local data"
   );
 });
 
+test("optional row separation survives document and custom-theme storage", () => {
+  const board = newLeaderboard();
+  assert.equal(board.style.rowSeparators, false);
+
+  const separated = parseDocument({
+    ...board,
+    style: { ...board.style, rowSeparators: true },
+  });
+  assert.equal(separated.style.rowSeparators, true);
+  assert.throws(() => parseDocument({ ...board, style: { ...board.style, rowSeparators: "yes" } }));
+
+  const theme = { ...toolThemes[0], rowSeparators: true };
+  assert.equal(validToolTheme(theme), true);
+  assert.equal(validToolTheme({ ...theme, rowSeparators: "yes" }), false);
+  assert.equal(theme.rowSeparators, true);
+  assert.equal(
+    parseSavedToolThemes(JSON.stringify([{ id: "custom-1", name: "Separated", value: theme }]))[0]
+      ?.value.rowSeparators,
+    true,
+  );
+});
+
 test("scoreboard themes update the canvas and preserve teams and their individual colours", () => {
   const board = newBoard("Match 1", "Team");
   assert.equal(board.themeId, "classic-green");
@@ -446,13 +468,21 @@ test("leaderboard demo updates standings and resets its animation loop", () => {
 
 test("bracket demo advances match results through the final", () => {
   const initial = studioDemo("bracket", "en");
+  if (initial.kind !== "bracket") throw new Error("Expected a bracket demo");
+  const initialRounds = bracketRounds(initial);
+  assert.equal(initial.participants.length, 4);
+  assert.equal(initialRounds.flat().length, 3);
+  assert.equal(initial.participants[3].name, "Baran’s Team");
+  assert.equal(initialRounds[0][0].winner, "player-3");
+
   const advanced = advanceStudioDemo(initial, initial, 0);
-  if (initial.kind !== "bracket" || advanced.kind !== "bracket") return;
+  if (advanced.kind !== "bracket") return;
   assert.ok(bracketRounds(advanced)[0][1].winner);
   assert.equal(bracketRounds(advanced)[1][0].winner, null);
   const final = advanceStudioDemo(advanced, initial, 1);
   if (final.kind !== "bracket") return;
   assert.ok(bracketRounds(final)[1][0].winner);
+  assert.equal(bracketRounds(final)[1][0].winner, "player-3");
   assert.deepEqual(advanceStudioDemo(final, initial, 2), initial);
   assert.notDeepEqual(advanced.results, initial.results);
 });
@@ -486,6 +516,19 @@ test("split layouts put the final between both wings and keep nodes inside the i
       );
     }
   }
+});
+
+test("bracket round labels clear the translated title and subtitle", async () => {
+  const { bracketLayout, wrapText } = await import("../src/lib/graphic-layout.ts");
+  const document = studioDemo("bracket", "bg");
+  if (document.kind !== "bracket") throw new Error("Expected a bracket demo");
+  document.layout = "split";
+  const layout = bracketLayout(document);
+  const titleLines = wrapText(document.title, (layout.width - 80) / 36).length;
+  const subtitleBaseline = 76 + titleLines * 47;
+  const firstRound = layout.nodes.filter((node) => node.round === 0);
+  assert.ok(firstRound.length > 0);
+  assert.ok(firstRound.every((node) => node.y - 12 >= subtitleBaseline + 24));
 });
 
 test("shrinking and growing a reordered bracket never duplicates participant identities", () => {

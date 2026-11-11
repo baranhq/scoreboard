@@ -137,6 +137,15 @@ export function BracketEditor({ lang }: { lang: Lang }) {
     >
       <section className="space-y-3">
         <label className="grid gap-1 text-sm font-semibold">
+          {t.title}
+          <input
+            className={inputClass}
+            maxLength={200}
+            value={board.title}
+            onChange={(event) => state.change({ ...board, title: event.target.value })}
+          />
+        </label>
+        <label className="grid gap-1 text-sm font-semibold">
           {t.subtitle}
           <input
             className={inputClass}

@@ -7,6 +7,7 @@ export function useAutoDemo(
   resetDemo: () => void,
   delay = 2600,
   autoplay = true,
+  controlled = false,
 ) {
   const ref = useRef<HTMLElement | null>(null);
   const advanceRef = useRef(advance);
@@ -18,7 +19,8 @@ export function useAutoDemo(
   const [manualOverride, setManualOverride] = useState(false);
   const [playing, setPlaying] = useState(autoplay);
   const [revision, setRevision] = useState(0);
-  const canPlay = playing && (!reducedMotion || manualOverride);
+  const requestedPlayback = controlled ? autoplay : playing;
+  const canPlay = requestedPlayback && (!reducedMotion || (controlled ? autoplay : manualOverride));
 
   useEffect(() => {
     advanceRef.current = advance;
