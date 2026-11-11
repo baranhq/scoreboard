@@ -1,19 +1,36 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
-import { Minus, Plus } from "lucide-react";
+import { useCallback, useRef, useState, type CSSProperties } from "react";
+import { TeamPanel } from "@/components/scoreboard/team-panel";
+import { teamGridClass } from "@/lib/team-layout";
+import { defaults } from "@/lib/appearance";
+import { messages } from "@/lib/i18n";
+import { toolThemes, type ToolTheme } from "@/lib/tool-themes";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
 import { useAutoDemo } from "./use-auto-demo";
 import { DemoPlaybackControls } from "./demo-playback-controls";
 
-export function HomeScoreboard({ lang }: { lang: Lang }) {
+export function HomeScoreboard({
+  lang,
+  theme = toolThemes[1],
+  expanded = false,
+  autoplay = true,
+}: {
+  lang: Lang;
+  theme?: ToolTheme;
+  expanded?: boolean;
+  autoplay?: boolean;
+}) {
+  const [editing, setEditing] = useState<number | null>(null);
   const t = studioCopy[lang];
-  const [scores, setScores] = useState([12, 9]);
+  const teamNames = [t.teamOne, t.teamTwo, `${messages[lang].team} 3`];
+  const [scores, setScores] = useState([12, 9, 0]);
   const [seconds, setSeconds] = useState(272);
   const step = useRef(0);
   const reset = useCallback(() => {
-    setScores([12, 9]);
+    setEditing(null);
+    setScores([12, 9, 0]);
     setSeconds(272);
     step.current = 0;
   }, []);
@@ -22,17 +39,31 @@ export function HomeScoreboard({ lang }: { lang: Lang }) {
     setSeconds((value) => (step.current % 8 === 0 ? 272 : value + 1));
     setScores(
       step.current % 8 === 0
-        ? [12, 9]
+        ? [12, 9, 0]
         : (current) => current.map((value, index) => value + (index === step.current % 2 ? 1 : 0)),
     );
   }, []);
-  const { ref, playing, toggle, pause, reset: resetPlayback } = useAutoDemo(advance, reset, 1500);
+  const {
+    ref,
+    playing,
+    toggle,
+    pause,
+    reset: resetPlayback,
+  } = useAutoDemo(advance, reset, 1500, autoplay);
 
   return (
     <section
       ref={ref}
       aria-label={t.scoreboard}
-      className="flex flex-col overflow-hidden rounded-none bg-[#14251b] text-[#f7f7f0]"
+      className="flex flex-col overflow-hidden"
+      style={
+        {
+          background: theme.background,
+          color: theme.textColor,
+          "--color-ink": theme.textColor,
+          "--color-forest": theme.accent,
+        } as CSSProperties
+      }
     >
       <header className="flex items-center justify-between border-b border-white/15 px-4 py-2 sm:px-6">
         <span className="text-sm font-semibold">{t.eventName}</span>
@@ -40,12 +71,11 @@ export function HomeScoreboard({ lang }: { lang: Lang }) {
           playing={playing}
           onToggle={toggle}
           onReset={resetPlayback}
-          onDark
           labels={{ play: t.startTimer, pause: t.pauseTimer, reset: t.resetDemo }}
         />
       </header>
       <div className="flex flex-1 flex-col justify-center px-4 py-7 sm:px-7 sm:py-6">
-        <div className="mb-7 flex items-center justify-center gap-3 text-sm font-medium text-[#ccf86b]">
+        <div className="mb-7 flex items-center justify-center gap-3 text-sm font-medium">
           <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
           {t.secondHalf}{" "}
           <span className="font-mono tabular-nums">
@@ -53,39 +83,66 @@ export function HomeScoreboard({ lang }: { lang: Lang }) {
             {String(seconds % 60).padStart(2, "0")}
           </span>
         </div>
-        <div className="grid grid-cols-2 divide-x divide-white/20">
-          {[t.teamOne, t.teamTwo].map((name, index) => (
-            <div key={name} className="min-w-0 px-2 text-center">
-              <p className="truncate text-sm font-semibold sm:text-lg">{name}</p>
-              <p
-                key={scores[index]}
-                className="my-3 font-display text-[clamp(5rem,18vw,15rem)] leading-none font-bold tracking-[-0.075em] tabular-nums motion-safe:animate-[preview-intro_350ms_ease-out_both]"
-              >
-                {scores[index]}
-              </p>
-              <div className="flex justify-center gap-2">
-                {[-1, 1].map((amount) => (
-                  <button
-                    key={amount}
-                    type="button"
-                    aria-label={`${amount > 0 ? t.increase : t.decrease} ${name}`}
-                    onClick={() => {
-                      pause();
-                      setScores((current) =>
-                        current.map((value, position) =>
-                          position === index ? Math.max(0, value + amount) : value,
-                        ),
-                      );
-                    }}
-                    className={`inline-flex size-11 items-center justify-center rounded-md transition-colors ${amount > 0 ? "bg-[#ccf86b] text-[#19251c] hover:bg-[#c1e2bd]" : "border border-white/30 hover:bg-white/10"}`}
-                  >
-                    {amount > 0 ? <Plus size={18} /> : <Minus size={18} />}
-                  </button>
-                ))}
-              </div>
-            </div>
+        <div className={`${teamGridClass(expanded ? 3 : 2, "auto", false)} gap-2 sm:gap-4`}>
+          {teamNames.slice(0, expanded ? 3 : 2).map((name, index) => (
+            <TeamPanel
+              key={name}
+              team={{
+                id: `demo-${index}`,
+                name,
+                score: scores[index],
+                color: theme.background,
+                textColor: theme.textColor,
+              }}
+              appearance={{
+                ...defaults,
+                scoreSize: "xlarge",
+                density: theme.density,
+                cornerRadius: theme.radius,
+                borderWidth: theme.borderWidth,
+                borderColor: theme.borderColor,
+                gradient: theme.gradient,
+                backgroundEnd: theme.backgroundEnd,
+              }}
+              controlsVisible
+              index={index}
+              count={expanded ? 3 : 2}
+              full={false}
+              t={messages[lang]}
+              change={(amount) => {
+                pause();
+                setScores((current) =>
+                  current.map((score, position) =>
+                    position === index ? Math.max(0, score + amount) : score,
+                  ),
+                );
+              }}
+              manual={() => {
+                pause();
+                setEditing(index);
+              }}
+            />
           ))}
         </div>
+        {editing !== null && (
+          <label className="mx-auto mt-4 grid max-w-60 gap-2 text-sm font-semibold">
+            {t.score}: {teamNames[editing]}
+            <input
+              type="number"
+              value={scores[editing]}
+              min="0"
+              max="999999999"
+              onChange={(event) => {
+                const score = Number(event.target.value);
+                if (Number.isSafeInteger(score) && score >= 0 && score <= 999999999)
+                  setScores((current) =>
+                    current.map((value, index) => (index === editing ? score : value)),
+                  );
+              }}
+              className="min-h-11 rounded border border-current bg-transparent px-3"
+            />
+          </label>
+        )}
       </div>
     </section>
   );
