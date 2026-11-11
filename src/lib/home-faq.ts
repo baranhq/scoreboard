@@ -43,7 +43,7 @@ export const homeFaq: Record<
       {
         question: "Does a shared scoreboard update live?",
         answer:
-          "No. A share link contains a snapshot of the board when you create it. Later score changes are not synced to that link.",
+          "No. A share link is a snapshot of the board. Later score changes are not synced to that link.",
       },
     ],
   },

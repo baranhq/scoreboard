@@ -15,6 +15,11 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
     { href: route(lang, "leaderboardEditor"), label: t.leaderboard },
     { href: route(lang, "bracketEditor"), label: t.bracket },
   ];
+  const actionDestinations = [
+    { href: route(lang, "scoreboard"), label: t.makeScoreboard },
+    { href: route(lang, "leaderboardEditor"), label: t.makeLeaderboard },
+    { href: route(lang, "bracketEditor"), label: t.makeBracket },
+  ];
   const applicationLinks = [
     { href: homeRoute(lang), label: t.home },
     ...toolDestinations,
@@ -64,16 +69,16 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
         ))}
         {showAction && (
           <Dropdown
-            ariaLabel={`${t.open} ${t.tools}`}
+            ariaLabel={t.makeA}
             label={
               <>
-                {t.open}
+                {t.makeA}
                 <ChevronDown className="size-4" aria-hidden="true" />
               </>
             }
             triggerClassName="ml-1 !min-h-11 !rounded-lg !bg-action !px-3 !text-sm !font-semibold !text-on-action hover:!brightness-95"
           >
-            {[...toolDestinations, { href: route(lang, "saved"), label: t.saved }].map((tool) => (
+            {actionDestinations.map((tool) => (
               <Link
                 key={tool.href}
                 href={tool.href}
@@ -114,9 +119,9 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
           {showAction && (
             <>
               <p className="px-3 pt-2 pb-1 text-xs font-bold tracking-wide text-ink/60 uppercase">
-                {t.open}
+                {t.makeA}
               </p>
-              {[...toolDestinations, { href: route(lang, "saved"), label: t.saved }].map((tool) => (
+              {actionDestinations.map((tool) => (
                 <Link
                   key={tool.href}
                   href={tool.href}

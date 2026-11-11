@@ -1,4 +1,4 @@
-import { graphicPresets, type GraphicBase } from "./graphic-style.ts";
+import { graphicPresets, validCanvasSize, type GraphicBase } from "./graphic-style.ts";
 export { graphicPresets } from "./graphic-style.ts";
 import { validColor } from "./colors.ts";
 import { bracketRounds, type Bracket } from "./brackets.ts";
@@ -18,6 +18,14 @@ export type Leaderboard = GraphicBase & {
   rows: LeaderboardRow[];
 };
 export type StudioDocument = Leaderboard | Bracket;
+export function duplicateStudioDocument(document: StudioDocument, title: string): StudioDocument {
+  return parseDocument({
+    ...document,
+    id: crypto.randomUUID(),
+    title,
+    updatedAt: Date.now(),
+  });
+}
 export function newLeaderboard(id = crypto.randomUUID()): Leaderboard {
   return {
     version: 1,
@@ -26,6 +34,7 @@ export function newLeaderboard(id = crypto.randomUUID()): Leaderboard {
     title: "Round 1 standings",
     subtitle: "Round 1",
     updatedAt: 0,
+    exportScale: 1,
     style: { ...graphicPresets.classic },
     gridColumns: 1,
     columns: ["Team", "Points"],
@@ -157,17 +166,10 @@ export function parseDocument(value: unknown): StudioDocument {
       throw new Error("Invalid style colour");
   if (style.density !== undefined && !["compact", "spacious"].includes(String(style.density)))
     throw new Error("Invalid density");
-  if (
-    value.canvas !== undefined &&
-    (!record(value.canvas) ||
-      !Number.isInteger(value.canvas.width) ||
-      !Number.isInteger(value.canvas.height) ||
-      Number(value.canvas.width) < 320 ||
-      Number(value.canvas.width) > 4096 ||
-      Number(value.canvas.height) < 320 ||
-      Number(value.canvas.height) > 4096)
-  )
+  if (value.canvas !== undefined && !validCanvasSize(value.canvas))
     throw new Error("Invalid canvas");
+  if (value.exportScale !== undefined && value.exportScale !== 1 && value.exportScale !== 2)
+    throw new Error("Invalid export scale");
   if (value.kind === "leaderboard") {
     if (
       (value.gridColumns !== undefined &&

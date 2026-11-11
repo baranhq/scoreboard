@@ -18,6 +18,8 @@ import { Button } from "../ui/ui";
 import { WorkspaceTabs, type WorkspaceTab } from "@/components/studio/workspace-tabs";
 import { download } from "@/lib/boards";
 import { studioCopy } from "@/lib/studio-copy";
+import { applyToolTheme } from "@/lib/board-theme";
+import { CanvasControls } from "@/components/studio/canvas-controls";
 function SizeSlider({
   id,
   label,
@@ -62,14 +64,18 @@ export function Customization({
   t,
   change,
   remove,
+  exportImage,
 }: {
   lang: Lang;
   board: Board;
   t: Messages;
   change: (update: (board: Board) => Board) => void;
   remove: (id: string) => void;
+  exportImage: () => Promise<void>;
 }) {
   const [tab, setTab] = useState<WorkspaceTab>("content");
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
   const copy = studioCopy[lang];
   const scaleId = useId();
   const a = resolveAppearance(board.appearance);
@@ -198,7 +204,10 @@ export function Customization({
                   key={team.id}
                   label={team.name}
                   value={
-                    team.color || board.color || teamPalette[index % teamPalette.length].background
+                    team.color ||
+                    board.color ||
+                    (board.themeId ? board.background : undefined) ||
+                    teamPalette[index % teamPalette.length].background
                   }
                   t={t}
                   change={(color) =>
@@ -253,6 +262,7 @@ export function Customization({
               lang={lang}
               value={{
                 ...toolThemes[0],
+                id: board.themeId,
                 gradient: a.gradient,
                 backgroundEnd: a.backgroundEnd,
                 accent: board.accent || toolThemes[0].accent,
@@ -263,25 +273,7 @@ export function Customization({
                 borderColor: a.borderColor || toolThemes[0].borderColor,
                 density: a.density,
               }}
-              change={(theme) =>
-                change((current) => ({
-                  ...current,
-                  accent: theme.accent,
-                  background: theme.background,
-                  color: undefined,
-                  textColor: theme.textColor,
-                  teams: current.teams,
-                  appearance: {
-                    ...current.appearance,
-                    gradient: theme.gradient,
-                    backgroundEnd: theme.backgroundEnd,
-                    density: theme.density,
-                    cornerRadius: theme.radius,
-                    borderWidth: theme.borderWidth,
-                    borderColor: theme.borderColor,
-                  },
-                }))
-              }
+              change={(theme) => change((current) => applyToolTheme(current, theme))}
             />
 
             <fieldset>
@@ -633,9 +625,36 @@ export function Customization({
           </div>
         )}
         {tab === "export" && (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="max-w-xl text-sm leading-5 text-ink/75">{t.backupHint}</p>
-            <Button onClick={() => download([board])}>{copy.backup}</Button>
+          <div className="space-y-4">
+            <CanvasControls
+              canvas={board.canvas}
+              exportScale={board.exportScale}
+              changeCanvas={(canvas) => change((current) => ({ ...current, canvas }))}
+              changeExportScale={(exportScale) =>
+                change((current) => ({ ...current, exportScale }))
+              }
+              lang={lang}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="max-w-xl text-sm leading-5 text-ink/75">{t.backupHint}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={() => download([board])}>{copy.backup}</Button>
+                <Button
+                  primary
+                  disabled={exporting}
+                  onClick={() => {
+                    setExporting(true);
+                    setExportError("");
+                    void exportImage()
+                      .catch(() => setExportError(copy.exportError))
+                      .finally(() => setExporting(false));
+                  }}
+                >
+                  {exporting ? copy.exporting : copy.export}
+                </Button>
+              </div>
+            </div>
+            {exportError && <p role="alert">{exportError}</p>}
           </div>
         )}
       </div>

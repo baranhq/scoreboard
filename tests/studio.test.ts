@@ -13,7 +13,7 @@ import {
 import { newBracket, bracketRounds, setMatchResult, resizeBracket } from "../src/lib/brackets.ts";
 import { saveDocument, listDocuments, deleteDocument } from "../src/store/studio.ts";
 import { fromHsl, toHsl } from "../src/lib/colors.ts";
-import { applyGraphicPreset, graphicPresets } from "../src/lib/graphic-style.ts";
+import { applyGraphicPreset, canvasRatios, graphicPresets } from "../src/lib/graphic-style.ts";
 import { distributeRows, fitContentToCanvas } from "../src/lib/graphic-layout.ts";
 import { previewFieldValue, updatePreviewField } from "../src/lib/studio-edit.ts";
 import { advanceStudioDemo, studioDemo } from "../src/lib/studio-demo.ts";
@@ -44,11 +44,13 @@ test("the shared theme catalog has 15 validated, addressable presets", () => {
 
 test("scoreboard themes update the canvas and preserve teams and their individual colours", () => {
   const board = newBoard("Match 1", "Team");
+  assert.equal(board.themeId, "classic-green");
   board.color = "#123456";
   board.teams[0].color = "#aabbcc";
   const themed = applyToolTheme(board, toolThemes[1]);
 
   assert.equal(themed.background, toolThemes[1].background);
+  assert.equal(themed.themeId, toolThemes[1].id);
   assert.equal(themed.color, undefined);
   assert.equal(themed.accent, toolThemes[1].accent);
   assert.equal(themed.teams[0].color, "#aabbcc");
@@ -57,6 +59,14 @@ test("scoreboard themes update the canvas and preserve teams and their individua
     board.teams.map((team) => [team.name, team.score]),
   );
   assert.equal(themed.appearance?.cornerRadius, toolThemes[1].radius);
+});
+
+test("built-in canvases match their advertised aspect ratios and export sizes", () => {
+  assert.deepEqual(canvasRatios.landscape, { width: 1920, height: 1080 });
+  assert.deepEqual(canvasRatios.standard, { width: 1600, height: 1200 });
+  assert.deepEqual(canvasRatios.square, { width: 1080, height: 1080 });
+  assert.deepEqual(canvasRatios.portrait, { width: 1080, height: 1350 });
+  assert.deepEqual(canvasRatios.story, { width: 1080, height: 1920 });
 });
 
 test("appearance presets keep each saved graphic's existing typography", () => {
@@ -86,6 +96,24 @@ test("saved graphics accept bounded canvas sizes while older documents remain va
   assert.equal(parseDocument(legacy).kind, "leaderboard");
   assert.throws(() => parseDocument({ ...board, canvas: { width: 200, height: 900 } }));
   assert.throws(() => parseDocument({ ...board, gridColumns: 4 }));
+});
+
+test("duplicating a saved graphic preserves its content and gives it an independent identity", () => {
+  const source = newLeaderboard("source-table");
+  source.rows[0].cells[1] = "91";
+  source.rows[0].highlighted = true;
+  source.canvas = { width: 1600, height: 1200 };
+
+  const duplicate = studioApi.duplicateStudioDocument(source, "Weekend copy");
+
+  assert.notEqual(duplicate.id, source.id);
+  assert.equal(duplicate.title, "Weekend copy");
+  assert.ok(duplicate.updatedAt >= source.updatedAt);
+  assert.deepEqual(duplicate.canvas, source.canvas);
+  assert.equal(duplicate.kind, "leaderboard");
+  if (duplicate.kind !== "leaderboard") return;
+  assert.deepEqual(duplicate.rows, source.rows);
+  assert.notEqual(duplicate.rows, source.rows);
 });
 
 test("leaderboard rows split into balanced, ordered columns", () => {

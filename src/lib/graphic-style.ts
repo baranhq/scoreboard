@@ -26,11 +26,28 @@ export type GraphicBase = {
   subtitle: string;
   updatedAt: number;
   style: GraphicStyle;
-  canvas?: { width: number; height: number };
+  canvas?: CanvasSize;
+  exportScale?: 1 | 2;
 };
 
+export type CanvasSize = { width: number; height: number };
+
+export function validCanvasSize(value: unknown): value is CanvasSize {
+  if (!value || typeof value !== "object") return false;
+  const size = value as Record<string, unknown>;
+  return (
+    Number.isInteger(size.width) &&
+    Number.isInteger(size.height) &&
+    Number(size.width) >= 320 &&
+    Number(size.width) <= 4096 &&
+    Number(size.height) >= 320 &&
+    Number(size.height) <= 4096
+  );
+}
+
 export const canvasRatios = {
-  landscape: { width: 1600, height: 900 },
+  landscape: { width: 1920, height: 1080 },
+  standard: { width: 1600, height: 1200 },
   portrait: { width: 1080, height: 1350 },
   square: { width: 1080, height: 1080 },
   story: { width: 1080, height: 1920 },

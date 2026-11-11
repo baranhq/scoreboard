@@ -1,7 +1,14 @@
 import type { Appearance } from "./appearance";
 
-export function teamGridClass(count: number, layout: Appearance["layout"], _full: boolean): string {
+export function teamGridClass(
+  count: number,
+  layout: Appearance["layout"],
+  _full: boolean,
+  canvas?: { width: number; height: number },
+): string {
   if (layout === "auto") {
+    if (canvas && canvas.width / canvas.height < 0.8)
+      return `grid ${_full ? "auto-rows-fr" : ""} grid-cols-1`;
     const columns =
       count <= 1
         ? "grid-cols-1"

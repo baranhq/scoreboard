@@ -19,7 +19,7 @@ export const help: Record<Lang, HelpCopy> = {
   en: {
     title: "Baran's Scoreboard help",
     intro:
-      "Create a board for a class game, a match, or friendly competition. This guide explains how to set it up, run it, and keep a copy of your results. No account is needed.",
+      "Set up a board for a class game, a match, or friendly competition. This guide explains how to run it and keep a copy of your results. No account is needed.",
     contentsTitle: "On this page",
     quickGuide: {
       title: "How to use the scoreboard",
