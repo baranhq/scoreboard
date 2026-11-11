@@ -34,6 +34,7 @@ export function ToolDemo({
   showResultControls = true,
   controlledPlayback = false,
   showReadOnlyControls = false,
+  useScoreboardPreview = false,
   teamCount,
 }: {
   tool: Tool;
@@ -48,9 +49,10 @@ export function ToolDemo({
   showResultControls?: boolean;
   controlledPlayback?: boolean;
   showReadOnlyControls?: boolean;
+  useScoreboardPreview?: boolean;
   teamCount?: number;
 }) {
-  if (tool === "scoreboard" && compact)
+  if (tool === "scoreboard" && compact && !useScoreboardPreview)
     return (
       <HomeScoreboard
         lang={lang}
@@ -79,6 +81,10 @@ export function ToolDemo({
           decrease: studioCopy[lang].decrease,
           resetDemo: studioCopy[lang].resetDemo,
         }}
+        compact={compact}
+        readOnly={readOnly}
+        autoplay={autoplay}
+        showPlaybackControls={showPlaybackControls}
       />
     );
   }

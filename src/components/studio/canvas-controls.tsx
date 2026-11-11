@@ -85,6 +85,7 @@ export function CanvasRatioSelect({
     <Dropdown
       ariaLabel={t.canvasSize}
       disabled={disabled}
+      fitViewport
       triggerClassName="!min-h-11 !w-44 !justify-between !rounded-md !border !border-forest/25 !bg-surface !px-3 !text-sm !text-ink"
       label={
         <>

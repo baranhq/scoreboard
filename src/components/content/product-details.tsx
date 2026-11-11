@@ -1,8 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import type { Lang } from "@/lib/i18n";
-import { studioCopy } from "@/lib/studio-copy";
 import { productDetails } from "@/lib/product-details";
 import { route } from "@/lib/routes";
 import { toolContent, toolEditors } from "./landing-page";
@@ -10,11 +8,11 @@ import type { Tool } from "./tool-demo";
 import { ProductOutputLab } from "./product-output-lab";
 import { campaignCopy } from "@/lib/campaign-copy";
 import { ProductThemeShowcase } from "./product-theme-showcase";
+import { ToolDemo } from "./tool-demo";
 
 export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
   const locale = productDetails[lang];
   const copy = locale.products[tool];
-  const t = studioCopy[lang];
   const content = toolContent(lang, tool);
   return (
     <>
@@ -99,22 +97,17 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
               </li>
             ))}
           </ol>
-          <figure
-            className={`min-w-0 bg-forest/5 p-3 sm:p-5 ${tool === "leaderboard" ? "lg:order-first" : ""}`}
-          >
-            <div
-              className="max-w-full overflow-auto overscroll-contain"
-              tabIndex={0}
-              aria-label={t.exploreGraphic}
-            >
-              <Image
-                unoptimized
-                src={`/product-views/${tool}-${lang}.webp`}
-                width="1280"
-                height="720"
-                alt={`${t.editing}: ${t[tool]}`}
-                loading="lazy"
-                className="h-auto w-full min-w-[34rem] border border-forest/15 lg:min-w-0"
+          <figure className={`min-w-0 ${tool === "leaderboard" ? "lg:order-first" : ""}`}>
+            <div className="h-[28rem] min-w-0 overflow-hidden sm:h-[32rem]">
+              <ToolDemo
+                tool={tool}
+                lang={lang}
+                compact
+                autoplay
+                readOnly
+                showReadOnlyControls={tool === "scoreboard"}
+                showPlaybackControls={false}
+                showResultControls={false}
               />
             </div>
           </figure>

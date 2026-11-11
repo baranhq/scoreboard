@@ -116,7 +116,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
             <Button disabled={!state.ready} onClick={state.backup}>
               {t.backup}
             </Button>
-            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 border border-forest/25 px-4 text-sm font-medium text-forest focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest">
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-forest/25 px-4 text-sm font-medium text-forest transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest hover:bg-forest/5 has-[:disabled]:pointer-events-none has-[:disabled]:opacity-50">
               {t.import}
               <input
                 type="file"
