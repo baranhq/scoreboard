@@ -69,15 +69,15 @@ export function CustomColorPicker({
         style={{ "--hue-color": hsvToHex({ h: hsv.h, s: 1, v: 1 }) } as CSSProperties}
         className="relative h-52 w-full cursor-crosshair touch-none rounded-xl border border-forest/25 bg-[var(--hue-color)]"
       >
-        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[linear-gradient(to_right,#fff,transparent)]" />
-        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[linear-gradient(to_top,#000,transparent)]" />
+        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[var(--picker-white-overlay)]" />
+        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[var(--picker-black-overlay)]" />
         <span
           aria-hidden="true"
           style={{
             left: `clamp(10px,${hsv.s * 100}%,calc(100% - 10px))`,
             top: `clamp(10px,${(1 - hsv.v) * 100}%,calc(100% - 10px))`,
           }}
-          className="pointer-events-none absolute h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_#000]"
+          className="pointer-events-none absolute h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[var(--picker-handle-shadow)]"
         />
       </div>
       <label className="grid gap-2 text-base font-medium">
@@ -88,7 +88,7 @@ export function CustomColorPicker({
           max="359"
           value={Math.round(hsv.h) % 360}
           onChange={(e) => update({ ...hsv, h: e.target.valueAsNumber })}
-          className="h-6 w-full cursor-pointer appearance-none rounded-full border border-forest/25 bg-[linear-gradient(to_right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)] [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#1d3024] [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#1d3024] [&::-webkit-slider-thumb]:bg-white"
+          className="h-6 w-full cursor-pointer appearance-none rounded-full border border-forest/25 bg-[var(--picker-hue-spectrum)] [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-ink [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-ink [&::-webkit-slider-thumb]:bg-white"
         />
       </label>
     </div>

@@ -207,6 +207,11 @@ test("automatic and fullscreen scoreboard grids use the same team columns", () =
   assert.match(teamGridClass(1, "auto", true), /grid-cols-1/);
   assert.match(teamGridClass(4, "auto", false), /grid-cols-2/);
 });
+test("scoreboard supports explicit vertical, horizontal, and grid arrangements", () => {
+  assert.match(teamGridClass(3, "vertical", false), /grid-cols-1/);
+  assert.match(teamGridClass(3, "horizontal", false), /grid-flow-col/);
+  assert.match(teamGridClass(3, "grid", false), /md:grid-cols-3/);
+});
 test("appearance presets and text scaling validate and preserve larger settings", () => {
   assert.deepEqual(
     parseAppearance({

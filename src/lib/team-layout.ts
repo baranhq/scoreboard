@@ -1,7 +1,7 @@
 import type { Appearance } from "./appearance";
 
-export function teamGridClass(count: number, layout: Appearance["layout"], full: boolean): string {
-  if (full || layout === "auto") {
+export function teamGridClass(count: number, layout: Appearance["layout"], _full: boolean): string {
+  if (layout === "auto") {
     const columns =
       count <= 1
         ? "grid-cols-1"
@@ -14,9 +14,11 @@ export function teamGridClass(count: number, layout: Appearance["layout"], full:
               : count <= 9
                 ? "grid-cols-2 lg:grid-cols-3"
                 : "grid-cols-2 overflow-auto auto-rows-[minmax(14rem,1fr)] lg:grid-cols-4";
-    return `grid ${full ? "auto-rows-fr" : ""} ${columns}`;
+    return `grid ${_full ? "auto-rows-fr" : ""} ${columns}`;
   }
   return layout === "horizontal"
     ? "grid grid-flow-col auto-cols-[minmax(18rem,1fr)] overflow-x-auto"
-    : "grid grid-cols-2 md:grid-cols-3";
+    : layout === "vertical"
+      ? "grid grid-cols-1"
+      : "grid grid-cols-2 md:grid-cols-3";
 }

@@ -19,6 +19,8 @@ import { Button, Modal } from "../ui/ui";
 import { TeamPanel } from "./team-panel";
 import { track } from "@/lib/analytics";
 import { repo } from "@/lib/site";
+import { getToolTheme } from "@/lib/tool-themes";
+import { applyToolTheme } from "@/lib/board-theme";
 type Action = { title: string; value?: string; numeric?: boolean; run: (value: string) => void };
 type TeamBounds = { left: number; top: number; width: number; height: number };
 const ShareDialog = dynamic(() => import("./share-dialog").then((module) => module.ShareDialog));
@@ -60,6 +62,15 @@ function initialBoard(t: Messages): Board {
     })),
   };
 }
+
+function boardWithTheme(
+  name: string,
+  teamName: string,
+  theme: NonNullable<ReturnType<typeof getToolTheme>>,
+): Board {
+  return applyToolTheme(newBoard(name, teamName), theme);
+}
+
 export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const [boards, setBoards] = useState<Board[]>(() => [initialBoard(t)]);
   const current = useRef(boards);
@@ -69,6 +80,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [showStarPrompt, setShowStarPrompt] = useState(true);
+  const themeLaunchHandled = useRef(false);
   const [pending, setPending] = useState(0);
   const [dialogMode, setDialogMode] = useState<"save" | "share">();
   const [full, setFull] = useState(false);
@@ -154,6 +166,12 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
     let alive = true;
     const openGame = async () => {
       const fragment = location.hash;
+      const search = new URLSearchParams(location.search);
+      const hasSharedTarget = fragment.startsWith("#share=") || fragment.startsWith("#board=");
+      const launchTheme =
+        !themeLaunchHandled.current && !hasSharedTarget && search.get("new") === "1"
+          ? getToolTheme(search.get("theme"))
+          : undefined;
       if (fragment.startsWith("#share=") || fragment.startsWith("#board="))
         history.replaceState(null, "", location.pathname + location.search);
       try {
@@ -173,11 +191,21 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
             requested = copy.id;
           }
         } else {
-          if (!items.length) items = await loadOrCreateBoard(() => newBoard(t.board, t.team));
-          requested = fragment.startsWith("#board=") ? decodeURIComponent(fragment.slice(7)) : null;
-          try {
-            requested ??= localStorage.getItem("scoreboard-active");
-          } catch {}
+          if (launchTheme && !fragment.startsWith("#board=")) {
+            const fresh = boardWithTheme(t.board, t.team, launchTheme);
+            items = [...items, fresh];
+            requested = fresh.id;
+            themeLaunchHandled.current = true;
+            window.history.replaceState(window.history.state, "", window.location.pathname);
+          } else {
+            if (!items.length) items = await loadOrCreateBoard(() => newBoard(t.board, t.team));
+            requested = fragment.startsWith("#board=")
+              ? decodeURIComponent(fragment.slice(7))
+              : null;
+            try {
+              requested ??= localStorage.getItem("scoreboard-active");
+            } catch {}
+          }
         }
         if (alive) {
           replace(items);
@@ -186,7 +214,13 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
         }
       } catch {
         if (alive) {
-          const fallback = newBoard(t.board, t.team);
+          const fallback = launchTheme
+            ? boardWithTheme(t.board, t.team, launchTheme)
+            : newBoard(t.board, t.team);
+          if (launchTheme) {
+            themeLaunchHandled.current = true;
+            window.history.replaceState(window.history.state, "", window.location.pathname);
+          }
           replace([fallback]);
           setId(fallback.id);
           setReady(true);
@@ -360,24 +394,26 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
         {showStarPrompt && !full && (
           <div
             role="status"
-            className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-lg border border-forest/15 bg-surface px-2.5 py-2 text-sm sm:gap-3"
+            className="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1.5 rounded-lg border border-forest/15 bg-surface px-2.5 py-2 text-sm sm:flex sm:gap-3"
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-forest/10">
+            <span className="row-span-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-forest/10">
               <Star aria-hidden="true" className="h-4 w-4 text-forest" />
             </span>
-            <p className="min-w-0 flex-1 text-sm leading-5 text-ink/85">{t.githubStarNote}</p>
+            <p className="col-start-2 row-start-1 min-w-0 text-sm leading-5 text-ink/85 sm:flex-1">
+              {t.githubStarNote}
+            </p>
             <a
               href={repo}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-8 shrink-0 items-center rounded-md px-2 text-sm font-semibold text-forest transition-colors duration-150 hover:bg-forest/10 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none"
+              className="col-start-2 row-start-2 inline-flex min-h-8 shrink-0 items-center justify-self-start rounded-md px-2 text-sm font-semibold text-forest transition-colors duration-150 hover:bg-forest/10 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none sm:ml-auto"
             >
               {t.githubStarAction}
             </a>
             <Button
               aria-label={t.close}
               onClick={() => setShowStarPrompt(false)}
-              className="min-h-8 min-w-8 shrink-0 p-1.5"
+              className="col-start-3 row-span-2 row-start-1 min-h-8 min-w-8 shrink-0 p-1.5"
             >
               <X aria-hidden="true" className="h-4 w-4" />
             </Button>
@@ -459,17 +495,35 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                         <span
                           style={
                             {
-                              "--accent": validColor(board.accent) ? board.accent : "#285b35",
-                              "--accent-text": foreground(
-                                validColor(board.accent) ? board.accent : "#285b35",
-                              ),
+                              "--accent": validColor(board.accent)
+                                ? board.accent
+                                : "var(--color-forest)",
+                              "--accent-text": validColor(board.accent)
+                                ? foreground(board.accent)
+                                : "var(--color-on-action)",
                             } as CSSProperties
                           }
                           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--accent-text)]"
                         >
                           <BoardIcon id={board.icon} />
                         </span>
-                        <span className="min-w-0 [overflow-wrap:anywhere]">{board.name}</span>
+                        <label className="min-w-0 flex-1">
+                          <span className="sr-only">{t.boardName}</span>
+                          <input
+                            aria-label={t.boardName}
+                            maxLength={200}
+                            value={board.name}
+                            disabled={!ready}
+                            onChange={(event) =>
+                              update((current) => ({
+                                ...current,
+                                name: event.target.value,
+                                automaticName: false,
+                              }))
+                            }
+                            className="min-h-10 w-full min-w-0 border-b border-transparent bg-transparent px-1 font-display text-xl font-bold tracking-tight text-ink hover:border-forest/25 focus-visible:border-forest focus-visible:outline-none sm:text-2xl"
+                          />
+                        </label>
                       </span>
                     </h2>
                     <div className="flex shrink-0 items-center gap-2">
@@ -659,7 +713,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                     board={board}
                     t={t}
                     change={update}
-                    renameBoard={(name) => update((b) => ({ ...b, name, automaticName: false }))}
                     remove={(teamId) =>
                       ask(t.deleteConfirm, () => {
                         const removeTeam = () =>

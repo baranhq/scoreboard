@@ -61,7 +61,7 @@ export function ColorControl({
         <span
           aria-hidden="true"
           style={{ "--swatch": value } as CSSProperties}
-          className="size-8 shrink-0 rounded-lg border border-ink/20 bg-[var(--swatch)] shadow-[inset_0_0_0_1px_#ffffff55]"
+          className="size-8 shrink-0 rounded-lg border border-ink/20 bg-[var(--swatch)] shadow-[var(--picker-swatch-outline)]"
         />
         <span className="font-mono text-sm font-semibold tracking-wide text-ink/75">
           {value.toUpperCase()}
