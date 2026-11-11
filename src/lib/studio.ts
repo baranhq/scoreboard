@@ -132,6 +132,24 @@ export function parseDocument(value: unknown): StudioDocument {
     )
       throw new Error("Invalid style dimension");
   }
+  for (const key of ["titleVisible", "subtitleVisible", "showScores"])
+    if (style[key] !== undefined && typeof style[key] !== "boolean")
+      throw new Error("Invalid visibility");
+  for (const [key, min, max] of [
+    ["connectorWidth", 0, 8],
+    ["roundGap", 240, 400],
+    ["matchGap", 8, 100],
+  ] as const)
+    if (
+      style[key] !== undefined &&
+      (typeof style[key] !== "number" ||
+        !Number.isFinite(style[key]) ||
+        style[key] < min ||
+        style[key] > max)
+    )
+      throw new Error("Invalid layout");
+  if (style.connectorColor !== undefined && !validColor(style.connectorColor))
+    throw new Error("Invalid connector colour");
   if (style.gradient !== undefined && typeof style.gradient !== "boolean")
     throw new Error("Invalid gradient");
   for (const key of ["borderColor", "textColor", "backgroundEnd"])
@@ -199,7 +217,13 @@ export function parseDocument(value: unknown): StudioDocument {
     )
       throw new Error("Invalid bracket");
     for (const p of value.participants)
-      if (!record(p) || !text(p.id, 100) || !p.id || !text(p.name))
+      if (
+        !record(p) ||
+        !text(p.id, 100) ||
+        !p.id ||
+        !text(p.name) ||
+        (p.color !== undefined && !validColor(p.color))
+      )
         throw new Error("Invalid participant");
     if (!uniqueIds(value.participants) || Object.keys(value.results).length > 63)
       throw new Error("Invalid participants or results");

@@ -1,5 +1,13 @@
 import { validColor } from "./colors.ts";
 export type ToolTheme = {
+  titleVisible?: boolean;
+  subtitleVisible?: boolean;
+  showScores?: boolean;
+  connectorColor?: string;
+  connectorWidth?: number;
+  roundGap?: number;
+  matchGap?: number;
+
   gradient?: boolean;
   backgroundEnd?: string;
   accent: string;
@@ -69,6 +77,13 @@ const colors = [
   ["#a54488", "#fff0dc", "#442840"],
 ];
 export const toolThemes: ToolTheme[] = colors.map(([accent, background, textColor], index) => ({
+  titleVisible: true,
+  subtitleVisible: true,
+  showScores: true,
+  connectorColor: accent,
+  connectorWidth: 2,
+  roundGap: 260,
+  matchGap: 40,
   gradient: false,
   backgroundEnd: background,
   accent,
@@ -82,6 +97,19 @@ export const toolThemes: ToolTheme[] = colors.map(([accent, background, textColo
 export function validToolTheme(value: unknown): value is ToolTheme {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
+  for (const key of ["titleVisible", "subtitleVisible", "showScores"])
+    if (v[key] !== undefined && typeof v[key] !== "boolean") return false;
+  if (v.connectorColor !== undefined && !validColor(v.connectorColor)) return false;
+  for (const [key, min, max] of [
+    ["connectorWidth", 0, 8],
+    ["roundGap", 240, 400],
+    ["matchGap", 8, 100],
+  ] as const)
+    if (
+      v[key] !== undefined &&
+      (typeof v[key] !== "number" || !Number.isFinite(v[key]) || v[key] < min || v[key] > max)
+    )
+      return false;
   return (
     (v.gradient === undefined || typeof v.gradient === "boolean") &&
     (v.backgroundEnd === undefined || validColor(v.backgroundEnd)) &&
@@ -98,6 +126,13 @@ export function validToolTheme(value: unknown): value is ToolTheme {
 
 export function cleanToolTheme(value: ToolTheme): ToolTheme {
   const {
+    titleVisible,
+    subtitleVisible,
+    showScores,
+    connectorColor,
+    connectorWidth,
+    roundGap,
+    matchGap,
     accent,
     background,
     textColor,
@@ -109,6 +144,13 @@ export function cleanToolTheme(value: ToolTheme): ToolTheme {
     backgroundEnd,
   } = value;
   return {
+    titleVisible,
+    subtitleVisible,
+    showScores,
+    connectorColor,
+    connectorWidth,
+    roundGap,
+    matchGap,
     accent,
     background,
     textColor,

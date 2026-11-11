@@ -1,5 +1,10 @@
 import type { Lang } from "./i18n";
 const en = {
+  connectorColour: "Connector colour",
+  connectorThickness: "Connector thickness",
+  roundSpacing: "Round spacing",
+  matchSpacing: "Match spacing",
+  participantColour: "Participant colour",
   gradientBackground: "Gradient background",
   newProject: "New project",
   undoEdit: "Undo",
@@ -190,6 +195,11 @@ const en = {
 };
 type Copy = { [K in keyof typeof en]: string };
 const bg: Copy = {
+  connectorColour: "Цвят на връзките",
+  connectorThickness: "Дебелина на връзките",
+  roundSpacing: "Разстояние между кръговете",
+  matchSpacing: "Разстояние между срещите",
+  participantColour: "Цвят на участника",
   gradientBackground: "Градиентен фон",
   newProject: "Нов проект",
   undoEdit: "Отмени",
@@ -381,6 +391,11 @@ const bg: Copy = {
   worst: "Краен случай",
 };
 const tr: Copy = {
+  connectorColour: "Bağlantı rengi",
+  connectorThickness: "Bağlantı kalınlığı",
+  roundSpacing: "Turlar arası boşluk",
+  matchSpacing: "Maçlar arası boşluk",
+  participantColour: "Katılımcı rengi",
   gradientBackground: "Degrade arka plan",
   newProject: "Yeni proje",
   undoEdit: "Geri al",
