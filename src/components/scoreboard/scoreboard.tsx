@@ -1,5 +1,5 @@
 "use client";
-import { Pin, Save, Share2, Star, X } from "lucide-react";
+import { Pin, Save, Share2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { BoardIcon } from "./board-icon";
 import { foreground, validColor } from "@/lib/colors";
@@ -18,10 +18,10 @@ import { loadBoards, loadOrCreateBoard, writeBoards } from "@/store/database";
 import { Button, Modal } from "../ui/ui";
 import { TeamPanel } from "./team-panel";
 import { track } from "@/lib/analytics";
-import { repo } from "@/lib/site";
 import { getToolTheme, toolThemes } from "@/lib/tool-themes";
 import { applyToolTheme } from "@/lib/board-theme";
 import { exportElementPng } from "@/lib/export-png";
+import { DailyGithubStarNotice } from "@/components/studio/daily-github-star-notice";
 type Action = { title: string; value?: string; numeric?: boolean; run: (value: string) => void };
 type TeamBounds = { left: number; top: number; width: number; height: number };
 const ShareDialog = dynamic(() => import("./share-dialog").then((module) => module.ShareDialog));
@@ -83,7 +83,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const [undoBoards, setUndoBoards] = useState<Board[]>([]);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [showStarPrompt, setShowStarPrompt] = useState(true);
   const themeLaunchHandled = useRef(false);
   const [pending, setPending] = useState(0);
   const [dialogMode, setDialogMode] = useState<"save" | "share">();
@@ -404,35 +403,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
         }
       >
         <h1 className="sr-only">{t.scoreboardPageTitle}</h1>
-
-        {showStarPrompt && !full && (
-          <div
-            role="status"
-            className="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1.5 rounded-lg border border-forest/15 bg-surface px-2.5 py-2 text-sm sm:flex sm:gap-3"
-          >
-            <span className="row-span-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-forest/10">
-              <Star aria-hidden="true" className="h-4 w-4 text-forest" />
-            </span>
-            <p className="col-start-2 row-start-1 min-w-0 text-sm leading-5 text-ink/85 sm:flex-1">
-              {t.githubStarNote}
-            </p>
-            <a
-              href={repo}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="col-start-2 row-start-2 inline-flex min-h-8 shrink-0 items-center justify-self-start rounded-md px-2 text-sm font-semibold text-forest transition-colors duration-150 hover:bg-forest/10 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none sm:ml-auto"
-            >
-              {t.githubStarAction}
-            </a>
-            <Button
-              aria-label={t.close}
-              onClick={() => setShowStarPrompt(false)}
-              className="col-start-3 row-span-2 row-start-1 min-h-8 min-w-8 shrink-0 p-1.5"
-            >
-              <X aria-hidden="true" className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <DailyGithubStarNotice lang={lang} />
 
         {notice && (
           <div

@@ -9,6 +9,9 @@ import {
   nextAvailableName,
   removeColumn,
   sortRows,
+  setLeaderboardTotalColumn,
+  moveLeaderboardColumn,
+  updateLeaderboardCell,
   parseDocument,
 } from "../src/lib/studio.ts";
 import {
@@ -37,6 +40,7 @@ import {
 } from "../src/lib/tool-themes.ts";
 import { newBoard } from "../src/lib/boards.ts";
 import { applyToolTheme } from "../src/lib/board-theme.ts";
+import { shouldShowDailyNotice } from "../src/lib/daily-notice.ts";
 
 test("custom colour values round-trip through the editor's HSL controls", () => {
   for (const color of ["#0d7480", "#b5d78b", "#000000", "#ffffff"]) {
@@ -138,6 +142,101 @@ test("new leaderboards start with three editable zero-score teams", () => {
     ],
   );
   assert.ok(board.rows.every((row) => !row.highlighted));
+});
+
+test("changing a source score recalculates and re-ranks the total column", () => {
+  const board = {
+    ...newLeaderboard("calculated"),
+    columns: ["Team", "Round 1", "Round 2", "Total points"],
+    totalColumn: 3,
+    rows: [
+      { id: "team-2", cells: ["Team 2", "8", "4", "12"], highlighted: false },
+      { id: "team-1", cells: ["Team 1", "3", "2", "5"], highlighted: false },
+    ],
+  } as studioApi.Leaderboard;
+
+  const updated = updateLeaderboardCell(board, "team-1", 2, "12");
+
+  assert.deepEqual(
+    updated.rows.map((row) => [row.cells[0], row.cells[3]]),
+    [
+      ["Team 1", "15"],
+      ["Team 2", "12"],
+    ],
+  );
+  assert.equal(updateLeaderboardCell(updated, "team-1", 3, "999"), updated);
+});
+
+test("preview score edits update calculated totals and leaderboard placement", () => {
+  const board = {
+    ...newLeaderboard("preview-total"),
+    columns: ["Team", "Round 1", "Round 2", "Total points"],
+    totalColumn: 3,
+    rows: [
+      { id: "team-2", cells: ["Team 2", "8", "4", "12"], highlighted: false },
+      { id: "team-1", cells: ["Team 1", "3", "2", "5"], highlighted: false },
+    ],
+  } as studioApi.Leaderboard;
+  const totalField = { kind: "leaderboard-cell", rowId: "team-1", column: 3 } as const;
+
+  const updated = updatePreviewField(
+    board,
+    { kind: "leaderboard-cell", rowId: "team-1", column: 2 },
+    "12",
+  );
+
+  assert.equal(previewFieldValue(updated, totalField), "15");
+  assert.equal(updated.kind, "leaderboard");
+  if (updated.kind !== "leaderboard") return;
+  assert.equal(updated.rows[0].cells[0], "Team 1");
+});
+
+test("calculated total columns are validated and survive saved-document parsing", () => {
+  const board = newLeaderboard("total-schema");
+
+  const parsed = parseDocument({ ...board, totalColumn: 1 });
+  assert.equal(parsed.kind, "leaderboard");
+  if (parsed.kind === "leaderboard") assert.equal(parsed.totalColumn, 1);
+
+  assert.throws(() => parseDocument({ ...board, totalColumn: 2 }));
+  assert.throws(() => parseDocument({ ...board, totalColumn: 0 }));
+  assert.throws(() => parseDocument({ ...board, totalColumn: 1.5 }));
+});
+
+test("calculated totals follow their column when columns move and clear when removed", () => {
+  const board = {
+    ...newLeaderboard("total-column-move"),
+    columns: ["Team", "Round 1", "Round 2", "Points"],
+    rows: [
+      { id: "team-1", cells: ["Team 1", "3", "4", "0"], highlighted: false },
+      { id: "team-2", cells: ["Team 2", "8", "2", "0"], highlighted: false },
+    ],
+  };
+  const calculated = setLeaderboardTotalColumn(board, 3);
+  assert.deepEqual(
+    calculated.rows.map((row) => [row.cells[0], row.cells[3]]),
+    [
+      ["Team 2", "10"],
+      ["Team 1", "7"],
+    ],
+  );
+
+  const moved = moveLeaderboardColumn(calculated, 3, 1);
+  assert.equal(moved.totalColumn, 1);
+  assert.deepEqual(
+    moved.rows.map((row) => [row.cells[0], row.cells[1]]),
+    [
+      ["Team 2", "10"],
+      ["Team 1", "7"],
+    ],
+  );
+  assert.equal(removeColumn(calculated, 3).totalColumn, undefined);
+});
+
+test("the GitHub notice appears once per local day and returns on the next day", () => {
+  assert.equal(shouldShowDailyNotice(null, "2026-11-11"), true);
+  assert.equal(shouldShowDailyNotice("2026-11-11", "2026-11-11"), false);
+  assert.equal(shouldShowDailyNotice("2026-11-10", "2026-11-11"), true);
 });
 
 test("appearance presets keep each saved graphic's existing typography", () => {
@@ -583,19 +682,18 @@ test("column width overrides and row colours round-trip through saved graphics",
   assert.throws(() => parseDocument({ ...edited, columnWidths: [0, 180] }));
 });
 
-test("manual preview edits preserve row ordering", () => {
+test("preview point edits move the highest scoring row to the top", () => {
   const board = newLeaderboard();
   const edited = updatePreviewField(
     board,
     { kind: "leaderboard-cell", rowId: board.rows[2].id, column: 1 },
     "999",
-    false,
   );
   assert.equal(edited.kind, "leaderboard");
   if (edited.kind === "leaderboard")
     assert.deepEqual(
-      edited.rows.map((row) => row.id),
-      board.rows.map((row) => row.id),
+      edited.rows.map((row) => row.cells[0]),
+      ["Team 3", "Team 1", "Team 2"],
     );
 });
 
