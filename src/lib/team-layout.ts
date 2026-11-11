@@ -6,9 +6,11 @@ export function teamGridClass(
   _full: boolean,
   canvas?: { width: number; height: number },
 ): string {
+  if (_full)
+    return `grid auto-rows-fr ${count <= 1 ? "grid-cols-1" : "grid-cols-2 min-[720px]:grid-cols-3"}`;
+
   if (layout === "auto") {
-    if (canvas && canvas.width / canvas.height < 0.8)
-      return `grid ${_full ? "auto-rows-fr" : ""} grid-cols-1`;
+    if (canvas && canvas.width / canvas.height < 0.8) return "grid grid-cols-1";
     const columns =
       count <= 1
         ? "grid-cols-1"
@@ -21,7 +23,7 @@ export function teamGridClass(
               : count <= 9
                 ? "grid-cols-2 lg:grid-cols-3"
                 : "grid-cols-2 overflow-auto auto-rows-[minmax(14rem,1fr)] lg:grid-cols-4";
-    return `grid ${_full ? "auto-rows-fr" : ""} ${columns}`;
+    return `grid ${columns}`;
   }
   return layout === "horizontal"
     ? "grid grid-flow-col auto-cols-[minmax(18rem,1fr)] overflow-x-auto"

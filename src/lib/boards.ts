@@ -35,6 +35,8 @@ export type Board = {
   exportScale?: 1 | 2;
 };
 export const MAX_SCORE = 999999999;
+export const MAX_SCOREBOARD_TEAMS = 6;
+export const canAddScoreboardTeam = (teamCount: number) => teamCount < MAX_SCOREBOARD_TEAMS;
 export const MAX_BACKUP_BYTES = 5 * 1024 * 1024;
 const MAX_BACKUP_BOARDS = 1000;
 // One shared team budget accepts older large local boards without unbounding imports.

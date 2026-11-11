@@ -83,14 +83,30 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
         </ViewTransition>
       </div>
       <footer data-frame-chrome className="border-t border-white/10 bg-[#213f29] text-white">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-[14px] px-5 py-10 min-[761px]:grid-cols-3 min-[761px]:gap-10 sm:px-6">
-          <FooterGroup title={t.contact}>
-            <li>
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-4 px-5 py-10 min-[761px]:grid-cols-[1.2fr_1fr_1fr] min-[761px]:gap-8 sm:px-6">
+          <section className="flex w-full max-w-[420px] flex-col gap-4 rounded-xl border border-white/15 bg-white/5 p-4 text-left min-[761px]:max-w-full sm:p-5">
+            <Link
+              href={homeRoute(lang)}
+              aria-label={`${brand}: ${t.home}`}
+              className="inline-flex min-h-11 items-start"
+            >
+              <img
+                src="/wordmark-62157c899159.webp"
+                srcSet="/wordmark-128-492516610722.webp 128w, /wordmark-256-aaadf7f18229.webp 256w"
+                sizes="128px"
+                width="315"
+                height="83"
+                alt={brand}
+                className="h-auto w-28 brightness-0 invert"
+              />
+            </Link>
+            <div>
+              <h2 className="text-[15px] leading-[1.4] font-semibold opacity-70">{t.contact}</h2>
               <a className={footerLink} href={`mailto:${operator.email}`}>
                 {operator.email}
               </a>
-            </li>
-          </FooterGroup>
+            </div>
+          </section>
           <FooterGroup title={t.explore} label={t.explore}>
             <li>
               <Link className={footerLink} href={homeRoute(lang)}>

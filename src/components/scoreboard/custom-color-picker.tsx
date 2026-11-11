@@ -67,10 +67,10 @@ export function CustomColorPicker({
           if (e.currentTarget.hasPointerCapture(e.pointerId)) point(e.clientX, e.clientY);
         }}
         style={{ "--hue-color": hsvToHex({ h: hsv.h, s: 1, v: 1 }) } as CSSProperties}
-        className="relative h-52 w-full cursor-crosshair touch-none rounded-xl border border-forest/25 bg-[var(--hue-color)]"
+        className="relative h-44 w-full cursor-crosshair touch-none rounded-xl border border-forest/25 bg-[var(--hue-color)] sm:h-52"
       >
-        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[var(--picker-white-overlay)]" />
-        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[var(--picker-black-overlay)]" />
+        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[image:var(--picker-white-overlay)]" />
+        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[image:var(--picker-black-overlay)]" />
         <span
           aria-hidden="true"
           style={{
@@ -88,7 +88,7 @@ export function CustomColorPicker({
           max="359"
           value={Math.round(hsv.h) % 360}
           onChange={(e) => update({ ...hsv, h: e.target.valueAsNumber })}
-          className="h-6 w-full cursor-pointer appearance-none rounded-full border border-forest/25 bg-[var(--picker-hue-spectrum)] [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-ink [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-ink [&::-webkit-slider-thumb]:bg-white"
+          className="h-6 w-full cursor-pointer appearance-none rounded-full border border-forest/25 bg-[image:var(--picker-hue-spectrum)] [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-ink [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-ink [&::-webkit-slider-thumb]:bg-white"
         />
       </label>
     </div>

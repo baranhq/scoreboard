@@ -10,7 +10,8 @@ import {
 import { readDocument, saveDocument } from "@/store/studio";
 import type { StudioCopy } from "@/lib/studio-copy";
 import { downloadBlob, safeFilename } from "@/lib/export-png";
-import { getToolTheme } from "@/lib/tool-themes";
+import { cleanToolTheme, getToolTheme } from "@/lib/tool-themes";
+import { validColor } from "@/lib/colors";
 import { readJsonFile } from "@/lib/untrusted-json";
 import { useConfirmation } from "@/components/ui/use-confirmation";
 
@@ -48,6 +49,15 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       const search = new URLSearchParams(window.location.search);
       const launchTheme =
         !id && search.get("new") === "1" ? getToolTheme(search.get("theme")) : undefined;
+      const launchStyle = launchTheme ? cleanToolTheme(launchTheme) : undefined;
+      if (launchStyle) delete launchStyle.id;
+      const color = (key: string) => {
+        const value = search.get(key);
+        return value && validColor(value) ? value : undefined;
+      };
+      const accent = color("accent");
+      const background = color("background");
+      const textColor = color("textColor");
       let template = initial;
       let draftSuffix = id || "new";
       if (launchTheme) {
@@ -63,7 +73,15 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
         template = {
           ...initial,
           id: instance,
-          style: { ...initial.style, ...launchTheme },
+          style: {
+            ...initial.style,
+            ...launchStyle,
+            ...(accent
+              ? { accent, ...(launchTheme?.gradient ? { backgroundEnd: accent } : {}) }
+              : {}),
+            ...(background ? { background } : {}),
+            ...(textColor ? { textColor } : {}),
+          },
         };
         freshTemplate.current = template;
         draftSuffix = `theme-${instance}`;
@@ -140,6 +158,7 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       const anchor = event.target instanceof Element ? event.target.closest("a[href]") : null;
       if (!(anchor instanceof HTMLAnchorElement) || anchor.download || anchor.target === "_blank")
         return;
+      if (anchor.hasAttribute("data-preserve-draft")) return;
       const target = new URL(anchor.href);
       if (target.origin !== window.location.origin || target.href === window.location.href) return;
       if (

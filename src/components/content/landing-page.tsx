@@ -58,15 +58,15 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
   const copy = campaignCopy[lang];
   return (
     <main id="main" data-campaign="dark" data-landing-home>
-      <section className="overflow-hidden bg-campaign text-campaign-ink">
-        <div className="mx-auto max-w-7xl px-5 pt-10 pb-10 sm:px-8 sm:pt-10 lg:pb-12">
-          <div className="grid gap-7 border-b border-white/20 pb-8 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">
-            <h1 className="font-display text-[clamp(3.5rem,8.5vw,7.5rem)] leading-[0.9] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
+      <section className="bg-campaign text-campaign-ink lg:min-h-[calc(100svh-4rem)]">
+        <div className="mx-auto flex max-w-7xl flex-col px-5 pt-7 pb-8 sm:px-8 lg:min-h-[calc(100svh-4rem)] lg:py-3">
+          <div className="grid gap-5 border-b border-white/20 pb-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+            <h1 className="font-display text-[clamp(2.75rem,5.25vw,5rem)] leading-[0.92] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
               {copy.headline}
             </h1>
             <div>
-              <p className="max-w-[38ch] text-base leading-7 text-white/80">{copy.intro}</p>
-              <div className="mt-6 flex flex-wrap items-center gap-4">
+              <p className="max-w-[38ch] text-base leading-6 text-white/80">{copy.intro}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <Link
                   href={route(lang, toolEditors.scoreboard)}
                   className="inline-flex min-h-12 items-center gap-2 bg-lime px-5 py-3 font-semibold text-campaign transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:translate-y-0 motion-reduce:transform-none"
@@ -84,9 +84,9 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
               </div>
             </div>
           </div>
-          <div className="mt-6 grid gap-5 lg:grid-cols-[0.23fr_1fr] lg:gap-10">
+          <div className="mt-5 grid gap-4 lg:mt-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[0.2fr_1fr] lg:gap-6">
             <div className="flex flex-wrap gap-x-8 gap-y-2 lg:flex-col lg:justify-between lg:py-5">
-              <p className="font-display text-sm leading-tight font-semibold text-lime sm:text-xl lg:text-2xl">
+              <p className="font-display text-sm leading-tight font-semibold text-lime sm:text-xl lg:text-xl">
                 {t.free}
                 <br />
                 {t.local}
@@ -105,7 +105,7 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
           return (
             <article
               key={tool}
-              className="grid gap-4 border-b border-forest/25 py-7 first:border-t lg:grid-cols-[0.8fr_1fr_auto] lg:items-center lg:gap-8"
+              className="grid gap-4 border-b border-forest/25 py-7 first:border-t lg:grid-cols-[0.8fr_1fr_13rem] lg:items-center lg:gap-8"
             >
               <h2 className="font-display text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
                 {t[tool]}

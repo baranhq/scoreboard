@@ -13,6 +13,7 @@ import type { Lang } from "@/lib/i18n";
 import { Button } from "@/components/ui/ui";
 import { useConfirmation } from "@/components/ui/use-confirmation";
 import { ColorControl, accentColors, backgroundColors } from "./color-control";
+import { Checkbox } from "@/components/ui/checkbox";
 const key = "scoreboard-custom-themes-v1";
 const presetKeys = [
   "accent",
@@ -24,6 +25,7 @@ const presetKeys = [
   "density",
   "gradient",
   "backgroundEnd",
+  "rowSeparators",
   "connectorColor",
   "connectorWidth",
   "roundGap",
@@ -140,23 +142,41 @@ export function ThemeLibrary({
             );
           })}
         </div>
+        <section className="space-y-3 border-t border-forest/15 pt-3">
+          <h3 className="font-semibold">{t.myThemes}</h3>
+          <div className="flex flex-wrap gap-2">
+            <input
+              aria-label={t.themeName}
+              placeholder={t.themeName}
+              maxLength={80}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="min-h-11 min-w-0 flex-1 border border-forest/25 bg-surface px-3"
+            />
+            <Button
+              disabled={!name.trim() || saved.length >= 50}
+              onClick={() => {
+                store([
+                  ...saved,
+                  { id: crypto.randomUUID(), name: name.trim(), value: cleanToolTheme(value) },
+                ]);
+                setName("");
+              }}
+            >
+              {t.saveTheme}
+            </Button>
+          </div>
+        </section>
         <details className="border-t border-forest/15 pt-2">
           <summary className="min-h-11 cursor-pointer py-2 font-semibold">{t.advanced}</summary>
           <div className="space-y-4 py-3">
-            <label className="flex min-h-11 items-center gap-3">
-              <input
-                type="checkbox"
-                checked={!!value.gradient}
-                onChange={(e) =>
-                  change({
-                    ...value,
-                    gradient: e.target.checked,
-                    backgroundEnd: value.backgroundEnd || value.accent,
-                  })
-                }
-              />
-              {t.gradientBackground}
-            </label>
+            <Checkbox
+              checked={!!value.gradient}
+              label={t.gradientBackground}
+              change={(gradient) =>
+                change({ ...value, gradient, backgroundEnd: value.backgroundEnd || value.accent })
+              }
+            />
             {value.gradient && (
               <ColorControl
                 label={t.gradientBackground}
@@ -193,6 +213,7 @@ export function ThemeLibrary({
                   {t[label]}: {value[field]}
                   <input
                     type="range"
+                    className="custom-range"
                     min="0"
                     max={max}
                     value={value[field]}
@@ -201,40 +222,13 @@ export function ThemeLibrary({
                 </label>
               ))}
             </div>
-            <label className="flex min-h-11 items-center gap-3">
-              <input
-                type="checkbox"
-                checked={value.density === "spacious"}
-                onChange={(e) =>
-                  change({ ...value, density: e.target.checked ? "spacious" : "compact" })
-                }
-              />
-              {t.spaciousDisplay}
-            </label>
+            <Checkbox
+              checked={value.density === "spacious"}
+              label={t.spaciousDisplay}
+              change={(checked) => change({ ...value, density: checked ? "spacious" : "compact" })}
+            />
           </div>
         </details>
-        <div className="flex flex-wrap gap-2">
-          <input
-            aria-label={t.themeName}
-            placeholder={t.themeName}
-            maxLength={80}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="min-h-11 min-w-0 flex-1 border border-forest/25 bg-surface px-3"
-          />
-          <Button
-            disabled={!name.trim() || saved.length >= 50}
-            onClick={() => {
-              store([
-                ...saved,
-                { id: crypto.randomUUID(), name: name.trim(), value: cleanToolTheme(value) },
-              ]);
-              setName("");
-            }}
-          >
-            {t.saveTheme}
-          </Button>
-        </div>
         {saved.map((item) => (
           <div
             key={item.id}
