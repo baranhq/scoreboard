@@ -14,13 +14,8 @@ import {
 import type { Lang } from "@/lib/i18n";
 import { studioCopy } from "@/lib/studio-copy";
 import { useDocument } from "./use-document";
-import {
-  CanvasControls,
-  EditorShell,
-  inputClass,
-  ThemeControls,
-  VisibilitySettings,
-} from "./editor-shell";
+import { CanvasControls } from "./canvas-controls";
+import { EditorShell, inputClass, ThemeControls, VisibilitySettings } from "./editor-shell";
 export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
   const initial = useMemo(
@@ -105,7 +100,13 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
       }
       exportPanel={
         <div className="space-y-5">
-          <CanvasControls document={board} change={state.change} lang={lang} />
+          <CanvasControls
+            canvas={board.canvas}
+            exportScale={board.exportScale}
+            changeCanvas={(canvas) => state.change({ ...board, canvas })}
+            changeExportScale={(exportScale) => state.change({ ...board, exportScale })}
+            lang={lang}
+          />
           <div className="flex flex-wrap gap-2 border-t border-forest/20 pt-4">
             <Button disabled={!state.ready} onClick={state.backup}>
               {t.backup}
