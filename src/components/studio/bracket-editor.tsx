@@ -67,7 +67,11 @@ export function BracketEditor({ lang }: { lang: Lang }) {
                 Number(count) === board.participants.length
               }
               onClick={() => {
-                if (Object.keys(board.results).length && !window.confirm(t.confirmClearResults))
+                if (
+                  (Number(count) < board.participants.length ||
+                    Object.keys(board.results).length) &&
+                  !window.confirm(t.resetWarning)
+                )
                   return;
                 state.change(resizeBracket(board, Number(count)));
                 setCount("");
@@ -151,10 +155,14 @@ export function BracketEditor({ lang }: { lang: Lang }) {
         </label>
         <div className="max-h-[32rem] space-y-3 overflow-auto overscroll-contain pr-1">
           {rounds[round].map((match, index) => (
-            <fieldset key={match.id} className="space-y-2 rounded-lg border border-forest/20 p-3">
-              <legend className="px-1 text-sm font-semibold">
+            <details
+              key={match.id}
+              open={index === 0}
+              className="space-y-2 border-t border-forest/20 py-3"
+            >
+              <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold">
                 {t.match} {index + 1}
-              </legend>
+              </summary>
               {match.players.map((id, side) => (
                 <div key={side} className="flex min-w-0 items-center gap-2">
                   <span className="min-w-0 flex-1 text-base [overflow-wrap:anywhere]">
@@ -181,11 +189,17 @@ export function BracketEditor({ lang }: { lang: Lang }) {
                   <select
                     className={inputClass}
                     value={match.winner || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      if (
+                        match.winner &&
+                        match.winner !== e.target.value &&
+                        !window.confirm(t.confirmClearResults)
+                      )
+                        return;
                       state.change(
                         setMatchResult(board, match.id, e.target.value || null, match.scores),
-                      )
-                    }
+                      );
+                    }}
                   >
                     <option value="">{t.noWinner}</option>
                     {match.players.map((id) => (
@@ -202,7 +216,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
                     : t.pending}
                 </p>
               )}
-            </fieldset>
+            </details>
           ))}
         </div>
       </section>

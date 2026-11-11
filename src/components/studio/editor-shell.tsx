@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Download, Save, Upload, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/ui";
+import { ColorControl, accentColors } from "./color-control";
 import { ThemeLibrary } from "./theme-library";
 import { toolThemes } from "@/lib/tool-themes";
 import { Graphic } from "./graphic";
@@ -239,6 +240,11 @@ function StyleControls({
   lang: Lang;
 }) {
   const t = studioCopy[lang];
+  const [participant, setParticipant] = useState("");
+  const player =
+    doc.kind === "bracket"
+      ? doc.participants.find((item) => item.id === participant) || doc.participants[0]
+      : undefined;
   return (
     <fieldset className="space-y-3 border-t border-forest/20 pt-4">
       <legend className="pt-4 text-lg font-semibold">{t.style}</legend>
@@ -247,6 +253,103 @@ function StyleControls({
         value={{ ...toolThemes[0], ...doc.style }}
         change={(style) => change({ ...doc, style: { ...doc.style, ...style } })}
       />
+      <details className="border-t border-forest/20 pt-3">
+        <summary className="min-h-11 cursor-pointer py-2 font-semibold">{t.more}</summary>
+        <div className="grid gap-3 py-3 sm:grid-cols-2">
+          {(
+            [
+              ["titleVisible", t.title],
+              ["subtitleVisible", t.subtitle],
+            ] as const
+          ).map(([key, label]) => (
+            <label key={key} className="flex min-h-11 items-center gap-2">
+              <input
+                type="checkbox"
+                checked={doc.style[key] !== false}
+                onChange={(e) =>
+                  change({ ...doc, style: { ...doc.style, [key]: e.target.checked } })
+                }
+              />
+              {label}
+            </label>
+          ))}
+          {doc.kind === "bracket" && (
+            <>
+              <label className="flex min-h-11 items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={doc.style.showScores !== false}
+                  onChange={(e) =>
+                    change({ ...doc, style: { ...doc.style, showScores: e.target.checked } })
+                  }
+                />
+                {t.score}
+              </label>
+              <ColorControl
+                label={t.connectorColour}
+                value={doc.style.connectorColor || doc.style.accent}
+                colors={accentColors}
+                copy={t}
+                change={(connectorColor) =>
+                  change({ ...doc, style: { ...doc.style, connectorColor } })
+                }
+              />
+              {(
+                [
+                  ["connectorWidth", "connectorThickness", 0, 8, 2],
+                  ["roundGap", "roundSpacing", 240, 400, 260],
+                  ["matchGap", "matchSpacing", 8, 100, 40],
+                ] as const
+              ).map(([key, label, min, max, fallback]) => (
+                <label key={key} className="grid gap-2 text-sm font-semibold">
+                  {t[label]}: {doc.style[key] ?? fallback}
+                  <input
+                    type="range"
+                    min={min}
+                    max={max}
+                    value={doc.style[key] ?? fallback}
+                    onChange={(e) =>
+                      change({ ...doc, style: { ...doc.style, [key]: Number(e.target.value) } })
+                    }
+                  />
+                </label>
+              ))}
+              {player && (
+                <div className="space-y-2">
+                  <label className="grid gap-1 text-sm font-semibold">
+                    {t.participant}
+                    <select
+                      value={player.id}
+                      onChange={(e) => setParticipant(e.target.value)}
+                      className={inputClass}
+                    >
+                      {doc.participants.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <ColorControl
+                    label={t.participantColour}
+                    value={player.color || doc.style.accent}
+                    colors={accentColors}
+                    copy={t}
+                    change={(color) =>
+                      change({
+                        ...doc,
+                        participants: doc.participants.map((item) =>
+                          item.id === player.id ? { ...item, color } : item,
+                        ),
+                      })
+                    }
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </details>
       <CanvasControls document={doc} change={change} labels={t} />
     </fieldset>
   );
