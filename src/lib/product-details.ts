@@ -225,15 +225,15 @@ export const productDetails: Record<Lang, ProductLocale> = {
   },
   bg: {
     workflow: "От подготовката до резултата.",
-    useCases: "Място за малко състезание.",
+    useCases: "За игри, класни стаи и турнири.",
     questions: "Полезни въпроси и отговори.",
     themeHint:
-      "Тези теми са налични в истинския редактор. Примерът не променя запазените ви проекти.",
+      "Тези теми са налични и в редактора. Примерът няма да промени запазените ви проекти.",
     products: {
       scoreboard: {
         capability: [
-          "Водете играта. Задръжте вниманието.",
-          "Ясен резултат за зрителите и бързи контроли за човека, който го следи.",
+          "Водете играта и покажете резултата ясно.",
+          "Зрителите виждат резултата, а човекът, който следи играта, управлява таблото бързо.",
         ],
         stories: [
           [
@@ -251,11 +251,11 @@ export const productDetails: Record<Lang, ProductLocale> = {
         ],
         themes: [
           "Същата игра. Друго настроение.",
-          "Пробвайте истинските теми. В редактора настройте цветовете, контурите, ъглите, градиентите, плътността и размера на резултата. Запазете собствена тема.",
+          "Изберете готова тема или настройте цветовете, контурите, ъглите, градиентите, разстоянията и размера на резултата. Запазете и собствена тема.",
         ],
         steps: [
           [
-            "Дайте имена на отборите",
+            "Задайте имена на отборите",
             "Започнете с Отбор 1 и Отбор 2 на нула. Добавете още отбори и променете имената в панела Съдържание.",
           ],
           [
@@ -264,7 +264,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "Покажете го на всички",
-            "Отворете цял екран, запазете таблото или изпратете връзка с моментно състояние. JSON архивът позволява преместване на друго устройство.",
+            "Преминете на цял екран, запазете таблото или споделете връзка към моментното му състояние. JSON архивът помага да го прехвърлите на друго устройство.",
           ],
         ],
         uses: [
@@ -274,8 +274,8 @@ export const productDetails: Record<Lang, ProductLocale> = {
           "Игри с няколко играчи",
         ],
         advanced: [
-          "Един водещ. Цяла зала следи играта.",
-          "Клавишни комбинации, размери на текста и контроли на цял екран помагат по време на живата игра. Локалното запазване съхранява отборите, резултатите и изгледа. Споделената връзка съдържа моментно състояние, а не предаване на живо.",
+          "Един човек води играта, а цялата зала вижда резултата.",
+          "Клавишните комбинации, настройките за размер на текста и контролите на цял екран улесняват играта на живо. Таблото се запазва в този браузър заедно с отборите, резултатите и изгледа. Споделената връзка показва моментното състояние, а не предаване на живо.",
         ],
         faq: [
           [
@@ -299,12 +299,12 @@ export const productDetails: Record<Lang, ProductLocale> = {
       },
       leaderboard: {
         capability: [
-          "Дайте място на всеки резултат.",
-          "Започнете с празно класиране и създайте таблицата, от която събитието ви се нуждае.",
+          "Подредете резултатите така, че да се виждат ясно.",
+          "Започнете с празна таблица и я оформете според нуждите на събитието.",
         ],
         stories: [
           [
-            "Вашите колони. Вашето състезание.",
+            "Добавете нужните ви колони.",
             "Добавете участници и до десет колони. Променяйте имената, реда и ширината им. Редактирайте данните в таблицата или в графиката.",
           ],
           [
@@ -318,7 +318,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
         ],
         themes: [
           "Класиране със собствен облик.",
-          "Сменяйте истинските теми на редактора. Настройте текст, фон, цветове на редове, контури, разстояния и видимост на заглавията. Запазете собствена тема.",
+          "Изберете готова тема, а след това настройте текста, фона, цветовете на редовете, контурите, разстоянията и заглавията. Запазете собствена тема.",
         ],
         steps: [
           [
@@ -347,7 +347,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
         faq: [
           [
             "Промяната на точки пренарежда ли проекта?",
-            "Не. Истинският редактор запазва ръчния ред. Използвайте сортиране на колона, когато желаете подреждане. Демонстрацията на тази страница сортира примерните резултати, за да покаже движение в класирането.",
+            "Не. Редакторът запазва ръчната подредба, докато променяте стойности. За да я смените, сортирайте по колона. Примерът на тази страница подрежда резултатите автоматично, за да покаже как се променя класирането.",
           ],
           [
             "Мога ли да добавя собствени колони?",
@@ -362,7 +362,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Използвайте Запазете в Моите таблици за постоянен локален проект. Незапазена чернова може да се възстанови в същия раздел, но не замества запазването или архива.",
           ],
         ],
-        close: "Поставете резултатите в центъра.",
+        close: "Покажете кой води.",
       },
       bracket: {
         capability: [
@@ -372,20 +372,20 @@ export const productDetails: Record<Lang, ProductLocale> = {
         stories: [
           [
             "Започнете с участниците.",
-            "Изберете между 2 и 64 участници, въведете имена и подредете началния списък. Автоматичните служебни победи попълват непълна схема.",
+            "Добавете от 2 до 64 участници и подредете началния списък. Когато е нужно, част от тях преминават автоматично напред без среща.",
           ],
           [
             "Резултатът води към следващата среща.",
             "Въведете резултат и победител или изберете участник в прегледа и натиснете Продължете. Участниците преминават в следващия кръг.",
           ],
           [
-            "Погледнете схемата от две страни.",
-            "Изберете едностранна или двустранна схема. Превъртането в пълен размер запазва големите турнири четливи.",
+            "Изберете как да изглежда схемата.",
+            "Покажете схемата едностранно или двустранно. При големи турнири я разглеждайте с превъртане в пълен размер, за да остане четлива.",
           ],
         ],
         themes: [
           "Собствена визия за турнира.",
-          "Пробвайте истинските теми. В инструмента настройте цветове на участници, контури на срещи, връзки, разстояния между кръгове и видимост на резултатите.",
+          "Изберете готова тема и настройте цветовете на участниците, контурите на срещите, връзките, разстоянията между кръговете и видимостта на резултатите.",
         ],
         steps: [
           [
@@ -393,8 +393,8 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Изберете брой участници и разположение. Заменете номерираните имена с вашите участници.",
           ],
           [
-            "Въведете срещите",
-            "Въведете резултатите и победителите. Проверете следващия кръг след преминаването им.",
+            "Въведете резултатите",
+            "Посочете резултата и победителя във всяка среща. Следете как победителите продължават в следващия кръг.",
           ],
           [
             "Запазете резултата",
@@ -408,17 +408,17 @@ export const productDetails: Record<Lang, ProductLocale> = {
           "Плейофи в клас",
         ],
         advanced: [
-          "Коригирайте ранен резултат с ясни последици.",
-          "Смяната на победител обновява зависимите кръгове и изчиства несъвместимите по-късни резултати. Редакторът иска потвърждение преди загуба на резултати. Отделни настройки на връзките, цветове на участниците и разстояния оформят схемата без промяна на логиката.",
+          "Променете по-ранен резултат и вижте какво се променя нататък.",
+          "Смяната на победителя обновява следващите кръгове и изчиства несъвместимите резултати. Редакторът иска потвърждение, преди да изтрие резултати. Настройките за връзки, цветове и разстояния променят изгледа, без да засягат правилата на турнира.",
         ],
         faq: [
           [
             "Какъв формат поддържа инструментът?",
-            "Единична елиминация за 2–64 участници. Едностранната и двустранната схема са визуални разположения, а не различни формати на състезание.",
+            "Поддържат се турнири с директна елиминация и от 2 до 64 участници. Едностранната и двустранната подредба променят само изгледа на схемата.",
           ],
           [
             "Какво става при непълен брой участници?",
-            "Схемата добавя служебни победи, когато са нужни. Участникът преминава без изиграна среща.",
+            "Когато е нужно, схемата придвижва участник напред без изиграна среща.",
           ],
           [
             "Мога ли да коригирам по-ранен победител?",
@@ -429,16 +429,16 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Запазете в Моите таблици за отваряне в този браузър. PNG е готова графика, а JSON е редактируем архив. Изчистването на данните на браузъра може да премахне локалните проекти.",
           ],
         ],
-        close: "Дайте посока на следващия победител.",
+        close: "Продължете с победителя в следващия кръг.",
       },
     },
   },
   tr: {
     workflow: "Kurulumdan gösterime.",
-    useCases: "Biraz rekabete yer açın.",
+    useCases: "Okulda, sahada veya arkadaşlarınızla.",
     questions: "Birkaç yararlı yanıt.",
     themeHint:
-      "Bu hazır temalar gerçek düzenleyicide de bulunur. Örnek, kayıtlı projelerinizi değiştirmez.",
+      "Bu temaları düzenleyicide de kullanabilirsiniz. Örnek, kayıtlı projelerinizi değiştirmez.",
     products: {
       scoreboard: {
         capability: [
@@ -451,7 +451,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Takım ekleyin, adlarını değiştirin, kaldırın ve sıralayın. Her takıma ayrı renk verin; yan yana veya ızgara düzeni seçin.",
           ],
           [
-            "Sonraki sayı bir dokunuş uzakta.",
+            "Skoru tek dokunuşla güncelleyin.",
             "Artı ve eksi kullanın, skoru doğrudan girin veya özel bir artış miktarı belirleyin. Değişikliği geri alın ya da yeni oyun için skorları sıfırlayın.",
           ],
           [
@@ -461,12 +461,12 @@ export const productDetails: Record<Lang, ProductLocale> = {
         ],
         themes: [
           "Aynı oyun. Farklı bir atmosfer.",
-          "Gerçek sunum temalarını deneyin. Düzenleyicide takım renklerini, kenarlıkları, köşeleri, degradeleri, yoğunluğu ve skor boyutunu ayarlayın; özel temanızı kaydedin.",
+          "Hazır temalardan birini seçin; ardından takım renklerini, kenarlıkları, köşeleri, renk geçişlerini, aralıkları ve skor boyutunu düzenleyin. Kendi temanızı da kaydedebilirsiniz.",
         ],
         steps: [
           [
             "Takımları adlandırın",
-            "Sıfır puanlı Takım 1 ve Takım 2 ile başlayın. İçerik panelinde yeni takım ekleyin ve adları düzenleyin.",
+            "Takım 1 ve Takım 2 sıfır puanla başlar. İçerik bölümünden takım ekleyip adlarını değiştirebilirsiniz.",
           ],
           [
             "Skoru güncel tutun",
@@ -479,8 +479,8 @@ export const productDetails: Record<Lang, ProductLocale> = {
         ],
         uses: ["Sınıf yarışmaları", "Dostluk maçları", "Bilgi yarışmaları", "Çok oyunculu oyunlar"],
         advanced: [
-          "Bir sunucu. Oyunu izleyen bir oda dolusu insan.",
-          "Klavye kısayolları, ayarlanabilir yazı boyutları ve tam ekran kontrolleri canlı oyunu yönetmeye yardımcı olur. Yerel kayıtlar takımları, skorları ve görünümü birlikte saklar. Paylaşılan bağlantılar canlı yayın değil, anlık görüntüdür.",
+          "Oyunu bir kişi yönetir, salondakiler skoru ekrandan takip eder.",
+          "Klavye kısayolları, ayarlanabilir yazı boyutları ve tam ekran kontrolleri oyunu yönetmeyi kolaylaştırır. Takımlar, skorlar ve görünüm bu tarayıcıya birlikte kaydedilir. Paylaşılan bağlantı, canlı yayın yerine o anki tabloyu gösterir.",
         ],
         faq: [
           [
@@ -500,16 +500,16 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Hayır. Temalar ve görünüm kontrolleri takım adlarını ve skorları korur. Özel temalar yerel olarak kaydedilebilir.",
           ],
         ],
-        close: "Sıradaki oyununuz başlamaya hazır.",
+        close: "Sıradaki oyuna başlayın.",
       },
       leaderboard: {
         capability: [
-          "Her sonuca bir yer verin.",
-          "Boş bir sıralamayla başlayın; etkinliğinizin gerçekten ihtiyaç duyduğu tabloyu kurun.",
+          "Sonuçları anlaşılır bir sıralama tablosunda gösterin.",
+          "Boş bir tabloyla başlayıp etkinliğinize uygun şekilde düzenleyin.",
         ],
         stories: [
           [
-            "Sizin sütunlarınız. Sizin yarışmanız.",
+            "İhtiyacınız olan sütunları ekleyin.",
             "Katılımcı ve en fazla on veri sütunu ekleyin. Adları, sıralamayı ve genişlikleri değiştirin; tablo veya görsel üzerinde düzenleyin.",
           ],
           [
@@ -522,8 +522,8 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
         ],
         themes: [
-          "Kendine ait bir kimliği olan sıralama.",
-          "Gerçek düzenleyici temaları arasında geçiş yapın. Metin, arka plan, satır renkleri, kenarlık, boşluk ve başlık görünürlüğünü ayarlayın; özel temanızı kaydedin.",
+          "Kendi tarzınızı yansıtan bir sıralama.",
+          "Hazır temalardan birini seçin. Metni, arka planı, satır renklerini, kenarlıkları, aralıkları ve başlık görünürlüğünü düzenleyip kendi temanızı kaydedin.",
         ],
         steps: [
           [
@@ -546,13 +546,13 @@ export const productDetails: Record<Lang, ProductLocale> = {
           "Grup mücadeleleri",
         ],
         advanced: [
-          "Tek bir listeden bütün katılımcılara.",
+          "Kalabalık turnuvalar için de uygun.",
           "100 satır, on veri sütunu ve yan yana üç görünüm grubu desteklenir. Özel tuval boyutları dışa aktarımın şeklini belirler. Satır vurguları, sütun genişlikleri ve düzenlenebilir sıralar, puandan fazlasını göstermenizi sağlar.",
         ],
         faq: [
           [
             "Puanları değiştirmek projeyi otomatik sıralar mı?",
-            "Hayır. Gerçek düzenleyici değerleri düzenlerken elle belirlenen sırayı korur. Yeniden sıralamak için sütun sıralama kontrollerini kullanın. Bu sayfadaki örnek, sıra değişimini göstermek için örnek sonuçları sıralar.",
+            "Hayır. Düzenleyicide değerleri değiştirmeniz, elle belirlediğiniz sırayı bozmaz. Sıralamayı değiştirmek için sütun sıralama düğmelerini kullanın. Bu sayfadaki örnek, sıralamanın nasıl değiştiğini göstermek için sonuçları otomatik sıralar.",
           ],
           [
             "Kendi sütunlarımı ekleyebilir miyim?",
@@ -576,21 +576,21 @@ export const productDetails: Record<Lang, ProductLocale> = {
         ],
         stories: [
           [
-            "Katılacak kişilerle başlayın.",
-            "2–64 katılımcı seçin, adlarını girin ve başlangıç sırasını düzenleyin. Tam dolmayan eşleşmeler için otomatik bay geçişleri uygulanır.",
+            "Katılımcı listesini hazırlayın.",
+            "2–64 katılımcı ekleyip adlarını ve başlangıç sırasını belirleyin. Katılımcı sayısı şemayı doldurmadığında bazıları maç yapmadan sonraki tura geçer.",
           ],
           [
             "Bir sonuç, sonraki maçı belirler.",
             "Maç sonuçlarında skoru ve kazananı seçin veya önizlemede katılımcıyı seçip İlerlet'i kullanın. Uygun oyuncular sonraki tura geçer.",
           ],
           [
-            "Tabloyu iki taraftan görün.",
-            "Tek veya çift taraflı düzen seçin. Tam boyutta kaydırma, büyük turnuvaları küçük ve okunaksız bir görsele dönüştürmez.",
+            "Şemanın görünümünü seçin.",
+            "Tek veya iki taraflı düzen kullanın. Büyük turnuvaları tam boyutta kaydırarak okunaklı biçimde inceleyin.",
           ],
         ],
         themes: [
-          "Turnuvaya görsel bir kimlik kazandırın.",
-          "Bunlar gerçek düzenleyici temalarıdır. Araçta katılımcı renklerini, maç kenarlıklarını, bağlantı renk ve kalınlığını, tur boşluklarını ve skor görünürlüğünü ayarlayın.",
+          "Turnuva şemasını kendi tarzınıza göre düzenleyin.",
+          "Hazır temalardan birini seçin. Katılımcı renklerini, maç kenarlıklarını, bağlantı rengini ve kalınlığını, turlar arasındaki boşluğu ve skor görünürlüğünü ayarlayın.",
         ],
         steps: [
           [
@@ -598,8 +598,8 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Katılımcı sayısını ve düzeni seçin. Numaralı yer tutucuların yerine katılımcılarınızı yazın.",
           ],
           [
-            "Maçları kaydedin",
-            "Skorları girin, kazananları seçin. İlerleyen oyuncularla sonraki turu kontrol edin.",
+            "Maç sonuçlarını girin",
+            "Skorları girip kazananı seçin. Kazananların sonraki tura geçtiğini görün.",
           ],
           [
             "Sonucu saklayın",
@@ -608,17 +608,17 @@ export const productDetails: Record<Lang, ProductLocale> = {
         ],
         uses: ["Eleme yarışmaları", "Oyun turnuvaları", "Elemeli etkinlikler", "Sınıf finalleri"],
         advanced: [
-          "Önceki sonucu, etkisini bilerek düzeltin.",
-          "Kazananı değiştirmek bağlı turları günceller ve uyumsuz sonraki sonuçları temizler. Düzenleyici, sonuçlar silinmeden önce onay ister. Bağımsız bağlantı kontrolleri, katılımcı renkleri ve tur boşlukları, ilerleme mantığını değiştirmeden görünümü düzenler.",
+          "Önceki maçın sonucunu değiştirin, sonraki turları da görün.",
+          "Kazanan değişince sonraki turlar güncellenir ve artık geçerli olmayan sonuçlar temizlenir. Sonuçlar silinmeden önce onayınız istenir. Bağlantı, renk ve tur aralığı ayarları turnuva kurallarını değiştirmez.",
         ],
         faq: [
           [
             "Hangi turnuva biçimi destekleniyor?",
-            "2–64 katılımcı için tek eleme sistemi desteklenir. Tek ve çift taraflı seçenekler görsel düzendir; yarışma biçimini değiştirmez.",
+            "2–64 katılımcılı tek eleme turnuvaları desteklenir. Tek veya iki taraflı seçenekler yalnızca şemanın görünümünü değiştirir.",
           ],
           [
             "Katılımcı sayısı tabloyu doldurmazsa ne olur?",
-            "Gerektiğinde otomatik bay geçişleri eklenir. Katılımcı, oynanmış bir maç olmadan sonraki tura geçer.",
+            "Şema gerektiğinde bir katılımcıyı maç yapmadan sonraki tura geçirir.",
           ],
           [
             "Önceki bir kazananı düzeltebilir miyim?",
@@ -629,7 +629,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Bu tarayıcıda yeniden açmak için Tablolarım'a kaydedin. Bitmiş görsel için PNG, düzenlenebilir yedek için JSON kullanın. Tarayıcı verilerini temizlemek yerel projeleri kaldırabilir.",
           ],
         ],
-        close: "Sıradaki kazanana bir yol açın.",
+        close: "Kazananı sonraki tura taşıyın.",
       },
     },
   },
