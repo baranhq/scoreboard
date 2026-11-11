@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { ToolDemo, type Tool } from "./tool-demo";
@@ -17,11 +17,21 @@ const editors = {
 } as const;
 export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?: boolean }) {
   const [active, setActive] = useState(themes ? 1 : 0);
+  const [widePreview, setWidePreview] = useState(false);
   const advance = useCallback(() => setActive((index) => (index + 1) % tools.length), []);
   const reset = useCallback(() => setActive(0), []);
   const { ref, playing, toggle, pause } = useAutoDemo(advance, reset, 8400, !themes);
   const t = studioCopy[lang];
   const tool = tools[active];
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const update = () => setWidePreview(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
   return (
     <section
       ref={ref}
@@ -64,12 +74,13 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
           <>
             <div
               key={tool}
-              className="h-[29rem] min-w-0 overflow-hidden motion-safe:animate-[surface-enter_300ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none lg:h-[clamp(23rem,46svh,32rem)]"
+              className="h-[29rem] min-w-0 overflow-hidden motion-safe:animate-[surface-enter_300ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none lg:h-[clamp(25rem,58svh,38rem)]"
             >
               <ToolDemo
                 tool={tool}
                 lang={lang}
                 compact
+                widePreview={widePreview}
                 autoplay={playing}
                 readOnly
                 showReadOnlyControls
