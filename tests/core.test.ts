@@ -211,6 +211,7 @@ test("scoreboard supports explicit vertical, horizontal, and grid arrangements",
   assert.match(teamGridClass(3, "vertical", false), /grid-cols-1/);
   assert.match(teamGridClass(3, "horizontal", false), /grid-flow-col/);
   assert.match(teamGridClass(3, "grid", false), /md:grid-cols-3/);
+  assert.match(teamGridClass(2, "auto", false, { width: 1080, height: 1920 }), /grid-cols-1/);
 });
 test("appearance presets and text scaling validate and preserve larger settings", () => {
   assert.deepEqual(
@@ -239,18 +240,33 @@ test("backups and URL snapshots preserve customisation and treat markup as plain
   const board = newBoard("<img src=x onerror=alert(1)>", "Takım");
   board.accent = "#123456";
   board.icon = "trophy";
+  Object.assign(board, {
+    themeId: "modern-broadcast",
+    canvas: { width: 1920, height: 1080 },
+    exportScale: 2,
+  });
   board.teams[0].color = "#ffffff";
   board.teams[0].score = 42;
   const restored = parseBackup(backup([board]))[0];
   assert.equal(restored.name, board.name);
   assert.equal(restored.teams[0].score, 42);
   assert.equal(restored.icon, "trophy");
+  assert.equal((restored as Record<string, unknown>).themeId, "modern-broadcast");
+  assert.deepEqual((restored as Record<string, unknown>).canvas, { width: 1920, height: 1080 });
+  assert.equal((restored as Record<string, unknown>).exportScale, 2);
   assert.notEqual(restored.id, board.id);
   const shared = decodeGame(encodeGame(board));
   assert.equal(shared.sourceId, board.id);
   assert.equal(shared.board.accent, "#123456");
   assert.throws(() => decodeGame("../malicious"));
   assert.throws(() => parseBackup(backup([{ ...board, accent: "javascript:alert(1)" }])));
+  assert.throws(() =>
+    parseBackup({
+      ...backup([board]),
+      boards: [{ ...board, canvas: { width: 300, height: 900 } }],
+    }),
+  );
+  assert.throws(() => parseBackup({ ...backup([board]), boards: [{ ...board, exportScale: 3 }] }));
   assert.throws(() =>
     parseBackup({ ...backup([board]), boards: [{ ...board, icon: "not-an-icon" }] }),
   );

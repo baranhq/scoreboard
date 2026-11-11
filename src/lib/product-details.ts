@@ -79,7 +79,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "Does a shared link update as I score?",
-            "No. A shared link contains the board at the time you created it. Later changes are not synced; create a new link to share the updated result.",
+            "No. A shared link is a snapshot of the board. Later changes are not synced; share a fresh link to show the updated result.",
           ],
           [
             "Can I use a timer and several teams?",

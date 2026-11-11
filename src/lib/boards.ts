@@ -2,6 +2,9 @@ import { parseTimer, type GameTimer } from "./timer.ts";
 import { isBoardIcon, type BoardIconId } from "./board-icons.ts";
 import { parseAppearance, type Appearance } from "./appearance.ts";
 import { validColor } from "./colors.ts";
+import { applyToolTheme } from "./board-theme.ts";
+import { toolThemes } from "./tool-themes.ts";
+import { validCanvasSize, type CanvasSize } from "./graphic-style.ts";
 export type Team = {
   id: string;
   name: string;
@@ -24,6 +27,9 @@ export type Board = {
   color?: string;
   textColor?: string;
   appearance?: Partial<Appearance>;
+  themeId?: string;
+  canvas?: CanvasSize;
+  exportScale?: 1 | 2;
 };
 export const MAX_SCORE = 999999999;
 export const MAX_BACKUP_BYTES = 5 * 1024 * 1024;
@@ -34,13 +40,13 @@ export function validScore(value: number): boolean {
   return Number.isSafeInteger(value) && Math.abs(value) <= MAX_SCORE;
 }
 export function newBoard(name: string, team: string): Board {
-  return {
+  const board: Board = {
     id: crypto.randomUUID(),
     name,
     automaticName: true,
     icon: "scoreboard",
-    accent: "#285b35",
     updatedAt: Date.now(),
+    exportScale: 1,
     teams: [1, 2].map((n) => ({
       id: crypto.randomUUID(),
       name: `${team} ${n}`,
@@ -48,6 +54,7 @@ export function newBoard(name: string, team: string): Board {
       score: 0,
     })),
   };
+  return applyToolTheme(board, toolThemes[0]);
 }
 export function backup(boards: Board[]) {
   return { format: "scoreboard", version: 2, boards };
@@ -116,6 +123,14 @@ export function parseBackup(input: unknown): Board[] {
     if (b.accent !== undefined && !validColor(b.accent)) throw new Error("accent");
     if (b.textColor !== undefined && !validColor(b.textColor)) throw new Error("textColor");
     if (b.color !== undefined && !validColor(b.color)) throw new Error("color");
+    if (
+      b.themeId !== undefined &&
+      (typeof b.themeId !== "string" || !/^[a-z0-9-]{1,80}$/.test(b.themeId))
+    )
+      throw new Error("theme");
+    if (b.canvas !== undefined && !validCanvasSize(b.canvas)) throw new Error("canvas");
+    if (b.exportScale !== undefined && b.exportScale !== 1 && b.exportScale !== 2)
+      throw new Error("export scale");
     return {
       timer: parseTimer(b.timer),
       automaticName: b.automaticName as boolean | undefined,
@@ -125,6 +140,9 @@ export function parseBackup(input: unknown): Board[] {
       appearance: parseAppearance(b.appearance),
       textColor: b.textColor as string | undefined,
       color: b.color as string | undefined,
+      themeId: b.themeId as string | undefined,
+      canvas: b.canvas as CanvasSize | undefined,
+      exportScale: b.exportScale as 1 | 2 | undefined,
       id: crypto.randomUUID(),
       name: b.name,
       updatedAt: Date.now(),
