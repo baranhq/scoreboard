@@ -16,6 +16,8 @@ Public landing pages use a digital sports campaign identity: oversized Inter Tig
 
 Discovery pages use Home, Scoreboard, Leaderboards and Brackets links to the matching product introductions, plus a contextual action that opens that tool. The homepage uses a sports-editorial composition: oversized tightly spaced type on warm paper, a compact switchable live display beside the hero, alternating product compositions, a connected three-step explanation, and a forest-green open-source close. Homepage demonstrations show the output first, with advanced match controls collapsed; product introductions retain their full existing demonstrations. Product introductions use the matching working application demo. Render real product states instead of static mock dashboards.
 
+Product introductions pair distinct heroes with capability stories, actual editor preset/layout comparisons, localized captures of real controls, workflows, product-specific FAQs and a closing application action. Scoreboard demonstrations reuse TeamPanel; graphics reuse the editor SVG renderer. Marketing examples remain separate from project storage.
+
 ## Application navigation
 
 Application pages use Home, Scoreboard, Leaderboards, Brackets and My Tables links that open the applications directly. Show the current destination and retain language and theme controls. Keep this header compact and separate from the discovery navigation.
