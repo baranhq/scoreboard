@@ -1,6 +1,6 @@
 "use client";
 
-import { MousePointer2, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { LandingContent } from "@/lib/landing-content";
 import {
@@ -49,7 +49,6 @@ function initialPreviewState(copy: LandingContent["preview"]): PreviewState {
     trackPausedTime: false,
     editingTeamName: false,
     leavingThirdTeam: false,
-    cursor: "team-one-plus",
     pressed: null,
   };
 }
@@ -72,20 +71,13 @@ function buildSequence(copy: LandingContent["preview"], compact = false): Previe
     copy.thirdTeam,
   ];
   const release: PreviewStage = { durationMs: 180, patch: { pressed: null } };
-  const moveTo = (
-    target: PreviewState["cursor"],
-    patch: Partial<PreviewState> = {},
-  ): PreviewStage => ({
-    durationMs: 0,
-    patch: { ...patch, cursor: target, pressed: null },
-  });
   const click = (
-    target: NonNullable<PreviewState["cursor"]>,
+    target: NonNullable<PreviewState["pressed"]>,
     patch: Partial<PreviewState> = {},
     delayMs = 620,
   ): PreviewStage => ({
     durationMs: delayMs,
-    patch: { ...patch, cursor: target, pressed: target },
+    patch: { ...patch, pressed: target },
   });
   const wait = (durationMs: number, patch: Partial<PreviewState> = {}): PreviewStage => ({
     durationMs,
@@ -94,117 +86,88 @@ function buildSequence(copy: LandingContent["preview"], compact = false): Previe
 
   if (compact) {
     return [
-      moveTo("team-one-plus"),
       click("team-one-plus", { scores: [1, 0, 0] }),
       release,
       click("team-one-plus", { scores: [2, 0, 0] }, 360),
       release,
-      moveTo("team-two-plus"),
       click("team-two-plus", { scores: [2, 1, 0] }),
       release,
       click("team-two-plus", { scores: [2, 2, 0] }, 360),
       release,
-      moveTo("team-one-minus"),
       click("team-one-minus", { scores: [1, 2, 0] }),
       release,
       click("team-one-minus", { scores: [0, 2, 0] }, 360),
       release,
-      moveTo("team-two-minus"),
       click("team-two-minus", { scores: [0, 1, 0] }),
       release,
       click("team-two-minus", { scores: [0, 0, 0] }, 360),
       release,
-      moveTo("team-one-plus"),
     ];
   }
 
   return [
-    moveTo("team-one-plus"),
     click("team-one-plus", { scores: [1, 0, 0] }),
     release,
     click("team-one-plus", { scores: [2, 0, 0] }, 280),
     release,
 
-    moveTo("colors-tab"),
     click("colors-tab", { tab: "colors" }),
     release,
-    moveTo("team-one-color"),
     click("team-one-color", { teamPalettes: [2, 1, 2] }),
     release,
 
-    moveTo("teams-tab"),
     click("teams-tab", { tab: "teams" }),
     release,
-    moveTo("team-one-name"),
     click("team-one-name", { editingTeamName: true }),
     release,
     wait(250, { teamNames: partiallyTypedNames }),
     wait(320, { teamNames: renamedNames, editingTeamName: false }),
 
-    moveTo("add-team"),
     click("add-team", { teamCount: 3 }),
     release,
     wait(220),
 
-    moveTo("colors-tab"),
     click("colors-tab", { tab: "colors" }),
     release,
-    moveTo("team-three-color"),
     click("team-three-color", { teamPalettes: [2, 1, 4] }),
     release,
 
-    moveTo("timer-tab"),
     click("timer-tab", { tab: "timer" }),
     release,
-    moveTo("timer-enable"),
     click("timer-enable", { timerEnabled: true, timer: "01:00" }),
     release,
-    moveTo("timer-scroll"),
-    { durationMs: 420, patch: { cursor: "timer-scroll" }, scroll: "bottom" },
-    moveTo("timer-paused-time"),
+    { durationMs: 420, patch: {}, scroll: "bottom" },
     click("timer-paused-time", { trackPausedTime: true }),
     release,
-    moveTo("timer-scroll"),
-    { durationMs: 360, patch: { cursor: "timer-scroll" }, scroll: "top" },
-    moveTo("timer-start"),
+    { durationMs: 360, patch: {}, scroll: "top" },
     click("timer-start", { timerRunning: true }),
     release,
 
-    moveTo("team-two-plus"),
     click("team-two-plus", { scores: [2, 1, 0], timer: "00:59" }, 620),
     release,
     click("team-two-plus", { scores: [2, 2, 0], timer: "00:58" }, 820),
     release,
-    moveTo("team-three-plus"),
     click("team-three-plus", { scores: [2, 2, 1], timer: "00:57" }, 620),
     release,
-    moveTo("team-one-plus"),
     click("team-one-plus", { scores: [3, 2, 1], timer: "00:56" }, 620),
     release,
     click("team-one-plus", { scores: [4, 2, 1], timer: "00:55" }, 820),
     release,
 
-    moveTo("timer-start"),
     click("timer-start", { timerRunning: false, timer: "00:54" }, 620),
     release,
-    moveTo("timer-reset"),
     click("timer-reset", { timer: "01:00" }),
     release,
 
-    moveTo("colors-tab"),
     click("colors-tab", { tab: "colors" }),
     release,
-    moveTo("team-three-default-color"),
     click("team-three-default-color", { teamPalettes: [2, 1, 2] }),
     release,
-    moveTo("team-one-default-color"),
     click("team-one-default-color", { teamPalettes: [0, 1, 2] }),
     release,
 
-    moveTo("timer-tab"),
     click("timer-tab", { tab: "timer" }),
     release,
-    moveTo("timer-enable"),
     click("timer-enable", {
       timerEnabled: false,
       timerRunning: false,
@@ -212,39 +175,31 @@ function buildSequence(copy: LandingContent["preview"], compact = false): Previe
       trackPausedTime: false,
     }),
     release,
-    moveTo("teams-tab"),
     click("teams-tab", { tab: "teams" }),
     release,
 
-    moveTo("team-one-minus"),
     click("team-one-minus", { scores: [3, 2, 1] }),
     release,
     click("team-one-minus", { scores: [2, 2, 1] }, 280),
     release,
-    moveTo("team-three-minus"),
     click("team-three-minus", { scores: [2, 2, 0] }),
     release,
-    moveTo("team-three-remove"),
     click("team-three-remove", { leavingThirdTeam: true }),
     release,
     wait(260, { teamCount: 2, leavingThirdTeam: false }),
-    moveTo("team-one-name"),
     click("team-one-name", { editingTeamName: true }),
     release,
     wait(250, { teamNames: partiallyRestoredNames }),
     wait(320, { teamNames: initialNames, editingTeamName: false }),
 
-    moveTo("team-two-minus"),
     click("team-two-minus", { scores: [2, 1, 0] }),
     release,
     click("team-two-minus", { scores: [2, 0, 0] }, 280),
     release,
-    moveTo("team-one-minus"),
     click("team-one-minus", { scores: [1, 0, 0] }),
     release,
     click("team-one-minus", { scores: [0, 0, 0] }, 280),
     release,
-    moveTo("team-one-plus"),
   ];
 }
 
@@ -264,7 +219,6 @@ export function ScoreboardPreview({
   showPlaybackControls?: boolean;
 }) {
   const previewRef = useRef<HTMLElement>(null);
-  const pointerRef = useRef<HTMLSpanElement>(null);
   const layoutSnapshotRef = useRef<Map<number, TeamBounds> | null>(null);
   const demoPositionSnapshotRef = useRef<DemoPosition | null>(null);
   const remainingMs = useRef<number | null>(null);
@@ -283,52 +237,6 @@ export function ScoreboardPreview({
   const sequence = useMemo(() => buildSequence(copy, compact), [compact, copy]);
   const playbackPaused = manuallyPaused || (prefersReducedMotion && !motionPreferenceOverridden);
   const shouldAnimate = autoplay && inView && pageVisible && !playbackPaused;
-
-  useLayoutEffect(() => {
-    const demo = previewRef.current?.querySelector<HTMLElement>("[data-scoreboard-demo]");
-    const pointer = pointerRef.current;
-    if (!demo || !pointer) return;
-
-    if (!state.cursor) {
-      pointer.style.opacity = "0";
-      return;
-    }
-
-    const target = demo.querySelector<HTMLElement>(`[data-demo-target="${state.cursor}"]`);
-    if (!target) return;
-
-    const updatePosition = () => {
-      const demoBounds = demo.getBoundingClientRect();
-      const targetBounds = target.getBoundingClientRect();
-      const offset = mobileLayout ? 10 : 3;
-      const x = targetBounds.left - demoBounds.left + targetBounds.width / 2 - offset;
-      const y = targetBounds.top - demoBounds.top + targetBounds.height / 2 - offset;
-      pointer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      pointer.style.opacity = "1";
-    };
-
-    updatePosition();
-    const scrollPanel = demo.querySelector<HTMLElement>("[data-demo-scroll-panel]");
-    let resizeFrame = 0;
-    const onResize = () => {
-      window.cancelAnimationFrame(resizeFrame);
-      resizeFrame = window.requestAnimationFrame(updatePosition);
-    };
-    window.addEventListener("resize", onResize, { passive: true });
-    scrollPanel?.addEventListener("scroll", onResize, { passive: true });
-    return () => {
-      window.cancelAnimationFrame(resizeFrame);
-      window.removeEventListener("resize", onResize);
-      scrollPanel?.removeEventListener("scroll", onResize);
-    };
-  }, [
-    mobileLayout,
-    prefersReducedMotion,
-    state.cursor,
-    state.teamCount,
-    state.tab,
-    state.timerEnabled,
-  ]);
 
   useLayoutEffect(() => {
     const previousBounds = layoutSnapshotRef.current;
@@ -391,16 +299,6 @@ export function ScoreboardPreview({
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    const pointer = pointerRef.current;
-    if (!pointer) return;
-
-    pointer.getAnimations().forEach((animation) => {
-      if (shouldAnimate) animation.play();
-      else animation.pause();
-    });
-  }, [shouldAnimate]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -605,36 +503,6 @@ export function ScoreboardPreview({
             <div aria-hidden="true" inert className="flex min-h-0 flex-1 flex-col overflow-hidden">
               <PreviewConfiguration state={state} copy={copy} labels={labels} />
             </div>
-          )}
-          {(!prefersReducedMotion || compact) && (
-            <span
-              ref={pointerRef}
-              aria-hidden="true"
-              className="pointer-events-none absolute top-0 left-0 z-30 opacity-0 transition-[transform,opacity] duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
-              style={{ transform: "translate3d(0, 0, 0)" }}
-            >
-              {mobileLayout ? (
-                <span className="relative block h-5 w-5 rounded-full border-2 border-forest bg-paper/90 shadow-md">
-                  <span className="absolute inset-1 rounded-full bg-action" />
-                  {state.pressed === state.cursor && (
-                    <span className="absolute -inset-1.5 rounded-full border border-action/70 motion-safe:animate-[cursor-tap_220ms_ease-out]" />
-                  )}
-                </span>
-              ) : (
-                <span
-                  className={`relative block transition-transform duration-150 motion-reduce:transition-none ${state.pressed === state.cursor ? "scale-90" : "scale-100"}`}
-                >
-                  {state.pressed === state.cursor && (
-                    <span className="absolute -top-1 -left-1 h-6 w-6 rounded-full border border-forest/60 motion-safe:animate-[cursor-tap_180ms_ease-out]" />
-                  )}
-                  <MousePointer2
-                    aria-hidden="true"
-                    className="h-5 w-5 fill-paper text-ink drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] motion-safe:animate-[cursor-enter_180ms_ease-out]"
-                    strokeWidth={1.7}
-                  />
-                </span>
-              )}
-            </span>
           )}
         </div>
       </div>
