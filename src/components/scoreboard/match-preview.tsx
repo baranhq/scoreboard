@@ -9,7 +9,9 @@ export function MatchPreview({ board }: { board: Board }) {
           ? team.color
           : validColor(board.color)
             ? board.color
-            : teamPalette[index % teamPalette.length].background;
+            : board.themeId && validColor(board.background)
+              ? board.background
+              : teamPalette[index % teamPalette.length].background;
         const palette = teamPalette.find(
           (item) => item.background.toLowerCase() === color.toLowerCase(),
         );

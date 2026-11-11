@@ -216,7 +216,7 @@ const en = {
   usageSummary:
     "Measures visits, page views and limited page paths, predefined button actions and estimated active time.",
   usageText:
-    "This site's own analytics records visits and page views, limited public page paths, predefined actions (creating a scoreboard, entering fullscreen, exporting or importing a backup), and estimated active time. Records are linked to a random browser token stored as a hash and kept on the hosting server for up to one year. Scoreboard names, team names, scores and field contents are not included.",
+    "This site's own analytics records visits and page views, limited public page paths, predefined actions (making a scoreboard, entering fullscreen, exporting or importing a backup), and estimated active time. Records are linked to a random browser token stored as a hash and kept on the hosting server for up to one year. Scoreboard names, team names, scores and field contents are not included.",
   cloud: "Cloudflare Web Analytics",
   cloudSummary: "Loads Cloudflare Web Analytics.",
   cloudText: "Check Cloudflare's privacy policy for details about how it handles data.",
@@ -387,7 +387,7 @@ const bg: Messages = {
   scoreboardPageTitle: "Табло за резултати",
   saved: "Моите таблици",
   savedShort: "Запазени",
-  create: "Нова игра",
+  create: "Ново табло",
   newScoreboard: "Ново табло",
   language: "Език",
   star: "Звезда в GitHub",
@@ -626,7 +626,7 @@ const tr: Messages = {
   scoreboardPageTitle: "Skor tabelası",
   saved: "Tablolarım",
   savedShort: "Kaydedilenler",
-  create: "Skor panosu oluştur",
+  create: "Yeni skor tablosu",
   newScoreboard: "Yeni skor tabelası",
   language: "Dil",
   star: "GitHub’da yıldızla",

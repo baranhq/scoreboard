@@ -21,6 +21,7 @@ export function newBracket(id = crypto.randomUUID()): Bracket {
     title: "Tournament bracket",
     subtitle: "Round 1",
     updatedAt: 0,
+    exportScale: 1,
     style: { ...graphicPresets.night },
     layout: "split",
     participants: Array.from({ length: 8 }, (_, index) => ({

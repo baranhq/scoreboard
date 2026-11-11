@@ -13,7 +13,7 @@ The Website does not require a visitor account. Most scoreboard information stay
 
 **Why this happens.** Network delivery, troubleshooting, protection against attacks, and prevention of abuse are pursued on the basis of legitimate interests under Article 6(1)(f) GDPR, where applicable. The Website's use of access-log statistics through AWStats is also based on its legitimate interest in understanding overall traffic, subject to the necessary balancing of that interest against visitors' rights. Service providers may separately process data to comply with their legal obligations. You can object to processing based on legitimate interests as described below.
 
-These systems may receive or process IP addresses even though the Website does not require you to identify yourself or create an account.
+These systems may receive or process IP addresses even though the Website does not require you to identify yourself or open an account.
 
 ## 2. Optional analytics — only with your choice
 
@@ -21,7 +21,7 @@ These systems may receive or process IP addresses even though the Website does n
 
 **A. Baran's Scoreboard site usage analytics**
 
-When you consent to **Site usage analytics**, the Website records a randomly generated browser preference token (held as a hash on the server), visits and page-view times, limited public page paths, and estimated active time. It also records these predefined actions: creating a scoreboard, entering fullscreen, exporting a backup, and importing a backup. A visit ends after 30 minutes of inactivity. Active time is estimated only while the page is visible, focused, and recently used.
+When you consent to **Site usage analytics**, the Website records a randomly generated browser preference token (held as a hash on the server), visits and page-view times, limited public page paths, and estimated active time. It also records these predefined actions: making a scoreboard, entering fullscreen, exporting a backup, and importing a backup. A visit ends after 30 minutes of inactivity. Active time is estimated only while the page is visible, focused, and recently used.
 
 This information is stored in the Website's MySQL database and is accessible through the protected administration interface. Authenticated administrator visits are excluded from this analytics system. The system does not intentionally store IP addresses, IP-derived visitor IDs, browser fingerprints, precise location, URL query strings, field contents, scoreboard names, team names, scores, mouse recordings, or screen recordings. This statement concerns **the Website's own usage analytics only**; it does not describe hosting logs or Cloudflare's separate processing.
 
@@ -41,7 +41,7 @@ Leaderboards and tournament brackets are saved only when you choose Save, in a s
 
 You may export a JSON backup to a file on your device or import a backup locally. You are responsible for deciding where to keep or share those files.
 
-If you generate a share link, the scoreboard snapshot is encoded in the **URL fragment** (the part after #), rather than stored in a server-side sharing database. The fragment is not sent as part of an ordinary HTTP request to the Website. The application also consumes incoming share fragments locally and removes them before the consent-controlled analytics beacon can load. **Anyone who receives the full share link can view and copy the scoreboard snapshot.** Changes made after the link is created are not synchronized; recipients open their own independent copy. Share links may also remain in your browser history or in messages where you paste them. Avoid putting confidential or sensitive personal information into scoreboards or links.
+If you make a share link, the scoreboard snapshot is encoded in the **URL fragment** (the part after #), rather than stored in a server-side sharing database. The fragment is not sent as part of an ordinary HTTP request to the Website. The application also consumes incoming share fragments locally and removes them before the consent-controlled analytics beacon can load. **Anyone who receives the full share link can view and copy the scoreboard snapshot.** Later changes are not synchronized; recipients open their own independent copy. Share links may also remain in your browser history or in messages where you paste them. Avoid putting confidential or sensitive personal information into scoreboards or links.
 
 Local data may disappear when you clear site data, use private browsing, switch devices or browsers, move to a different domain, or experience browser storage limits. A normal application update on the same origin does not intentionally delete scoreboards. Keep exported backups of information you want to preserve.
 
@@ -99,7 +99,7 @@ The Website does **not** sell visitor personal data, use advertising tracking, o
 
 **Hosting access logs and AWStats reports:** these provider-managed records are handled under the shared hosting provider’s service and retention practices. The operator uses AWStats traffic reports; rejecting optional analytics does not stop this hosting-level processing.
 
-**Server and database backups:** The operator may create manual backups as needed for maintenance, security, and disaster recovery. Operator-managed backups are retained according to operational needs and applicable legal obligations, reviewed periodically, and deleted when no longer necessary where deletion is under the operator’s control. The hosting provider may also create automatic backups under its own service and retention practices. Deleting data from active systems may not immediately remove copies in existing backups. Before reopening a restored service, deployment procedures require purging restored optional analytics and consent records.
+**Server and database backups:** The operator may make manual backups as needed for maintenance, security, and disaster recovery. Operator-managed backups are retained according to operational needs and applicable legal obligations, reviewed periodically, and deleted when no longer necessary where deletion is under the operator’s control. The hosting provider may also make automatic backups under its own service and retention practices. Deleting data from active systems may not immediately remove copies in existing backups. Before reopening a restored service, deployment procedures require purging restored optional analytics and consent records.
 
 **Email enquiries:** retained only as long as reasonably necessary for the enquiry and any related legal obligations or disputes, with periodic review.
 
@@ -120,9 +120,9 @@ You may complain to a data-protection supervisory authority without contacting t
 
 ## 11. Children and classrooms
 
-The Website may be used in educational settings. It does not require students to create accounts or submit personal information to use scoreboards. Do not place sensitive or confidential information in team names, scoreboard content, exports, or share links.
+The Website may be used in educational settings. It does not require students to open accounts or submit personal information to use scoreboards. Do not place sensitive or confidential information in team names, scoreboard content, exports, or share links.
 
-Under **Article 25c of Bulgaria's Personal Data Protection Act**, when processing a child's data is based on consent and the child is **under 14**, consent must be given by a parent exercising parental rights or the child's guardian. The Website does not ask visitors' ages, create student profiles, or verify a parent's or guardian's authority. A child under 14 should not enable optional analytics without that authorization. The operator must ensure that any use by children under 14 has the required authorization; the Website has no age or guardian-verification flow, and this notice alone does not obtain valid consent. Schools and other independent operators are responsible for their own use of the tool and any information they choose to enter or disclose. See the [Bulgarian Personal Data Protection Act](https://cpdp.bg/en/legislation/personal-data-protection-act/).
+Under **Article 25c of Bulgaria's Personal Data Protection Act**, when processing a child's data is based on consent and the child is **under 14**, consent must be given by a parent exercising parental rights or the child's guardian. The Website does not ask visitors' ages, keep student profiles, or verify a parent's or guardian's authority. A child under 14 should not enable optional analytics without that authorization. The operator must ensure that any use by children under 14 has the required authorization; the Website has no age or guardian-verification flow, and this notice alone does not obtain valid consent. Schools and other independent operators are responsible for their own use of the tool and any information they choose to enter or disclose. See the [Bulgarian Personal Data Protection Act](https://cpdp.bg/en/legislation/personal-data-protection-act/).
 
 ## 12. Required information and automated decisions
 

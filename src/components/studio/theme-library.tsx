@@ -30,7 +30,7 @@ const presetKeys = [
 ] as const;
 
 function isPresetSelected(value: ToolTheme, preset: ToolTheme) {
-  return presetKeys.every((key) => value[key] === preset[key]);
+  return value.id === preset.id || presetKeys.every((key) => value[key] === preset[key]);
 }
 
 export function ThemeLibrary({

@@ -158,6 +158,7 @@ export function TeamPanel({
         {team.name}
       </h3>
       <ScoreTag
+        data-export-static
         onClick={full ? undefined : manual}
         aria-label={`${team.name}: ${t.score} ${team.score}`}
         title={full ? undefined : t.score}
@@ -171,6 +172,7 @@ export function TeamPanel({
       {(!full || appearance.fullscreenControls) && (
         <div
           data-fullscreen-control
+          data-export-hide
           className={`flex items-center gap-3 transition-opacity duration-150 motion-reduce:transition-none ${full && !controlsVisible ? "pointer-events-none opacity-0" : "opacity-100"}`}
         >
           <button

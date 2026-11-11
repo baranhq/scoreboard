@@ -2,7 +2,7 @@ import type { Lang } from "./i18n";
 export const campaignCopy = {
   en: {
     intro:
-      "Create scoreboards, leaderboards and tournament brackets. Customise the display, keep the action moving and present the result.",
+      "Make scoreboards, leaderboards and tournament brackets. Shape the display, keep the action moving and share the result.",
     headline: "Make every\nmoment count.",
     design: "One competition.\nYour signature.",
     workflow: "Ready before the first point.",

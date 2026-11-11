@@ -9,7 +9,6 @@ import { toolThemes } from "@/lib/tool-themes";
 import { Graphic } from "./graphic";
 import { bracketRounds, setMatchResult } from "@/lib/brackets";
 import type { StudioDocument } from "@/lib/studio";
-import { canvasRatios } from "@/lib/graphic-style";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
 import { route } from "@/lib/routes";
@@ -79,7 +78,7 @@ export function EditorShell({
     setExporting(true);
     setExportError("");
     try {
-      await exportPng(svg.current, doc.title);
+      await exportPng(svg.current, doc.title, doc.exportScale ?? 1);
     } catch {
       setExportError(t.exportError);
     } finally {
@@ -490,117 +489,6 @@ export function VisibilitySettings({
           />
           {t.score}
         </label>
-      )}
-    </fieldset>
-  );
-}
-
-export function CanvasControls({
-  document: doc,
-  change,
-  lang,
-}: {
-  document: StudioDocument;
-  change: (doc: StudioDocument) => void;
-  lang: Lang;
-}) {
-  const t = studioCopy[lang];
-  const [customOpen, setCustomOpen] = useState(false);
-  const width = doc.canvas?.width || canvasRatios.landscape.width;
-  const height = doc.canvas?.height || canvasRatios.landscape.height;
-  const dimensionSignature = `${width}:${height}`;
-  const [dimensionDraft, setDimensionDraft] = useState({
-    width: String(width),
-    height: String(height),
-    signature: dimensionSignature,
-  });
-  const currentDraft =
-    dimensionDraft.signature === dimensionSignature
-      ? dimensionDraft
-      : { width: String(width), height: String(height), signature: dimensionSignature };
-  const choices = [
-    { label: t.landscapeRatio, size: canvasRatios.landscape },
-    { label: t.portraitRatio, size: canvasRatios.portrait },
-    { label: t.squareRatio, size: canvasRatios.square },
-    { label: t.storyRatio, size: canvasRatios.story },
-  ];
-  const updateDimension = (key: "width" | "height", value: string) => {
-    setDimensionDraft({ ...currentDraft, [key]: value });
-    if (!/^\d+$/.test(value)) return;
-    const next = Number(value);
-    if (next < 320 || next > 4096) return;
-    change({
-      ...doc,
-      canvas: {
-        width: key === "width" ? next : width,
-        height: key === "height" ? next : height,
-      },
-    });
-  };
-
-  return (
-    <fieldset className="space-y-3 border-t border-forest/15 pt-4">
-      <legend className="px-1 text-base font-semibold">{t.canvasSize}</legend>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          aria-pressed={!doc.canvas}
-          accent={!doc.canvas}
-          className="!min-h-10 !px-3 !text-sm"
-          onClick={() => {
-            change({ ...doc, canvas: undefined });
-            setCustomOpen(false);
-          }}
-        >
-          {t.fitContent}
-        </Button>
-        {choices.map(({ label, size }) => {
-          const selected =
-            !!doc.canvas && doc.canvas.width * size.height === doc.canvas.height * size.width;
-          return (
-            <Button
-              key={label}
-              aria-pressed={selected}
-              accent={selected}
-              className="!min-h-10 !px-3 !text-sm"
-              onClick={() => change({ ...doc, canvas: size })}
-            >
-              {label}
-            </Button>
-          );
-        })}
-        <Button aria-expanded={customOpen} onClick={() => setCustomOpen(!customOpen)}>
-          {t.customSize}
-        </Button>
-      </div>
-      {customOpen && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {(
-            [
-              ["width", t.width, currentDraft.width],
-              ["height", t.height, currentDraft.height],
-            ] as const
-          ).map(([key, label, value]) => (
-            <label key={key} className="grid gap-1 text-sm font-semibold">
-              {label} · {t.pixelRange}
-              <input
-                type="number"
-                min="320"
-                max="4096"
-                value={value}
-                className={inputClass}
-                onChange={(event) => updateDimension(key, event.target.value)}
-                onBlur={() => {
-                  if (!/^\d+$/.test(value) || Number(value) < 320 || Number(value) > 4096)
-                    setDimensionDraft({
-                      width: String(width),
-                      height: String(height),
-                      signature: dimensionSignature,
-                    });
-                }}
-              />
-            </label>
-          ))}
-        </div>
       )}
     </fieldset>
   );
