@@ -69,7 +69,7 @@ export const campaignCopy = {
   tr: {
     intro:
       "Skor tabloları, sıralamalar ve turnuva eşleşmeleri oluşturun. Görünümü özelleştirin, oyunu yönetin ve sonucu sunun.",
-    headline: "Oyunun heyecanını\nbirlikte yaşayın.",
+    headline: "Her oyunu\nunutulmaz kılın.",
     design: "Tek yarışma.\nSizin imzanız.",
     workflow: "İlk sayıdan önce hazır.",
     steps: [

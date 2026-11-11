@@ -1,7 +1,7 @@
 "use client";
 import { useLayoutEffect, useState } from "react";
 import type { Messages } from "@/lib/i18n";
-function useTheme() {
+export function useSiteThemeMode() {
   const [theme, setTheme] = useState("system");
   const [dark, setDark] = useState(false);
   useLayoutEffect(() => {
@@ -33,7 +33,7 @@ function useTheme() {
   return { theme, dark, change };
 }
 export function ThemeSelect({ t }: { t: Messages }) {
-  const { theme, change } = useTheme();
+  const { theme, change } = useSiteThemeMode();
   return (
     <label className="flex min-h-11 items-center justify-between gap-4 text-base">
       {t.theme}
@@ -51,7 +51,7 @@ export function ThemeSelect({ t }: { t: Messages }) {
   );
 }
 export function ThemeToggle({ t }: { t: Messages }) {
-  const { dark, change } = useTheme();
+  const { dark, change } = useSiteThemeMode();
   return (
     <button
       onClick={() => change(dark ? "light" : "dark")}

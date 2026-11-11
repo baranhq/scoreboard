@@ -27,7 +27,7 @@ function FooterGroup({
   const links = <ul className="grid w-full justify-items-start gap-0.5">{children}</ul>;
 
   return (
-    <section className="flex w-full min-w-0 flex-col items-start gap-[5px] text-left min-[761px]:w-fit min-[761px]:gap-2">
+    <section className="flex w-full max-w-60 min-w-0 flex-col items-start gap-[5px] text-left min-[761px]:gap-2">
       <h2 className="m-0 text-[15px] leading-[1.4] font-semibold opacity-60">{title}</h2>
       {label ? <nav aria-label={label}>{links}</nav> : links}
     </section>
@@ -83,8 +83,8 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
         </ViewTransition>
       </div>
       <footer data-frame-chrome className="border-t border-white/10 bg-[#213f29] text-white">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-2 items-start gap-x-6 gap-y-8 px-5 py-8 min-[761px]:grid-cols-[1.2fr_1fr_1fr] min-[761px]:gap-8 sm:px-6 sm:py-10">
-          <section className="col-span-2 flex w-full min-w-0 flex-col gap-4 text-left min-[761px]:col-span-1">
+        <div className="mx-auto grid w-full max-w-5xl grid-cols-1 justify-items-center gap-x-8 gap-y-7 px-5 py-8 sm:grid-cols-2 sm:py-10 md:grid-cols-3">
+          <section className="flex w-full max-w-60 min-w-0 flex-col gap-4 text-left sm:col-span-2 md:col-span-1">
             <Link
               href={homeRoute(lang)}
               aria-label={`${brand}: ${t.home}`}
@@ -165,7 +165,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
           </FooterGroup>
         </div>
         <div className="bg-[#182f20] px-4 py-2">
-          <p className="mx-auto max-w-7xl text-center text-sm leading-[1.4] font-semibold break-words">
+          <p className="mx-auto max-w-5xl text-center text-sm leading-[1.4] font-semibold break-words">
             {brand} · Copyright © 2026{" "}
             <a
               href="https://baranhq.com"
