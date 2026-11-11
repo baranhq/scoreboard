@@ -1,4 +1,12 @@
 export type GraphicStyle = {
+  titleVisible?: boolean;
+  subtitleVisible?: boolean;
+  showScores?: boolean;
+  connectorColor?: string;
+  connectorWidth?: number;
+  roundGap?: number;
+  matchGap?: number;
+
   gradient?: boolean;
   backgroundEnd?: string;
   preset: "classic" | "editorial" | "night";

@@ -377,3 +377,30 @@ test("manual preview edits preserve row ordering", () => {
       board.rows.map((row) => row.id),
     );
 });
+
+test("advanced bracket appearance validates and preserves optional fields", () => {
+  const board = newBracket();
+  const customized = {
+    ...board,
+    style: {
+      ...board.style,
+      titleVisible: false,
+      showScores: false,
+      roundGap: 320,
+      matchGap: 70,
+      connectorWidth: 4,
+      connectorColor: "#285b35",
+    },
+    participants: board.participants.map((player) => ({ ...player, color: "#367747" })),
+  };
+  assert.deepEqual(parseDocument(customized), customized);
+  assert.throws(() =>
+    parseDocument({ ...customized, style: { ...customized.style, roundGap: 10 } }),
+  );
+  assert.throws(() =>
+    parseDocument({
+      ...customized,
+      participants: board.participants.map((player) => ({ ...player, color: "invalid" })),
+    }),
+  );
+});
