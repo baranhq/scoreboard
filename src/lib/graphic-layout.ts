@@ -81,12 +81,17 @@ export function bracketLayout(board: Bracket) {
   );
   const rowHeight = Math.max(board.style.density === "spacious" ? 60 : 44, textLines * 21 + 16);
   const cardHeight = rowHeight * 2;
-  const pitch = cardHeight + 40;
-  const width = (split ? rounds.length * 2 - 1 : rounds.length) * 260 + 40;
+  const pitch = cardHeight + (board.style.matchGap ?? 40);
+  const roundPitch = board.style.roundGap ?? 260;
+  const width = (split ? rounds.length * 2 - 1 : rounds.length) * roundPitch + 40;
   const header =
     100 +
-    wrapText(board.title, (width - 80) / 36).length * 47 +
-    wrapText(board.subtitle, (width - 80) / 20).length * 26;
+    (board.style.titleVisible === false
+      ? 0
+      : wrapText(board.title, (width - 80) / 36).length * 47) +
+    (board.style.subtitleVisible === false
+      ? 0
+      : wrapText(board.subtitle, (width - 80) / 20).length * 26);
   const fieldHeight = (rounds[0].length / (split ? 2 : 1)) * pitch;
   const footerHeight = Math.max(
     50,
@@ -102,7 +107,7 @@ export function bracketLayout(board: Bracket) {
         ...match,
         round,
         index,
-        x: 40 + (right ? rounds.length * 2 - 2 - round : round) * 260,
+        x: 40 + (right ? rounds.length * 2 - 2 - round : round) * roundPitch,
         y:
           header +
           (split && final ? fieldHeight / 2 : (localIndex + 0.5) * 2 ** round * pitch) -
