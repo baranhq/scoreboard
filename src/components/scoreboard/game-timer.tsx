@@ -165,6 +165,7 @@ export function TimerDisplay({
   const actions = (
     <div
       data-fullscreen-control
+      data-export-hide
       className={`flex flex-nowrap justify-center gap-2 transition-opacity duration-150 motion-reduce:transition-none ${full ? "mt-2 sm:absolute sm:top-1/2 sm:left-full sm:mt-0 sm:ml-3 sm:-translate-y-1/2" : "col-start-1 sm:col-start-3 sm:justify-end"} ${full && !controlsVisible ? "pointer-events-none opacity-0" : "opacity-100"}`}
     >
       <Button

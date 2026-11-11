@@ -19,8 +19,9 @@ import { Button, Modal } from "../ui/ui";
 import { TeamPanel } from "./team-panel";
 import { track } from "@/lib/analytics";
 import { repo } from "@/lib/site";
-import { getToolTheme } from "@/lib/tool-themes";
+import { getToolTheme, toolThemes } from "@/lib/tool-themes";
 import { applyToolTheme } from "@/lib/board-theme";
+import { exportElementPng } from "@/lib/export-png";
 type Action = { title: string; value?: string; numeric?: boolean; run: (value: string) => void };
 type TeamBounds = { left: number; top: number; width: number; height: number };
 const ShareDialog = dynamic(() => import("./share-dialog").then((module) => module.ShareDialog));
@@ -47,20 +48,23 @@ function readTeamBounds(grid: HTMLElement): Map<string, TeamBounds> {
 }
 
 function initialBoard(t: Messages): Board {
-  return {
-    id: initialBoardId,
-    name: t.board,
-    automaticName: true,
-    icon: "scoreboard",
-    accent: "#285b35",
-    updatedAt: 0,
-    teams: [1, 2].map((n) => ({
-      id: `${initialBoardId}-${n}`,
-      name: `${t.team} ${n}`,
+  return applyToolTheme(
+    {
+      id: initialBoardId,
+      name: t.board,
       automaticName: true,
-      score: 0,
-    })),
-  };
+      icon: "scoreboard",
+      accent: "#285b35",
+      updatedAt: 0,
+      teams: [1, 2].map((n) => ({
+        id: `${initialBoardId}-${n}`,
+        name: `${t.team} ${n}`,
+        automaticName: true,
+        score: 0,
+      })),
+    },
+    toolThemes[0],
+  );
 }
 
 function boardWithTheme(
@@ -88,9 +92,19 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const [value, setValue] = useState("");
   const display = useRef<HTMLDivElement>(null);
   const teamGridRef = useRef<HTMLDivElement>(null);
+  const boardOutputRef = useRef<HTMLDivElement>(null);
   const teamLayoutSnapshotRef = useRef<Map<string, TeamBounds> | null>(null);
   const storedBoard = boards.find((b) => b.id === id);
   const board = storedBoard ? displayBoard(storedBoard, t) : undefined;
+  const exportBoard = useCallback(async () => {
+    if (!boardOutputRef.current || !board) throw new Error("Preview is unavailable");
+    await exportElementPng(
+      boardOutputRef.current,
+      board.name,
+      board.canvas,
+      board.exportScale ?? 1,
+    );
+  }, [board]);
   const teamOrderKey = board?.teams.map((team) => team.id).join("\u0000") ?? "";
   const appearance = resolveAppearance(board?.appearance);
   const controls = useFullscreenControls(full, appearance.autoHideControls);
@@ -615,50 +629,66 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                 </>
               )}
 
-              {board.timer?.enabled && (
-                <TimerDisplay
-                  timer={board.timer}
-                  t={t}
-                  change={changeTimer}
-                  full={full}
-                  controlsVisible={controls.visible}
-                  textScale={appearance.textScaleEnabled ? appearance.timerScale : 100}
-                />
-              )}
               <div
-                ref={teamGridRef}
-                style={{ "--board-background": board.background || "transparent" } as CSSProperties}
-                className={`min-h-0 flex-1 gap-3 bg-[var(--board-background)] ${board.background ? "rounded-xl p-2" : ""} ${teamGridClass(board.teams.length, appearance.layout, full)}`}
+                ref={boardOutputRef}
+                style={
+                  {
+                    "--board-background": board.background || "transparent",
+                    ...(board.canvas
+                      ? {
+                          aspectRatio: `${board.canvas.width} / ${board.canvas.height}`,
+                          width: `min(100%, ${Math.round(720 * (board.canvas.width / board.canvas.height))}px)`,
+                        }
+                      : {}),
+                  } as CSSProperties
+                }
+                className={`mx-auto flex min-h-0 min-w-0 flex-col bg-[var(--board-background)] ${board.canvas ? "max-w-full" : "w-full flex-1"} ${board.background ? "rounded-xl p-2" : ""}`}
               >
-                {board.teams.map((team, index) => (
-                  <TeamPanel
-                    key={team.id}
-                    team={team}
-                    color={board.color}
-                    textColor={board.textColor}
-                    paused={isGamePaused(board.timer)}
-                    appearance={appearance}
-                    controlsVisible={controls.visible}
-                    index={index}
-                    count={board.teams.length}
-                    full={full}
+                {board.timer?.enabled && (
+                  <TimerDisplay
+                    timer={board.timer}
                     t={t}
-                    change={(amount) => score(team.id, amount * appearance.increment)}
-                    manual={() => {
-                      if (isGamePaused(board.timer)) {
-                        if (appearance.showPausedNotice) setNotice(t.matchPaused);
-                        return;
-                      }
-                      setValue(String(team.score));
-                      setAction({
-                        title: `${team.name}: ${t.score}`,
-                        value: String(team.score),
-                        numeric: true,
-                        run: (value) => teamEdit(team.id, { score: Number(value) }),
-                      });
-                    }}
+                    change={changeTimer}
+                    full={full}
+                    controlsVisible={controls.visible}
+                    textScale={appearance.textScaleEnabled ? appearance.timerScale : 100}
                   />
-                ))}
+                )}
+                <div
+                  ref={teamGridRef}
+                  style={{ "--board-background": "transparent" } as CSSProperties}
+                  className={`min-h-0 flex-1 gap-3 ${teamGridClass(board.teams.length, appearance.layout, full, board.canvas)}`}
+                >
+                  {board.teams.map((team, index) => (
+                    <TeamPanel
+                      key={team.id}
+                      team={team}
+                      color={board.themeId ? board.background : board.color}
+                      textColor={board.textColor}
+                      paused={isGamePaused(board.timer)}
+                      appearance={appearance}
+                      controlsVisible={controls.visible}
+                      index={index}
+                      count={board.teams.length}
+                      full={full}
+                      t={t}
+                      change={(amount) => score(team.id, amount * appearance.increment)}
+                      manual={() => {
+                        if (isGamePaused(board.timer)) {
+                          if (appearance.showPausedNotice) setNotice(t.matchPaused);
+                          return;
+                        }
+                        setValue(String(team.score));
+                        setAction({
+                          title: `${team.name}: ${t.score}`,
+                          value: String(team.score),
+                          numeric: true,
+                          run: (value) => teamEdit(team.id, { score: Number(value) }),
+                        });
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </section>
           ) : ready ? (
@@ -713,6 +743,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                     board={board}
                     t={t}
                     change={update}
+                    exportImage={exportBoard}
                     remove={(teamId) =>
                       ask(t.deleteConfirm, () => {
                         const removeTeam = () =>

@@ -4,6 +4,7 @@ import type { ToolTheme } from "./tool-themes.ts";
 export function applyToolTheme(board: Board, theme: ToolTheme): Board {
   return {
     ...board,
+    themeId: theme.id,
     accent: theme.accent,
     background: theme.background,
     color: undefined,

@@ -19,12 +19,12 @@ export const seoContent: Record<
     description:
       "Free online scoreboard, leaderboard and tournament bracket tools. Keep score, design rankings and export tournament graphics. No account needed.",
     pageDescriptions: {
-      help: "Learn to create a team scoreboard, change scores, use a countdown or stopwatch, present it on a projector, and save, back up or share a snapshot.",
+      help: "Learn to set up a team scoreboard, change scores, use a countdown or stopwatch, present it on a projector, and save, back up or share a snapshot.",
       licenses:
         "Read the MIT terms for Baran’s Scoreboard and the licence notices required by its third-party fonts, icons and software.",
       saved: "Open the scoreboards you saved in this browser on this device.",
       scoreboard:
-        "Create teams, update scores, use a timer or stopwatch, and show a free scoreboard full screen. No account is required.",
+        "Add teams, update scores, use a timer or stopwatch, and show a free scoreboard full screen. No account is required.",
     },
     locale: "en-GB",
     openGraphLocale: "en_GB",
