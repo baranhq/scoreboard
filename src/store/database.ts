@@ -1,4 +1,4 @@
-import type { Board } from "../lib/boards";
+import { parseStoredBoard, type Board } from "../lib/boards.ts";
 export const DATABASE = "scoreboard";
 export const VERSION = 1;
 let connection: Promise<IDBDatabase> | undefined;
@@ -48,18 +48,25 @@ export async function loadBoards(): Promise<Board[]> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction("boards", "readonly");
     const request = tx.objectStore("boards").getAll();
-    tx.oncomplete = () => resolve(request.result as Board[]);
+    tx.oncomplete = () => {
+      try {
+        resolve((request.result as unknown[]).map(parseStoredBoard));
+      } catch (error) {
+        reject(error);
+      }
+    };
     tx.onerror = () => reject(tx.error);
     tx.onabort = () => reject(tx.error);
   });
 }
 // Individual writes prevent unrelated boards in another tab from being overwritten.
 export async function writeBoards(boards: Board[], removeId?: string): Promise<void> {
+  const validBoards = boards.map(parseStoredBoard);
   const db = await open();
   return new Promise((resolve, reject) => {
     const tx = db.transaction("boards", "readwrite");
     const store = tx.objectStore("boards");
-    for (const board of boards) store.put(board);
+    for (const board of validBoards) store.put(board);
     if (removeId) store.delete(removeId);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
@@ -74,11 +81,16 @@ export async function loadOrCreateBoard(factory: () => Board): Promise<Board[]> 
     const request = store.getAll();
     let boards: Board[] = [];
     request.onsuccess = () => {
-      boards = request.result as Board[];
-      if (!boards.length) {
-        const first = factory();
-        store.put(first);
-        boards = [first];
+      try {
+        boards = (request.result as unknown[]).map(parseStoredBoard);
+        if (!boards.length) {
+          const first = parseStoredBoard(factory());
+          store.put(first);
+          boards = [first];
+        }
+      } catch (error) {
+        tx.abort();
+        reject(error);
       }
     };
     tx.oncomplete = () => resolve(boards);

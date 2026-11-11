@@ -1,3 +1,5 @@
+import { onlyKeys } from "./validation.ts";
+
 export type GraphicStyle = {
   titleVisible?: boolean;
   subtitleVisible?: boolean;
@@ -36,6 +38,7 @@ export function validCanvasSize(value: unknown): value is CanvasSize {
   if (!value || typeof value !== "object") return false;
   const size = value as Record<string, unknown>;
   return (
+    onlyKeys(size, ["width", "height"]) &&
     Number.isInteger(size.width) &&
     Number.isInteger(size.height) &&
     Number(size.width) >= 320 &&

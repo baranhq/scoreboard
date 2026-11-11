@@ -190,6 +190,9 @@ const en = {
     "Backup imported. Existing scoreboards were preserved; imported copies have new identifiers.",
   importError:
     "This backup could not be imported. Use a valid Scoreboard JSON backup (up to 5 MB).",
+  importSummary: "This backup contains {boards} scoreboards and {teams} teams.",
+  importNote: "Importing adds new copies. It does not replace existing scoreboards.",
+  importConfirm: "Continue importing this backup?",
   sourceTitle: "Open by design.",
   sourceText:
     "Baran's Scoreboard is free software under the MIT License. Explore the code, adapt it, or help make it better.",
@@ -427,6 +430,9 @@ const bg: Messages = {
     "Копието е внесено. Съществуващите табла са запазени, а внесените имат нови идентификатори.",
   importError:
     "Копието не може да бъде внесено. Използвайте валиден JSON архив на Scoreboard (до 5 MB).",
+  importSummary: "Това копие съдържа {boards} табла и {teams} отбора.",
+  importNote: "Ще се добавят нови копия. Запазените табла няма да бъдат заменени.",
+  importConfirm: "Да внеса ли това копие?",
   sourceTitle: "Отворен по замисъл.",
   sourceText:
     "Baran's Scoreboard е безплатен софтуер под лиценза MIT. Разгледайте кода, адаптирайте го или помогнете за развитието му.",
@@ -665,6 +671,9 @@ const tr: Messages = {
     "Yedek içe aktarıldı. Mevcut oyunlar korundu; içe aktarılan kopyalara yeni kimlikler verildi.",
   importError:
     "Bu yedek içe aktarılamadı. Geçerli bir Scoreboard JSON yedeği kullanın (en fazla 5 MB).",
+  importSummary: "Bu yedekte {boards} skor tabelası ve {teams} takım var.",
+  importNote: "Yeni kopyalar eklenir. Kayıtlı skor tabloları değiştirilmez.",
+  importConfirm: "Bu yedek içe aktarılsın mı?",
   sourceTitle: "Doğası gereği açık.",
   sourceText:
     "Baran's Scoreboard, MIT Lisansı ile sunulan ücretsiz bir yazılımdır. Kodu inceleyin, uyarlayın veya gelişmesine katkıda bulunun.",
