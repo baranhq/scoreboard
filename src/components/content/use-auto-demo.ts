@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export function useAutoDemo(advance: () => void, resetDemo: () => void, delay = 2600) {
+export function useAutoDemo(
+  advance: () => void,
+  resetDemo: () => void,
+  delay = 2600,
+  autoplay = true,
+) {
   const ref = useRef<HTMLElement | null>(null);
   const advanceRef = useRef(advance);
   const resetRef = useRef(resetDemo);
@@ -11,7 +16,7 @@ export function useAutoDemo(advance: () => void, resetDemo: () => void, delay = 
   const [pageVisible, setPageVisible] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(true);
   const [manualOverride, setManualOverride] = useState(false);
-  const [playing, setPlaying] = useState(true);
+  const [playing, setPlaying] = useState(autoplay);
   const [revision, setRevision] = useState(0);
   const canPlay = playing && (!reducedMotion || manualOverride);
 
