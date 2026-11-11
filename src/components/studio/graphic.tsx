@@ -2,7 +2,13 @@ import { useId, type Ref } from "react";
 import type { Bracket } from "@/lib/brackets";
 import type { Leaderboard, StudioDocument } from "@/lib/studio";
 import { foreground } from "@/lib/colors";
-import { bracketLayout, distributeRows, fitContentToCanvas, wrapText } from "@/lib/graphic-layout";
+import {
+  bracketLayout,
+  distributeRows,
+  fitContentToCanvas,
+  graphicHeaderHeight,
+  wrapText,
+} from "@/lib/graphic-layout";
 import type { StudioCopy } from "@/lib/studio-copy";
 import type { PreviewField } from "@/lib/studio-edit";
 
@@ -84,11 +90,13 @@ function Heading({
   onEdit?: (field: PreviewField) => void;
 }) {
   const titleLines =
-    doc.style.titleVisible === false ? 0 : wrapText(doc.title, (width - 80) / 36).length;
+    doc.style.titleVisible === false || !doc.title.trim()
+      ? 0
+      : wrapText(doc.title, (width - 80) / 36).length;
   return (
     <>
       <rect width={width} height={8} fill={doc.style.accent} />
-      {doc.style.titleVisible !== false && (
+      {doc.style.titleVisible !== false && !!doc.title.trim() && (
         <Lines
           text={doc.title}
           x={40}
@@ -102,7 +110,7 @@ function Heading({
           onEdit={onEdit}
         />
       )}
-      {doc.style.subtitleVisible !== false && (
+      {doc.style.subtitleVisible !== false && !!doc.subtitle.trim() && (
         <Lines
           text={doc.subtitle}
           x={40}
@@ -147,14 +155,7 @@ export function LeaderboardGraphic({
   if (!groups.length) groups.push([]);
   const groupGap = 32;
   const width = 80 + groups.length * columnWidth + (groups.length - 1) * groupGap;
-  const header =
-    110 +
-    (board.style.titleVisible === false
-      ? 0
-      : wrapText(board.title, (width - 80) / 36).length * 47) +
-    (board.style.subtitleVisible === false
-      ? 0
-      : wrapText(board.subtitle, (width - 80) / 20).length * 26);
+  const header = graphicHeaderHeight(board, width);
   const columnHeight =
     Math.max(...board.columns.map((c, i) => wrapText(c, (widths[i] - 32) / 18).length)) * 28 + 22;
   const rowStart = header + columnHeight;

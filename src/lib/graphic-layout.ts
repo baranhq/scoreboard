@@ -1,4 +1,5 @@
 import { bracketRounds, type Bracket } from "./brackets.ts";
+import type { GraphicBase } from "./graphic-style.ts";
 const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 function units(character: string): number {
   if (/^[MWÆŒШЩЖЮФМЫЪ]/u.test(character)) return 1.1;
@@ -40,6 +41,22 @@ export function wrapText(text: string, limit: number): string[] {
   }
   if (line.trim() || !lines.length) lines.push(line.trimEnd());
   return lines.map((value) => value.trimEnd());
+}
+
+export function graphicHeaderHeight(
+  document: Pick<GraphicBase, "title" | "subtitle" | "style">,
+  width: number,
+): number {
+  const titleLines =
+    document.style.titleVisible === false || !document.title.trim()
+      ? 0
+      : wrapText(document.title, (width - 80) / 36).length;
+  const subtitleLines =
+    document.style.subtitleVisible === false || !document.subtitle.trim()
+      ? 0
+      : wrapText(document.subtitle, (width - 80) / 20).length;
+
+  return 48 + titleLines * 47 + subtitleLines * 26;
 }
 
 export function distributeRows<T>(rows: T[], columns: number): T[][] {
@@ -84,14 +101,7 @@ export function bracketLayout(board: Bracket) {
   const pitch = cardHeight + (board.style.matchGap ?? 40);
   const roundPitch = board.style.roundGap ?? 260;
   const width = (split ? rounds.length * 2 - 1 : rounds.length) * roundPitch + 40;
-  const header =
-    100 +
-    (board.style.titleVisible === false
-      ? 0
-      : wrapText(board.title, (width - 80) / 36).length * 47) +
-    (board.style.subtitleVisible === false
-      ? 0
-      : wrapText(board.subtitle, (width - 80) / 20).length * 26);
+  const header = graphicHeaderHeight(board, width);
   const fieldHeight = (rounds[0].length / (split ? 2 : 1)) * pitch;
   const footerHeight = Math.max(
     50,
