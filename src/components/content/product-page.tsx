@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HomeFaq } from "./home-faq";
+import { ProductDetails } from "./product-details";
 import { ArrowUpRight } from "lucide-react";
 import { Frame } from "@/components/layout/frame";
 import { messages, type Lang } from "@/lib/i18n";
@@ -94,18 +94,8 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
             ))}
           </ul>
         </section>
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <section className="grid gap-6 py-12 sm:py-16 md:grid-cols-2">
-            <h2 className="max-w-[18ch] font-display text-4xl leading-[1.02] font-bold tracking-[-0.04em] sm:text-5xl">
-              {t.ownership}
-            </h2>
-            <p className="max-w-prose leading-8 text-ink/75">{t.ownershipText}</p>
-          </section>
-          {tool === "scoreboard" && (
-            <>
-              <HomeFaq lang={lang} />
-            </>
-          )}
+        <ProductDetails tool={tool} lang={lang} />
+        <div className="mx-auto max-w-7xl px-5 pb-8 sm:px-8">
           <nav aria-label={t.tools} className="flex flex-wrap gap-3 border-t border-forest/20 pt-6">
             {(["scoreboard", "leaderboard", "bracket"] as const)
               .filter((key) => key !== tool)
