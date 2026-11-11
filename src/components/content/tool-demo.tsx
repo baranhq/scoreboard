@@ -29,6 +29,8 @@ export function ToolDemo({
   expanded = false,
   autoplay = true,
   hideHeading = false,
+  showPreviewLabel = false,
+  fillPreview = false,
   readOnly = false,
   showPlaybackControls = true,
   showResultControls = true,
@@ -45,6 +47,8 @@ export function ToolDemo({
   expanded?: boolean;
   autoplay?: boolean;
   hideHeading?: boolean;
+  showPreviewLabel?: boolean;
+  fillPreview?: boolean;
   readOnly?: boolean;
   showPlaybackControls?: boolean;
   showResultControls?: boolean;
@@ -101,6 +105,8 @@ export function ToolDemo({
       expanded={expanded}
       autoplay={autoplay}
       hideHeading={hideHeading}
+      showPreviewLabel={showPreviewLabel}
+      fillPreview={fillPreview}
       showPlaybackControls={showPlaybackControls}
       readOnly={readOnly}
       showResultControls={showResultControls}
@@ -118,6 +124,8 @@ function StudioToolDemo({
   expanded,
   autoplay,
   hideHeading,
+  showPreviewLabel,
+  fillPreview,
   showPlaybackControls,
   readOnly,
   showResultControls,
@@ -130,6 +138,8 @@ function StudioToolDemo({
   expanded: boolean;
   autoplay: boolean;
   hideHeading: boolean;
+  showPreviewLabel: boolean;
+  fillPreview: boolean;
   showPlaybackControls: boolean;
   readOnly: boolean;
   showResultControls: boolean;
@@ -226,7 +236,9 @@ function StudioToolDemo({
     >
       <header className="flex items-center justify-between gap-3 border-b border-forest/15 px-3 py-2.5 sm:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="truncate text-sm font-semibold">{t[tool]}</span>
+          <span className="truncate text-sm font-semibold">
+            {showPreviewLabel ? t.preview : t[tool]}
+          </span>
         </div>
         {showPlaybackControls && (
           <DemoPlaybackControls
@@ -269,7 +281,7 @@ function StudioToolDemo({
           className={`min-w-0 ${compact ? "flex min-h-0 flex-1 flex-col" : ""}`}
         >
           <div
-            className={`${compact ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden" : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto"} overscroll-contain bg-paper [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${compact && widePreview ? "[&>svg]:!w-full" : "[&>svg]:!w-auto"} [&>svg]:!max-w-full`}
+            className={`${compact ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden" : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto"} overscroll-contain bg-paper [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${compact && (widePreview || fillPreview) ? "[&>svg]:!w-full" : "[&>svg]:!w-auto"} [&>svg]:!max-w-full`}
           >
             <Graphic
               document={document}
