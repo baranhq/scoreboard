@@ -11,6 +11,8 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const revision = useRef(0);
+  const history = useRef<StudioDocument[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
   const draftKey = useRef("");
   const loading = useRef(true);
   useEffect(() => {
@@ -41,6 +43,8 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
         }
         if (!active || request !== generation || currentRevision !== revision.current) return;
         draftKey.current = key;
+        history.current = [];
+        setCanUndo(false);
         setDocument(
           draft?.kind === initial.kind ? draft : saved?.kind === initial.kind ? saved : initial,
         );
@@ -105,6 +109,8 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
   }, [dirty, labels.discardQuestion]);
   const change = (next: StudioDocument) => {
     if (loading.current) return;
+    history.current = [...history.current.slice(-49), document];
+    setCanUndo(true);
     revision.current++;
     setDocument(next);
     setDirty(true);
@@ -117,6 +123,34 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
     } catch {
       setMessage(labels.draftWarning);
     }
+  };
+  const undo = () => {
+    const previous = history.current.pop();
+    if (previous) {
+      change(previous);
+      history.current.pop();
+      setCanUndo(history.current.length > 0);
+    }
+  };
+  const newProject = () => {
+    if (dirty && !window.confirm(labels.discardQuestion)) return;
+    revision.current++;
+    history.current = [];
+    setCanUndo(false);
+    setDocument({ ...initial, id: crypto.randomUUID() });
+    draftKey.current = `scoreboard-draft:${initial.kind}:new`;
+    try {
+      window.sessionStorage.removeItem(draftKey.current);
+    } catch {
+      setMessage(labels.draftWarning);
+    }
+    window.history.replaceState(
+      window.history.state,
+      "",
+      window.location.pathname + window.location.search,
+    );
+    setDirty(false);
+    setMessage("");
   };
   const save = async () => {
     if (busy || loading.current) return;
@@ -168,5 +202,18 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
       setMessage(labels.importError);
     }
   };
-  return { document, change, ready, dirty, message, busy, save, backup, importFile };
+  return {
+    document,
+    change,
+    undo,
+    newProject,
+    canUndo,
+    ready,
+    dirty,
+    message,
+    busy,
+    save,
+    backup,
+    importFile,
+  };
 }

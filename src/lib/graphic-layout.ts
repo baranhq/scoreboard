@@ -79,7 +79,7 @@ export function bracketLayout(board: Bracket) {
     1,
     ...board.participants.map((p) => wrapText(p.name, 196 / 16).length),
   );
-  const rowHeight = Math.max(44, textLines * 21 + 16);
+  const rowHeight = Math.max(board.style.density === "spacious" ? 60 : 44, textLines * 21 + 16);
   const cardHeight = rowHeight * 2;
   const pitch = cardHeight + 40;
   const width = (split ? rounds.length * 2 - 1 : rounds.length) * 260 + 40;
