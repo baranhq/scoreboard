@@ -10,11 +10,14 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
   const normalize = (value: string) => value.replace(/\/$/, "") || "/";
   const pathname = normalize(usePathname());
-  const applicationLinks = [
-    { href: homeRoute(lang), label: t.home },
+  const toolDestinations = [
     { href: route(lang, "scoreboard"), label: t.scoreboard },
     { href: route(lang, "leaderboardEditor"), label: t.leaderboard },
     { href: route(lang, "bracketEditor"), label: t.bracket },
+  ];
+  const applicationLinks = [
+    { href: homeRoute(lang), label: t.home },
+    ...toolDestinations,
     { href: route(lang, "saved"), label: t.saved },
   ];
   const discoveryLinks = [
@@ -26,18 +29,16 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
   const applicationPaths = new Set(applicationLinks.map((link) => normalize(link.href)));
   applicationPaths.add("/scoreboard");
   const inApplication = pathname !== normalize(homeRoute(lang)) && applicationPaths.has(pathname);
-  const links = inApplication ? applicationLinks : discoveryLinks;
+  const isEditor =
+    pathname === "/scoreboard" ||
+    toolDestinations.some((tool) => normalize(tool.href) === pathname);
+  const links = inApplication ? (isEditor ? toolDestinations : applicationLinks) : discoveryLinks;
   const showAction =
     !inApplication &&
     (pathname === normalize(homeRoute(lang)) ||
       (["scoreboardIntro", "leaderboards", "brackets"] as const).some(
         (page) => pathname === normalize(route(lang, page)),
       ));
-  const toolDestinations = [
-    { href: route(lang, "scoreboard"), label: t.scoreboard },
-    { href: route(lang, "leaderboardEditor"), label: t.leaderboard },
-    { href: route(lang, "bracketEditor"), label: t.bracket },
-  ];
   const stateClass = (href: string) =>
     pathname === normalize(href) ||
     (pathname === "/scoreboard" && href === route(lang, "scoreboard"))
