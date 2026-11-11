@@ -310,7 +310,7 @@ export function EditorShell({
             >
               <div
                 ref={previewCanvas}
-                className={`relative ${fullSize ? "w-max [&>svg]:!h-auto [&>svg]:!w-auto" : "flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-auto [&>svg]:!max-h-full [&>svg]:!w-auto [&>svg]:!max-w-full"}`}
+                className={`relative ${fullSize ? "w-max [&>svg]:!h-auto [&>svg]:!w-auto" : "flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-full [&>svg]:!max-h-full [&>svg]:!w-full [&>svg]:!max-w-full"}`}
               >
                 <Graphic
                   document={doc}
