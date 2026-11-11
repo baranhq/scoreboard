@@ -49,12 +49,12 @@ function initialPreviewState(copy: LandingContent["preview"]): PreviewState {
     trackPausedTime: false,
     editingTeamName: false,
     leavingThirdTeam: false,
-    cursor: null,
+    cursor: "team-one-plus",
     pressed: null,
   };
 }
 
-function buildSequence(copy: LandingContent["preview"]): PreviewStage[] {
+function buildSequence(copy: LandingContent["preview"], compact = false): PreviewStage[] {
   const initialNames: [string, string, string] = [copy.firstTeam, copy.secondTeam, copy.thirdTeam];
   const renamedNames: [string, string, string] = [
     copy.renamedFirstTeam,
@@ -91,6 +91,32 @@ function buildSequence(copy: LandingContent["preview"]): PreviewStage[] {
     durationMs,
     patch,
   });
+
+  if (compact) {
+    return [
+      moveTo("team-one-plus"),
+      click("team-one-plus", { scores: [1, 0, 0] }),
+      release,
+      click("team-one-plus", { scores: [2, 0, 0] }, 360),
+      release,
+      moveTo("team-two-plus"),
+      click("team-two-plus", { scores: [2, 1, 0] }),
+      release,
+      click("team-two-plus", { scores: [2, 2, 0] }, 360),
+      release,
+      moveTo("team-one-minus"),
+      click("team-one-minus", { scores: [1, 2, 0] }),
+      release,
+      click("team-one-minus", { scores: [0, 2, 0] }, 360),
+      release,
+      moveTo("team-two-minus"),
+      click("team-two-minus", { scores: [0, 1, 0] }),
+      release,
+      click("team-two-minus", { scores: [0, 0, 0] }, 360),
+      release,
+      moveTo("team-one-plus"),
+    ];
+  }
 
   return [
     moveTo("team-one-plus"),
@@ -225,9 +251,17 @@ function buildSequence(copy: LandingContent["preview"]): PreviewStage[] {
 export function ScoreboardPreview({
   copy,
   labels,
+  compact = false,
+  readOnly = false,
+  autoplay = true,
+  showPlaybackControls = true,
 }: {
   copy: LandingContent["preview"];
   labels: PreviewLabels;
+  compact?: boolean;
+  readOnly?: boolean;
+  autoplay?: boolean;
+  showPlaybackControls?: boolean;
 }) {
   const previewRef = useRef<HTMLElement>(null);
   const pointerRef = useRef<HTMLSpanElement>(null);
@@ -246,9 +280,9 @@ export function ScoreboardPreview({
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [manuallyPaused, setManuallyPaused] = useState(false);
   const [motionPreferenceOverridden, setMotionPreferenceOverridden] = useState(false);
-  const sequence = useMemo(() => buildSequence(copy), [copy]);
+  const sequence = useMemo(() => buildSequence(copy, compact), [compact, copy]);
   const playbackPaused = manuallyPaused || (prefersReducedMotion && !motionPreferenceOverridden);
-  const shouldAnimate = inView && pageVisible && !playbackPaused;
+  const shouldAnimate = autoplay && inView && pageVisible && !playbackPaused;
 
   useLayoutEffect(() => {
     const demo = previewRef.current?.querySelector<HTMLElement>("[data-scoreboard-demo]");
@@ -484,22 +518,23 @@ export function ScoreboardPreview({
     <figure
       ref={previewRef}
       aria-labelledby="scoreboard-preview-caption"
-      className="group/demo relative mx-auto flex h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
+      className={`group/demo relative mx-auto flex min-w-0 flex-col justify-center overflow-hidden ${compact ? "h-full max-h-full w-full" : "h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"}`}
     >
       <figcaption id="scoreboard-preview-caption" className="sr-only">
         {copy.accessibleDescription}
       </figcaption>
-      <div className="relative w-full min-w-0">
+      <div className={`relative w-full min-w-0 ${compact ? "h-full min-h-0" : ""}`}>
         <div
           data-scoreboard-demo
           data-demo-running={shouldAnimate}
           data-demo-stage="0"
-          className="relative flex h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[surface-enter_280ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:h-auto md:max-h-[calc(100svh-12rem-1px)]"
+          className={`relative flex min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[surface-enter_280ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 ${compact ? "h-full max-h-full" : "h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] md:h-auto md:max-h-[calc(100svh-12rem-1px)]"}`}
         >
           <PreviewToolbar
             copy={copy}
             labels={labels}
             playing={!playbackPaused}
+            showPlaybackControls={showPlaybackControls && !readOnly}
             onToggle={() => {
               if (playbackPaused) {
                 manuallyPausedRef.current = false;
@@ -517,9 +552,9 @@ export function ScoreboardPreview({
           <section
             className={`grid min-h-0 gap-2 ${state.teamCount === 2 ? "grid-cols-2" : "grid-cols-3"}`}
             aria-label={labels.teams}
-            onClickCapture={pauseForInteraction}
-            onFocusCapture={pauseForInteraction}
-            onInputCapture={pauseForInteraction}
+            onClickCapture={readOnly ? undefined : pauseForInteraction}
+            onFocusCapture={readOnly ? undefined : pauseForInteraction}
+            onInputCapture={readOnly ? undefined : pauseForInteraction}
           >
             {visibleTeams.map((name, index) => (
               <PreviewTeamCard
@@ -529,6 +564,7 @@ export function ScoreboardPreview({
                 name={name}
                 score={state.scores[index]}
                 labels={labels}
+                readOnly={readOnly}
                 editingName={editingNameIndex === index}
                 onEditName={() => setEditingNameIndex(index)}
                 onDoneEditingName={() => setEditingNameIndex(null)}
@@ -549,24 +585,28 @@ export function ScoreboardPreview({
               />
             ))}
           </section>
-          <div
-            className="mt-2 flex justify-end [@media(max-height:600px)]:mt-1"
-            onClickCapture={pauseForInteraction}
-          >
-            <button
-              type="button"
-              aria-label={labels.reset}
-              onClick={() => setState((current) => ({ ...current, scores: [0, 0, 0] }))}
-              className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-forest/25 px-2 py-1 text-sm font-medium text-forest hover:bg-forest/5"
+          {!compact && !readOnly && (
+            <div
+              className="mt-2 flex justify-end [@media(max-height:600px)]:mt-1"
+              onClickCapture={pauseForInteraction}
             >
-              <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
-              {labels.reset}
-            </button>
-          </div>
-          <div aria-hidden="true" inert className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <PreviewConfiguration state={state} copy={copy} labels={labels} />
-          </div>
-          {!prefersReducedMotion && (
+              <button
+                type="button"
+                aria-label={labels.reset}
+                onClick={() => setState((current) => ({ ...current, scores: [0, 0, 0] }))}
+                className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-forest/25 px-2 py-1 text-sm font-medium text-forest hover:bg-forest/5"
+              >
+                <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
+                {labels.reset}
+              </button>
+            </div>
+          )}
+          {!compact && (
+            <div aria-hidden="true" inert className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <PreviewConfiguration state={state} copy={copy} labels={labels} />
+            </div>
+          )}
+          {(!prefersReducedMotion || compact) && (
             <span
               ref={pointerRef}
               aria-hidden="true"

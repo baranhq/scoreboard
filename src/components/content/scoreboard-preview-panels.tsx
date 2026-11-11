@@ -81,12 +81,14 @@ export function PreviewToolbar({
   copy,
   labels,
   playing,
+  showPlaybackControls = true,
   onToggle,
   onReset,
 }: {
   copy: LandingContent["preview"];
   labels: PreviewLabels;
   playing: boolean;
+  showPlaybackControls?: boolean;
   onToggle: () => void;
   onReset: () => void;
 }) {
@@ -102,12 +104,18 @@ export function PreviewToolbar({
         <span className="truncate">{copy.boardName}</span>
       </h2>
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-        <DemoPlaybackControls
-          playing={playing}
-          labels={{ play: labels.playPreview, pause: labels.pausePreview, reset: labels.resetDemo }}
-          onToggle={onToggle}
-          onReset={onReset}
-        />
+        {showPlaybackControls && (
+          <DemoPlaybackControls
+            playing={playing}
+            labels={{
+              play: labels.playPreview,
+              pause: labels.pausePreview,
+              reset: labels.resetDemo,
+            }}
+            onToggle={onToggle}
+            onReset={onReset}
+          />
+        )}
         <div aria-hidden="true" className="hidden items-center gap-1 sm:flex sm:gap-2">
           <VisualButton>
             <Share2 aria-hidden="true" className="h-4 w-4" />
@@ -163,6 +171,7 @@ export function PreviewTeamCard({
   name,
   score,
   labels,
+  readOnly = false,
   editingName,
   onEditName,
   onDoneEditingName,
@@ -174,6 +183,7 @@ export function PreviewTeamCard({
   name: string;
   score: number;
   labels: PreviewLabels;
+  readOnly?: boolean;
   editingName: boolean;
   onEditName: () => void;
   onDoneEditingName: () => void;
@@ -211,7 +221,11 @@ export function PreviewTeamCard({
       className={`[container-type:inline-size] flex min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-1.5 py-2 text-[var(--team-fg)] transition-[opacity,transform,background-color] duration-300 motion-reduce:transition-none sm:flex-1 sm:px-2 sm:py-4 dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] [@media(max-height:600px)]:py-0 ${leaving ? "scale-[.96] opacity-0" : "scale-100 opacity-100"} motion-safe:animate-[appear_180ms_ease-out]`}
     >
       <h3 className="w-full min-w-0 px-1 py-1 text-center font-display text-sm font-semibold sm:px-2 sm:text-lg [@media(max-height:600px)]:px-1 [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-sm">
-        {editingName ? (
+        {readOnly ? (
+          <span className="inline-flex min-h-9 max-w-full items-center justify-center truncate px-1.5">
+            {name}
+          </span>
+        ) : editingName ? (
           <input
             aria-label={`${labels.teamName} ${index + 1}`}
             autoFocus
@@ -246,18 +260,20 @@ export function PreviewTeamCard({
         <button
           type="button"
           aria-label={`${labels.decrease} ${name}`}
+          disabled={readOnly}
           onClick={() => onScoreChange(-1)}
           data-demo-target={minusTarget ?? undefined}
-          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${minusTarget !== null && state.pressed === minusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
+          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-solid disabled:opacity-100 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${minusTarget !== null && state.pressed === minusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
         >
           <Minus aria-hidden="true" className="h-5 w-5" />
         </button>
         <button
           type="button"
           aria-label={`${labels.increase} ${name}`}
+          disabled={readOnly}
           onClick={() => onScoreChange(1)}
           data-demo-target={plusTarget}
-          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${plusTarget !== null && state.pressed === plusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
+          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-solid disabled:opacity-100 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${plusTarget !== null && state.pressed === plusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
         >
           <Plus aria-hidden="true" className="h-5 w-5" />
         </button>

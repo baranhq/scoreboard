@@ -1,6 +1,5 @@
 "use client";
 
-import { MousePointer2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { TeamPanel } from "@/components/scoreboard/team-panel";
 import { teamGridClass } from "@/lib/team-layout";
@@ -145,7 +144,7 @@ export function HomeScoreboard({
         )}
       </header>
       <div
-        className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "py-2 sm:px-5" : "py-7 sm:px-7 sm:py-4"} ${compact && count > 2 ? "overflow-y-auto overscroll-contain" : ""}`}
+        className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "py-1 sm:px-5" : "py-7 sm:px-7 sm:py-4"}`}
       >
         <div
           className={`flex items-center justify-center gap-3 text-sm font-medium ${compact ? "mb-1" : "mb-3"}`}
@@ -158,7 +157,9 @@ export function HomeScoreboard({
           </span>
         </div>
         <div className="relative min-h-0 flex-1">
-          <div className={`${teamGridClass(count, "auto", full)} h-full min-h-0 gap-2 sm:gap-3`}>
+          <div
+            className={`${teamGridClass(count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : ""} h-full min-h-0 gap-2 sm:gap-3`}
+          >
             {teamNames.slice(0, count).map((name, index) => (
               <TeamPanel
                 key={name}
@@ -202,12 +203,6 @@ export function HomeScoreboard({
               />
             ))}
           </div>
-          {readOnly && showReadOnlyControls && (
-            <MousePointer2
-              aria-hidden="true"
-              className="score-demo-cursor pointer-events-none absolute z-10 size-6 fill-ink text-paper drop-shadow"
-            />
-          )}
         </div>
         {editing !== null && (
           <label className="mx-auto mt-4 grid max-w-60 gap-2 text-sm font-semibold">

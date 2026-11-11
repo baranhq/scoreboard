@@ -51,7 +51,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
             {t[item]}
           </button>
         ))}
-        {!themes && (
+        {!themes && active > 0 && (
           <span
             aria-hidden="true"
             className="pointer-events-none absolute top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 transition-[left] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
@@ -88,6 +88,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 showPlaybackControls={false}
                 showResultControls={false}
                 controlledPlayback
+                useScoreboardPreview={tool === "scoreboard"}
               />
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
