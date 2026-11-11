@@ -15,9 +15,9 @@ export const seoContent: Record<
   }
 > = {
   en: {
-    title: "Free Online Scoreboard",
+    title: "Free Scoreboard, Leaderboards & Tournament Brackets",
     description:
-      "Create a free online scoreboard for games, sports, classrooms and events. Track points, customize teams, use a timer and go fullscreen. No account needed.",
+      "Free online scoreboard, leaderboard and tournament bracket tools. Keep score, design rankings and export tournament graphics. No account needed.",
     pageDescriptions: {
       help: "Learn to create a team scoreboard, change scores, use a countdown or stopwatch, present it on a projector, and save, back up or share a snapshot.",
       licenses:
@@ -31,9 +31,9 @@ export const seoContent: Record<
     imageAlt: "Baran’s Scoreboard, an online scoreboard for teams and games",
   },
   bg: {
-    title: "Безплатно онлайн табло за резултати",
+    title: "Безплатни табла, класации и турнирни схеми",
     description:
-      "Създайте безплатно онлайн табло за резултати за игри, спорт и занимания в клас. Следете точки, настройте отборите и използвайте таймер — без регистрация.",
+      "Безплатни онлайн инструменти за табла, класации и турнирни схеми. Следете точки, подредете участниците и изтеглете графики без регистрация.",
     pageDescriptions: {
       help: "Научете как да създадете табло за отбори, да променяте точки, да използвате обратно броене или хронометър и да запазите, експортирате или споделите моментно копие.",
       licenses:
@@ -47,9 +47,9 @@ export const seoContent: Record<
     imageAlt: "Baran’s Scoreboard — онлайн табло за резултати за отбори и игри",
   },
   tr: {
-    title: "Ücretsiz Çevrim İçi Skor Tabelası",
+    title: "Ücretsiz Skor Tabelası, Sıralama ve Turnuva Şeması",
     description:
-      "Oyunlar, spor karşılaşmaları ve sınıf etkinlikleri için ücretsiz çevrim içi skor tabelası oluşturun. Puanları takip edin, takımları özelleştirin ve zamanlayıcı kullanın; üyelik gerekmez.",
+      "Ücretsiz çevrim içi skor tabelası, sıralama ve turnuva şeması araçları. Puan tutun, sıralamaları düzenleyin ve görseller indirin. Hesap gerekmez.",
     pageDescriptions: {
       help: "Takım skor tablosu oluşturmayı, puanları değiştirmeyi, geri sayım veya kronometreyi kullanmayı, tam ekranda sunmayı ve oyunu kaydedip yedeklemeyi öğrenin.",
       licenses:
@@ -88,7 +88,7 @@ export function softwareSchema(lang: Lang, siteOrigin: string, brand: string) {
         "@id": applicationId,
         name: brand,
         url: applicationUrl,
-        description: content.description,
+        description: content.pageDescriptions.scoreboard,
         applicationCategory: "UtilitiesApplication",
         browserRequirements: "A modern browser with JavaScript and IndexedDB enabled.",
         isAccessibleForFree: true,

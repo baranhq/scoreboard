@@ -29,3 +29,5 @@ for (const [family, weights] of [
     }
 }
 writeFileSync("src/app/font-faces.css", css);
+
+writeFileSync("public/fonts/export.css", css);

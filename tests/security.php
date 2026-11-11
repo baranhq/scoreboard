@@ -72,7 +72,16 @@ $environmentNames=['SCOREBOARD_ENV_FILE','APP_ORIGIN','APP_ALLOW_HTTP','SESSION_
 $oldServerFile=$_SERVER['SCOREBOARD_ENV_FILE']??null;$oldRoot=$_SERVER['DOCUMENT_ROOT']??null;
 $_SERVER['DOCUMENT_ROOT']=$public;$_SERVER['SCOREBOARD_ENV_FILE']=$env;putenv('SCOREBOARD_ENV_FILE='.$env);
 $secure=configuration();check(!$secure['http']&&$secure['secure_cookies'],'HTTP development override cannot weaken HTTPS cookies');check($secure['admin_path']==='/custom-panel','custom admin path loaded from private configuration');
-chmod($env,0644);try{configuration();throw new LogicException('readable private config accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'group/world-readable private config denied');}chmod($env,0600);
+// An external chmod must be observed even after PHP cached the original permissions.
+$modeProcess = proc_open(
+    [PHP_BINARY, '-r', 'chmod($argv[1],0644);', $env],
+    [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']],
+    $modePipes
+);
+check(is_resource($modeProcess), 'permission test process started');
+foreach ($modePipes as $pipe) fclose($pipe);
+check(proc_close($modeProcess) === 0, 'private config permissions changed externally');
+try{configuration();throw new LogicException('readable private config accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'group/world-readable private config denied');}chmod($env,0600);
 file_put_contents($env,"APP_ORIGIN=http://localhost:8080\nAPP_ALLOW_HTTP=true\nSESSION_PATH=$private/sessions\nPOLICY_PATH=$private/policies\n");chmod($env,0600);$local=configuration();check($local['http']&&!$local['secure_cookies'],'local HTTP cookie mode follows the configured origin');check($local['admin_path']==='/admin','admin path defaults to /admin');
 if(symlink($private,$public.'/private-link')){try{private_directory($public.'/private-link/sessions');throw new LogicException('symlinked public storage accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'document-root symlink storage denied');}unlink($public.'/private-link');}
 if(symlink($env,$public.'/runtime.ini')){putenv('SCOREBOARD_ENV_FILE='.$public.'/runtime.ini');$_SERVER['SCOREBOARD_ENV_FILE']=$public.'/runtime.ini';try{configuration();throw new LogicException('symlinked public config accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'document-root symlink config denied');}unlink($public.'/runtime.ini');}

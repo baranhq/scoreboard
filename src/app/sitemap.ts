@@ -7,6 +7,9 @@ export const dynamic = "force-static";
 
 const publicPages = [
   "scoreboard",
+  "scoreboardIntro",
+  "leaderboards",
+  "brackets",
   "privacy",
   "licenses",
   "help",
