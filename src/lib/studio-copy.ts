@@ -157,6 +157,7 @@ const en = {
   clear: "Clear result",
   score: "Score",
   resultsHint: "Set scores and choose the winner. Changing a winner clears affected later results.",
+  exploreGraphic: "Scroll to explore the graphic",
   scrollHint: "Scroll the preview to explore the whole graphic. PNG includes every row and round.",
   empty: "Your next great game starts here.",
   emptyText: "Saved leaderboards and brackets will appear here. Your Scoreboards are below.",
@@ -337,6 +338,7 @@ const bg: Copy = {
   score: "Резултат",
   resultsHint:
     "Въведете резултатите и изберете победител. Промяната му изчиства засегнатите резултати в следващите кръгове.",
+  exploreGraphic: "Превъртете, за да разгледате графиката",
   scrollHint: "Превъртете прегледа за цялата графика. PNG включва всеки ред и кръг.",
   empty: "Следващата страхотна игра започва тук.",
   emptyText: "Тук ще виждате запазените класации и схеми. Таблата са отдолу.",
@@ -515,6 +517,7 @@ const tr: Copy = {
   score: "Skor",
   resultsHint:
     "Skorları girip kazananı seçin. Kazanan değişince etkilenen sonraki sonuçlar temizlenir.",
+  exploreGraphic: "Görseli incelemek için kaydırın",
   scrollHint: "Tüm görseli görmek için önizlemeyi kaydırın. PNG her satırı ve turu içerir.",
   empty: "Bir sonraki harika oyun burada başlar.",
   emptyText: "Kayıtlı sıralamalar ve şemalar burada görünür. Skor tabelalarınız aşağıdadır.",

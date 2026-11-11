@@ -32,7 +32,7 @@ export function HomeScoreboard({ lang }: { lang: Lang }) {
     <section
       ref={ref}
       aria-label={t.scoreboard}
-      className="flex flex-col overflow-hidden rounded-xl bg-[#192d20] text-[#f7f7f0]"
+      className="flex flex-col overflow-hidden rounded-none bg-[#14251b] text-[#f7f7f0]"
     >
       <header className="flex items-center justify-between border-b border-white/15 px-4 py-2 sm:px-6">
         <span className="text-sm font-semibold">{t.eventName}</span>
@@ -44,8 +44,8 @@ export function HomeScoreboard({ lang }: { lang: Lang }) {
           labels={{ play: t.startTimer, pause: t.pauseTimer, reset: t.resetDemo }}
         />
       </header>
-      <div className="flex flex-1 flex-col justify-center px-4 py-7 sm:px-7 sm:py-9">
-        <div className="mb-7 flex items-center justify-center gap-3 text-sm font-medium text-[#a9d5a5]">
+      <div className="flex flex-1 flex-col justify-center px-4 py-7 sm:px-7 sm:py-6">
+        <div className="mb-7 flex items-center justify-center gap-3 text-sm font-medium text-[#ccf86b]">
           <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
           {t.secondHalf}{" "}
           <span className="font-mono tabular-nums">
@@ -59,7 +59,7 @@ export function HomeScoreboard({ lang }: { lang: Lang }) {
               <p className="truncate text-sm font-semibold sm:text-lg">{name}</p>
               <p
                 key={scores[index]}
-                className="my-3 font-display text-[clamp(4rem,9vw,7.5rem)] leading-none font-bold tracking-[-0.065em] tabular-nums motion-safe:animate-[preview-intro_350ms_ease-out_both]"
+                className="my-3 font-display text-[clamp(5rem,18vw,15rem)] leading-none font-bold tracking-[-0.075em] tabular-nums motion-safe:animate-[preview-intro_350ms_ease-out_both]"
               >
                 {scores[index]}
               </p>
@@ -77,7 +77,7 @@ export function HomeScoreboard({ lang }: { lang: Lang }) {
                         ),
                       );
                     }}
-                    className={`inline-flex size-11 items-center justify-center rounded-md transition-colors ${amount > 0 ? "bg-[#a9d5a5] text-[#19251c] hover:bg-[#c1e2bd]" : "border border-white/30 hover:bg-white/10"}`}
+                    className={`inline-flex size-11 items-center justify-center rounded-md transition-colors ${amount > 0 ? "bg-[#ccf86b] text-[#19251c] hover:bg-[#c1e2bd]" : "border border-white/30 hover:bg-white/10"}`}
                   >
                     {amount > 0 ? <Plus size={18} /> : <Minus size={18} />}
                   </button>
