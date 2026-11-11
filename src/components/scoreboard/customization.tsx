@@ -97,7 +97,7 @@ export function Customization({
       aria-label={t.customize}
       className="mt-5 border-y border-forest/20 bg-surface py-3 sm:py-4"
     >
-      <WorkspaceTabs lang={lang} value={tab} change={setTab} />
+      <WorkspaceTabs lang={lang} value={tab} change={setTab} includeTimer />
       <div
         id="workspace-panel"
         role="tabpanel"
@@ -452,7 +452,7 @@ export function Customization({
             ))}
           </div>
         )}
-        {tab === "settings" && (
+        {tab === "timer" && (
           <div className="space-y-4">
             <Checkbox
               checked={board.timer?.enabled || false}

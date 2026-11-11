@@ -3,25 +3,29 @@ import { useRef } from "react";
 import type { Lang } from "@/lib/i18n";
 import { studioCopy } from "@/lib/studio-copy";
 
-export type WorkspaceTab = "content" | "design" | "settings" | "export";
-
-const tabs: WorkspaceTab[] = ["content", "design", "settings", "export"];
+export type WorkspaceTab = "content" | "design" | "settings" | "timer" | "export";
 
 export function WorkspaceTabs({
   lang,
   value,
   change,
+  includeTimer = false,
 }: {
   lang: Lang;
   value: WorkspaceTab;
   change: (tab: WorkspaceTab) => void;
+  includeTimer?: boolean;
 }) {
   const labels = studioCopy[lang];
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const tabs: WorkspaceTab[] = includeTimer
+    ? ["content", "design", "settings", "timer", "export"]
+    : ["content", "design", "settings", "export"];
   const tabLabels: Record<WorkspaceTab, string> = {
     content: labels.contentTab,
     design: labels.designTab,
     settings: labels.settingsTab,
+    timer: labels.timerTab,
     export: labels.exportTab,
   };
 
@@ -29,7 +33,7 @@ export function WorkspaceTabs({
     <div
       role="tablist"
       aria-label={labels.workspaceTabs}
-      className="grid grid-cols-4 border-b border-forest/20"
+      className={`grid ${includeTimer ? "grid-cols-5" : "grid-cols-4"} border-b border-forest/20`}
     >
       {tabs.map((tab, index) => (
         <button
