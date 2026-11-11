@@ -51,7 +51,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
         <ScrollingHeader>
           <nav
             aria-label={t.home}
-            className="mx-auto flex h-full max-w-6xl flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
+            className="mx-auto flex h-full max-w-7xl flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
           >
             <Link
               href={homeRoute(lang)}
@@ -80,8 +80,8 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
       <div data-frame-content className="flex-1">
         {children}
       </div>
-      <footer data-frame-chrome className="mt-4 bg-[#213f29] text-white">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-[14px] px-4 py-5 min-[761px]:grid-cols-3 min-[761px]:gap-10 sm:px-6">
+      <footer data-frame-chrome className="border-t border-white/10 bg-[#213f29] text-white">
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-[14px] px-5 py-10 min-[761px]:grid-cols-3 min-[761px]:gap-10 sm:px-6">
           <FooterGroup title={t.contact}>
             <li>
               <a className={footerLink} href={`mailto:${operator.email}`}>
@@ -147,7 +147,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
           </FooterGroup>
         </div>
         <div className="bg-[#182f20] px-4 py-2">
-          <p className="mx-auto max-w-6xl text-center text-sm leading-[1.4] font-semibold break-words">
+          <p className="mx-auto max-w-7xl text-center text-sm leading-[1.4] font-semibold break-words">
             {brand} · Copyright © 2026{" "}
             <a
               href="https://baranhq.com"
