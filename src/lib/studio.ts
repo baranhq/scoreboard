@@ -19,6 +19,7 @@ export type Leaderboard = GraphicBase & {
   columnWidths?: number[];
   columns: string[];
   rows: LeaderboardRow[];
+  totalColumn?: number;
 };
 export type StudioDocument = Leaderboard | Bracket;
 export const MAX_STUDIO_BACKUP_BYTES = 2_000_000;
@@ -67,13 +68,77 @@ export function nextAvailableName(prefix: string, names: readonly string[]): str
   return `${prefix} ${index}`;
 }
 export function removeColumn(board: Leaderboard, index: number): Leaderboard {
-  if (board.columns.length <= 1) return board;
-  return {
+  if (
+    board.columns.length <= 1 ||
+    !Number.isInteger(index) ||
+    index < 0 ||
+    index >= board.columns.length
+  )
+    return board;
+  return recalculateLeaderboardTotal({
     ...board,
     columns: board.columns.filter((_, i) => i !== index),
     columnWidths: board.columnWidths?.filter((_, i) => i !== index),
     rows: board.rows.map((row) => ({ ...row, cells: row.cells.filter((_, i) => i !== index) })),
-  };
+    totalColumn:
+      board.totalColumn === undefined
+        ? undefined
+        : board.totalColumn === index
+          ? undefined
+          : board.totalColumn > index
+            ? board.totalColumn - 1
+            : board.totalColumn,
+  });
+}
+export function moveLeaderboardColumn(board: Leaderboard, from: number, to: number): Leaderboard {
+  if (from < 0 || from >= board.columns.length || to < 0 || to >= board.columns.length)
+    return board;
+  const totalColumn = board.totalColumn;
+  const movedTotalColumn =
+    totalColumn === undefined
+      ? undefined
+      : totalColumn === from
+        ? to
+        : from < to && totalColumn > from && totalColumn <= to
+          ? totalColumn - 1
+          : from > to && totalColumn >= to && totalColumn < from
+            ? totalColumn + 1
+            : totalColumn;
+  if (movedTotalColumn === 0) return board;
+  return recalculateLeaderboardTotal({
+    ...board,
+    columns: moveItem(board.columns, from, to),
+    columnWidths: board.columnWidths ? moveItem(board.columnWidths, from, to) : undefined,
+    rows: board.rows.map((row) => ({ ...row, cells: moveItem(row.cells, from, to) })),
+    totalColumn: movedTotalColumn,
+  });
+}
+export function setLeaderboardTotalColumn(
+  board: Leaderboard,
+  totalColumn: number | undefined,
+): Leaderboard {
+  if (
+    totalColumn !== undefined &&
+    (!Number.isInteger(totalColumn) || totalColumn < 1 || totalColumn >= board.columns.length)
+  )
+    return board;
+  return recalculateLeaderboardTotal({ ...board, totalColumn });
+}
+export function recalculateLeaderboardTotal(board: Leaderboard, rankRows = true): Leaderboard {
+  const totalColumn = board.totalColumn;
+  if (totalColumn === undefined) return board;
+
+  const rows = board.rows.map((row) => {
+    const total = row.cells.reduce((sum, cell, index) => {
+      if (index === 0 || index === totalColumn || cell.trim() === "") return sum;
+      const value = Number(cell);
+      return Number.isFinite(value) ? sum + value : sum;
+    }, 0);
+    const cells = row.cells.map((cell, index) => (index === totalColumn ? String(total) : cell));
+    return { ...row, cells };
+  });
+
+  return { ...board, rows: rankRows ? sortRows(rows, totalColumn, "desc") : rows };
 }
 export function sortRows(
   rows: LeaderboardRow[],
@@ -100,8 +165,10 @@ export function updateLeaderboardCell(
   column: number,
   value: string,
   rankColumn?: number,
+  rankRows = true,
 ): Leaderboard {
   if (!Number.isInteger(column) || column < 0 || column >= board.columns.length) return board;
+  if (column === board.totalColumn) return board;
 
   const rows = board.rows.map((row) =>
     row.id === rowId
@@ -110,7 +177,8 @@ export function updateLeaderboardCell(
   );
   if (!board.rows.some((row) => row.id === rowId)) return board;
 
-  return { ...board, rows: rankColumn === column ? sortRows(rows, column, "desc") : rows };
+  const updated = { ...board, rows: rankColumn === column ? sortRows(rows, column, "desc") : rows };
+  return board.totalColumn === undefined ? updated : recalculateLeaderboardTotal(updated, rankRows);
 }
 function record(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -133,6 +201,7 @@ const documentKeys = [
   "exportScale",
   "gridColumns",
   "columnWidths",
+  "totalColumn",
   "columns",
   "rows",
   "layout",
@@ -243,6 +312,7 @@ export function parseDocument(value: unknown): StudioDocument {
         "exportScale",
         "gridColumns",
         "columnWidths",
+        "totalColumn",
         "columns",
         "rows",
       ]) ||
@@ -258,6 +328,13 @@ export function parseDocument(value: unknown): StudioDocument {
       value.rows.length > 100
     )
       throw new Error("Invalid table size");
+    if (
+      value.totalColumn !== undefined &&
+      (!Number.isInteger(value.totalColumn) ||
+        (value.totalColumn as number) < 1 ||
+        (value.totalColumn as number) >= value.columns.length)
+    )
+      throw new Error("Invalid total column");
     if (
       value.columnWidths !== undefined &&
       (!Array.isArray(value.columnWidths) ||
@@ -343,5 +420,6 @@ export function parseDocument(value: unknown): StudioDocument {
         throw new Error("Invalid progression");
     }
   } else throw new Error("Unknown document kind");
-  return structuredClone(value) as StudioDocument;
+  const document = structuredClone(value) as StudioDocument;
+  return document.kind === "leaderboard" ? recalculateLeaderboardTotal(document) : document;
 }

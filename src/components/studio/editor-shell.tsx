@@ -18,6 +18,7 @@ import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/
 import { WorkspaceTabs, type WorkspaceTab } from "./workspace-tabs";
 import { CanvasRatioSelect } from "./canvas-controls";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DailyGithubStarNotice } from "./daily-github-star-notice";
 
 export const inputClass =
   "min-h-11 w-full min-w-0 rounded-md border border-forest/25 bg-surface px-3 py-2 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
@@ -144,6 +145,7 @@ export function EditorShell({
   return (
     <>
       {confirmationDialog}
+      <DailyGithubStarNotice lang={lang} />
       <main
         id="main"
         data-editor-shell
@@ -339,10 +341,22 @@ export function EditorShell({
                       state.change(updatePreviewField(doc, activeField, event.target.value, false))
                     }
                     onKeyDown={(event) => {
-                      if (event.key === "Escape") setActiveField(null);
-                      if (event.key === "Enter") event.currentTarget.blur();
+                      if (event.key === "Escape" || event.key === "Enter") {
+                        event.preventDefault();
+                        event.currentTarget.blur();
+                      }
                     }}
-                    onBlur={() => setActiveField(null)}
+                    onBlur={(event) => {
+                      if (
+                        activeField.kind === "leaderboard-cell" &&
+                        doc.kind === "leaderboard" &&
+                        (doc.totalColumn !== undefined || activeField.column === 1)
+                      )
+                        state.change(
+                          updatePreviewField(doc, activeField, event.currentTarget.value),
+                        );
+                      setActiveField(null);
+                    }}
                   />
                 )}
                 {doc.kind === "bracket" && advanceMatch && previewParticipant && activePosition && (
