@@ -10,8 +10,20 @@ function open(): Promise<IDBDatabase> {
   if (!connection)
     connection = new Promise((resolve, reject) => {
       const request = indexedDB.open(DATABASE, VERSION);
+      let expired = false;
+      const timeout = setTimeout(() => {
+        expired = true;
+        connection = undefined;
+        reject(new Error("Storage request timed out"));
+      }, 8000);
       request.onupgradeneeded = (e) => migrate(request.result, e.oldVersion);
       request.onsuccess = () => {
+        clearTimeout(timeout);
+        if (expired) {
+          request.result.close();
+          connection = undefined;
+          return;
+        }
         const db = request.result;
         db.onversionchange = () => {
           db.close();
@@ -20,6 +32,7 @@ function open(): Promise<IDBDatabase> {
         resolve(db);
       };
       request.onerror = () => {
+        clearTimeout(timeout);
         connection = undefined;
         reject(request.error);
       };
