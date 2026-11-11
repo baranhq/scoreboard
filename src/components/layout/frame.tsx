@@ -84,7 +84,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
       </div>
       <footer data-frame-chrome className="border-t border-white/10 bg-[#213f29] text-white">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-2 items-start gap-x-6 gap-y-8 px-5 py-8 min-[761px]:grid-cols-[1.2fr_1fr_1fr] min-[761px]:gap-8 sm:px-6 sm:py-10">
-          <section className="col-span-2 flex w-full min-w-0 flex-col gap-4 rounded-xl border border-white/15 bg-white/5 p-4 text-left min-[761px]:col-span-1 sm:p-5">
+          <section className="col-span-2 flex w-full min-w-0 flex-col gap-4 text-left min-[761px]:col-span-1">
             <Link
               href={homeRoute(lang)}
               aria-label={`${brand}: ${t.home}`}
