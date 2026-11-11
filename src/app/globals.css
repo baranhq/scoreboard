@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
+  --color-campaign: #14251b;
+  --color-campaign-ink: #f5f2e8;
+  --color-lime: #ccf86b;
+  --color-campaign-soft: #e4ecd7;
+  --color-campaign-muted: #24392a;
   --color-forest: #285b35;
   --color-action: #367747;
   --color-on-action: #ffffff;
