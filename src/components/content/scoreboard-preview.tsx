@@ -18,6 +18,8 @@ type PreviewStage = {
 };
 type TeamBounds = { left: number; top: number; width: number; height: number };
 type DemoPosition = { top: number };
+const darkPreviewTheme =
+  "dark [--color-action:#79bb83] [--color-forest:#9cc99f] [--color-ink:#eef2ec] [--color-on-action:#132116] [--color-paper:#151d17] [--color-surface:#202a22]";
 
 function readTeamBounds(element: HTMLElement): Map<number, TeamBounds> {
   const bounds = new Map<number, TeamBounds>();
@@ -411,12 +413,11 @@ export function ScoreboardPreview({
     setEditingNameIndex(null);
     setManuallyPaused(true);
   };
-
   return (
     <figure
       ref={previewRef}
       aria-labelledby="scoreboard-preview-caption"
-      className={`group/demo relative mx-auto flex min-w-0 flex-col justify-center overflow-hidden ${compact ? "h-full max-h-full w-full" : "h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"}`}
+      className={`group/demo relative mx-auto flex min-w-0 flex-col justify-center overflow-hidden ${darkPreviewTheme} ${compact ? "h-full max-h-full w-full" : "h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"}`}
     >
       <figcaption id="scoreboard-preview-caption" className="sr-only">
         {copy.accessibleDescription}
