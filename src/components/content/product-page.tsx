@@ -64,7 +64,7 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
                 >
                   {t[tool]}
                 </p>
-                <h1 className="max-w-[18ch] font-display text-[clamp(3rem,6.5vw,6rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[preview-intro_600ms_ease-out_both]">
+                <h1 className="max-w-[18ch] font-display text-[clamp(3rem,6.5vw,6rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
                   {campaignCopy[lang].headlines[tool]}
                 </h1>
               </div>

@@ -15,10 +15,10 @@ export function studioDemo(kind: StudioDocument["kind"], lang: Lang): StudioDocu
     board.subtitle = `${t.round} 1`;
     board.columns = [t.team, t.points];
     board.rows = [
-      ["Baran's Team", "42"],
-      ["Team 2", "38"],
-      ["Team 3", "35"],
-      ["Team 4", "29"],
+      [`${t.team} 1`, "42"],
+      [`${t.team} 2`, "38"],
+      [`${t.team} 3`, "35"],
+      [`${t.team} 4`, "29"],
     ].map((cells, index) => ({
       id: `row-${index}`,
       cells,

@@ -6,11 +6,18 @@ import * as bracketApi from "../src/lib/brackets.ts";
 import {
   newLeaderboard,
   moveItem,
+  nextAvailableName,
   removeColumn,
   sortRows,
   parseDocument,
 } from "../src/lib/studio.ts";
-import { newBracket, bracketRounds, setMatchResult, resizeBracket } from "../src/lib/brackets.ts";
+import {
+  newBracket,
+  bracketRounds,
+  setMatchResult,
+  resizeBracket,
+  setBracketParticipants,
+} from "../src/lib/brackets.ts";
 import { saveDocument, listDocuments, deleteDocument } from "../src/store/studio.ts";
 import { fromHsl, toHsl } from "../src/lib/colors.ts";
 import { applyGraphicPreset, canvasRatios, graphicPresets } from "../src/lib/graphic-style.ts";
@@ -46,6 +53,11 @@ test("the shared theme catalog has 15 validated, addressable presets", () => {
   assert.ok(toolThemes.every(validToolTheme));
   assert.equal(getToolTheme("championship-gold"), toolThemes[11]);
   assert.equal(getToolTheme("missing-theme"), undefined);
+});
+
+test("new list items get the next available localized name", () => {
+  assert.equal(nextAvailableName("Team", ["Team 1", "Team 3"]), "Team 2");
+  assert.equal(nextAvailableName("Participant", ["Participant 1"]), "Participant 2");
 });
 
 test("saved custom themes reject malformed, oversized and unexpected local data", () => {
@@ -85,6 +97,21 @@ test("built-in canvases match their advertised aspect ratios and export sizes", 
   assert.deepEqual(canvasRatios.square, { width: 1080, height: 1080 });
   assert.deepEqual(canvasRatios.portrait, { width: 1080, height: 1350 });
   assert.deepEqual(canvasRatios.story, { width: 1080, height: 1920 });
+});
+
+test("new leaderboards start with three editable zero-score teams", () => {
+  const board = newLeaderboard();
+
+  assert.deepEqual(board.columns, ["Team", "Points"]);
+  assert.deepEqual(
+    board.rows.map((row) => row.cells),
+    [
+      ["Team 1", "0"],
+      ["Team 2", "0"],
+      ["Team 3", "0"],
+    ],
+  );
+  assert.ok(board.rows.every((row) => !row.highlighted));
 });
 
 test("appearance presets keep each saved graphic's existing typography", () => {
@@ -173,7 +200,7 @@ test("preview edits update the selected leaderboard cell and bracket participant
   if (updatedLeaderboard.kind !== "leaderboard") return;
   assert.deepEqual(
     updatedLeaderboard.rows.map((row) => row.cells[0]),
-    ["Team 2", "Team 1", "Team 3", "Team 4"],
+    ["Team 2", "Team 1", "Team 3"],
   );
 
   const bracket = newBracket("bracket");
@@ -214,7 +241,7 @@ test("editing a ranked score immediately updates leaderboard order", () => {
   const updated = updateLeaderboardCell(board, "row-1", 1, "50", 1);
   assert.deepEqual(
     updated.rows.map((row) => row.cells[0]),
-    ["Team 2", "Team 1", "Team 3", "Team 4"],
+    ["Team 2", "Team 1", "Team 3"],
   );
 });
 
@@ -246,7 +273,7 @@ test("moving rows keeps values attached; removing a column removes its cells", (
   assert.deepEqual(moveItem(board.rows, 0, -1), board.rows);
   const trimmed = removeColumn(board, 0);
   assert.equal(trimmed.columns.length, 1);
-  assert.deepEqual(trimmed.rows[0].cells, ["42"]);
+  assert.deepEqual(trimmed.rows[0].cells, ["0"]);
   assert.equal(removeColumn(trimmed, 0).columns.length, 1);
 });
 
@@ -256,7 +283,7 @@ test("numeric sorting keeps participants and highlights together", () => {
   board.rows[1].cells[1] = "100";
   const rows = sortRows(board.rows, 1, "desc");
   assert.equal(rows[0].cells[0], "Team 2");
-  assert.equal(rows[1].cells[0], "Team 3");
+  assert.equal(rows[1].cells[0], "Team 1");
 });
 
 test("byes advance automatically without producing a premature champion", () => {
@@ -280,6 +307,31 @@ test("changing an upstream winner invalidates downstream results", () => {
   assert.equal(bracketRounds(board)[1][0].winner, null);
   assert.equal(board.results["1-0"], undefined);
   assert.throws(() => setMatchResult(board, "0-0", "unknown", ["0", "0"]));
+});
+
+test("resizing brackets retains results only for unchanged matches", () => {
+  let board = newBracket();
+  const matches = bracketRounds(board)[0];
+  board = setMatchResult(board, matches[0].id, matches[0].players[0], ["2", "1"]);
+  board = setMatchResult(board, matches[1].id, matches[1].players[0], ["3", "0"]);
+  board = setMatchResult(board, matches[2].id, null, ["4", "5"]);
+
+  const resized = resizeBracket(board, 7);
+
+  assert.equal(resized.results[matches[0].id], undefined);
+  assert.deepEqual(resized.results[matches[1].id], board.results[matches[1].id]);
+  assert.deepEqual(resized.results[matches[2].id], board.results[matches[2].id]);
+});
+
+test("reordering bracket participants keeps results for unchanged pairings", () => {
+  let board = newBracket();
+  const matches = bracketRounds(board)[0];
+  board = setMatchResult(board, matches[0].id, matches[0].players[0], ["2", "1"]);
+  board = setMatchResult(board, matches[1].id, matches[1].players[0], ["3", "0"]);
+  const reordered = setBracketParticipants(board, moveItem(board.participants, 0, 1));
+
+  assert.equal(reordered.results[matches[0].id], undefined);
+  assert.deepEqual(reordered.results[matches[1].id], board.results[matches[1].id]);
 });
 
 test("document parsing rejects corrupt, oversized and hostile data", () => {
@@ -358,6 +410,13 @@ test("every supported bracket size resolves to one champion with each participan
 
 test("leaderboard demo updates standings and resets its animation loop", () => {
   const initial = studioDemo("leaderboard", "en");
+  assert.equal(initial.kind, "leaderboard");
+  if (initial.kind !== "leaderboard") return;
+  assert.deepEqual(
+    initial.rows.map((row) => row.cells[0]),
+    ["Team 1", "Team 2", "Team 3", "Team 4"],
+  );
+
   const firstChange = advanceStudioDemo(initial, initial, 0);
   assert.equal(firstChange.kind, "leaderboard");
   if (firstChange.kind !== "leaderboard") return;
@@ -451,7 +510,7 @@ test("new graphic appearance fields reject unsafe stored values", () => {
 
 test("manual leaderboard edits do not silently reorder rows", () => {
   const board = newLeaderboard();
-  const next = studioApi.updateLeaderboardCell(board, board.rows[3].id, 1, "999");
+  const next = studioApi.updateLeaderboardCell(board, board.rows[2].id, 1, "999");
   assert.deepEqual(
     next.rows.map((row) => row.id),
     board.rows.map((row) => row.id),
@@ -473,7 +532,7 @@ test("manual preview edits preserve row ordering", () => {
   const board = newLeaderboard();
   const edited = updatePreviewField(
     board,
-    { kind: "leaderboard-cell", rowId: board.rows[3].id, column: 1 },
+    { kind: "leaderboard-cell", rowId: board.rows[2].id, column: 1 },
     "999",
     false,
   );

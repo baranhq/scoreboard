@@ -47,12 +47,11 @@ export function newLeaderboard(id = crypto.randomUUID()): Leaderboard {
     style: { ...graphicPresets.classic },
     gridColumns: 1,
     columns: ["Team", "Points"],
-    rows: [
-      ["Team 1", "42"],
-      ["Team 2", "38"],
-      ["Team 3", "35"],
-      ["Team 4", "29"],
-    ].map((cells, i) => ({ id: `row-${i}`, cells, highlighted: i === 0 })),
+    rows: ["Team 1", "Team 2", "Team 3"].map((team, index) => ({
+      id: `row-${index}`,
+      cells: [team, "0"],
+      highlighted: false,
+    })),
   };
 }
 export function moveItem<T>(items: T[], from: number, to: number): T[] {
@@ -60,6 +59,12 @@ export function moveItem<T>(items: T[], from: number, to: number): T[] {
   const next = [...items];
   next.splice(to, 0, next.splice(from, 1)[0]);
   return next;
+}
+export function nextAvailableName(prefix: string, names: readonly string[]): string {
+  const existing = new Set(names);
+  let index = 1;
+  while (existing.has(`${prefix} ${index}`)) index++;
+  return `${prefix} ${index}`;
 }
 export function removeColumn(board: Leaderboard, index: number): Leaderboard {
   if (board.columns.length <= 1) return board;

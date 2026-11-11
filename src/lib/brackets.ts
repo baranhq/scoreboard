@@ -34,14 +34,49 @@ export function newBracket(id = crypto.randomUUID()): Bracket {
 export function resizeBracket(board: Bracket, count: number): Bracket {
   if (!Number.isInteger(count) || count < 2 || count > 64)
     throw new Error("Participant count must be 2–64");
-  return {
-    ...board,
-    results: {},
-    participants: Array.from(
-      { length: count },
-      (_, i) => board.participants[i] || { id: crypto.randomUUID(), name: `${i + 1}` },
-    ),
-  };
+  const participants = Array.from(
+    { length: count },
+    (_, i) => board.participants[i] || { id: crypto.randomUUID(), name: `${i + 1}` },
+  );
+
+  return setBracketParticipants(board, participants);
+}
+export function setBracketParticipants(
+  board: Bracket,
+  participants: Bracket["participants"],
+): Bracket {
+  if (!Number.isInteger(participants.length) || participants.length < 2 || participants.length > 64)
+    throw new Error("Participant count must be 2–64");
+
+  const previousMatches = new Map(
+    bracketRounds(board)
+      .flat()
+      .map((match) => [match.id, match]),
+  );
+  const roundCount = Math.min(
+    bracketRounds(board).length,
+    bracketRounds({ ...board, participants, results: {} }).length,
+  );
+  let next: Bracket = { ...board, participants: [...participants], results: {} };
+
+  for (let round = 0; round < roundCount; round++) {
+    for (const match of bracketRounds(next)[round]) {
+      const previousMatch = previousMatches.get(match.id);
+      const result = board.results[match.id];
+      if (
+        !previousMatch ||
+        !result ||
+        !match.players.every(Boolean) ||
+        match.players[0] !== previousMatch.players[0] ||
+        match.players[1] !== previousMatch.players[1]
+      )
+        continue;
+
+      next = setMatchResult(next, match.id, result.winner, result.scores);
+    }
+  }
+
+  return next;
 }
 export function bracketRounds(board: Bracket): BracketMatch[][] {
   const size = 2 ** Math.ceil(Math.log2(board.participants.length));
