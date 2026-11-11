@@ -16,8 +16,11 @@ import { Button, Modal } from "@/components/ui/ui";
 import {
   newLeaderboard,
   moveItem,
+  moveLeaderboardColumn,
   nextAvailableName,
+  recalculateLeaderboardTotal,
   removeColumn,
+  setLeaderboardTotalColumn,
   sortRows,
   updateLeaderboardCell,
   type Leaderboard,
@@ -51,11 +54,11 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const editingRow = board.rows.find((row) => row.id === editingRowId);
   const changeCell = (rowId: string, column: number, value: string) =>
-    state.change(updateLeaderboardCell(board, rowId, column, value));
+    state.change(updateLeaderboardCell(board, rowId, column, value, Number(sortColumn)));
   const setRows = (rows: Leaderboard["rows"]) => {
     if (rows.map((row) => row.id).join("\u0000") !== board.rows.map((row) => row.id).join("\u0000"))
       captureRows();
-    state.change({ ...board, rows });
+    state.change(recalculateLeaderboardTotal({ ...board, rows }));
   };
   return (
     <EditorShell
@@ -100,16 +103,18 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                 ))}
               </select>
             </label>
-            <p className="text-sm leading-5 text-ink/75">{t.manualOrderHint}</p>
+            <p className="text-sm leading-5 text-ink/75">
+              {board.totalColumn === undefined ? t.manualOrderHint : t.calculatedRankHint}
+            </p>
             <div className="flex flex-wrap gap-2">
               <Button
-                disabled={!board.rows.length}
+                disabled={!board.rows.length || board.totalColumn !== undefined}
                 onClick={() => setRows(sortRows(board.rows, Number(sortColumn), "desc"))}
               >
                 {t.sortDesc}
               </Button>
               <Button
-                disabled={!board.rows.length}
+                disabled={!board.rows.length || board.totalColumn !== undefined}
                 onClick={() => setRows(sortRows(board.rows, Number(sortColumn), "asc"))}
               >
                 {t.sortAsc}
@@ -221,6 +226,38 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             {t.addColumn}
           </Button>
         </div>
+        <details className="rounded-lg border border-forest/20 bg-forest/5 px-3">
+          <summary className="min-h-11 cursor-pointer py-3 text-sm font-semibold text-forest">
+            {t.totalPoints}
+          </summary>
+          <div className="grid gap-3 border-t border-forest/15 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,0.7fr)] sm:items-end">
+            <p className="text-sm leading-5 text-ink/75">
+              {board.totalColumn === undefined ? t.totalPointsHint : t.calculatedTotalHint}
+            </p>
+            <label className="grid gap-1 text-sm font-semibold">
+              {t.totalColumnLabel}
+              <select
+                className={inputClass}
+                value={board.totalColumn ?? ""}
+                onChange={(event) =>
+                  state.change(
+                    setLeaderboardTotalColumn(
+                      board,
+                      event.target.value === "" ? undefined : Number(event.target.value),
+                    ),
+                  )
+                }
+              >
+                <option value="">{t.noCalculatedTotal}</option>
+                {board.columns.map((column, index) => (
+                  <option key={index} value={index} disabled={index === 0}>
+                    {column || `${t.column} ${index + 1}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </details>
         {board.rows.length === 0 && (
           <p className="text-sm leading-5 text-ink/75">{t.emptyLeaderboard}</p>
         )}
@@ -256,7 +293,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                     />
                     <details className="mt-1">
                       <summary className="cursor-pointer py-2 text-xs font-medium text-action">
-                        {t.editing}
+                        {board.totalColumn === i ? t.totalPoints : t.editing}
                       </summary>
                       <label className="grid gap-1 py-2 text-xs font-medium">
                         {t.width}
@@ -283,44 +320,24 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                       <div className="flex flex-wrap gap-1">
                         <IconButton
                           label={`${t.left}: ${column}`}
-                          disabled={i === 0}
-                          onClick={() =>
-                            state.change({
-                              ...board,
-                              columns: moveItem(board.columns, i, i - 1),
-                              columnWidths: board.columnWidths
-                                ? moveItem(board.columnWidths, i, i - 1)
-                                : undefined,
-                              rows: board.rows.map((r) => ({
-                                ...r,
-                                cells: moveItem(r.cells, i, i - 1),
-                              })),
-                            })
-                          }
+                          disabled={i === 0 || (board.totalColumn === i && i === 1)}
+                          onClick={() => state.change(moveLeaderboardColumn(board, i, i - 1))}
                         >
                           <ArrowLeft size={14} />
                         </IconButton>
                         <IconButton
                           label={`${t.right}: ${column}`}
-                          disabled={i === board.columns.length - 1}
-                          onClick={() =>
-                            state.change({
-                              ...board,
-                              columns: moveItem(board.columns, i, i + 1),
-                              columnWidths: board.columnWidths
-                                ? moveItem(board.columnWidths, i, i + 1)
-                                : undefined,
-                              rows: board.rows.map((r) => ({
-                                ...r,
-                                cells: moveItem(r.cells, i, i + 1),
-                              })),
-                            })
+                          disabled={
+                            i === board.columns.length - 1 ||
+                            (board.totalColumn === i + 1 && i === 0)
                           }
+                          onClick={() => state.change(moveLeaderboardColumn(board, i, i + 1))}
                         >
                           <ArrowRight size={14} />
                         </IconButton>
                         <IconButton
                           label={`${t.sortAsc}: ${column}`}
+                          disabled={board.totalColumn !== undefined}
                           onClick={() =>
                             state.change({ ...board, rows: sortRows(board.rows, i, "asc") })
                           }
@@ -329,6 +346,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                         </IconButton>
                         <IconButton
                           label={`${t.sortDesc}: ${column}`}
+                          disabled={board.totalColumn !== undefined}
                           onClick={() =>
                             state.change({ ...board, rows: sortRows(board.rows, i, "desc") })
                           }
@@ -365,7 +383,12 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                         className={`${inputClass} !w-14 px-1.5 text-center tabular-nums sm:!w-20 sm:px-3`}
                         maxLength={6}
                         placeholder={String(index + 1)}
-                        value={row.position || ""}
+                        value={
+                          board.totalColumn === undefined ? row.position || "" : String(index + 1)
+                        }
+                        readOnly={board.totalColumn !== undefined}
+                        aria-readonly={board.totalColumn !== undefined || undefined}
+                        title={board.totalColumn !== undefined ? t.calculatedRankHint : undefined}
                         onChange={(e) =>
                           state.change({
                             ...board,
@@ -392,14 +415,16 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                       <div className="grid grid-cols-2 gap-1">
                         <IconButton
                           label={`${t.up} ${index + 1}`}
-                          disabled={index === 0}
+                          disabled={index === 0 || board.totalColumn !== undefined}
                           onClick={() => setRows(moveItem(board.rows, index, index - 1))}
                         >
                           <ArrowUp size={14} />
                         </IconButton>
                         <IconButton
                           label={`${t.down} ${index + 1}`}
-                          disabled={index === board.rows.length - 1}
+                          disabled={
+                            index === board.rows.length - 1 || board.totalColumn !== undefined
+                          }
                           onClick={() => setRows(moveItem(board.rows, index, index + 1))}
                         >
                           <ArrowDown size={14} />
@@ -442,6 +467,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                     </details>
                   </th>
                   {row.cells.map((cell, column) => {
+                    const isTotal = column === board.totalColumn;
                     const numericValue = Number(cell);
                     const numeric = cell.trim() !== "" && Number.isFinite(numericValue);
                     const adjust = (amount: number) =>
@@ -451,7 +477,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                     return (
                       <td key={column} className="border-t border-l border-forest/15 p-2">
                         <div className="flex min-w-0 items-center gap-1">
-                          {numeric && column > 0 && (
+                          {numeric && column > 0 && !isTotal && (
                             <button
                               type="button"
                               aria-label={`${t.decreasePoints}: ${label}`}
@@ -463,21 +489,24 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                             </button>
                           )}
                           <input
-                            className={`${inputClass} min-w-20 flex-1 px-2 sm:min-w-28 sm:px-3 ${numeric && column > 0 ? "text-center tabular-nums" : ""}`}
                             aria-label={label}
                             maxLength={200}
                             inputMode={numeric && column > 0 ? "decimal" : undefined}
                             value={cell}
+                            readOnly={isTotal}
+                            aria-readonly={isTotal || undefined}
+                            title={isTotal ? t.calculatedTotalHint : undefined}
+                            className={`${inputClass} min-w-20 flex-1 px-2 sm:min-w-28 sm:px-3 ${numeric && column > 0 ? "text-center tabular-nums" : ""} ${isTotal ? "bg-forest/5 font-semibold" : ""}`}
                             onChange={(event) => changeCell(row.id, column, event.target.value)}
                             onKeyDown={(event) => {
-                              if (!numeric || column === 0) return;
+                              if (!numeric || column === 0 || isTotal) return;
                               if (event.key === "ArrowUp" || event.key === "ArrowDown") {
                                 event.preventDefault();
                                 adjust(event.key === "ArrowUp" ? 1 : -1);
                               }
                             }}
                           />
-                          {numeric && column > 0 && (
+                          {numeric && column > 0 && !isTotal && (
                             <button
                               type="button"
                               aria-label={`${t.increasePoints}: ${label}`}
@@ -510,7 +539,13 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                 <input
                   className={inputClass}
                   maxLength={6}
-                  value={editingRow.position || ""}
+                  value={
+                    board.totalColumn === undefined
+                      ? editingRow.position || ""
+                      : String(board.rows.findIndex((row) => row.id === editingRow.id) + 1)
+                  }
+                  readOnly={board.totalColumn !== undefined}
+                  aria-readonly={board.totalColumn !== undefined || undefined}
                   onChange={(event) =>
                     state.change({
                       ...board,
@@ -528,15 +563,19 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                     className={inputClass}
                     maxLength={200}
                     value={editingRow.cells[index] || ""}
+                    readOnly={index === board.totalColumn}
+                    aria-readonly={index === board.totalColumn || undefined}
+                    title={index === board.totalColumn ? t.calculatedTotalHint : undefined}
                     onChange={(event) => {
-                      const cells = [...editingRow.cells];
-                      cells[index] = event.target.value;
-                      state.change({
-                        ...board,
-                        rows: board.rows.map((row) =>
-                          row.id === editingRow.id ? { ...row, cells } : row,
+                      state.change(
+                        updateLeaderboardCell(
+                          board,
+                          editingRow.id,
+                          index,
+                          event.target.value,
+                          Number(sortColumn),
                         ),
-                      });
+                      );
                     }}
                   />
                 </label>
