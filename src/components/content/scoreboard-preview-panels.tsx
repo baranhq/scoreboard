@@ -33,18 +33,15 @@ function VisualButton({
   primary = false,
   pressed = false,
   className = "",
-  target,
 }: {
   children: ReactNode;
   primary?: boolean;
   pressed?: boolean;
   className?: string;
-  target?: PreviewTarget;
 }) {
   return (
     <span
       className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border px-2 py-1 text-sm font-medium transition-[color,background-color,border-color,transform] duration-150 motion-reduce:transform-none motion-reduce:transition-none ${primary ? "border-action bg-action text-on-action" : "border-forest/25 bg-transparent text-forest"} ${pressed ? "scale-[.96] brightness-95" : ""} ${className}`}
-      data-demo-target={target}
     >
       {children}
     </span>
@@ -54,17 +51,14 @@ function VisualButton({
 function PreviewCheck({
   label,
   checked = false,
-  target,
   pressed = false,
 }: {
   label: string;
   checked?: boolean;
-  target?: PreviewTarget;
   pressed?: boolean;
 }) {
   return (
     <div
-      data-demo-target={target}
       className={`flex min-h-9 items-center gap-2 text-sm transition-transform duration-150 motion-reduce:transition-none ${pressed ? "scale-[.98]" : ""}`}
     >
       <span
@@ -146,7 +140,7 @@ export function PreviewTimer({ state, labels }: { state: PreviewState; labels: P
         </p>
       </div>
       <div className="col-start-3 flex justify-end gap-1.5">
-        <VisualButton target="timer-start" pressed={state.pressed === "timer-start"}>
+        <VisualButton pressed={state.pressed === "timer-start"}>
           {state.timerRunning ? (
             <Pause aria-hidden="true" className="h-4 w-4" />
           ) : (
@@ -156,7 +150,7 @@ export function PreviewTimer({ state, labels }: { state: PreviewState; labels: P
             {state.timerRunning ? labels.pauseTimer : labels.startTimer}
           </span>
         </VisualButton>
-        <VisualButton target="timer-reset" pressed={state.pressed === "timer-reset"}>
+        <VisualButton pressed={state.pressed === "timer-reset"}>
           <RotateCcw aria-hidden="true" className="h-4 w-4" />
           <span className="sr-only">{labels.resetTimer}</span>
         </VisualButton>
@@ -262,7 +256,6 @@ export function PreviewTeamCard({
           aria-label={`${labels.decrease} ${name}`}
           disabled={readOnly}
           onClick={() => onScoreChange(-1)}
-          data-demo-target={minusTarget ?? undefined}
           className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-solid disabled:opacity-100 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${minusTarget !== null && state.pressed === minusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
         >
           <Minus aria-hidden="true" className="h-5 w-5" />
@@ -272,7 +265,6 @@ export function PreviewTeamCard({
           aria-label={`${labels.increase} ${name}`}
           disabled={readOnly}
           onClick={() => onScoreChange(1)}
-          data-demo-target={plusTarget}
           className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-solid disabled:opacity-100 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${plusTarget !== null && state.pressed === plusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
         >
           <Plus aria-hidden="true" className="h-5 w-5" />
@@ -321,7 +313,6 @@ export function PreviewConfiguration({
         {tabOrder.map((tab) => (
           <span
             key={tab}
-            data-demo-target={tabTargets[tab]}
             className={`inline-flex min-h-9 min-w-0 items-center justify-center rounded-lg px-1 py-1 text-center text-xs font-semibold transition-colors duration-150 motion-reduce:transition-none min-[900px]:px-0 min-[900px]:text-[11px] lg:min-w-0 lg:flex-1 lg:px-2 lg:text-sm ${state.tab === tab ? "bg-action text-on-action" : "text-forest"} ${state.pressed === tabTargets[tab] ? "scale-[.97]" : ""}`}
           >
             {tabLabels[tab]}
@@ -332,7 +323,6 @@ export function PreviewConfiguration({
       <div
         key={state.tab}
         data-demo-scroll-panel
-        data-demo-target={state.tab === "timer" ? "timer-scroll" : undefined}
         className="mt-3 min-h-0 flex-1 touch-pan-y [scrollbar-width:thin] [scrollbar-color:rgba(40,91,53,0.35)_transparent] overflow-x-hidden overflow-y-auto overscroll-contain rounded-b-md border-t border-forest/15 pt-3 pb-2 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/35 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-forest/5"
       >
         {state.tab === "teams" && (
@@ -347,7 +337,6 @@ export function PreviewConfiguration({
               <div key={index} className="flex min-w-0 items-center gap-1">
                 <span className="sr-only">{`${labels.teamName} ${index + 1}`}</span>
                 <span
-                  data-demo-target={index === 0 ? "team-one-name" : undefined}
                   className={`flex min-h-9 min-w-0 flex-1 items-center truncate rounded-lg border bg-paper px-2.5 text-sm text-ink transition-[border-color,box-shadow] duration-150 motion-reduce:transition-none ${index === 0 && state.editingTeamName ? "border-action ring-2 ring-action/20" : "border-forest/25"}`}
                 >
                   {name}
@@ -362,7 +351,6 @@ export function PreviewConfiguration({
                   <ArrowDown aria-hidden="true" className="h-4 w-4" />
                 </span>
                 <span
-                  data-demo-target={index === 2 ? "team-three-remove" : undefined}
                   className={`flex h-9 w-8 shrink-0 items-center justify-center rounded-md border border-forest/20 text-forest transition-transform duration-150 motion-reduce:transition-none ${index === 2 && state.pressed === "team-three-remove" ? "scale-95" : ""}`}
                 >
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
@@ -371,7 +359,7 @@ export function PreviewConfiguration({
             ))}
             {state.teamCount === 2 && (
               <div className="pt-1">
-                <VisualButton target="add-team" pressed={state.pressed === "add-team"}>
+                <VisualButton pressed={state.pressed === "add-team"}>
                   <Plus aria-hidden="true" className="h-4 w-4" />
                   <span>{labels.addTeam}</span>
                 </VisualButton>
@@ -400,7 +388,6 @@ export function PreviewConfiguration({
                     return (
                       <span
                         key={palette.background}
-                        data-demo-target={target}
                         className={`flex h-7 w-7 items-center justify-center rounded-lg border border-black/15 bg-[var(--swatch-bg)] text-[var(--swatch-check)] transition-[transform,border-color] duration-150 motion-reduce:transition-none min-[480px]:h-8 min-[480px]:w-8 dark:border-white/20 dark:bg-[var(--swatch-bg-dark)] dark:text-[var(--swatch-check-dark)] ${state.pressed === target ? "scale-95" : selected ? "scale-105 border-action" : ""}`}
                         style={
                           {
@@ -511,7 +498,6 @@ export function PreviewConfiguration({
             <PreviewCheck
               label={labels.enableTimer}
               checked={state.timerEnabled}
-              target="timer-enable"
               pressed={state.pressed === "timer-enable"}
             />
             {state.timerEnabled && (
@@ -550,7 +536,6 @@ export function PreviewConfiguration({
                   <PreviewCheck
                     label={labels.trackPausedTime}
                     checked={state.trackPausedTime}
-                    target="timer-paused-time"
                     pressed={state.pressed === "timer-paused-time"}
                   />
                   <PreviewCheck label={labels.pausedScoreNotice} checked />
