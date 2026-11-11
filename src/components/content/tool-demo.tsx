@@ -15,6 +15,7 @@ import { updateLeaderboardCell, type Leaderboard, type StudioDocument } from "@/
 import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
 import { studioCopy } from "@/lib/studio-copy";
 import { useAutoDemo } from "./use-auto-demo";
+import { HomeScoreboard } from "./home-scoreboard";
 
 export type Tool = "scoreboard" | "leaderboard" | "bracket";
 
@@ -33,7 +34,16 @@ const productRoutes = {
 const demoInputClass =
   "min-h-9 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-2.5 py-1.5 text-sm text-ink";
 
-export function ToolDemo({ tool, lang }: { tool: Tool; lang: Lang }) {
+export function ToolDemo({
+  tool,
+  lang,
+  compact = false,
+}: {
+  tool: Tool;
+  lang: Lang;
+  compact?: boolean;
+}) {
+  if (tool === "scoreboard" && compact) return <HomeScoreboard lang={lang} />;
   if (tool === "scoreboard") {
     return (
       <ScoreboardPreview
@@ -52,10 +62,18 @@ export function ToolDemo({ tool, lang }: { tool: Tool; lang: Lang }) {
     );
   }
 
-  return <StudioToolDemo key={tool} tool={tool} lang={lang} />;
+  return <StudioToolDemo key={tool} tool={tool} lang={lang} compact={compact} />;
 }
 
-function StudioToolDemo({ tool, lang }: { tool: Exclude<Tool, "scoreboard">; lang: Lang }) {
+function StudioToolDemo({
+  tool,
+  lang,
+  compact,
+}: {
+  tool: Exclude<Tool, "scoreboard">;
+  lang: Lang;
+  compact: boolean;
+}) {
   const t = studioCopy[lang];
   const initial = useMemo(() => studioDemo(tool, lang), [tool, lang]);
   const [document, setDocument] = useState(initial);
@@ -109,12 +127,12 @@ function StudioToolDemo({ tool, lang }: { tool: Exclude<Tool, "scoreboard">; lan
       </header>
 
       <div
-        className="grid min-w-0 items-start gap-3 p-3 sm:p-4 lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"
+        className={`grid min-w-0 items-start gap-3 p-3 sm:p-4 ${compact ? "" : "lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
         onFocusCapture={pause}
         onInputCapture={pause}
         onChangeCapture={pause}
       >
-        <div className="min-w-0 space-y-3">
+        <div className={compact ? "hidden" : "min-w-0 space-y-3"}>
           <DocumentFields document={document} setDocument={setDocument} lang={lang} />
           {document.kind === "leaderboard" ? (
             <LeaderboardFields board={document} setDocument={setDocument} lang={lang} />
@@ -123,8 +141,17 @@ function StudioToolDemo({ tool, lang }: { tool: Exclude<Tool, "scoreboard">; lan
           )}
         </div>
 
+        {compact && document.kind === "bracket" && (
+          <details className="rounded-lg border border-forest/20 px-3 py-2 text-sm">
+            <summary className="cursor-pointer py-1 font-semibold text-action">{t.results}</summary>
+            <BracketFields board={document} setDocument={setDocument} lang={lang} />
+          </details>
+        )}
+
         <section aria-label={t.preview} className="min-w-0">
-          <div className="max-h-[min(68svh,30rem)] min-h-52 overflow-auto overscroll-contain rounded-lg border border-forest/20 bg-paper p-2 sm:p-3">
+          <div
+            className={`${compact ? "" : "max-h-[min(68svh,30rem)]"} min-h-52 overflow-auto overscroll-contain rounded-lg border border-forest/20 bg-paper p-2 sm:p-3`}
+          >
             <Graphic
               document={document}
               labels={t}
@@ -334,7 +361,7 @@ function BracketFields({
   );
 }
 
-export function PlatformDemo({ lang }: { lang: Lang }) {
+export function PlatformDemo({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
   const [tool, setTool] = useState<Tool>("scoreboard");
   const t = studioCopy[lang];
   const content = {
@@ -362,8 +389,15 @@ export function PlatformDemo({ lang }: { lang: Lang }) {
           </button>
         ))}
       </div>
-      <div role="tabpanel" aria-label={t[tool]}>
-        <ToolDemo key={tool} tool={tool} lang={lang} />
+      <div
+        aria-label={t[tool]}
+        className={
+          compact
+            ? "h-[26rem] overflow-y-auto overscroll-contain sm:h-[29rem] [&>section]:min-h-full"
+            : undefined
+        }
+      >
+        <ToolDemo key={tool} tool={tool} lang={lang} compact={compact} />
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         {tool !== "scoreboard" && (

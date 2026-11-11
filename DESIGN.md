@@ -16,7 +16,7 @@ The existing Baran's Scoreboard name and wordmark remain. Use a clear forest-gre
 
 ## Public pages
 
-Discovery pages use Home, Scoreboard, Leaderboards and Brackets links to the matching product introductions, plus a contextual action that opens that tool. The home page pairs a direct promise with one switchable, interactive application view and a short progression from score to final. Product introductions use the matching working application demo. Render real product states instead of static mock dashboards.
+Discovery pages use Home, Scoreboard, Leaderboards and Brackets links to the matching product introductions, plus a contextual action that opens that tool. The homepage uses a sports-editorial composition: oversized tightly spaced type on warm paper, a compact switchable live display beside the hero, alternating product compositions, a connected three-step explanation, and a forest-green open-source close. Homepage demonstrations show the output first, with advanced match controls collapsed; product introductions retain their full existing demonstrations. Product introductions use the matching working application demo. Render real product states instead of static mock dashboards.
 
 ## Application navigation
 
