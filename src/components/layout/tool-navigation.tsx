@@ -25,7 +25,7 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
   ];
   const applicationPaths = new Set(applicationLinks.map((link) => normalize(link.href)));
   applicationPaths.add("/scoreboard");
-  const inApplication = applicationPaths.has(pathname);
+  const inApplication = pathname !== normalize(homeRoute(lang)) && applicationPaths.has(pathname);
   const links = inApplication ? applicationLinks : discoveryLinks;
   const showAction =
     !inApplication &&
@@ -83,7 +83,7 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
           label={
             <>
               <Menu className="h-5 w-5" aria-hidden="true" />
-              <span>{t.tools}</span>
+              <span className="hidden sm:inline">{t.tools}</span>
             </>
           }
           triggerClassName="!px-3"
