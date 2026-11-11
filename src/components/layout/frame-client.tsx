@@ -22,6 +22,7 @@ function getServerLanguageCheckSnapshot() {
 export function ScrollingHeader({ children }: { children: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const editorial = /^\/(?:en|bg|tr)\/leaderboards\/?$/.test(pathname);
   const campaign = /^\/(?:(?:en|bg|tr)(?:\/(?:tools\/scoreboard|brackets))?)?\/?$/.test(pathname);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function ScrollingHeader({ children }: { children: ReactNode }) {
 
   return (
     <header
-      className={`${campaign ? "!bg-[#14251b] text-[#f5f2e8] [--color-action:#ccf86b] [--color-forest:#ccf86b] [--color-ink:#f5f2e8] [--color-on-action:#14251b] [--color-paper:#14251b] [&_img]:brightness-0 [&_img]:invert" : ""} transition-[height,background-color,backdrop-filter] duration-150 ease-out motion-reduce:transition-none ${scrolled ? "h-14 bg-[#edf1e8]/90 backdrop-blur-sm dark:bg-[#213027]/90" : "h-16 bg-[#edf1e8] dark:bg-[#213027]"}`}
+      className={`${editorial ? "!bg-paper text-ink" : ""} ${campaign ? "!bg-[#14251b] text-[#f5f2e8] [--color-action:#ccf86b] [--color-forest:#ccf86b] [--color-ink:#f5f2e8] [--color-on-action:#14251b] [--color-paper:#14251b] [&_img]:brightness-0 [&_img]:invert" : ""} transition-[height,background-color,backdrop-filter] duration-150 ease-out motion-reduce:transition-none ${scrolled ? "h-14 bg-[#edf1e8]/90 backdrop-blur-sm dark:bg-[#213027]/90" : "h-16 bg-[#edf1e8] dark:bg-[#213027]"}`}
     >
       {children}
     </header>
