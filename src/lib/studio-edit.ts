@@ -80,6 +80,7 @@ export function updatePreviewField(
       field.column,
       value,
       rankScores && field.column === 1 ? 1 : undefined,
+      rankScores,
     );
 
   if (field.kind === "bracket-participant" && document.kind === "bracket")
