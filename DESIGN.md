@@ -2,7 +2,7 @@
 
 ## Direction
 
-Public landing pages use a digital sports campaign identity: oversized Inter Tight, forest `#14251b`, warm ivory `#f5f2e8` and selective lime `#ccf86b`. The homepage leads with a full-width broadcast scoreboard, then one ranking composition and one panoramic bracket. Avoid repeated demos, small editor forms, floating glass cards and decorative metrics. Each product introduction uses a distinct composition: broadcast display, ivory rankings, and a wide road to the final. Navigation blends into the current scene. Actual builders share a compact project toolbar, four editing areas, a large live preview, and the existing data contracts.
+Public landing pages follow Modern Competition Editorial: oversized Inter Tight, deep forest `#14251b`, warm ivory `#f5f2e8`, and selective lime `#ccf86b`. The homepage pairs a headline with a coordinated, switchable real product stage, an editorial tool index, a shared theme lab, a compact workflow, and an open-source close. Product pages have individual broadcast, ranking and panoramic tournament compositions. Useful interactive layout comparisons and real timer controls replace text-only capability sections. No decorative metrics, floating glass cards or marketing-only renderers. Builders retain their existing interface and data contracts.
 
 ## Tokens and type
 
@@ -14,7 +14,7 @@ Public landing pages use a digital sports campaign identity: oversized Inter Tig
 
 ## Public pages
 
-Discovery pages use Home, Scoreboard, Leaderboards and Brackets links to the matching product introductions, plus a contextual action that opens that tool. The homepage uses a sports-editorial composition: oversized tightly spaced type on warm paper, a compact switchable live display beside the hero, alternating product compositions, a connected three-step explanation, and a forest-green open-source close. Homepage demonstrations show the output first, with advanced match controls collapsed; product introductions retain their full existing demonstrations. Product introductions use the matching working application demo. Render real product states instead of static mock dashboards.
+Discovery pages use Home, Scoreboard, Leaderboards and Brackets links to the matching product introductions, plus a contextual action that opens that tool. The homepage leads with a forest broadcast stage and oversized type, followed by a plain tool index and an ivory theme laboratory. The hero initially shows Scoreboard; the theme lab initially shows Leaderboards. Product introductions use individually arranged real demonstrations, with advanced controls collapsed and large readable outputs. Render real product states instead of static mock dashboards.
 
 Product introductions pair distinct heroes with capability stories, actual editor preset/layout comparisons, localized captures of real controls, workflows, product-specific FAQs and a closing application action. Scoreboard demonstrations reuse TeamPanel; graphics reuse the editor SVG renderer. Marketing examples remain separate from project storage.
 

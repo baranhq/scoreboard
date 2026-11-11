@@ -7,6 +7,8 @@ import { productDetails } from "@/lib/product-details";
 import { route } from "@/lib/routes";
 import { toolContent, toolEditors } from "./landing-page";
 import type { Tool } from "./tool-demo";
+import { ProductOutputLab } from "./product-output-lab";
+import { campaignCopy } from "@/lib/campaign-copy";
 import { ProductThemeShowcase } from "./product-theme-showcase";
 
 export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
@@ -32,28 +34,28 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           <p className="max-w-[50ch] text-lg leading-8 text-ink/75">{copy.capability[1]}</p>
         </header>
         <div
-          className={
-            tool === "bracket"
-              ? "mt-9 border-l border-forest/30 pl-5 sm:ml-6 sm:pl-10"
-              : "mt-9 border-t border-forest/25"
-          }
+          className={`mt-10 grid min-w-0 gap-8 ${tool === "scoreboard" ? "lg:grid-cols-[1.5fr_0.7fr]" : tool === "leaderboard" ? "lg:grid-cols-[0.7fr_1.5fr]" : ""}`}
         >
-          {copy.stories.map(([title, text], index) => (
-            <article
-              key={title}
-              className={`grid gap-3 py-6 ${tool === "bracket" ? "relative before:absolute before:top-8 before:-left-6 before:size-2 before:rounded-full before:bg-action sm:before:-left-11" : "border-b border-forest/20"} ${tool === "leaderboard" ? "md:grid-cols-[0.9fr_1.1fr]" : "md:grid-cols-[1fr_1.25fr]"} md:gap-10`}
-            >
-              <h3 className="font-display text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
-                {title}
-              </h3>
-              <p className="max-w-[65ch] leading-7 text-ink/75">{text}</p>
-              <span className="sr-only">{index + 1}</span>
-            </article>
-          ))}
+          <div className={`min-w-0 ${tool === "leaderboard" ? "lg:order-2" : ""}`}>
+            <h3 className="mb-5 font-display text-2xl font-semibold tracking-tight">
+              {campaignCopy[lang].lab[tool]}
+            </h3>
+            <ProductOutputLab tool={tool} lang={lang} />
+          </div>
+          <div className={tool === "bracket" ? "grid gap-x-10 md:grid-cols-3" : ""}>
+            {copy.stories.map(([title, text]) => (
+              <article key={title} className="border-t border-forest/25 py-6">
+                <h3 className="font-display text-2xl leading-tight font-semibold tracking-tight">
+                  {title}
+                </h3>
+                <p className="mt-3 max-w-[60ch] text-base leading-7 text-ink/75">{text}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
       <section
-        className={tool === "bracket" ? "bg-[#e4ecd7] dark:bg-[#24392a]" : "bg-forest/5"}
+        className={tool === "bracket" ? "bg-campaign-soft dark:bg-campaign-muted" : "bg-forest/5"}
         aria-labelledby="theme-showcase-title"
       >
         <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
@@ -66,7 +68,7 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
             </h2>
             <p className="max-w-[65ch] leading-7 text-ink/75">{copy.themes[1]}</p>
           </header>
-          <div className={tool === "leaderboard" ? "mx-auto max-w-4xl" : "min-w-0"}>
+          <div className="min-w-0">
             <ProductThemeShowcase tool={tool} lang={lang} hint={locale.themeHint} />
           </div>
         </div>
@@ -108,30 +110,27 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
               <Image
                 unoptimized
                 src={`/product-views/${tool}-${lang}.webp`}
-                width="640"
-                height={tool === "scoreboard" ? 230 : tool === "leaderboard" ? 490 : 470}
+                width="1280"
+                height="720"
                 alt={`${t.editing}: ${t[tool]}`}
                 loading="lazy"
                 className="h-auto w-full min-w-[34rem] border border-forest/15 lg:min-w-0"
               />
             </div>
-            <figcaption className="mt-3 text-sm text-ink/65">
-              {t.editing} · {t[tool]}
-            </figcaption>
           </figure>
         </div>
       </section>
-      <section className="bg-[#14251b] text-[#f5f2e8]">
+      <section className="bg-campaign text-campaign-ink">
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
           <h2 className="max-w-[22ch] font-display text-4xl leading-[1.02] font-bold tracking-[-0.045em] sm:text-5xl">
             {copy.advanced[0]}
           </h2>
           <div>
             <p className="leading-8 text-white/80">{copy.advanced[1]}</p>
-            <h3 className="mt-8 text-lg font-semibold text-[#ccf86b]">{locale.useCases}</h3>
-            <ul className="mt-4 flex flex-wrap gap-2">
+            <h3 className="mt-8 text-lg font-semibold text-lime">{locale.useCases}</h3>
+            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
               {copy.uses.map((use) => (
-                <li key={use} className="border border-white/25 px-3 py-2 text-sm">
+                <li key={use} className="border-b border-white/25 py-2 text-base">
                   {use}
                 </li>
               ))}
@@ -166,14 +165,14 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           ))}
         </div>
       </section>
-      <section className="bg-[#ccf86b] text-[#14251b]">
+      <section className={tool === "leaderboard" ? "bg-forest/10" : "bg-lime text-campaign"}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-7 px-5 py-10 sm:px-8 sm:py-14">
-          <h2 className="max-w-[24ch] font-display text-4xl leading-[1.02] font-bold tracking-[-0.045em] sm:text-5xl">
+          <h2 className="max-w-[20ch] font-display text-[clamp(3rem,6vw,6rem)] leading-[0.98] font-bold tracking-[-0.04em]">
             {copy.close}
           </h2>
           <Link
             href={route(lang, toolEditors[tool])}
-            className="inline-flex min-h-12 items-center gap-3 rounded-full bg-[#14251b] px-6 py-3 font-semibold text-[#f5f2e8] transition-transform active:scale-95 motion-reduce:transform-none"
+            className="inline-flex min-h-12 items-center gap-3 rounded-full bg-campaign px-6 py-3 font-semibold text-campaign-ink transition-transform active:scale-95 motion-reduce:transform-none"
           >
             {content.action}
             <ArrowUpRight size={18} aria-hidden="true" />

@@ -51,7 +51,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
         steps: [
           [
             "Name the teams",
-            "Start with Team 1 and Team 2 at zero. Add more teams and change their names in the Teams panel.",
+            "Start with Team 1 and Team 2 at zero. Add more teams and change their names in the Content panel.",
           ],
           [
             "Keep the score moving",
@@ -256,7 +256,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
         steps: [
           [
             "Дайте имена на отборите",
-            "Започнете с Отбор 1 и Отбор 2 на нула. Добавете още отбори и променете имената в панела Отбори.",
+            "Започнете с Отбор 1 и Отбор 2 на нула. Добавете още отбори и променете имената в панела Съдържание.",
           ],
           [
             "Следете резултата",
@@ -466,7 +466,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
         steps: [
           [
             "Takımları adlandırın",
-            "Sıfır puanlı Takım 1 ve Takım 2 ile başlayın. Takımlar panelinde yeni takım ekleyin ve adları düzenleyin.",
+            "Sıfır puanlı Takım 1 ve Takım 2 ile başlayın. İçerik panelinde yeni takım ekleyin ve adları düzenleyin.",
           ],
           [
             "Skoru güncel tutun",
