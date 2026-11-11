@@ -136,6 +136,7 @@ export function EditorShell({
     content: children,
     design,
     settings,
+    timer: null,
     export: exportPanel,
   };
 
