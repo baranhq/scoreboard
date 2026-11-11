@@ -166,6 +166,7 @@ export function PreviewTeamCard({
   score,
   labels,
   readOnly = false,
+  compact = false,
   editingName,
   onEditName,
   onDoneEditingName,
@@ -178,6 +179,7 @@ export function PreviewTeamCard({
   score: number;
   labels: PreviewLabels;
   readOnly?: boolean;
+  compact?: boolean;
   editingName: boolean;
   onEditName: () => void;
   onDoneEditingName: () => void;
@@ -212,9 +214,11 @@ export function PreviewTeamCard({
     <article
       data-demo-team={index + 1}
       style={style}
-      className={`[container-type:inline-size] flex min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-1.5 py-2 text-[var(--team-fg)] transition-[opacity,transform,background-color] duration-300 motion-reduce:transition-none sm:flex-1 sm:px-2 sm:py-4 dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] [@media(max-height:600px)]:py-0 ${leaving ? "scale-[.96] opacity-0" : "scale-100 opacity-100"} motion-safe:animate-[appear_180ms_ease-out]`}
+      className={`[container-type:inline-size] flex min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-1.5 py-2 text-[var(--team-fg)] transition-[opacity,transform,background-color] duration-300 motion-reduce:transition-none sm:flex-1 sm:px-2 ${compact ? "sm:py-2" : "sm:py-4"} dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] [@media(max-height:600px)]:py-0 ${leaving ? "scale-[.96] opacity-0" : "scale-100 opacity-100"} motion-safe:animate-[appear_180ms_ease-out]`}
     >
-      <h3 className="w-full min-w-0 px-1 py-1 text-center font-display text-sm font-semibold sm:px-2 sm:text-lg [@media(max-height:600px)]:px-1 [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-sm">
+      <h3
+        className={`w-full min-w-0 px-1 py-1 text-center font-display text-sm font-semibold sm:px-2 ${compact ? "sm:py-0 sm:text-base" : "sm:text-lg"} [@media(max-height:600px)]:px-1 [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-sm`}
+      >
         {readOnly ? (
           <span className="inline-flex min-h-9 max-w-full items-center justify-center truncate px-1.5">
             {name}
@@ -245,7 +249,9 @@ export function PreviewTeamCard({
           </button>
         )}
       </h3>
-      <p className="my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums sm:text-[calc(min(48cqw,7rem))] [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-[calc(min(30cqw,4rem))]">
+      <p
+        className={`my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums ${compact ? "sm:text-[calc(min(40cqw,5rem))]" : "sm:text-[calc(min(48cqw,7rem))]"} [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-[calc(min(30cqw,4rem))]`}
+      >
         {score}
       </p>
       <div
