@@ -74,7 +74,7 @@ export function ProductThemeShowcase({
     <div data-product-themes className="min-w-0">
       <div className="relative mb-3 grid gap-2">
         <div
-          className="flex min-w-0 [scrollbar-width:thin] [scrollbar-color:rgba(40,91,53,0.35)_transparent] flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/35 [&::-webkit-scrollbar-track]:bg-forest/5"
+          className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
           role="group"
           aria-label={t.style}
         >
@@ -84,7 +84,7 @@ export function ProductThemeShowcase({
               type="button"
               aria-pressed={theme === index}
               onClick={() => setPreset(index)}
-              className={`inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors motion-reduce:transition-none ${theme === index ? "border-action bg-action text-on-action" : "border-forest/25 hover:bg-forest/10"}`}
+              className={`inline-flex min-h-11 w-full min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-semibold transition-colors motion-reduce:transition-none sm:w-auto ${theme === index ? "border-action bg-action text-on-action" : "border-forest/25 hover:bg-forest/10"}`}
             >
               <span
                 aria-hidden="true"
@@ -95,7 +95,7 @@ export function ProductThemeShowcase({
             </button>
           ))}
         </div>
-        <div className="flex min-w-0 flex-nowrap items-center justify-between gap-2">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-2 sm:flex sm:justify-between">
           {tool === "scoreboard" ? (
             <div
               className="relative flex shrink-0 items-center gap-1.5"
@@ -115,7 +115,7 @@ export function ProductThemeShowcase({
                 aria-label={t.removeTeam}
                 title={t.removeTeam}
                 disabled={scoreTeamCount <= 1}
-                className="!min-h-10 !shrink-0 !px-2 !text-xs"
+                className="!min-h-11 !min-w-11 !shrink-0 !px-2 !text-xs"
                 onClick={() => {
                   setScoreTeamCount((current) => Math.max(1, current - 1));
                   setShowLimit(false);
@@ -127,7 +127,7 @@ export function ProductThemeShowcase({
               <Button
                 aria-label={t.addTeam}
                 title={t.addTeam}
-                className="!min-h-10 !shrink-0 !px-2 !text-xs"
+                className="!min-h-11 !min-w-11 !shrink-0 !px-2 !text-xs"
                 onClick={() => {
                   if (!canAddScoreboardTeam(scoreTeamCount)) setShowLimit(true);
                   else setScoreTeamCount((current) => Math.min(MAX_SCOREBOARD_TEAMS, current + 1));
@@ -139,12 +139,12 @@ export function ProductThemeShowcase({
               {showLimit && <DemoTeamLimit lang={lang} close={() => setShowLimit(false)} />}
             </div>
           ) : (
-            <label className="grid min-w-0 gap-1 text-sm font-semibold">
+            <label className="grid min-w-0 gap-1 text-sm font-semibold sm:w-56">
               {tool === "leaderboard" ? t.leaderboardLayout : t.layout}
               <select
                 value={expanded ? "expanded" : "default"}
                 onChange={(event) => setExpanded(event.target.value === "expanded")}
-                className="min-h-11 max-w-full rounded-lg border border-forest/25 bg-surface px-3 text-ink"
+                className="min-h-11 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-3 text-ink sm:w-56"
               >
                 <option value="default">{tool === "leaderboard" ? t.oneColumn : t.single}</option>
                 <option value="expanded">{tool === "leaderboard" ? t.twoColumns : t.split}</option>
@@ -154,7 +154,7 @@ export function ProductThemeShowcase({
           <Button
             aria-label={t.customiseColours}
             title={t.customiseColours}
-            className="!min-h-10 !shrink-0 !gap-1.5 !px-2.5 !text-xs"
+            className="!min-h-11 !shrink-0 !gap-1.5 !px-2.5 !text-xs"
             onClick={() => setCustomiseOpen(true)}
           >
             <Palette size={14} aria-hidden="true" />
