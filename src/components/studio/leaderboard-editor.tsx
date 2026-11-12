@@ -35,13 +35,23 @@ import { useDocument } from "./use-document";
 import { CanvasControls } from "./canvas-controls";
 import { EditorShell, inputClass, ThemeControls, VisibilitySettings } from "./editor-shell";
 import { useListMotion } from "./use-list-motion";
+import { useSiteThemeMode } from "@/components/layout/theme-select";
+import { toolThemes } from "@/lib/tool-themes";
 export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
+  const { dark } = useSiteThemeMode();
   const initial = useMemo(() => {
     const board = newLeaderboard();
+    const style = { ...toolThemes[dark ? 1 : 3] };
+    delete style.id;
 
     return {
       ...board,
+      style: {
+        ...board.style,
+        ...style,
+        preset: dark ? ("night" as const) : ("classic" as const),
+      },
       title: t.leaderboard,
       subtitle: "",
       columns: [t.team, t.points],
@@ -50,7 +60,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
         cells: [`${t.team} ${index + 1}`, "0"],
       })),
     };
-  }, [t.leaderboard, t.points, t.team]);
+  }, [dark, t.leaderboard, t.points, t.team]);
   const state = useDocument(initial, t);
   const board = state.document as Leaderboard;
   const { list: rowList, capture: captureRows } = useListMotion<HTMLTableSectionElement>();
@@ -350,7 +360,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
           data-editor-table
           tabIndex={0}
           aria-label={`${t.rows} & ${t.columns}`}
-          className={`max-w-full [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25 ${spreadsheetFullscreen ? "min-h-0 flex-1" : "max-h-[min(54dvh,34rem)]"}`}
+          className={`max-w-full [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25 ${spreadsheetFullscreen ? "min-h-0 flex-1" : ""}`}
         >
           <table className="w-max min-w-full border-collapse text-sm sm:text-base">
             <thead className="sticky top-0 z-10 bg-paper">

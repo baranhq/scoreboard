@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/ui";
 import { useConfirmation } from "@/components/ui/use-confirmation";
 import { ColorControl, accentColors, backgroundColors } from "./color-control";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSiteThemeMode } from "@/components/layout/theme-select";
+import { foreground } from "@/lib/colors";
 const key = "scoreboard-custom-themes-v1";
 const presetKeys = [
   "accent",
@@ -46,7 +48,18 @@ export function ThemeLibrary({
   change: (value: ToolTheme) => void;
 }) {
   const t = studioCopy[lang];
+  const { dark } = useSiteThemeMode();
   const { confirm, dialog } = useConfirmation(t);
+  const matchesMode = (color: string) => (foreground(color) === "#ffffff") === dark;
+  const orderedThemes = toolThemes
+    .map((theme, index) => ({ theme, index }))
+    .sort(
+      (a, b) => Number(matchesMode(b.theme.background)) - Number(matchesMode(a.theme.background)),
+    );
+  const orderedBackgrounds = [
+    ...backgroundColors.filter(matchesMode),
+    ...backgroundColors.filter((color) => !matchesMode(color)),
+  ];
   const stored = useSyncExternalStore(
     (notify) => {
       window.addEventListener("storage", notify);
@@ -82,7 +95,7 @@ export function ThemeLibrary({
       {dialog}
       <div className="space-y-5">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {toolThemes.map((theme, index) => (
+          {orderedThemes.map(({ theme, index }) => (
             <button
               type="button"
               key={theme.id}
@@ -123,24 +136,20 @@ export function ThemeLibrary({
           ))}
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          {(
-            [
-              ["accent", accentColors],
-              ["background", backgroundColors],
-            ] as const
-          ).map(([label, colors], index) => {
-            const field = (["accent", "background"] as const)[index];
-            return (
-              <ColorControl
-                key={field}
-                label={t[label]}
-                value={value[field]}
-                colors={colors}
-                copy={t}
-                change={(color) => change({ ...value, [field]: color })}
-              />
-            );
-          })}
+          <ColorControl
+            label={t.accent}
+            value={value.accent}
+            colors={accentColors}
+            copy={t}
+            change={(accent) => change({ ...value, accent })}
+          />
+          <ColorControl
+            label={t.boardBackground}
+            value={value.background}
+            colors={orderedBackgrounds}
+            copy={t}
+            change={(background) => change({ ...value, background })}
+          />
         </div>
         <section className="space-y-3 border-t border-forest/15 pt-3">
           <h3 className="font-semibold">{t.myThemes}</h3>

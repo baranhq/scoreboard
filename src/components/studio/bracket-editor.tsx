@@ -18,13 +18,23 @@ import { useDocument } from "./use-document";
 import { CanvasControls } from "./canvas-controls";
 import { EditorShell, inputClass, ThemeControls, VisibilitySettings } from "./editor-shell";
 import { useListMotion } from "./use-list-motion";
+import { useSiteThemeMode } from "@/components/layout/theme-select";
+import { toolThemes } from "@/lib/tool-themes";
 export function BracketEditor({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
+  const { dark } = useSiteThemeMode();
   const initial = useMemo(() => {
     const bracket = newBracket();
+    const style = { ...toolThemes[dark ? 1 : 3] };
+    delete style.id;
 
     return {
       ...bracket,
+      style: {
+        ...bracket.style,
+        ...style,
+        preset: dark ? ("night" as const) : ("classic" as const),
+      },
       title: t.bracket,
       subtitle: "",
       participants: bracket.participants.map((player, index) => ({
@@ -32,7 +42,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
         name: `${t.participant} ${index + 1}`,
       })),
     };
-  }, [t.bracket, t.participant]);
+  }, [dark, t.bracket, t.participant]);
   const state = useDocument(initial, t);
   const board = state.document as Bracket;
   const [count, setCount] = useState<string | null>(null);
@@ -192,10 +202,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
             {t.addParticipant}
           </Button>
         </div>
-        <ol
-          ref={participantList}
-          className="grid max-h-80 gap-2 overflow-auto overscroll-contain pr-1"
-        >
+        <ol ref={participantList} className="grid gap-2 pr-1">
           {board.participants.map((p, i) => (
             <li
               key={p.id}
@@ -279,7 +286,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
             }))}
           />
         </label>
-        <div className="max-h-[32rem] space-y-3 overflow-auto overscroll-contain pr-1">
+        <div className="space-y-3 pr-1">
           {rounds[round].map((match, index) => (
             <details
               key={match.id}
