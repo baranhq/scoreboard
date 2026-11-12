@@ -64,7 +64,7 @@ export function EditorShell({
       ? "relative w-max [&>svg]:!h-auto [&>svg]:!w-auto"
       : previewScale === "fit"
         ? "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-full [&>svg]:!max-h-full [&>svg]:!w-full [&>svg]:!max-w-full"
-        : "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-[92%] [&>svg]:!max-h-[92%] [&>svg]:!w-[92%] [&>svg]:!max-w-[92%] lg:[&>svg]:!h-[78%] lg:[&>svg]:!max-h-[78%] lg:[&>svg]:!w-[78%] lg:[&>svg]:!max-w-[78%]";
+        : "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-auto [&>svg]:!max-h-[92%] [&>svg]:!w-auto [&>svg]:!max-w-[92%] lg:[&>svg]:!max-h-[78%] lg:[&>svg]:!max-w-[78%]";
   const previewParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
   const advanceMatch =
@@ -259,7 +259,7 @@ export function EditorShell({
           <section
             ref={preview}
             aria-label={t.preview}
-            className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "min-h-[min(60dvh,42rem)] lg:min-h-[min(64dvh,46rem)]"}`}
+            className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-[min(60dvh,42rem)] lg:h-[min(64dvh,46rem)]"}`}
           >
             <div className="mb-2 grid min-w-0 shrink-0 gap-2 xl:grid-cols-[minmax(10rem,0.7fr)_minmax(0,1.3fr)] xl:items-center">
               <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
