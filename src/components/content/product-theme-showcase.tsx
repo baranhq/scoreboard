@@ -146,7 +146,7 @@ export function ProductThemeShowcase({
                 label={tool === "leaderboard" ? t.leaderboardLayout : t.layout}
                 value={expanded ? "expanded" : "default"}
                 change={(value) => setExpanded(value === "expanded")}
-                triggerClassName="!bg-surface"
+                triggerClassName="!h-11 !bg-surface"
                 options={[
                   {
                     value: "default",
@@ -163,7 +163,7 @@ export function ProductThemeShowcase({
           <Button
             aria-label={t.customiseColours}
             title={t.customiseColours}
-            className="!min-h-11 !shrink-0 !gap-1.5 !px-2.5 !text-xs"
+            className="!h-11 !min-h-11 !shrink-0 !gap-1.5 !px-2.5 !text-xs"
             onClick={() => setCustomiseOpen(true)}
           >
             <Palette size={14} aria-hidden="true" />
