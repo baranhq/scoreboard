@@ -20,7 +20,10 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   const [widePreview, setWidePreview] = useState(false);
   const advance = useCallback(() => setActive((index) => (index + 1) % tools.length), []);
   const reset = useCallback(() => setActive(0), []);
-  const { ref, playing, toggle, pause } = useAutoDemo(advance, reset, 8400, !themes);
+  const autoPlayByDefault = !themes;
+  const { ref, playing, toggle } = useAutoDemo(advance, reset, 8400, autoPlayByDefault, {
+    allowReducedMotionAutoplay: autoPlayByDefault,
+  });
   const t = studioCopy[lang];
   const tool = tools[active];
 
@@ -36,13 +39,6 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
     <section
       ref={ref}
       aria-label={t.tools}
-      onPointerDownCapture={(event) => {
-        if (!(event.target instanceof Element && event.target.closest("[data-stage-playback]")))
-          pause();
-      }}
-      onFocusCapture={(event) => {
-        if (!event.target.closest("[data-stage-playback]")) pause();
-      }}
       className={themes ? "min-w-0" : "min-w-0 [&_[data-demo-setup]]:hidden"}
     >
       <div
@@ -56,7 +52,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
             key={item}
             aria-pressed={active === index}
             onClick={() => setActive(index)}
-            className={`min-h-14 min-w-0 px-1 py-3 font-display text-sm font-semibold transition-colors sm:text-xl ${active === index ? "bg-action text-on-action" : "hover:bg-current/10"}`}
+            className={`min-h-14 min-w-0 px-1 py-3 font-display text-sm font-semibold transition-colors active:brightness-90 motion-reduce:transition-none sm:text-xl ${active === index ? "bg-action text-on-action" : "hover:bg-current/10"}`}
           >
             {t[item]}
           </button>
