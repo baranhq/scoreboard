@@ -6,8 +6,15 @@ export function teamGridClass(
   _full: boolean,
   canvas?: { width: number; height: number },
 ): string {
-  if (_full)
-    return `grid auto-rows-fr ${count <= 1 ? "grid-cols-1" : "grid-cols-2 min-[720px]:grid-cols-3"}`;
+  if (_full) {
+    const columns =
+      count <= 1
+        ? "grid-cols-1"
+        : count === 2
+          ? "grid-cols-2"
+          : "grid-cols-2 min-[720px]:grid-cols-3";
+    return `grid auto-rows-fr ${columns}`;
+  }
 
   if (layout === "auto") {
     if (canvas && canvas.width / canvas.height < 0.8) return "grid grid-cols-1";
