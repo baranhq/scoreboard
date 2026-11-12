@@ -1,6 +1,6 @@
 "use client";
 
-import { MousePointer2, Pause, Play, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { LandingContent } from "@/lib/landing-content";
 import {
@@ -18,6 +18,8 @@ type PreviewStage = {
 };
 type TeamBounds = { left: number; top: number; width: number; height: number };
 type DemoPosition = { top: number };
+const darkPreviewTheme =
+  "dark [--color-action:#79bb83] [--color-forest:#9cc99f] [--color-ink:#eef2ec] [--color-on-action:#132116] [--color-paper:#151d17] [--color-surface:#202a22]";
 
 function readTeamBounds(element: HTMLElement): Map<number, TeamBounds> {
   const bounds = new Map<number, TeamBounds>();
@@ -49,12 +51,11 @@ function initialPreviewState(copy: LandingContent["preview"]): PreviewState {
     trackPausedTime: false,
     editingTeamName: false,
     leavingThirdTeam: false,
-    cursor: null,
     pressed: null,
   };
 }
 
-function buildSequence(copy: LandingContent["preview"]): PreviewStage[] {
+function buildSequence(copy: LandingContent["preview"], compact = false): PreviewStage[] {
   const initialNames: [string, string, string] = [copy.firstTeam, copy.secondTeam, copy.thirdTeam];
   const renamedNames: [string, string, string] = [
     copy.renamedFirstTeam,
@@ -72,113 +73,103 @@ function buildSequence(copy: LandingContent["preview"]): PreviewStage[] {
     copy.thirdTeam,
   ];
   const release: PreviewStage = { durationMs: 180, patch: { pressed: null } };
-  const moveTo = (
-    target: PreviewState["cursor"],
-    patch: Partial<PreviewState> = {},
-  ): PreviewStage => ({
-    durationMs: 0,
-    patch: { ...patch, cursor: target, pressed: null },
-  });
   const click = (
-    target: NonNullable<PreviewState["cursor"]>,
+    target: NonNullable<PreviewState["pressed"]>,
     patch: Partial<PreviewState> = {},
     delayMs = 620,
   ): PreviewStage => ({
     durationMs: delayMs,
-    patch: { ...patch, cursor: target, pressed: target },
+    patch: { ...patch, pressed: target },
   });
   const wait = (durationMs: number, patch: Partial<PreviewState> = {}): PreviewStage => ({
     durationMs,
     patch,
   });
 
+  if (compact) {
+    return [
+      click("team-one-plus", { scores: [1, 0, 0] }),
+      release,
+      click("team-one-plus", { scores: [2, 0, 0] }, 360),
+      release,
+      click("team-two-plus", { scores: [2, 1, 0] }),
+      release,
+      click("team-two-plus", { scores: [2, 2, 0] }, 360),
+      release,
+      click("team-one-minus", { scores: [1, 2, 0] }),
+      release,
+      click("team-one-minus", { scores: [0, 2, 0] }, 360),
+      release,
+      click("team-two-minus", { scores: [0, 1, 0] }),
+      release,
+      click("team-two-minus", { scores: [0, 0, 0] }, 360),
+      release,
+    ];
+  }
+
   return [
-    moveTo("team-one-plus"),
     click("team-one-plus", { scores: [1, 0, 0] }),
     release,
     click("team-one-plus", { scores: [2, 0, 0] }, 280),
     release,
 
-    moveTo("colors-tab"),
     click("colors-tab", { tab: "colors" }),
     release,
-    moveTo("team-one-color"),
     click("team-one-color", { teamPalettes: [2, 1, 2] }),
     release,
 
-    moveTo("teams-tab"),
     click("teams-tab", { tab: "teams" }),
     release,
-    moveTo("team-one-name"),
     click("team-one-name", { editingTeamName: true }),
     release,
     wait(250, { teamNames: partiallyTypedNames }),
     wait(320, { teamNames: renamedNames, editingTeamName: false }),
 
-    moveTo("add-team"),
     click("add-team", { teamCount: 3 }),
     release,
     wait(220),
 
-    moveTo("colors-tab"),
     click("colors-tab", { tab: "colors" }),
     release,
-    moveTo("team-three-color"),
     click("team-three-color", { teamPalettes: [2, 1, 4] }),
     release,
 
-    moveTo("timer-tab"),
     click("timer-tab", { tab: "timer" }),
     release,
-    moveTo("timer-enable"),
     click("timer-enable", { timerEnabled: true, timer: "01:00" }),
     release,
-    moveTo("timer-scroll"),
-    { durationMs: 420, patch: { cursor: "timer-scroll" }, scroll: "bottom" },
-    moveTo("timer-paused-time"),
+    { durationMs: 420, patch: {}, scroll: "bottom" },
     click("timer-paused-time", { trackPausedTime: true }),
     release,
-    moveTo("timer-scroll"),
-    { durationMs: 360, patch: { cursor: "timer-scroll" }, scroll: "top" },
-    moveTo("timer-start"),
+    { durationMs: 360, patch: {}, scroll: "top" },
     click("timer-start", { timerRunning: true }),
     release,
 
-    moveTo("team-two-plus"),
     click("team-two-plus", { scores: [2, 1, 0], timer: "00:59" }, 620),
     release,
     click("team-two-plus", { scores: [2, 2, 0], timer: "00:58" }, 820),
     release,
-    moveTo("team-three-plus"),
     click("team-three-plus", { scores: [2, 2, 1], timer: "00:57" }, 620),
     release,
-    moveTo("team-one-plus"),
     click("team-one-plus", { scores: [3, 2, 1], timer: "00:56" }, 620),
     release,
     click("team-one-plus", { scores: [4, 2, 1], timer: "00:55" }, 820),
     release,
 
-    moveTo("timer-start"),
     click("timer-start", { timerRunning: false, timer: "00:54" }, 620),
     release,
-    moveTo("timer-reset"),
     click("timer-reset", { timer: "01:00" }),
     release,
 
-    moveTo("colors-tab"),
     click("colors-tab", { tab: "colors" }),
     release,
-    moveTo("team-three-default-color"),
     click("team-three-default-color", { teamPalettes: [2, 1, 2] }),
     release,
-    moveTo("team-one-default-color"),
     click("team-one-default-color", { teamPalettes: [0, 1, 2] }),
     release,
 
-    moveTo("timer-tab"),
     click("timer-tab", { tab: "timer" }),
     release,
-    moveTo("timer-enable"),
     click("timer-enable", {
       timerEnabled: false,
       timerRunning: false,
@@ -186,111 +177,68 @@ function buildSequence(copy: LandingContent["preview"]): PreviewStage[] {
       trackPausedTime: false,
     }),
     release,
-    moveTo("teams-tab"),
     click("teams-tab", { tab: "teams" }),
     release,
 
-    moveTo("team-one-minus"),
     click("team-one-minus", { scores: [3, 2, 1] }),
     release,
     click("team-one-minus", { scores: [2, 2, 1] }, 280),
     release,
-    moveTo("team-three-minus"),
     click("team-three-minus", { scores: [2, 2, 0] }),
     release,
-    moveTo("team-three-remove"),
     click("team-three-remove", { leavingThirdTeam: true }),
     release,
     wait(260, { teamCount: 2, leavingThirdTeam: false }),
-    moveTo("team-one-name"),
     click("team-one-name", { editingTeamName: true }),
     release,
     wait(250, { teamNames: partiallyRestoredNames }),
     wait(320, { teamNames: initialNames, editingTeamName: false }),
 
-    moveTo("team-two-minus"),
     click("team-two-minus", { scores: [2, 1, 0] }),
     release,
     click("team-two-minus", { scores: [2, 0, 0] }, 280),
     release,
-    moveTo("team-one-minus"),
     click("team-one-minus", { scores: [1, 0, 0] }),
     release,
     click("team-one-minus", { scores: [0, 0, 0] }, 280),
     release,
-    moveTo("team-one-plus"),
   ];
 }
 
 export function ScoreboardPreview({
   copy,
   labels,
+  compact = false,
+  readOnly = false,
+  autoplay = true,
+  showPlaybackControls = true,
 }: {
   copy: LandingContent["preview"];
   labels: PreviewLabels;
+  compact?: boolean;
+  readOnly?: boolean;
+  autoplay?: boolean;
+  showPlaybackControls?: boolean;
 }) {
   const previewRef = useRef<HTMLElement>(null);
-  const pointerRef = useRef<HTMLSpanElement>(null);
   const layoutSnapshotRef = useRef<Map<number, TeamBounds> | null>(null);
   const demoPositionSnapshotRef = useRef<DemoPosition | null>(null);
   const remainingMs = useRef<number | null>(null);
+  const sequenceTimeout = useRef<number | null>(null);
+  const manuallyPausedRef = useRef(false);
+  const resettingPlayback = useRef(false);
   const stageIndexRef = useRef(0);
   const [state, setState] = useState(() => initialPreviewState(copy));
+  const [editingNameIndex, setEditingNameIndex] = useState<number | null>(null);
   const [inView, setInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const [mobileLayout, setMobileLayout] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [manuallyPaused, setManuallyPaused] = useState(false);
   const [motionPreferenceOverridden, setMotionPreferenceOverridden] = useState(false);
-  const sequence = useMemo(() => buildSequence(copy), [copy]);
+  const sequence = useMemo(() => buildSequence(copy, compact), [compact, copy]);
   const playbackPaused = manuallyPaused || (prefersReducedMotion && !motionPreferenceOverridden);
-  const shouldAnimate = inView && pageVisible && !playbackPaused;
-
-  useLayoutEffect(() => {
-    const demo = previewRef.current?.querySelector<HTMLElement>("[data-scoreboard-demo]");
-    const pointer = pointerRef.current;
-    if (!demo || !pointer) return;
-
-    if (!state.cursor) {
-      pointer.style.opacity = "0";
-      return;
-    }
-
-    const target = demo.querySelector<HTMLElement>(`[data-demo-target="${state.cursor}"]`);
-    if (!target) return;
-
-    const updatePosition = () => {
-      const demoBounds = demo.getBoundingClientRect();
-      const targetBounds = target.getBoundingClientRect();
-      const offset = mobileLayout ? 10 : 3;
-      const x = targetBounds.left - demoBounds.left + targetBounds.width / 2 - offset;
-      const y = targetBounds.top - demoBounds.top + targetBounds.height / 2 - offset;
-      pointer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      pointer.style.opacity = "1";
-    };
-
-    updatePosition();
-    const scrollPanel = demo.querySelector<HTMLElement>("[data-demo-scroll-panel]");
-    let resizeFrame = 0;
-    const onResize = () => {
-      window.cancelAnimationFrame(resizeFrame);
-      resizeFrame = window.requestAnimationFrame(updatePosition);
-    };
-    window.addEventListener("resize", onResize, { passive: true });
-    scrollPanel?.addEventListener("scroll", onResize, { passive: true });
-    return () => {
-      window.cancelAnimationFrame(resizeFrame);
-      window.removeEventListener("resize", onResize);
-      scrollPanel?.removeEventListener("scroll", onResize);
-    };
-  }, [
-    mobileLayout,
-    prefersReducedMotion,
-    state.cursor,
-    state.teamCount,
-    state.tab,
-    state.timerEnabled,
-  ]);
+  const shouldAnimate = autoplay && inView && pageVisible && !playbackPaused;
 
   useLayoutEffect(() => {
     const previousBounds = layoutSnapshotRef.current;
@@ -355,16 +303,6 @@ export function ScoreboardPreview({
   }, []);
 
   useEffect(() => {
-    const pointer = pointerRef.current;
-    if (!pointer) return;
-
-    pointer.getAnimations().forEach((animation) => {
-      if (shouldAnimate) animation.play();
-      else animation.pause();
-    });
-  }, [shouldAnimate]);
-
-  useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setPrefersReducedMotion(media.matches);
     update();
@@ -401,6 +339,8 @@ export function ScoreboardPreview({
       startedAt = performance.now();
 
       timeout = window.setTimeout(() => {
+        if (manuallyPausedRef.current) return;
+        sequenceTimeout.current = null;
         if (stage.scroll) {
           const optionsPanel = previewRef.current?.querySelector<HTMLElement>(
             "[data-demo-scroll-panel]",
@@ -439,106 +379,132 @@ export function ScoreboardPreview({
         demo?.setAttribute("data-demo-stage", String(stageIndexRef.current));
         runNextStage();
       }, delay);
+      sequenceTimeout.current = timeout;
     };
 
     runNextStage();
 
     return () => {
       window.clearTimeout(timeout);
-      remainingMs.current = Math.max(0, delay - (performance.now() - startedAt));
+      sequenceTimeout.current = null;
+      remainingMs.current = resettingPlayback.current
+        ? null
+        : Math.max(0, delay - (performance.now() - startedAt));
+      resettingPlayback.current = false;
     };
   }, [mobileLayout, sequence, shouldAnimate]);
 
   const visibleTeams = state.teamNames.slice(0, state.teamCount);
-
+  const pausePlayback = () => {
+    manuallyPausedRef.current = true;
+    if (sequenceTimeout.current !== null) window.clearTimeout(sequenceTimeout.current);
+    sequenceTimeout.current = null;
+    setManuallyPaused(true);
+  };
+  const pauseForInteraction = () => pausePlayback();
+  const resetDemo = () => {
+    manuallyPausedRef.current = true;
+    resettingPlayback.current = shouldAnimate;
+    if (sequenceTimeout.current !== null) window.clearTimeout(sequenceTimeout.current);
+    sequenceTimeout.current = null;
+    remainingMs.current = null;
+    stageIndexRef.current = 0;
+    setState(initialPreviewState(copy));
+    setEditingNameIndex(null);
+    setManuallyPaused(true);
+  };
   return (
     <figure
       ref={previewRef}
       aria-labelledby="scoreboard-preview-caption"
-      className="group/demo relative mx-auto flex h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl min-w-0 flex-col justify-center overflow-hidden rounded-xl pt-14 md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"
+      className={`group/demo relative mx-auto flex min-w-0 flex-col justify-center overflow-hidden ${darkPreviewTheme} ${compact ? "h-full max-h-full w-full" : "h-[min(72svh,34rem)] max-h-[min(72svh,34rem)] min-h-[20rem] w-full max-w-2xl md:h-[calc(100svh-4rem-1px)] md:max-h-[calc(100svh-4rem-1px)] md:min-h-0"}`}
     >
       <figcaption id="scoreboard-preview-caption" className="sr-only">
         {copy.accessibleDescription}
       </figcaption>
-      <button
-        type="button"
-        aria-label={playbackPaused ? labels.playPreview : labels.pausePreview}
-        aria-pressed={playbackPaused}
-        title={playbackPaused ? labels.playPreview : labels.pausePreview}
-        onClick={() => {
-          if (playbackPaused) {
-            setManuallyPaused(false);
-            setMotionPreferenceOverridden(true);
-          } else {
-            setManuallyPaused(true);
-          }
-        }}
-        className="absolute top-2 right-2 z-40 flex h-11 w-11 items-center justify-center rounded-lg border border-forest/20 bg-surface text-forest transition-colors duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none md:right-3"
-      >
-        {playbackPaused ? (
-          <Play aria-hidden="true" className="h-4 w-4" />
-        ) : (
-          <Pause aria-hidden="true" className="h-4 w-4" />
-        )}
-      </button>
-      <div className="relative w-full min-w-0">
+      <div className={`relative w-full min-w-0 ${compact ? "h-full min-h-0" : ""}`}>
         <div
           data-scoreboard-demo
           data-demo-running={shouldAnimate}
           data-demo-stage="0"
-          className="relative flex h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[preview-intro_720ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 md:h-auto md:max-h-[calc(100svh-12rem-1px)]"
+          className={`relative flex min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[surface-enter_280ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 ${compact ? "h-full max-h-full" : "h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] md:h-auto md:max-h-[calc(100svh-12rem-1px)]"}`}
         >
-          <PreviewToolbar copy={copy} labels={labels} />
-          <div aria-hidden="true" inert className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <PreviewToolbar
+            copy={copy}
+            labels={labels}
+            playing={!playbackPaused}
+            showPlaybackControls={showPlaybackControls && !readOnly}
+            onToggle={() => {
+              if (playbackPaused) {
+                manuallyPausedRef.current = false;
+                setManuallyPaused(false);
+                setMotionPreferenceOverridden(true);
+              } else {
+                pausePlayback();
+              }
+            }}
+            onReset={resetDemo}
+          />
+          <div aria-hidden="true" inert>
             <PreviewTimer state={state} labels={labels} />
-            <div className={`grid gap-2 ${state.teamCount === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-              {visibleTeams.map((name, index) => (
-                <PreviewTeamCard
-                  key={index}
-                  state={state}
-                  index={index}
-                  name={name}
-                  score={state.scores[index]}
-                />
-              ))}
-            </div>
-            <div className="mt-2 flex justify-end [@media(max-height:600px)]:mt-1">
-              <span className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-forest/25 px-2 py-1 text-sm font-medium text-forest">
+          </div>
+          <section
+            className={`grid min-h-0 gap-2 ${state.teamCount === 2 ? "grid-cols-2" : "grid-cols-3"}`}
+            aria-label={labels.teams}
+            onClickCapture={readOnly ? undefined : pauseForInteraction}
+            onFocusCapture={readOnly ? undefined : pauseForInteraction}
+            onInputCapture={readOnly ? undefined : pauseForInteraction}
+          >
+            {visibleTeams.map((name, index) => (
+              <PreviewTeamCard
+                key={index}
+                state={state}
+                index={index}
+                name={name}
+                score={state.scores[index]}
+                labels={labels}
+                readOnly={readOnly}
+                compact={compact}
+                editingName={editingNameIndex === index}
+                onEditName={() => setEditingNameIndex(index)}
+                onDoneEditingName={() => setEditingNameIndex(null)}
+                onNameChange={(value) =>
+                  setState((current) => {
+                    const teamNames = [...current.teamNames] as PreviewState["teamNames"];
+                    teamNames[index] = value;
+                    return { ...current, teamNames };
+                  })
+                }
+                onScoreChange={(amount) =>
+                  setState((current) => {
+                    const scores = [...current.scores] as PreviewState["scores"];
+                    scores[index] = Math.max(0, scores[index] + amount);
+                    return { ...current, scores };
+                  })
+                }
+              />
+            ))}
+          </section>
+          {!compact && !readOnly && (
+            <div
+              className="mt-2 flex justify-end [@media(max-height:600px)]:mt-1"
+              onClickCapture={pauseForInteraction}
+            >
+              <button
+                type="button"
+                aria-label={labels.reset}
+                onClick={() => setState((current) => ({ ...current, scores: [0, 0, 0] }))}
+                className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-forest/25 px-2 py-1 text-sm font-medium text-forest hover:bg-forest/5"
+              >
                 <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
                 {labels.reset}
-              </span>
+              </button>
             </div>
-            <PreviewConfiguration state={state} copy={copy} labels={labels} />
-          </div>
-          {!prefersReducedMotion && (
-            <span
-              ref={pointerRef}
-              aria-hidden="true"
-              className="pointer-events-none absolute top-0 left-0 z-30 opacity-0 transition-[transform,opacity] duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
-              style={{ transform: "translate3d(0, 0, 0)" }}
-            >
-              {mobileLayout ? (
-                <span className="relative block h-5 w-5 rounded-full border-2 border-forest bg-paper/90 shadow-md">
-                  <span className="absolute inset-1 rounded-full bg-action" />
-                  {state.pressed === state.cursor && (
-                    <span className="absolute -inset-1.5 rounded-full border border-action/70 motion-safe:animate-[cursor-tap_220ms_ease-out]" />
-                  )}
-                </span>
-              ) : (
-                <span
-                  className={`relative block transition-transform duration-150 motion-reduce:transition-none ${state.pressed === state.cursor ? "scale-90" : "scale-100"}`}
-                >
-                  {state.pressed === state.cursor && (
-                    <span className="absolute -top-1 -left-1 h-6 w-6 rounded-full border border-forest/60 motion-safe:animate-[cursor-tap_180ms_ease-out]" />
-                  )}
-                  <MousePointer2
-                    aria-hidden="true"
-                    className="h-5 w-5 fill-paper text-ink drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] motion-safe:animate-[cursor-enter_180ms_ease-out]"
-                    strokeWidth={1.7}
-                  />
-                </span>
-              )}
-            </span>
+          )}
+          {!compact && (
+            <div aria-hidden="true" inert className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <PreviewConfiguration state={state} copy={copy} labels={labels} />
+            </div>
           )}
         </div>
       </div>

@@ -6,12 +6,12 @@ export const slugs = {
     privacy: "poveritelnost",
     licenses: "licenzi",
     help: "pomosht",
-    scoreboard: "scoreboard",
-    scoreboardIntro: "tools/scoreboard",
-    leaderboards: "leaderboards",
-    brackets: "brackets",
-    leaderboardEditor: "leaderboards/edit",
-    bracketEditor: "brackets/edit",
+    scoreboard: "tablo",
+    scoreboardIntro: "tablo-za-rezultati",
+    leaderboards: "klasatsii",
+    brackets: "turnirni-shemi",
+    leaderboardEditor: "klasatsii/redaktirane",
+    bracketEditor: "turnirni-shemi/redaktirane",
   },
   tr: {
     home: "",
@@ -19,12 +19,12 @@ export const slugs = {
     privacy: "gizlilik",
     licenses: "lisanslar",
     help: "yardim",
-    scoreboard: "scoreboard",
-    scoreboardIntro: "tools/scoreboard",
-    leaderboards: "leaderboards",
-    brackets: "brackets",
-    leaderboardEditor: "leaderboards/edit",
-    bracketEditor: "brackets/edit",
+    scoreboard: "skor-tahtasi",
+    scoreboardIntro: "skor-tablosu",
+    leaderboards: "siralama",
+    brackets: "turnuva-semalari",
+    leaderboardEditor: "siralama/duzenle",
+    bracketEditor: "turnuva-semalari/duzenle",
   },
   en: {
     home: "",
@@ -42,6 +42,27 @@ export const slugs = {
 } as const;
 export type PageKey = keyof typeof slugs.en;
 export type DetailPageKey = Exclude<PageKey, "home" | "scoreboard">;
+
+const legacyToolSlugs: Record<Lang, Partial<Record<PageKey, string>>> = {
+  en: {},
+  bg: {
+    scoreboard: "scoreboard",
+    scoreboardIntro: "tools/scoreboard",
+    leaderboards: "leaderboards",
+    brackets: "brackets",
+    leaderboardEditor: "leaderboards/edit",
+    bracketEditor: "brackets/edit",
+  },
+  tr: {
+    scoreboard: "scoreboard",
+    scoreboardIntro: "tools/scoreboard",
+    leaderboards: "leaderboards",
+    brackets: "brackets",
+    leaderboardEditor: "leaderboards/edit",
+    bracketEditor: "brackets/edit",
+  },
+};
+
 export function route(lang: Lang, page: PageKey = "home"): string {
   return `/${lang}/${slugs[lang][page]}${slugs[lang][page] ? "/" : ""}`;
 }
@@ -60,12 +81,18 @@ export function localizedAlternates(origin: string, page: PageKey): Record<strin
   };
 }
 export function pageForPath(path: string): PageKey | undefined {
-  if (/^\/scoreboard\/?$/.test(path)) return "scoreboard";
-  for (const lang of ["bg", "tr", "en"] as const)
-    for (const page of Object.keys(slugs.en) as PageKey[])
-      if (path.replace(/\/?$/, "/") === route(lang, page)) return page;
-  if (/^\/tr\/kayitli-tabelalar\/?$/.test(path)) return "saved";
-  const alias = /^\/(bg|tr|en)\/(scoreboards|privacy|licenses)\/?$/.exec(path);
+  const normalizedPath = path.replace(/\/+$/, "") || "/";
+  if (normalizedPath === "/scoreboard") return "scoreboard";
+  for (const lang of ["bg", "tr", "en"] as const) {
+    for (const page of Object.keys(slugs.en) as PageKey[]) {
+      const currentPath = route(lang, page).replace(/\/+$/, "") || "/";
+      const legacySlug = legacyToolSlugs[lang][page];
+      const legacyPath = legacySlug ? `/${lang}/${legacySlug}` : undefined;
+      if (normalizedPath === currentPath || normalizedPath === legacyPath) return page;
+    }
+  }
+  if (normalizedPath === "/tr/kayitli-tabelalar") return "saved";
+  const alias = /^\/(bg|tr|en)\/(scoreboards|privacy|licenses)$/.exec(normalizedPath);
   return alias ? (alias[2] === "scoreboards" ? "saved" : (alias[2] as PageKey)) : undefined;
 }
 export function translatedPath(path: string, lang: Lang): string {

@@ -4,10 +4,22 @@ import { parseDocument, type StudioDocument } from "../lib/studio.ts";
 function open(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("scoreboard-studio", 1);
+    let expired = false;
+    const timeout = setTimeout(() => {
+      expired = true;
+      reject(new Error("Storage request timed out"));
+    }, 8000);
     request.onupgradeneeded = () =>
       request.result.createObjectStore("documents", { keyPath: "id" });
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      clearTimeout(timeout);
+      if (expired) request.result.close();
+      else resolve(request.result);
+    };
+    request.onerror = () => {
+      clearTimeout(timeout);
+      reject(request.error);
+    };
     request.onblocked = () => reject(new Error("Storage is blocked"));
   });
 }

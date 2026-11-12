@@ -43,7 +43,7 @@ export const homeFaq: Record<
       {
         question: "Does a shared scoreboard update live?",
         answer:
-          "No. A share link contains a snapshot of the board when you create it. Later score changes are not synced to that link.",
+          "No. A share link is a snapshot of the board. Later score changes are not synced to that link.",
       },
     ],
   },
@@ -56,7 +56,7 @@ export const homeFaq: Record<
       },
       {
         question: "Трябва ли да си направя акаунт?",
-        answer: "Не. Отворете таблото и започнете веднага. Не е нужна регистрация.",
+        answer: "Не. Отворете таблото и започнете веднага, без да се регистрирате.",
       },
       {
         question: "Мога ли да го използвам на телефон или таблет?",
@@ -66,27 +66,27 @@ export const homeFaq: Record<
       {
         question: "Подходящо ли е за игри в класната стая?",
         answer:
-          "Да. Добавете отбор за всяка група и показвайте точките от викторина, занимание или игра на целия клас.",
+          "Да. Създайте отбор за всяка група и показвайте резултата от викторина или класна игра пред целия клас.",
       },
       {
-        question: "Мога ли да използвам това онлайн табло като брояч на точки за няколко отбора?",
+        question: "Мога ли да следя резултата на няколко отбора едновременно?",
         answer:
-          "Да. Добавете отбори, задайте имената и цветовете им и следете точките на едно табло.",
+          "Да. Добавете отбори, изберете имена и цветове и следете всички резултати на едно табло.",
       },
       {
         question: "Мога ли да персонализирам таблото?",
         answer:
-          "Да. Добавяйте и преименувайте отбори, избирайте цветове и подредба, настройвайте размера на текста и използвайте таймер или хронометър.",
+          "Да. Добавяйте отбори, променяйте имената и цветовете им, настройвайте подредбата и размера на текста и изберете таймер или хронометър.",
       },
       {
         question: "Къде се запазват таблата ми?",
         answer:
-          "Запазените табла остават в браузъра на това устройство, а не в онлайн акаунт. Изтеглете резервно копие, преди да изчистите данните на браузъра или да смените устройството.",
+          "Таблата се пазят в браузъра на това устройство, а не в онлайн акаунт. Изтеглете архив, преди да изчистите данните на браузъра или да смените устройството.",
       },
       {
         question: "Споделеното табло актуализира ли се на живо?",
         answer:
-          "Не. Връзката съдържа моментно копие на таблото при създаването ѝ. Последващите промени в резултата не се синхронизират с нея.",
+          "Не. Връзката показва таблото във вида му при споделянето. Последващите промени в резултата не се синхронизират.",
       },
     ],
   },
@@ -104,32 +104,32 @@ export const homeFaq: Record<
       {
         question: "Telefonumda veya tabletimde kullanabilir miyim?",
         answer:
-          "Evet. Baran’s Scoreboard güncel bir web tarayıcısında çalışır; telefon, tablet ve bilgisayar ekranlarına uyum sağlar.",
+          "Evet. Baran’s Scoreboard güncel bir web tarayıcısında çalışır ve telefon, tablet ve bilgisayarlara uyum sağlar.",
       },
       {
         question: "Sınıf oyunlarında kullanabilir miyim?",
         answer:
-          "Evet. Her grup için bir takım ekleyip bilgi yarışması, etkinlik veya sınıf oyunlarının puanlarını herkesin görebileceği şekilde tutabilirsiniz.",
+          "Evet. Her grup için bir takım ekleyebilir; bilgi yarışması ve sınıf oyunlarının skorunu herkesin görebileceği şekilde tutabilirsiniz.",
       },
       {
-        question: "Birden fazla takım için çevrim içi puan sayacı olarak kullanabilir miyim?",
+        question: "Birden fazla takımın skorunu aynı anda takip edebilir miyim?",
         answer:
-          "Evet. Takım ekleyip adlarını ve renklerini seçerek tüm puanları tek bir tabloda takip edebilirsiniz.",
+          "Evet. Takım ekleyip adlarını ve renklerini seçerek tüm skorları tek bir tabelada takip edebilirsiniz.",
       },
       {
         question: "Skor tabelasını özelleştirebilir miyim?",
         answer:
-          "Evet. Takım ekleyip adlarını değiştirebilir, renk ve düzen seçebilir, yazı boyutunu ayarlayabilir, geri sayım ya da kronometre kullanabilirsiniz.",
+          "Evet. Takım ekleyip adını ve rengini değiştirebilir, yerleşimi ve yazı boyutunu ayarlayabilir, geri sayım veya kronometre kullanabilirsiniz.",
       },
       {
         question: "Skor tablolarım nereye kaydedilir?",
         answer:
-          "Kaydedilen tablolar çevrim içi bir hesapta değil, bu cihazdaki tarayıcıda saklanır. Tarayıcı verilerini silmeden veya cihaz değiştirmeden önce yedek dışa aktarın.",
+          "Skor tabelaları çevrim içi bir hesapta değil, bu cihazdaki tarayıcıda saklanır. Tarayıcı verilerini silmeden veya cihaz değiştirmeden önce yedek indirin.",
       },
       {
         question: "Paylaşım bağlantısı canlı olarak güncellenir mi?",
         answer:
-          "Hayır. Paylaşım bağlantısı oluşturulduğu andaki tabloyu içerir. Daha sonra yapılan skor değişiklikleri bu bağlantıyla eşitlenmez.",
+          "Hayır. Bağlantı, paylaşıldığı andaki tabelayı gösterir. Sonraki skor değişiklikleri bağlantıya yansımaz.",
       },
     ],
   },

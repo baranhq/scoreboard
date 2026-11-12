@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { ViewTransition, type ReactNode } from "react";
 import { ToolNavigation } from "./tool-navigation";
 import { studioCopy } from "@/lib/studio-copy";
 import { brand, repo } from "@/lib/site";
@@ -27,7 +27,7 @@ function FooterGroup({
   const links = <ul className="grid w-full justify-items-start gap-0.5">{children}</ul>;
 
   return (
-    <section className="mx-auto flex w-full max-w-[420px] flex-col items-start gap-[5px] text-left min-[761px]:w-fit min-[761px]:max-w-full min-[761px]:gap-2">
+    <section className="flex w-full max-w-60 min-w-0 flex-col items-start gap-[5px] text-left min-[761px]:gap-2">
       <h2 className="m-0 text-[15px] leading-[1.4] font-semibold opacity-60">{title}</h2>
       {label ? <nav aria-label={label}>{links}</nav> : links}
     </section>
@@ -51,7 +51,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
         <ScrollingHeader>
           <nav
             aria-label={t.home}
-            className="mx-auto flex h-full max-w-6xl flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
+            className="mx-auto flex h-full max-w-7xl flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
           >
             <Link
               href={homeRoute(lang)}
@@ -65,7 +65,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
                 width="315"
                 height="83"
                 alt={brand}
-                className="h-auto w-28 sm:w-32 dark:brightness-0 dark:invert"
+                className="h-auto w-24 sm:w-32 dark:brightness-0 dark:invert"
               />
             </Link>
             <div className="flex min-w-0 items-center gap-0 sm:gap-1">
@@ -78,17 +78,35 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
       </div>
       <FrameLanguageSuggestion lang={lang} t={t} />
       <div data-frame-content className="flex-1">
-        {children}
+        <ViewTransition default="none" enter="route-enter" exit="route-exit">
+          {children}
+        </ViewTransition>
       </div>
-      <footer data-frame-chrome className="mt-4 bg-[#213f29] text-white">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-[14px] px-4 py-5 min-[761px]:grid-cols-3 min-[761px]:gap-10 sm:px-6">
-          <FooterGroup title={t.contact}>
-            <li>
+      <footer data-frame-chrome className="border-t border-white/10 bg-[#213f29] text-white">
+        <div className="mx-auto grid w-full max-w-5xl grid-cols-1 justify-items-center gap-x-8 gap-y-7 px-5 py-8 min-[360px]:grid-cols-2 sm:grid-cols-2 sm:py-10 md:grid-cols-3 lg:grid-cols-[repeat(3,minmax(0,15rem))] lg:justify-center lg:gap-x-16">
+          <section className="flex w-full max-w-60 min-w-0 flex-col gap-4 justify-self-start text-left min-[360px]:col-span-2 md:col-span-1 md:justify-self-center">
+            <Link
+              href={homeRoute(lang)}
+              aria-label={`${brand}: ${t.home}`}
+              className="inline-flex min-h-11 items-start"
+            >
+              <img
+                src="/wordmark-62157c899159.webp"
+                srcSet="/wordmark-128-492516610722.webp 128w, /wordmark-256-aaadf7f18229.webp 256w"
+                sizes="128px"
+                width="315"
+                height="83"
+                alt={brand}
+                className="h-auto w-28 brightness-0 invert"
+              />
+            </Link>
+            <div>
+              <h2 className="text-[15px] leading-[1.4] font-semibold opacity-70">{t.contact}</h2>
               <a className={footerLink} href={`mailto:${operator.email}`}>
                 {operator.email}
               </a>
-            </li>
-          </FooterGroup>
+            </div>
+          </section>
           <FooterGroup title={t.explore} label={t.explore}>
             <li>
               <Link className={footerLink} href={homeRoute(lang)}>
@@ -147,7 +165,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
           </FooterGroup>
         </div>
         <div className="bg-[#182f20] px-4 py-2">
-          <p className="mx-auto max-w-6xl text-center text-sm leading-[1.4] font-semibold break-words">
+          <p className="mx-auto max-w-5xl text-center text-sm leading-[1.4] font-semibold break-words">
             {brand} · Copyright © 2026{" "}
             <a
               href="https://baranhq.com"

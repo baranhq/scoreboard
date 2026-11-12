@@ -94,8 +94,8 @@ robots.parse((root / 'robots.txt').read_text(encoding='utf-8').splitlines())
 check(origin + '/sitemap.xml' in (robots.site_maps() or []), 'robots.txt must name the sitemap')
 
 slugs = {
-    'bg': ('', 'scoreboard', 'pomosht', 'poveritelnost', 'licenzi', 'tools/scoreboard', 'leaderboards', 'brackets'),
-    'tr': ('', 'scoreboard', 'yardim', 'gizlilik', 'lisanslar', 'tools/scoreboard', 'leaderboards', 'brackets'),
+    'bg': ('', 'tablo', 'pomosht', 'poveritelnost', 'licenzi', 'tablo-za-rezultati', 'klasatsii', 'turnirni-shemi'),
+    'tr': ('', 'skor-tahtasi', 'yardim', 'gizlilik', 'lisanslar', 'skor-tablosu', 'siralama', 'turnuva-semalari'),
     'en': ('', 'scoreboard', 'help', 'privacy', 'licenses', 'tools/scoreboard', 'leaderboards', 'brackets'),
 }
 expected = {origin + f'/{lang}/' + (slug + '/' if slug else '')
@@ -149,12 +149,18 @@ for entry, url in zip(entries, urls):
                 check(app.get('isAccessibleForFree') is True and app.get('offers', {}).get('price') == 0,
                       f'{url}: inaccurate free-app structured data')
                 check('aggregateRating' not in app and 'review' not in app, f'{url}: unsupported review markup')
-                check(app.get('url') == origin + f'/{lang}/scoreboard/', f'{url}: structured data must link to the localized app')
+                check(app.get('url') == origin + f'/{lang}/' + slugs[lang][1] + '/',
+                      f'{url}: structured data must link to the localized app')
             except (ValueError, KeyError, TypeError, StopIteration):
                 check(False, f'{url}: invalid application structured data')
 
+product_routes = {
+    origin + f'/{lang}/' + slugs[lang][index] + '/'
+    for lang in slugs
+    for index in (5, 6, 7)
+}
 for url, page in pages.items():
-    if any(url.endswith('/' + slug + '/') for slug in ('tools/scoreboard', 'leaderboards', 'brackets')):
+    if url in product_routes:
         check(len(page.text['script']) == 1, f'{url}: missing product structured data')
         for content in page.text['script']:
             try:
@@ -173,7 +179,7 @@ for url, page in pages.items():
 
 for lang in slugs:
     home_url = origin + ('/' if lang == 'en' else f'/{lang}/')
-    app_url = origin + f'/{lang}/scoreboard/'
+    app_url = origin + f'/{lang}/' + slugs[lang][1] + '/'
     if home_url in pages and app_url in pages:
         home = pages[home_url]
         app = pages[app_url]
