@@ -96,6 +96,7 @@ const en = {
   quarterfinals: "Quarter-finals",
   semifinals: "Semi-finals",
   chooseWinner: "Advance",
+  moveBack: "Undo advance",
   confirmClearResults: "Changing this winner clears later results that depend on it. Continue?",
   continue: "Continue",
   nextRoundHint: "Choose a winner to advance them.",
@@ -353,7 +354,8 @@ const bg: Copy = {
   viewRound: "Покажете кръг",
   quarterfinals: "Четвъртфинали",
   semifinals: "Полуфинали",
-  chooseWinner: "Продължете с победителя",
+  chooseWinner: "Напред",
+  moveBack: "Отмени придвижването",
   confirmClearResults:
     "Промяната на победителя ще изчисти следващите зависими резултати. Да продължим ли?",
   continue: "Продължете",
@@ -616,6 +618,7 @@ const tr: Copy = {
   quarterfinals: "Çeyrek finaller",
   semifinals: "Yarı finaller",
   chooseWinner: "İlerlet",
+  moveBack: "İlerlemeyi geri al",
   confirmClearResults:
     "Bu kazananı değiştirmek ona bağlı sonraki sonuçları siler. Devam edilsin mi?",
   continue: "Devam et",
