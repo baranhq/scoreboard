@@ -161,7 +161,7 @@ export function HomeScoreboard({
         </div>
         <div className="relative min-h-0 flex-1">
           <div
-            className={`${teamGridClass(count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : ""} h-full min-h-0 gap-2 sm:gap-3`}
+            className={`${teamGridClass(count, "auto", full)} ${compact ? "auto-rows-fr" : ""} h-full min-h-0 gap-2 sm:gap-3`}
           >
             {teamNames.slice(0, count).map((name, index) => (
               <TeamPanel
