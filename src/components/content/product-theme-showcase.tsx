@@ -171,7 +171,13 @@ export function ProductThemeShowcase({
           </Button>
         </div>
       </div>
-      <div className="h-[30rem] min-w-0 overflow-hidden rounded-xl border border-forest/20 sm:h-[31rem]">
+      <div
+        className={
+          tool === "bracket"
+            ? "-mx-5 h-auto min-w-0 overflow-hidden sm:mx-0 sm:h-[31rem]"
+            : "h-[30rem] min-w-0 overflow-hidden rounded-xl border border-forest/20 sm:h-[31rem]"
+        }
+      >
         <ToolDemo
           tool={tool}
           lang={lang}
@@ -184,6 +190,7 @@ export function ProductThemeShowcase({
           theme={selectedTheme}
           expanded={expanded}
           teamCount={scoreTeamCount}
+          barePreview={tool === "bracket"}
         />
       </div>
       <Link
