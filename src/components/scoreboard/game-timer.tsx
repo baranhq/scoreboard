@@ -20,6 +20,8 @@ export function TimerDisplay({
   full,
   controlsVisible,
   textScale,
+  showControls = true,
+  compact = false,
 }: {
   timer: GameTimer;
   t: Messages;
@@ -27,6 +29,8 @@ export function TimerDisplay({
   full: boolean;
   controlsVisible: boolean;
   textScale: number;
+  showControls?: boolean;
+  compact?: boolean;
 }) {
   const [now, setNow] = useState(() => Date.now());
   const [ended, setEnded] = useState(false);
@@ -165,6 +169,7 @@ export function TimerDisplay({
   const actions = (
     <div
       data-fullscreen-control
+      data-export-hide
       className={`flex flex-nowrap justify-center gap-2 transition-opacity duration-150 motion-reduce:transition-none ${full ? "mt-2 sm:absolute sm:top-1/2 sm:left-full sm:mt-0 sm:ml-3 sm:-translate-y-1/2" : "col-start-1 sm:col-start-3 sm:justify-end"} ${full && !controlsVisible ? "pointer-events-none opacity-0" : "opacity-100"}`}
     >
       <Button
@@ -204,9 +209,34 @@ export function TimerDisplay({
       )}
     </div>
   );
+  const compactClock = (
+    <div className="flex min-w-0 items-baseline justify-center gap-2 text-sm font-medium">
+      {contextTimer}
+      {(timer.periodCount || 1) > 1 && (
+        <span>
+          {t.period} {timer.period || 1}/{timer.periodCount}
+        </span>
+      )}
+      <span
+        role="timer"
+        aria-label={t.timer}
+        className="font-display text-[calc(1.125rem*var(--display-text-scale))] font-bold tabular-nums"
+      >
+        {formatTime(remainingTime(timer, now), showHours)}
+      </span>
+      {showControls && actions}
+    </div>
+  );
   return (
     <>
-      {full ? (
+      {compact ? (
+        <div
+          style={{ "--display-text-scale": textScale / 100 } as CSSProperties}
+          className="mb-1 flex min-w-0 items-center justify-center"
+        >
+          {compactClock}
+        </div>
+      ) : full ? (
         <div
           style={{ "--display-text-scale": textScale / 100 } as CSSProperties}
           className="mb-3 flex flex-col items-center pt-12 sm:pt-0"
@@ -214,7 +244,7 @@ export function TimerDisplay({
           {contextTimer}
           <div className="relative inline-flex min-h-14 flex-col items-center justify-center sm:flex-row">
             {clock}
-            {actions}
+            {showControls && actions}
           </div>
         </div>
       ) : (
@@ -224,7 +254,7 @@ export function TimerDisplay({
         >
           {contextTimer}
           {clock}
-          {actions}
+          {showControls && actions}
         </div>
       )}
       {ended && (

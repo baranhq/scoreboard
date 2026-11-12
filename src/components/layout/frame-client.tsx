@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import type { Lang, Messages } from "@/lib/i18n";
+import { pageForPath } from "@/lib/routes";
 import { LanguageSuggestion } from "./language-suggestion";
 import { PrivacyControls } from "./privacy-controls";
 
@@ -20,6 +22,10 @@ function getServerLanguageCheckSnapshot() {
 
 export function ScrollingHeader({ children }: { children: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const page = pageForPath(pathname);
+  const campaign =
+    page === "home" || page === "scoreboardIntro" || page === "leaderboards" || page === "brackets";
 
   useEffect(() => {
     const sync = () => setScrolled(window.scrollY > 20);
@@ -30,7 +36,7 @@ export function ScrollingHeader({ children }: { children: ReactNode }) {
 
   return (
     <header
-      className={`transition-[height,background-color,backdrop-filter] duration-150 ease-out motion-reduce:transition-none ${scrolled ? "h-14 bg-[#edf1e8]/90 backdrop-blur-sm dark:bg-[#213027]/90" : "h-16 bg-[#edf1e8] dark:bg-[#213027]"}`}
+      className={`${campaign ? "!bg-[#14251b] text-[#f5f2e8] [--color-action:#ccf86b] [--color-forest:#ccf86b] [--color-ink:#f5f2e8] [--color-on-action:#14251b] [--color-paper:#14251b] [&_img]:brightness-0 [&_img]:invert" : ""} transition-[height,background-color,backdrop-filter] duration-150 ease-out motion-reduce:transition-none ${scrolled ? "h-14 bg-[#edf1e8]/90 backdrop-blur-sm dark:bg-[#213027]/90" : "h-16 bg-[#edf1e8] dark:bg-[#213027]"}`}
     >
       {children}
     </header>

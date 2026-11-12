@@ -1,6 +1,9 @@
 "use client";
-import { useId, useRef, useState } from "react";
-import type { Board } from "@/lib/boards";
+import { ThemeLibrary } from "@/components/studio/theme-library";
+import { toolThemes } from "@/lib/tool-themes";
+import type { Lang } from "@/lib/i18n";
+import { useId, useState } from "react";
+import { canAddScoreboardTeam, MAX_SCOREBOARD_TEAMS, type Board } from "@/lib/boards";
 import { defaultTimer, resetTimer } from "@/lib/timer";
 import { resolveAppearance, type Appearance } from "@/lib/appearance";
 import { defaultColor, teamPalette } from "@/lib/colors";
@@ -12,8 +15,11 @@ import { Select } from "../ui/select";
 import { DurationInput } from "./duration-input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/ui";
-type Tab = "teams" | "colors" | "appearance" | "controls" | "timer";
-const tabs: Tab[] = ["teams", "colors", "appearance", "controls", "timer"];
+import { WorkspaceTabs, type WorkspaceTab } from "@/components/studio/workspace-tabs";
+import { download } from "@/lib/boards";
+import { studioCopy } from "@/lib/studio-copy";
+import { applyToolTheme } from "@/lib/board-theme";
+import { CanvasControls } from "@/components/studio/canvas-controls";
 function SizeSlider({
   id,
   label,
@@ -38,12 +44,12 @@ function SizeSlider({
       <input
         id={id}
         type="range"
+        className="custom-range w-full cursor-pointer accent-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
         min="80"
         max="240"
         step="5"
         value={value}
         onChange={(event) => change(Number(event.target.value))}
-        className="w-full cursor-pointer accent-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
       />
       <span className="flex justify-between text-sm text-forest/75">
         <span>{t.smaller}</span>
@@ -53,20 +59,24 @@ function SizeSlider({
   );
 }
 export function Customization({
+  lang,
   board,
   t,
   change,
   remove,
-  renameBoard,
+  exportImage,
 }: {
+  lang: Lang;
   board: Board;
   t: Messages;
   change: (update: (board: Board) => Board) => void;
   remove: (id: string) => void;
-  renameBoard: (value: string) => void;
+  exportImage: () => Promise<void>;
 }) {
-  const [tab, setTab] = useState<Tab>("teams");
-  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const [tab, setTab] = useState<WorkspaceTab>("content");
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
+  const copy = studioCopy[lang];
   const scaleId = useId();
   const a = resolveAppearance(board.appearance);
   const set = (key: keyof Appearance, value: Appearance[keyof Appearance]) =>
@@ -85,60 +95,17 @@ export function Customization({
   return (
     <section
       aria-label={t.customize}
-      className="mt-4 rounded-xl border border-forest/20 bg-surface p-3 sm:p-4"
+      className="mt-5 rounded-xl border border-forest/20 bg-surface p-3 shadow-sm sm:p-4"
     >
+      <WorkspaceTabs lang={lang} value={tab} change={setTab} includeTimer />
       <div
-        role="tablist"
-        aria-label={t.customize}
-        className="grid grid-cols-3 gap-1 sm:flex sm:overflow-x-auto"
+        id="workspace-panel"
+        role="tabpanel"
+        aria-labelledby={`workspace-tab-${tab}`}
+        className="pt-4"
       >
-        {tabs.map((key, index) => (
-          <button
-            key={key}
-            ref={(el) => {
-              buttons.current[index] = el;
-            }}
-            id={`tab-${key}`}
-            role="tab"
-            aria-selected={tab === key}
-            aria-controls={`panel-${key}`}
-            tabIndex={tab === key ? 0 : -1}
-            onClick={() => setTab(key)}
-            onKeyDown={(e) => {
-              let next = index;
-              if (e.key === "ArrowRight") next = (index + 1) % tabs.length;
-              else if (e.key === "ArrowLeft") next = (index + tabs.length - 1) % tabs.length;
-              else if (e.key === "Home") next = 0;
-              else if (e.key === "End") next = tabs.length - 1;
-              else return;
-              e.preventDefault();
-              setTab(tabs[next]);
-              buttons.current[next]?.focus();
-            }}
-            className={`min-h-11 min-w-0 rounded-lg px-1 py-2 text-sm font-semibold transition-[color,background-color,transform] duration-150 active:scale-[.98] motion-reduce:transform-none motion-reduce:transition-none sm:min-w-24 sm:flex-1 sm:px-3 sm:text-base ${tab === key ? "bg-action text-on-action" : "text-forest hover:bg-forest/5"}`}
-          >
-            {t[key]}
-          </button>
-        ))}
-      </div>
-      <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} className="pt-4">
-        {tab === "teams" && (
+        {tab === "content" && (
           <div className="space-y-3">
-            <label className="grid gap-2 text-base sm:grid-cols-[12rem_1fr] sm:items-center">
-              <span className="font-medium">{t.boardName}</span>
-              <input
-                key={board.id}
-                defaultValue={board.name}
-                maxLength={200}
-                onChange={(e) => {
-                  if (e.target.value.trim()) renameBoard(e.target.value);
-                }}
-                onBlur={(e) => {
-                  if (!e.target.value.trim()) e.target.value = board.name;
-                }}
-                className="min-h-11 min-w-0 rounded-lg border border-forest/25 bg-paper px-3"
-              />
-            </label>
             <div className="border-t border-forest/15 pt-3">
               {board.teams.map((team, index) => (
                 <div key={team.id} className="mb-2 flex items-center gap-1.5">
@@ -209,26 +176,34 @@ export function Customization({
               ))}
             </div>
             <Button
+              disabled={!canAddScoreboardTeam(board.teams.length)}
               onClick={() =>
                 change((b) => ({
                   ...b,
-                  teams: [
-                    ...b.teams,
-                    {
-                      id: crypto.randomUUID(),
-                      name: `${t.team} ${b.teams.length + 1}`,
-                      automaticName: true,
-                      score: 0,
-                    },
-                  ],
+                  teams: !canAddScoreboardTeam(b.teams.length)
+                    ? b.teams
+                    : [
+                        ...b.teams,
+                        {
+                          id: crypto.randomUUID(),
+                          name: `${t.team} ${b.teams.length + 1}`,
+                          automaticName: true,
+                          score: 0,
+                        },
+                      ],
                 }))
               }
             >
               ＋ {t.add}
             </Button>
+            {board.teams.length >= MAX_SCOREBOARD_TEAMS && (
+              <p className="text-sm text-ink/70" role="status">
+                {studioCopy[lang].maxTeams}
+              </p>
+            )}
           </div>
         )}
-        {tab === "colors" && (
+        {tab === "design" && (
           <div>
             <h2 className="mb-3 font-display text-xl font-bold">{t.teamColors}</h2>
             <div className="space-y-3">
@@ -237,7 +212,10 @@ export function Customization({
                   key={team.id}
                   label={team.name}
                   value={
-                    team.color || board.color || teamPalette[index % teamPalette.length].background
+                    team.color ||
+                    board.color ||
+                    (board.themeId ? board.background : undefined) ||
+                    teamPalette[index % teamPalette.length].background
                   }
                   t={t}
                   change={(color) =>
@@ -286,15 +264,34 @@ export function Customization({
             </Button>
           </div>
         )}
-        {tab === "appearance" && (
+        {tab === "design" && (
           <div>
+            <ThemeLibrary
+              lang={lang}
+              value={{
+                ...toolThemes[0],
+                id: board.themeId,
+                gradient: a.gradient,
+                backgroundEnd: a.backgroundEnd,
+                accent: board.accent || toolThemes[0].accent,
+                background: board.background || toolThemes[0].background,
+                textColor: board.textColor || toolThemes[0].textColor,
+                radius: a.cornerRadius ?? 8,
+                borderWidth: a.borderWidth ?? 1,
+                borderColor: a.borderColor || toolThemes[0].borderColor,
+                density: a.density,
+              }}
+              change={(theme) => change((current) => applyToolTheme(current, theme))}
+            />
+
             <fieldset>
               <legend className="mb-2 font-semibold">{t.layoutLabel}</legend>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {(
                   [
                     ["auto", t.automatic],
                     ["horizontal", t.horizontal],
+                    ["vertical", t.vertical],
                     ["grid", t.grid],
                   ] as const
                 ).map(([layout, label]) => (
@@ -421,7 +418,7 @@ export function Customization({
             </Button>
           </div>
         )}
-        {tab === "controls" && (
+        {tab === "settings" && (
           <div className="mx-auto max-w-3xl divide-y divide-forest/15">
             <label className="flex min-h-14 items-center justify-between gap-4 py-2 text-base">
               <span className="font-medium">{t.step}</span>
@@ -633,6 +630,39 @@ export function Customization({
                 </details>
               </>
             )}
+          </div>
+        )}
+        {tab === "export" && (
+          <div className="space-y-4">
+            <CanvasControls
+              canvas={board.canvas}
+              exportScale={board.exportScale}
+              changeCanvas={(canvas) => change((current) => ({ ...current, canvas }))}
+              changeExportScale={(exportScale) =>
+                change((current) => ({ ...current, exportScale }))
+              }
+              lang={lang}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="max-w-xl text-sm leading-5 text-ink/75">{t.backupHint}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={() => download([board])}>{copy.backup}</Button>
+                <Button
+                  primary
+                  disabled={exporting}
+                  onClick={() => {
+                    setExporting(true);
+                    setExportError("");
+                    void exportImage()
+                      .catch(() => setExportError(copy.exportError))
+                      .finally(() => setExporting(false));
+                  }}
+                >
+                  {exporting ? copy.exporting : copy.export}
+                </Button>
+              </div>
+            </div>
+            {exportError && <p role="alert">{exportError}</p>}
           </div>
         )}
       </div>

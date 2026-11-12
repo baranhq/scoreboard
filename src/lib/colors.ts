@@ -74,7 +74,7 @@ export function themePaletteColor(color: string, theme: "light" | "dark"): strin
   const palette = teamPalette.find((item) => item.background.toLowerCase() === color.toLowerCase());
   return palette ? (theme === "dark" ? palette.dark : palette.background) : color;
 }
-function toHsl(hex: string): [number, number, number] {
+export function toHsl(hex: string): [number, number, number] {
   const [r, g, b] = hex
     .slice(1)
     .match(/../g)!
@@ -89,7 +89,7 @@ function toHsl(hex: string): [number, number, number] {
   h = (h * 60 + 360) % 360;
   return [h, s, l];
 }
-function fromHsl(h: number, s: number, l: number): string {
+export function fromHsl(h: number, s: number, l: number): string {
   const c = (1 - Math.abs(2 * l - 1)) * s,
     x = c * (1 - Math.abs(((h / 60) % 2) - 1)),
     m = l - c / 2;
