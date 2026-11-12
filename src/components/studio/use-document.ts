@@ -76,9 +76,7 @@ export function useDocument(initial: StudioDocument, labels: StudioCopy) {
           style: {
             ...initial.style,
             ...launchStyle,
-            ...(accent
-              ? { accent, ...(launchTheme?.gradient ? { backgroundEnd: accent } : {}) }
-              : {}),
+            ...(accent ? { accent } : {}),
             ...(background ? { background } : {}),
             ...(textColor ? { textColor } : {}),
           },
