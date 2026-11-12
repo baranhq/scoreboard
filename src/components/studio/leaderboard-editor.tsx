@@ -13,6 +13,7 @@ import {
 import { useMemo, useState } from "react";
 import { ColorControl, accentColors } from "./color-control";
 import { Button, Modal } from "@/components/ui/ui";
+import { Select } from "@/components/ui/select";
 import {
   newLeaderboard,
   moveItem,
@@ -91,17 +92,16 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             <legend className="mb-2 font-semibold">{t.rankingRules}</legend>
             <label className="grid gap-1 text-sm font-semibold">
               {t.sortBy}
-              <select
-                className={inputClass}
+              <Select
+                label={t.sortBy}
+                triggerClassName={`${inputClass} !bg-surface`}
                 value={sortColumn}
-                onChange={(event) => setSortColumn(event.target.value)}
-              >
-                {board.columns.map((column, index) => (
-                  <option key={index} value={index}>
-                    {column || `${t.column} ${index + 1}`}
-                  </option>
-                ))}
-              </select>
+                change={setSortColumn}
+                options={board.columns.map((column, index) => ({
+                  value: String(index),
+                  label: column || `${t.column} ${index + 1}`,
+                }))}
+              />
             </label>
             <p className="text-sm leading-5 text-ink/75">
               {board.totalColumn === undefined ? t.manualOrderHint : t.calculatedRankHint}
@@ -236,25 +236,24 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             </p>
             <label className="grid gap-1 text-sm font-semibold">
               {t.totalColumnLabel}
-              <select
-                className={inputClass}
-                value={board.totalColumn ?? ""}
-                onChange={(event) =>
+              <Select
+                label={t.totalColumnLabel}
+                triggerClassName={`${inputClass} !bg-surface`}
+                value={String(board.totalColumn ?? "")}
+                change={(value) =>
                   state.change(
-                    setLeaderboardTotalColumn(
-                      board,
-                      event.target.value === "" ? undefined : Number(event.target.value),
-                    ),
+                    setLeaderboardTotalColumn(board, value === "" ? undefined : Number(value)),
                   )
                 }
-              >
-                <option value="">{t.noCalculatedTotal}</option>
-                {board.columns.map((column, index) => (
-                  <option key={index} value={index} disabled={index === 0}>
-                    {column || `${t.column} ${index + 1}`}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: t.noCalculatedTotal },
+                  ...board.columns.map((column, index) => ({
+                    value: String(index),
+                    label: column || `${t.column} ${index + 1}`,
+                    disabled: index === 0,
+                  })),
+                ]}
+              />
             </label>
           </div>
         </details>
