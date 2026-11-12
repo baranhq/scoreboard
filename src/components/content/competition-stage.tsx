@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
@@ -22,6 +22,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   const [active, setActive] = useState(themes ? 1 : 0);
   const [widePreview, setWidePreview] = useState(false);
   const [themePromptOpen, setThemePromptOpen] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const advance = useCallback(() => setActive((index) => (index + 1) % tools.length), []);
   const reset = useCallback(() => setActive(0), []);
@@ -35,19 +36,24 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   const demoThemeLabel = themeLabels[lang][1];
 
   useEffect(() => {
-    const media = window.matchMedia("(min-width: 1024px)");
-    const update = () => setWidePreview(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
+    const preview = previewRef.current;
+    if (!preview || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      setWidePreview(entry.contentRect.width >= 560);
+    });
+    observer.observe(preview);
+    return () => observer.disconnect();
+  }, [tool]);
 
   return (
     <section
       ref={ref}
       aria-label={t.tools}
       className={
-        themes ? "min-w-0" : "flex min-h-0 min-w-0 flex-1 flex-col [&_[data-demo-setup]]:hidden"
+        themes
+          ? "min-w-0"
+          : "flex min-h-0 min-w-0 flex-1 flex-col lg:justify-center [&_[data-demo-setup]]:hidden"
       }
     >
       <div
@@ -70,7 +76,9 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
           </button>
         ))}
       </div>
-      <div className={`min-w-0 ${themes ? "pt-4 sm:pt-6" : "pt-3 sm:pt-4"}`}>
+      <div
+        className={`min-w-0 ${themes ? "pt-4 sm:pt-6" : "flex min-h-0 flex-1 flex-col pt-3 sm:pt-4 lg:flex-none"}`}
+      >
         {themes ? (
           <ProductThemeShowcase
             key={tool}
@@ -79,10 +87,11 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
             hint={productDetails[lang].themeHint}
           />
         ) : (
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-none">
             <div
+              ref={previewRef}
               key={tool}
-              className="mt-3 h-[clamp(20rem,46svh,28rem)] min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.025] motion-safe:animate-[surface-enter_360ms_cubic-bezier(0.22,1,0.36,1)_both] motion-reduce:animate-none lg:mt-4 lg:h-[clamp(24rem,42svh,34rem)] lg:flex-1"
+              className="mt-3 h-[clamp(17rem,40svh,24rem)] min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.025] motion-safe:animate-[surface-enter_360ms_cubic-bezier(0.22,1,0.36,1)_both] motion-reduce:animate-none sm:h-[clamp(18rem,40svh,25rem)] lg:mt-4 lg:h-[clamp(17rem,38svh,24rem)] lg:flex-none"
             >
               <ToolDemo
                 tool={tool}
