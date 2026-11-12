@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { TeamPanel } from "@/components/scoreboard/team-panel";
+import { TimerDisplay } from "@/components/scoreboard/game-timer";
 import { teamGridClass } from "@/lib/team-layout";
 import { defaults } from "@/lib/appearance";
 import { messages } from "@/lib/i18n";
 import { toolThemes, type ToolTheme } from "@/lib/tool-themes";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
+import { defaultTimer, type GameTimer } from "@/lib/timer";
 import { useAutoDemo } from "./use-auto-demo";
 import { DemoPlaybackControls } from "./demo-playback-controls";
 import { MAX_SCOREBOARD_TEAMS } from "@/lib/boards";
@@ -29,6 +31,19 @@ function mixHex(background: string, accent: string, amount: number) {
         .padStart(2, "0"),
     )
     .join("")}`;
+}
+
+function createDemoTimer(): GameTimer {
+  const durationMs = 90 * 60 * 1000;
+  return {
+    ...defaultTimer,
+    enabled: true,
+    durationMs,
+    remainingMs: durationMs,
+    periodCount: 2,
+    period: 1,
+    showHours: false,
+  };
 }
 
 export function HomeScoreboard({
@@ -81,18 +96,17 @@ export function HomeScoreboard({
         : 2
       : Math.max(1, Math.min(MAX_SCOREBOARD_TEAMS, teamCount));
   const [scores, setScores] = useState([12, 9, 0, 0, 0, 0]);
-  const [seconds, setSeconds] = useState(272);
+  const [timer, setTimer] = useState<GameTimer>(createDemoTimer);
   const step = useRef(0);
   const reset = useCallback(() => {
     setEditing(null);
     setScores([12, 9, 0, 0, 0, 0]);
-    setSeconds(272);
+    setTimer(createDemoTimer());
     if (readOnly) setTeamNames(initialTeamNames);
     step.current = 0;
   }, [initialTeamNames, readOnly]);
   const advance = useCallback(() => {
     step.current += 1;
-    setSeconds((value) => (step.current % 8 === 0 ? 272 : value + 1));
     if (readOnly && step.current % 8 === 4)
       setTeamNames((current) =>
         current.map((name, index) => (index === 0 ? t.demoRenamedTeam : name)),
@@ -115,6 +129,17 @@ export function HomeScoreboard({
     controlled: controlledPlayback,
     allowReducedMotionAutoplay: autoplay && readOnly,
   });
+
+  useEffect(() => {
+    if (!playing) return;
+    const interval = window.setInterval(() => {
+      setTimer((current) => ({
+        ...current,
+        remainingMs: Math.max(0, current.remainingMs - 1000),
+      }));
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [playing]);
 
   const attach = useCallback(
     (node: HTMLElement | null) => {
@@ -151,16 +176,16 @@ export function HomeScoreboard({
       <div
         className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "py-1 sm:px-5" : "py-7 sm:px-7 sm:py-4"}`}
       >
-        <div
-          className={`flex items-center justify-center gap-3 text-sm font-medium ${compact ? "mb-1" : "mb-3"}`}
-        >
-          <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
-          {t.secondHalf}{" "}
-          <span className="font-mono tabular-nums">
-            {String(Math.floor(seconds / 60)).padStart(2, "0")}:
-            {String(seconds % 60).padStart(2, "0")}
-          </span>
-        </div>
+        <TimerDisplay
+          timer={timer}
+          t={messages[lang]}
+          change={setTimer}
+          full={false}
+          controlsVisible={false}
+          textScale={100}
+          showControls={false}
+          compact={compact}
+        />
         <div className="relative min-h-0 flex-1">
           <div
             className={`${teamGridClass(count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : compact ? "auto-rows-fr sm:auto-rows-auto" : ""} h-full min-h-0 gap-2 sm:gap-3`}
