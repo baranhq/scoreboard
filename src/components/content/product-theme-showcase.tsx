@@ -54,7 +54,6 @@ export function ProductThemeShowcase({
   const selectedTheme: ToolTheme = {
     ...preset,
     ...colors,
-    backgroundEnd: preset.gradient ? colors.accent : preset.backgroundEnd,
   };
   const setPreset = (index: number) => {
     setChosenTheme(index);
