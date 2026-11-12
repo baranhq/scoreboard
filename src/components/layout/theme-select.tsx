@@ -55,12 +55,16 @@ export function ThemeSelect({ t }: { t: Messages }) {
   );
 }
 export function ThemeToggle({ t }: { t: Messages }) {
-  const { dark, change } = useSiteThemeMode();
+  const { dark } = useSiteThemeMode();
   return (
     <button
-      onClick={() => change(dark ? "light" : "dark")}
+      type="button"
       aria-label={`${t.theme}: ${dark ? t.light : t.dark}`}
       title={`${t.theme}: ${dark ? t.light : t.dark}`}
+      data-theme-toggle
+      data-theme-label={t.theme}
+      data-theme-light-label={t.light}
+      data-theme-dark-label={t.dark}
       className="group relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors duration-150 hover:bg-forest/5 active:bg-forest/10 motion-reduce:transition-none"
     >
       <svg
@@ -71,15 +75,13 @@ export function ThemeToggle({ t }: { t: Messages }) {
         aria-hidden="true"
         className="h-5 w-5"
       >
-        <g
-          className={`origin-center transition-opacity duration-200 ease-out motion-reduce:transition-none ${dark ? "opacity-0" : "opacity-100"}`}
-        >
+        <g className="origin-center opacity-100 transition-opacity duration-200 ease-out motion-reduce:transition-none dark:opacity-0">
           <circle cx="12" cy="12" r="4" />
           <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5" />
         </g>
         <path
           d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5a8.5 8.5 0 1 0 10.6 10.6Z"
-          className={`origin-center transition-opacity duration-200 ease-out motion-reduce:transition-none ${dark ? "opacity-100" : "opacity-0"}`}
+          className="origin-center opacity-0 transition-opacity duration-200 ease-out motion-reduce:transition-none dark:opacity-100"
         />
       </svg>
     </button>
