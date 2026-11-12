@@ -25,7 +25,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
   const [showLimit, setShowLimit] = useState(false);
   const [timer, setTimer] = useState<GameTimer>({ ...defaultTimer, enabled: true, periodCount: 2 });
   const t = studioCopy[lang];
-  const bracketPreviewWidth = view === 1 ? "min-w-[42rem]" : "mx-auto w-[42rem]";
+  const bracketPreviewWidth = view === 1 ? "min-w-[42rem]" : "mx-auto w-full min-w-0 sm:w-[42rem]";
   const document = useMemo(() => {
     if (tool === "scoreboard") return null;
     const sample = studioDemo(tool, lang);
@@ -79,18 +79,25 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
           {showLimit && <DemoTeamLimit lang={lang} close={() => setShowLimit(false)} />}
         </div>
       ) : (
-        <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label={t.layout}>
-          {campaignCopy[lang].views[tool].map((label, index) => (
-            <button
-              key={label}
-              type="button"
-              aria-pressed={view === index}
-              onClick={() => setView(index)}
-              className={`min-h-12 border px-5 py-2 text-sm font-semibold transition-colors ${view === index ? "border-action bg-action text-on-action" : "border-forest/30 hover:bg-forest/10"}`}
-            >
-              {label}
-            </button>
-          ))}
+        <div
+          className="mb-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
+          role="group"
+          aria-label={t.layout}
+        >
+          {campaignCopy[lang].views[tool].map((label, index) => {
+            const wideMobileButton = tool === "bracket" && index === 2;
+            return (
+              <button
+                key={label}
+                type="button"
+                aria-pressed={view === index}
+                onClick={() => setView(index)}
+                className={`min-h-12 w-full min-w-0 border px-3 py-2 text-sm font-semibold transition-[background-color,color,transform] active:scale-[.98] motion-reduce:transform-none sm:w-auto sm:px-5 ${wideMobileButton ? "col-span-2 sm:col-span-1" : ""} ${view === index ? "border-action bg-action text-on-action" : "border-forest/30 hover:bg-forest/10"}`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       )}
       {tool === "scoreboard" ? (
@@ -128,7 +135,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
                   ? bracketPreviewWidth
                   : view === 1
                     ? "min-w-[30rem]"
-                    : "mx-auto w-full min-w-0 max-w-2xl"
+                    : "mx-auto w-full max-w-2xl min-w-0"
               }
             >
               <Graphic document={document} labels={t} />
