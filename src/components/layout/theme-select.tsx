@@ -1,6 +1,7 @@
 "use client";
 import { useLayoutEffect, useState } from "react";
 import type { Messages } from "@/lib/i18n";
+import { Select } from "@/components/ui/select";
 export function useSiteThemeMode() {
   const [theme, setTheme] = useState("system");
   const [dark, setDark] = useState(false);
@@ -37,16 +38,19 @@ export function ThemeSelect({ t }: { t: Messages }) {
   return (
     <label className="flex min-h-11 items-center justify-between gap-4 text-base">
       {t.theme}
-      <select
-        aria-label={t.theme}
-        value={theme}
-        onChange={(e) => change(e.target.value)}
-        className="min-h-11 max-w-36 rounded-lg border border-forest/20 bg-paper px-3"
-      >
-        <option value="light">{t.light}</option>
-        <option value="dark">{t.dark}</option>
-        <option value="system">{t.system}</option>
-      </select>
+      <div className="w-36 max-w-[55%] shrink-0">
+        <Select
+          label={t.theme}
+          value={theme}
+          change={change}
+          triggerClassName="!bg-paper"
+          options={[
+            { value: "light", label: t.light },
+            { value: "dark", label: t.dark },
+            { value: "system", label: t.system },
+          ]}
+        />
+      </div>
     </label>
   );
 }

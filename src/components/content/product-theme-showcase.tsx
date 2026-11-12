@@ -13,6 +13,7 @@ import type { ToolTheme } from "@/lib/tool-themes";
 import { canAddScoreboardTeam, MAX_SCOREBOARD_TEAMS } from "@/lib/boards";
 import { DemoTeamLimit } from "./demo-team-limit";
 import { useSiteThemeMode } from "@/components/layout/theme-select";
+import { Select } from "@/components/ui/select";
 
 type ThemeColors = Pick<ToolTheme, "accent" | "background" | "textColor">;
 
@@ -141,14 +142,22 @@ export function ProductThemeShowcase({
           ) : (
             <label className="grid min-w-0 gap-1 text-sm font-semibold sm:w-56">
               {tool === "leaderboard" ? t.leaderboardLayout : t.layout}
-              <select
+              <Select
+                label={tool === "leaderboard" ? t.leaderboardLayout : t.layout}
                 value={expanded ? "expanded" : "default"}
-                onChange={(event) => setExpanded(event.target.value === "expanded")}
-                className="min-h-11 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-3 text-ink sm:w-56"
-              >
-                <option value="default">{tool === "leaderboard" ? t.oneColumn : t.single}</option>
-                <option value="expanded">{tool === "leaderboard" ? t.twoColumns : t.split}</option>
-              </select>
+                change={(value) => setExpanded(value === "expanded")}
+                triggerClassName="!bg-surface"
+                options={[
+                  {
+                    value: "default",
+                    label: tool === "leaderboard" ? t.oneColumn : t.single,
+                  },
+                  {
+                    value: "expanded",
+                    label: tool === "leaderboard" ? t.twoColumns : t.split,
+                  },
+                ]}
+              />
             </label>
           )}
           <Button

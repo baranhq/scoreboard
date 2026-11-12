@@ -18,6 +18,7 @@ import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/
 import { WorkspaceTabs, type WorkspaceTab } from "./workspace-tabs";
 import { CanvasRatioSelect } from "./canvas-controls";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
 import { DailyGithubStarNotice } from "./daily-github-star-notice";
 
 export const inputClass =
@@ -494,17 +495,16 @@ export function ThemeControls({
               <div className="space-y-2">
                 <label className="grid gap-1 text-sm font-semibold">
                   {t.participant}
-                  <select
+                  <Select
+                    label={t.participant}
                     value={participant.id}
-                    className={inputClass}
-                    onChange={(event) => setParticipantId(event.target.value)}
-                  >
-                    {doc.participants.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
+                    triggerClassName={inputClass}
+                    change={setParticipantId}
+                    options={doc.participants.map((item) => ({
+                      value: item.id,
+                      label: item.name,
+                    }))}
+                  />
                 </label>
                 <ColorControl
                   label={`${t.participantColour}: ${participant.name}`}
