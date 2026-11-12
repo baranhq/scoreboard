@@ -200,7 +200,7 @@ function StudioToolDemo({
     toggle: togglePlayback,
     pause,
     reset: resetPlayback,
-  } = useAutoDemo(advance, reset, 2900, autoplay, controlledPlayback);
+  } = useAutoDemo(advance, reset, 2900, autoplay, { controlled: controlledPlayback });
   const selectedParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
   const selectedMatch =
