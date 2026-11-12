@@ -17,6 +17,7 @@ import { studioCopy } from "@/lib/studio-copy";
 import { useAutoDemo } from "./use-auto-demo";
 import { toolThemes, type ToolTheme } from "@/lib/tool-themes";
 import { HomeScoreboard } from "./home-scoreboard";
+import { Select } from "@/components/ui/select";
 
 export type Tool = "scoreboard" | "leaderboard" | "bracket";
 
@@ -62,6 +63,16 @@ export function ToolDemo({
   widePreview?: boolean;
   teamCount?: number;
 }) {
+  const demoKey = [
+    tool,
+    lang,
+    compact ? "compact" : "full",
+    expanded ? "expanded" : "default",
+    widePreview ? "wide" : "standard",
+    hideHeading ? "hidden-heading" : "heading",
+    JSON.stringify(theme ?? null),
+  ].join(":");
+
   if (tool === "scoreboard" && compact && !useScoreboardPreview)
     return (
       <HomeScoreboard
@@ -101,7 +112,7 @@ export function ToolDemo({
 
   return (
     <StudioToolDemo
-      key={tool}
+      key={demoKey}
       tool={tool}
       lang={lang}
       compact={compact}
@@ -175,21 +186,6 @@ function StudioToolDemo({
     return sample;
   }, [tool, lang, compact, theme, expanded, hideHeading, widePreview]);
   const [document, setDocument] = useState(initial);
-  const [configuration, setConfiguration] = useState({ theme, expanded, widePreview });
-  if (
-    configuration.theme !== theme ||
-    configuration.expanded !== expanded ||
-    configuration.widePreview !== widePreview
-  ) {
-    setConfiguration({ theme, expanded, widePreview });
-    setDocument((current) => {
-      if (current.kind === "bracket" && initial.kind === "bracket")
-        return { ...current, style: initial.style, layout: initial.layout };
-      if (current.kind === "leaderboard" && initial.kind === "leaderboard")
-        return { ...current, style: initial.style, gridColumns: initial.gridColumns };
-      return current;
-    });
-  }
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
   const fullscreenTarget = useRef<HTMLElement | null>(null);
   const fullscreenButton = useRef<HTMLButtonElement | null>(null);
@@ -505,20 +501,18 @@ function LeaderboardFields({
     <div className="min-w-0 space-y-2 border-t border-forest/15 pt-3">
       <div className="flex items-center justify-between gap-2">
         <h4 className="text-sm font-semibold">{t.rows}</h4>
-        <label className="flex items-center gap-2 text-xs font-semibold">
+        <label className="grid w-32 shrink-0 gap-1 text-xs font-semibold sm:w-36">
           {t.leaderboardLayout}
-          <select
-            className="min-h-9 rounded-lg border border-forest/20 bg-surface px-2 text-sm"
-            aria-label={t.leaderboardLayout}
-            value={board.gridColumns || 1}
-            onChange={(event) =>
-              setDocument({ ...board, gridColumns: Number(event.target.value) as 1 | 2 | 3 })
-            }
-          >
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-            <option value={3}>3</option>
-          </select>
+          <Select
+            label={t.leaderboardLayout}
+            value={String(board.gridColumns || 1)}
+            triggerClassName="!min-h-11 !bg-surface !px-2 !text-sm"
+            change={(value) => setDocument({ ...board, gridColumns: Number(value) as 1 | 2 | 3 })}
+            options={[1, 2, 3].map((columns) => ({
+              value: String(columns),
+              label: String(columns),
+            }))}
+          />
         </label>
       </div>
       <div className="max-h-60 space-y-1.5 overflow-auto pr-1">
@@ -605,20 +599,21 @@ function BracketFields({
       ))}
       <label className="grid gap-1 text-xs font-semibold">
         {t.winner}
-        <select
-          className={demoInputClass}
+        <Select
+          label={t.winner}
           value={match.winner || ""}
-          onChange={(event) =>
-            setDocument(setMatchResult(board, match.id, event.target.value || null, match.scores))
+          triggerClassName="!min-h-11 !bg-surface !text-sm"
+          change={(value) =>
+            setDocument(setMatchResult(board, match.id, value || null, match.scores))
           }
-        >
-          <option value="">{t.noWinner}</option>
-          {match.players.map((id) => (
-            <option key={id} value={id || ""}>
-              {participantName(id)}
-            </option>
-          ))}
-        </select>
+          options={[
+            { value: "", label: t.noWinner },
+            ...match.players.map((id) => ({
+              value: id || "",
+              label: participantName(id),
+            })),
+          ]}
+        />
       </label>
     </fieldset>
   );

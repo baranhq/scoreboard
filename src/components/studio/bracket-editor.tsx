@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/ui";
+import { Select } from "@/components/ui/select";
 import {
   newBracket,
   bracketRounds,
@@ -89,16 +90,16 @@ export function BracketEditor({ lang }: { lang: Lang }) {
         <div className="space-y-5">
           <label className="grid gap-1 text-sm font-semibold">
             {t.layout}
-            <select
+            <Select
+              label={t.layout}
               value={board.layout}
-              className={inputClass}
-              onChange={(event) =>
-                state.change({ ...board, layout: event.target.value as Bracket["layout"] })
-              }
-            >
-              <option value="single">{t.single}</option>
-              <option value="split">{t.split}</option>
-            </select>
+              triggerClassName={`${inputClass} !bg-surface`}
+              change={(layout) => state.change({ ...board, layout: layout as Bracket["layout"] })}
+              options={[
+                { value: "single", label: t.single },
+                { value: "split", label: t.split },
+              ]}
+            />
           </label>
           <VisibilitySettings document={board} change={state.change} lang={lang} />
         </div>
@@ -267,17 +268,16 @@ export function BracketEditor({ lang }: { lang: Lang }) {
         <p className="text-sm leading-relaxed text-ink/75">{t.resultsHint}</p>
         <label className="grid gap-1 text-sm font-semibold">
           {t.round}
-          <select
-            className={inputClass}
-            value={round}
-            onChange={(e) => setSelectedRound(Number(e.target.value))}
-          >
-            {rounds.map((_, i) => (
-              <option key={i} value={i}>
-                {i === rounds.length - 1 ? t.final : `${t.round} ${i + 1}`}
-              </option>
-            ))}
-          </select>
+          <Select
+            label={t.round}
+            value={String(round)}
+            triggerClassName={`${inputClass} !bg-surface`}
+            change={(value) => setSelectedRound(Number(value))}
+            options={rounds.map((_, index) => ({
+              value: String(index),
+              label: index === rounds.length - 1 ? t.final : `${t.round} ${index + 1}`,
+            }))}
+          />
         </label>
         <div className="max-h-[32rem] space-y-3 overflow-auto overscroll-contain pr-1">
           {rounds[round].map((match, index) => (
@@ -312,11 +312,12 @@ export function BracketEditor({ lang }: { lang: Lang }) {
               {match.players.every(Boolean) ? (
                 <label className="grid gap-1 text-sm font-semibold">
                   {t.winner}
-                  <select
-                    className={inputClass}
+                  <Select
+                    label={t.winner}
+                    triggerClassName={`${inputClass} !bg-surface`}
                     value={match.winner || ""}
-                    onChange={(event) => {
-                      const winner = event.currentTarget.value || null;
+                    change={(value) => {
+                      const winner = value || null;
                       void (async () => {
                         if (
                           match.winner &&
@@ -332,14 +333,14 @@ export function BracketEditor({ lang }: { lang: Lang }) {
                         state.change(setMatchResult(board, match.id, winner, match.scores));
                       })();
                     }}
-                  >
-                    <option value="">{t.noWinner}</option>
-                    {match.players.map((id) => (
-                      <option key={id} value={id!}>
-                        {participantName(id)}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: "", label: t.noWinner },
+                      ...match.players.map((id) => ({
+                        value: id!,
+                        label: participantName(id),
+                      })),
+                    ]}
+                  />
                 </label>
               ) : (
                 <p className="text-sm text-ink/75">
