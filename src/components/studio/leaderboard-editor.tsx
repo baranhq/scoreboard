@@ -4,13 +4,15 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  Expand,
+  Minimize2,
   Minus,
   Pencil,
   Plus,
   Star,
   Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ColorControl, accentColors } from "./color-control";
 import { Button, Modal } from "@/components/ui/ui";
 import { Select } from "@/components/ui/select";
@@ -51,9 +53,62 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const state = useDocument(initial, t);
   const board = state.document as Leaderboard;
   const { list: rowList, capture: captureRows } = useListMotion<HTMLTableSectionElement>();
+  const spreadsheetRef = useRef<HTMLElement>(null);
   const [sortColumn, setSortColumn] = useState("1");
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const [nativeFullscreen, setNativeFullscreen] = useState(false);
+  const [fallbackFullscreen, setFallbackFullscreen] = useState(false);
+  const spreadsheetFullscreen = nativeFullscreen || fallbackFullscreen;
   const editingRow = board.rows.find((row) => row.id === editingRowId);
+
+  const toggleSpreadsheetFullscreen = async () => {
+    const target = spreadsheetRef.current;
+    if (!target) return;
+
+    if (fallbackFullscreen) {
+      setFallbackFullscreen(false);
+      return;
+    }
+
+    if (document.fullscreenElement === target) {
+      try {
+        await document.exitFullscreen();
+      } catch {
+        setFallbackFullscreen(true);
+      }
+      return;
+    }
+
+    try {
+      if (!target.requestFullscreen) throw new Error("Fullscreen is unavailable");
+      await target.requestFullscreen();
+    } catch {
+      setFallbackFullscreen(true);
+    }
+  };
+
+  useEffect(() => {
+    const syncFullscreen = () =>
+      setNativeFullscreen(document.fullscreenElement === spreadsheetRef.current);
+    document.addEventListener("fullscreenchange", syncFullscreen);
+    return () => document.removeEventListener("fullscreenchange", syncFullscreen);
+  }, []);
+
+  useEffect(() => {
+    if (!fallbackFullscreen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFallbackFullscreen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [fallbackFullscreen]);
+
   const changeCell = (rowId: string, column: number, value: string) =>
     state.change(updateLeaderboardCell(board, rowId, column, value, Number(sortColumn)));
   const setRows = (rows: Leaderboard["rows"]) => {
@@ -156,8 +211,18 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
         </div>
       }
     >
-      <section className="min-w-0 space-y-3">
-        <label className="grid gap-1 text-sm font-semibold">
+      <section
+        ref={spreadsheetRef}
+        id="leaderboard-spreadsheet-panel"
+        className={
+          spreadsheetFullscreen
+            ? "fixed inset-0 z-[100] flex h-dvh w-screen flex-col gap-3 overflow-hidden bg-paper px-3 pt-[calc(0.75rem_+_env(safe-area-inset-top,0px))] pb-[calc(0.75rem_+_env(safe-area-inset-bottom,0px))] sm:px-5"
+            : "min-w-0 space-y-3"
+        }
+      >
+        <label
+          className={`grid gap-1 text-sm font-semibold ${spreadsheetFullscreen ? "hidden" : ""}`}
+        >
           {t.title}
           <input
             className={inputClass}
@@ -166,7 +231,9 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             onChange={(event) => state.change({ ...board, title: event.target.value })}
           />
         </label>
-        <label className="grid gap-1 text-sm font-semibold">
+        <label
+          className={`grid gap-1 text-sm font-semibold ${spreadsheetFullscreen ? "hidden" : ""}`}
+        >
           {t.subtitle}
           <input
             className={inputClass}
@@ -175,15 +242,36 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             onChange={(event) => state.change({ ...board, subtitle: event.target.value })}
           />
         </label>
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-forest/20 pt-4">
+        <div
+          className={`flex shrink-0 flex-wrap items-center justify-between gap-2 ${spreadsheetFullscreen ? "border-b border-forest/20 pb-2" : "border-t border-forest/20 pt-4"}`}
+        >
           <h2 className="text-lg font-semibold">
             {t.rows} & {t.columns}
           </h2>
-          <span className="text-sm tabular-nums">
-            {board.rows.length}/100 · {board.columns.length}/10
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm tabular-nums">
+              {board.rows.length}/100 · {board.columns.length}/10
+            </span>
+            <Button
+              type="button"
+              aria-label={spreadsheetFullscreen ? t.exitFullscreen : t.fullscreen}
+              aria-expanded={spreadsheetFullscreen}
+              aria-controls="leaderboard-spreadsheet-panel"
+              onClick={() => void toggleSpreadsheetFullscreen()}
+              className="!min-h-11 !min-w-11 !px-2 sm:!px-3"
+            >
+              {spreadsheetFullscreen ? (
+                <Minimize2 aria-hidden="true" size={16} />
+              ) : (
+                <Expand aria-hidden="true" size={16} />
+              )}
+              <span className="hidden sm:inline">
+                {spreadsheetFullscreen ? t.exitFullscreen : t.fullscreen}
+              </span>
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex shrink-0 flex-wrap gap-2">
           <Button
             disabled={board.rows.length >= 100}
             onClick={() => {
@@ -226,7 +314,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
             {t.addColumn}
           </Button>
         </div>
-        <details className="rounded-lg border border-forest/20 bg-forest/5 px-3">
+        <details className="shrink-0 rounded-lg border border-forest/20 bg-forest/5 px-3">
           <summary className="min-h-11 cursor-pointer py-3 text-sm font-semibold text-forest">
             {t.totalPoints}
           </summary>
@@ -258,13 +346,15 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
           </div>
         </details>
         {board.rows.length === 0 && (
-          <p className="text-sm leading-5 text-ink/75">{t.emptyLeaderboard}</p>
+          <p className={`text-sm leading-5 text-ink/75 ${spreadsheetFullscreen ? "shrink-0" : ""}`}>
+            {t.emptyLeaderboard}
+          </p>
         )}
         <div
           data-editor-table
           tabIndex={0}
           aria-label={`${t.rows} & ${t.columns}`}
-          className="max-h-[min(54dvh,34rem)] max-w-full [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25"
+          className={`max-w-full [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25 ${spreadsheetFullscreen ? "min-h-0 flex-1" : "max-h-[min(54dvh,34rem)]"}`}
         >
           <table className="w-max min-w-full border-collapse text-sm sm:text-base">
             <thead className="sticky top-0 z-10 bg-paper">
