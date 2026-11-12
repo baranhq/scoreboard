@@ -49,7 +49,7 @@ export function EditorShell({
   const previewCanvas = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
-  const [fullSize, setFullSize] = useState(false);
+  const [previewScale, setPreviewScale] = useState<"compact" | "fit" | "full">("compact");
   const [previewOnly, setPreviewOnly] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<"edit" | "preview">("edit");
   const [fullscreen, setFullscreen] = useState(false);
@@ -59,6 +59,12 @@ export function EditorShell({
   const previewInput = useRef<HTMLInputElement>(null);
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
   const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
+  const previewCanvasClass =
+    previewScale === "full"
+      ? "relative w-max [&>svg]:!h-auto [&>svg]:!w-auto"
+      : previewScale === "fit"
+        ? "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-full [&>svg]:!max-h-full [&>svg]:!w-full [&>svg]:!max-w-full"
+        : "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-[92%] [&>svg]:!max-h-[92%] [&>svg]:!w-[92%] [&>svg]:!max-w-[92%] lg:[&>svg]:!h-[78%] lg:[&>svg]:!max-h-[78%] lg:[&>svg]:!w-[78%] lg:[&>svg]:!max-w-[78%]";
   const previewParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
   const advanceMatch =
@@ -267,10 +273,16 @@ export function EditorShell({
                   lang={lang}
                   disabled={state.busy}
                 />
-                <Button aria-pressed={!fullSize} onClick={() => setFullSize(false)}>
+                <Button
+                  aria-pressed={previewScale === "fit"}
+                  onClick={() => setPreviewScale("fit")}
+                >
                   {t.fit}
                 </Button>
-                <Button aria-pressed={fullSize} onClick={() => setFullSize(true)}>
+                <Button
+                  aria-pressed={previewScale === "full"}
+                  onClick={() => setPreviewScale("full")}
+                >
                   {t.actual}
                 </Button>
                 <Button aria-pressed={fullscreen} onClick={() => void toggleFullscreen()}>
@@ -292,10 +304,7 @@ export function EditorShell({
               tabIndex={0}
               aria-label={t.scrollHint}
             >
-              <div
-                ref={previewCanvas}
-                className={`relative ${fullSize ? "w-max [&>svg]:!h-auto [&>svg]:!w-auto" : "flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-full [&>svg]:!max-h-full [&>svg]:!w-full [&>svg]:!max-w-full"}`}
-              >
+              <div ref={previewCanvas} className={previewCanvasClass}>
                 <Graphic
                   document={doc}
                   labels={t}
