@@ -469,7 +469,11 @@ export function BracketGraphic({
                     size={16}
                     fill={rowText}
                     weight={winner ? 700 : 500}
-                    edit={id ? { kind: "bracket-participant", participantId: id } : undefined}
+                    edit={
+                      id
+                        ? { kind: "bracket-participant", participantId: id, matchId: node.id }
+                        : undefined
+                    }
                     labels={onEdit ? labels : undefined}
                     onEdit={onEdit}
                   />

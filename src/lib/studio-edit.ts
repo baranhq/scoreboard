@@ -7,7 +7,7 @@ export type PreviewField =
   | { kind: "leaderboard-column"; column: number }
   | { kind: "leaderboard-position"; rowId: string }
   | { kind: "leaderboard-cell"; rowId: string; column: number }
-  | { kind: "bracket-participant"; participantId: string }
+  | { kind: "bracket-participant"; participantId: string; matchId?: string }
   | { kind: "bracket-score"; matchId: string; side: 0 | 1 };
 
 export function previewFieldValue(document: StudioDocument, field: PreviewField): string {
