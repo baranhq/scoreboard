@@ -19,3 +19,6 @@ src/app/font-faces.css
 
 # Owner-authored legal policy source
 src/lib/privacy/
+
+# Installed agent skills include upstream files with their own formatting conventions.
+.agents/skills/
