@@ -100,10 +100,10 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
           label={
             <>
               <Menu className="h-5 w-5" aria-hidden="true" />
-              <span className="hidden sm:inline">{t.tools}</span>
+              <span className="text-xs sm:text-sm">{t.tools}</span>
             </>
           }
-          triggerClassName="!px-3"
+          triggerClassName="!gap-1 !px-2 sm:!px-3"
         >
           {links.map((link, index) => (
             <Fragment key={link.href}>

@@ -65,7 +65,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
                 width="315"
                 height="83"
                 alt={brand}
-                className="h-auto w-28 sm:w-32 dark:brightness-0 dark:invert"
+                className="h-auto w-24 sm:w-32 dark:brightness-0 dark:invert"
               />
             </Link>
             <div className="flex min-w-0 items-center gap-0 sm:gap-1">
