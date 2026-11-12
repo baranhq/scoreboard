@@ -47,6 +47,7 @@ export function Modal({
   closeDisabled = false,
   size = "default",
   footerActions,
+  footerLayout = "default",
   onAction,
 }: {
   title: string;
@@ -57,8 +58,9 @@ export function Modal({
   variant?: "default" | "privacy";
   closeLabel: string;
   closeDisabled?: boolean;
-  size?: "default" | "wide";
+  size?: "default" | "confirmation" | "wide";
   footerActions?: ModalAction[];
+  footerLayout?: "default" | "confirmation";
   onAction?: (id: string) => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -88,6 +90,8 @@ export function Modal({
     setClosing(true);
     timer.current = window.setTimeout(() => closeRef.current(), 180);
   };
+  const confirmationHasSecondaryAction =
+    footerLayout === "confirmation" && (footerActions?.length ?? 0) > 2;
   const finishClose = () => {
     if (timer.current !== undefined) window.clearTimeout(timer.current);
     closeRef.current();
@@ -106,7 +110,7 @@ export function Modal({
         if (closing && e.target === e.currentTarget) finishClose();
       }}
       aria-labelledby={titleId}
-      className={`m-auto flex max-h-[90dvh] ${size === "wide" ? "w-[min(94vw,56rem)]" : variant === "privacy" ? "w-[min(94vw,44rem)]" : "w-[min(94vw,28rem)]"} bg-surface text-ink ${variant === "privacy" ? "backdrop:bg-black/50 sm:p-9" : "backdrop:bg-[#102116]/60 sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 p-4 shadow-lg transition-colors duration-150 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_160ms_ease-out_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
+      className={`m-auto flex max-h-[90dvh] ${size === "wide" ? "w-[min(94vw,56rem)]" : size === "confirmation" ? "w-[min(94vw,34rem)]" : variant === "privacy" ? "w-[min(94vw,44rem)]" : "w-[min(94vw,28rem)]"} bg-surface text-ink ${variant === "privacy" ? "backdrop:bg-black/50 sm:p-9" : "backdrop:bg-[#102116]/60 sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 p-4 shadow-lg transition-colors duration-150 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_160ms_ease-out_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
     >
       <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <h2 id={titleId} className="min-w-0 pt-1 font-display text-xl font-bold tracking-tight">
@@ -131,14 +135,16 @@ export function Modal({
         <div className="mt-3 shrink-0 border-t border-forest/15 pt-3">{afterScrollable}</div>
       )}
       {footerActions && (
-        <div className="mt-3 grid shrink-0 grid-cols-2 gap-2 border-t border-forest/15 pt-3 sm:flex sm:justify-end">
+        <div
+          className={`grid shrink-0 gap-2 border-t border-forest/15 ${footerLayout === "confirmation" ? `mt-4 pt-4 ${confirmationHasSecondaryAction ? "grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] sm:flex sm:flex-wrap sm:justify-end" : "grid-cols-2 sm:flex sm:flex-wrap sm:justify-end"}` : "mt-3 grid-cols-2 pt-3 sm:flex sm:justify-end"}`}
+        >
           {footerActions.map((action, index) => (
             <Button
               key={action.id}
               autoFocus={action.autoFocus}
               disabled={closeDisabled || closing}
               primary={action.primary}
-              className={`w-full sm:w-auto ${index === footerActions.length - 1 ? "col-span-2 justify-self-end sm:col-auto" : ""} ${action.className || ""}`}
+              className={`${footerLayout === "confirmation" ? "w-full min-w-0 text-center leading-tight sm:w-auto" : "w-full sm:w-auto"} ${index === footerActions.length - 1 ? (confirmationHasSecondaryAction ? "col-span-2 sm:col-auto" : footerLayout === "default" ? "col-span-2 justify-self-end sm:col-auto" : "") : ""} ${action.className || ""}`}
               onClick={() => {
                 if (closingRef.current) return;
                 onAction?.(action.id);
