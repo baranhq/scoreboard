@@ -5,7 +5,7 @@ import { ProductPage } from "@/components/content/product-page";
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
-  return pageMetadata(lang, "scoreboardIntro");
+  return pageMetadata(lang, "scoreboardIntro", `/${lang}/tools/scoreboard/`);
 }
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;

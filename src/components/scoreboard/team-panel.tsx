@@ -14,6 +14,7 @@ type Props = {
   appearance: Appearance;
   controlsVisible: boolean;
   interactive?: boolean;
+  allowManualEdit?: boolean;
   showControls?: boolean;
   fitCompactGrid?: boolean;
   index: number;
@@ -32,6 +33,7 @@ export function TeamPanel({
   appearance,
   controlsVisible,
   interactive = true,
+  allowManualEdit = true,
   showControls = interactive,
   fitCompactGrid = false,
   index,
@@ -51,6 +53,9 @@ export function TeamPanel({
   );
   const lightButtons = buttonColors(bg),
     darkButtons = buttonColors(darkBg);
+  const scoreButtonFeedback = interactive
+    ? "transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] active:bg-[var(--button-hover)] motion-reduce:transition-none dark:hover:bg-[var(--button-hover-dark)] dark:active:bg-[var(--button-hover-dark)]"
+    : "cursor-default";
   const digits = String(team.score).length;
   const scorePreset = appearance.scoreSize;
   const teamPreset = appearance.teamSize;
@@ -147,7 +152,7 @@ export function TeamPanel({
         ? "h-8 w-10 sm:h-8 sm:w-10"
         : "h-12 w-14 sm:h-12 sm:w-20"
       : "h-11 w-12 sm:h-12 sm:w-20";
-  const ScoreTag = full || !interactive ? "div" : "button";
+  const ScoreTag = full || !interactive || !allowManualEdit ? "div" : "button";
   useEffect(() => {
     const element = scoreValue.current;
     if (previousScore.current === team.score) return;
@@ -210,7 +215,7 @@ export function TeamPanel({
       </h3>
       <ScoreTag
         data-export-static
-        onClick={full || !interactive ? undefined : manual}
+        onClick={full || !interactive || !allowManualEdit ? undefined : manual}
         aria-label={`${team.name}: ${t.score} ${team.score}`}
         title={full ? undefined : t.score}
         className={`my-0 w-full overflow-hidden rounded-lg bg-transparent py-1 text-center font-display leading-[1.15] font-bold tracking-[-0.06em] tabular-nums ${full ? "flex min-h-0 flex-1 items-center justify-center" : ""} ${size}`}
@@ -234,7 +239,7 @@ export function TeamPanel({
             onClick={() => interactive && change(-1)}
             data-fullscreen-control
             aria-label={`${t.decrement}: ${team.name}`}
-            className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:bg-[var(--button-hover)] disabled:cursor-not-allowed motion-reduce:transition-none dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)] ${!interactive ? "disabled:border-solid disabled:opacity-100" : "disabled:border-dashed"}`}
+            className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] focus-visible:outline-[var(--secondary-text)] disabled:cursor-default dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${scoreButtonFeedback} ${!interactive ? "disabled:border-solid disabled:opacity-100" : "disabled:border-dashed"}`}
           >
             <Minus
               aria-hidden="true"
@@ -252,7 +257,7 @@ export function TeamPanel({
             onClick={() => interactive && change(1)}
             data-fullscreen-control
             aria-label={`${t.increment}: ${team.name}`}
-            className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] transition-[color,background-color,border-color] duration-150 hover:bg-[var(--button-hover)] focus-visible:outline-[var(--secondary-text)] active:bg-[var(--button-hover)] disabled:cursor-not-allowed motion-reduce:transition-none dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] dark:active:bg-[var(--button-hover-dark)] ${!interactive ? "disabled:border-solid disabled:opacity-100" : "disabled:border-dashed"}`}
+            className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] focus-visible:outline-[var(--secondary-text)] disabled:cursor-default dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${scoreButtonFeedback} ${!interactive ? "disabled:border-solid disabled:opacity-100" : "disabled:border-dashed"}`}
           >
             <Plus
               aria-hidden="true"

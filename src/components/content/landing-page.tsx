@@ -58,15 +58,26 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
   const copy = campaignCopy[lang];
   return (
     <main id="main" data-campaign="dark" data-landing-home>
-      <section className="bg-campaign text-campaign-ink lg:min-h-[calc(100svh-4rem)]">
-        <div className="mx-auto flex max-w-7xl flex-col px-5 pt-7 pb-8 sm:px-8 lg:min-h-[calc(100svh-4rem)] lg:py-3">
-          <div className="grid gap-5 border-b border-white/20 pb-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-            <h1 className="font-display text-[clamp(2.75rem,5.25vw,5rem)] leading-[0.92] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
-              {copy.headline}
-            </h1>
+      <section className="bg-campaign text-campaign-ink">
+        <div className="mx-auto flex max-w-[90rem] flex-col px-5 pt-7 pb-8 sm:px-8 lg:min-h-[calc(100svh-4rem)] lg:px-10 lg:pt-6 lg:pb-7">
+          <div className="grid gap-6 border-b border-white/20 pb-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-12 lg:pb-7">
             <div>
-              <p className="max-w-[38ch] text-base leading-6 text-white/80">{copy.intro}</p>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
+              <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
+                <span className="text-lime">{t.free}</span>
+                <span aria-hidden="true" className="text-white/45">
+                  ·
+                </span>
+                <span className="text-white/70">{t.local}</span>
+              </p>
+              <h1 className="max-w-[13ch] font-display text-[clamp(3rem,6.4vw,6.25rem)] leading-[0.9] font-bold tracking-[-0.05em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
+                {copy.headline}
+              </h1>
+            </div>
+            <div className="lg:pb-1">
+              <p className="max-w-[40ch] text-base leading-7 text-white/80 sm:text-lg sm:leading-8">
+                {copy.intro}
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
                 <Link
                   href={route(lang, toolEditors.scoreboard)}
                   className="inline-flex min-h-12 items-center gap-2 bg-lime px-5 py-3 font-semibold text-campaign transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:translate-y-0 motion-reduce:transform-none"
@@ -84,17 +95,7 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
               </div>
             </div>
           </div>
-          <div className="mt-5 grid gap-4 lg:mt-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[0.2fr_1fr] lg:gap-6">
-            <div className="flex flex-wrap gap-x-8 gap-y-2 lg:flex-col lg:justify-between lg:py-5">
-              <p className="font-display text-sm leading-tight font-semibold text-lime sm:text-xl lg:text-xl">
-                {t.free}
-                <br />
-                {t.local}
-              </p>
-              <span className="hidden max-w-[18ch] self-end text-sm leading-6 text-white/70 lg:block lg:self-start">
-                {t.scoreboard} / {t.leaderboard} / {t.bracket}
-              </span>
-            </div>
+          <div className="mt-5 min-w-0 lg:mt-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
             <CompetitionStage lang={lang} />
           </div>
         </div>

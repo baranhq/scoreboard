@@ -20,6 +20,7 @@ import {
   newLeaderboard,
   moveItem,
   moveLeaderboardColumn,
+  addLeaderboardColumn,
   nextAvailableName,
   recalculateLeaderboardTotal,
   removeColumn,
@@ -302,12 +303,7 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
           <Button
             disabled={board.columns.length >= 10}
             onClick={() =>
-              state.change({
-                ...board,
-                columns: [...board.columns, `${t.column} ${board.columns.length + 1}`],
-                columnWidths: board.columnWidths ? [...board.columnWidths, 160] : undefined,
-                rows: board.rows.map((r) => ({ ...r, cells: [...r.cells, ""] })),
-              })
+              state.change(addLeaderboardColumn(board, `${t.column} ${board.columns.length + 1}`))
             }
           >
             <Plus size={16} />
@@ -409,17 +405,14 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
                       <div className="flex flex-wrap gap-1">
                         <IconButton
                           label={`${t.left}: ${column}`}
-                          disabled={i === 0 || (board.totalColumn === i && i === 1)}
+                          disabled={i === 0 || board.totalColumn === i}
                           onClick={() => state.change(moveLeaderboardColumn(board, i, i - 1))}
                         >
                           <ArrowLeft size={14} />
                         </IconButton>
                         <IconButton
                           label={`${t.right}: ${column}`}
-                          disabled={
-                            i === board.columns.length - 1 ||
-                            (board.totalColumn === i + 1 && i === 0)
-                          }
+                          disabled={i === board.columns.length - 1 || board.totalColumn === i}
                           onClick={() => state.change(moveLeaderboardColumn(board, i, i + 1))}
                         >
                           <ArrowRight size={14} />

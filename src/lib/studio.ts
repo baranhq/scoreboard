@@ -90,26 +90,59 @@ export function removeColumn(board: Leaderboard, index: number): Leaderboard {
             : board.totalColumn,
   });
 }
+export function addLeaderboardColumn(board: Leaderboard, name: string): Leaderboard {
+  if (board.columns.length >= 10) return board;
+  const index = board.totalColumn ?? board.columns.length;
+  const columns = [...board.columns];
+  columns.splice(index, 0, name);
+  const columnWidths = board.columnWidths ? [...board.columnWidths] : undefined;
+  columnWidths?.splice(index, 0, 160);
+  const rows = board.rows.map((row) => {
+    const cells = [...row.cells];
+    cells.splice(index, 0, "");
+    return { ...row, cells };
+  });
+  return recalculateLeaderboardTotal({
+    ...board,
+    columns,
+    columnWidths,
+    rows,
+    totalColumn: board.totalColumn === undefined ? undefined : board.totalColumn + 1,
+  });
+}
 export function moveLeaderboardColumn(board: Leaderboard, from: number, to: number): Leaderboard {
   if (from < 0 || from >= board.columns.length || to < 0 || to >= board.columns.length)
     return board;
+  if (board.totalColumn === from) return board;
   const totalColumn = board.totalColumn;
-  const movedTotalColumn =
+  let movedTotalColumn =
     totalColumn === undefined
       ? undefined
-      : totalColumn === from
-        ? to
-        : from < to && totalColumn > from && totalColumn <= to
-          ? totalColumn - 1
-          : from > to && totalColumn >= to && totalColumn < from
-            ? totalColumn + 1
-            : totalColumn;
+      : from < to && totalColumn > from && totalColumn <= to
+        ? totalColumn - 1
+        : from > to && totalColumn >= to && totalColumn < from
+          ? totalColumn + 1
+          : totalColumn;
   if (movedTotalColumn === 0) return board;
+  let columns = moveItem(board.columns, from, to);
+  let columnWidths = board.columnWidths ? moveItem(board.columnWidths, from, to) : undefined;
+  let rows = board.rows.map((row) => ({ ...row, cells: moveItem(row.cells, from, to) }));
+  if (movedTotalColumn !== undefined && movedTotalColumn !== columns.length - 1) {
+    const last = columns.length - 1;
+    const totalIndex = movedTotalColumn;
+    columns = moveItem(columns, movedTotalColumn, last);
+    columnWidths = columnWidths ? moveItem(columnWidths, movedTotalColumn, last) : undefined;
+    rows = rows.map((row) => ({
+      ...row,
+      cells: moveItem(row.cells, totalIndex, last),
+    }));
+    movedTotalColumn = last;
+  }
   return recalculateLeaderboardTotal({
     ...board,
-    columns: moveItem(board.columns, from, to),
-    columnWidths: board.columnWidths ? moveItem(board.columnWidths, from, to) : undefined,
-    rows: board.rows.map((row) => ({ ...row, cells: moveItem(row.cells, from, to) })),
+    columns,
+    columnWidths,
+    rows,
     totalColumn: movedTotalColumn,
   });
 }
@@ -122,7 +155,26 @@ export function setLeaderboardTotalColumn(
     (!Number.isInteger(totalColumn) || totalColumn < 1 || totalColumn >= board.columns.length)
   )
     return board;
-  return recalculateLeaderboardTotal({ ...board, totalColumn });
+  if (totalColumn === undefined)
+    return recalculateLeaderboardTotal({ ...board, totalColumn: undefined });
+  const last = board.columns.length - 1;
+  const columns = totalColumn === last ? board.columns : moveItem(board.columns, totalColumn, last);
+  const columnWidths = board.columnWidths
+    ? totalColumn === last
+      ? board.columnWidths
+      : moveItem(board.columnWidths, totalColumn, last)
+    : undefined;
+  const rows = board.rows.map((row) => ({
+    ...row,
+    cells: totalColumn === last ? row.cells : moveItem(row.cells, totalColumn, last),
+  }));
+  return recalculateLeaderboardTotal({
+    ...board,
+    columns,
+    columnWidths,
+    rows,
+    totalColumn: last,
+  });
 }
 export function recalculateLeaderboardTotal(board: Leaderboard, rankRows = true): Leaderboard {
   const totalColumn = board.totalColumn;
@@ -421,5 +473,8 @@ export function parseDocument(value: unknown): StudioDocument {
     }
   } else throw new Error("Unknown document kind");
   const document = structuredClone(value) as StudioDocument;
-  return document.kind === "leaderboard" ? recalculateLeaderboardTotal(document) : document;
+  if (document.kind !== "leaderboard") return document;
+  return document.totalColumn === undefined || document.totalColumn === document.columns.length - 1
+    ? recalculateLeaderboardTotal(document)
+    : setLeaderboardTotalColumn(document, document.totalColumn);
 }
