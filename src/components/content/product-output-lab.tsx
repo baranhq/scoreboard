@@ -29,21 +29,19 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
   const document = useMemo(() => {
     if (tool === "scoreboard") return null;
     const sample = studioDemo(tool, lang);
-    if (sample.kind === "leaderboard") {
-      const board: Leaderboard = { ...sample, style: { ...sample.style, ...defaultTheme } };
-      if (view === 1) {
-        board.columns = [t.team, t.points, t.round];
-        board.rows = board.rows.map((row) => ({ ...row, cells: [...row.cells, "3"] }));
-      }
-      return board;
-    }
+    if (sample.kind === "leaderboard")
+      return {
+        ...sample,
+        gridColumns: 2,
+        style: { ...sample.style, ...defaultTheme },
+      } satisfies Leaderboard;
     const board: Bracket = view === 2 ? resizeBracket(sample, 3) : sample;
     return {
       ...board,
       layout: view === 1 ? ("split" as const) : ("single" as const),
       style: { ...board.style, ...defaultTheme },
     };
-  }, [tool, lang, view, t, defaultTheme]);
+  }, [tool, lang, view, defaultTheme]);
   return (
     <div className="min-w-0">
       {tool === "scoreboard" ? (
@@ -78,9 +76,9 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
           </div>
           {showLimit && <DemoTeamLimit lang={lang} close={() => setShowLimit(false)} />}
         </div>
-      ) : (
+      ) : tool === "bracket" ? (
         <div
-          className="mb-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
+          className="mb-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
           role="group"
           aria-label={t.layout}
         >
@@ -99,7 +97,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
             );
           })}
         </div>
-      )}
+      ) : null}
       {tool === "scoreboard" ? (
         <>
           <div className="h-[clamp(28rem,58svh,38rem)] min-w-0 overflow-hidden rounded-xl border border-forest/20">
@@ -107,6 +105,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
               lang={lang}
               theme={defaultTheme}
               teamCount={teamCount}
+              allowManualEdit={false}
               compact
               autoplay={false}
             />
@@ -127,7 +126,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
           <div
             tabIndex={0}
             aria-label={t.exploreGraphic}
-            className="overflow-auto overscroll-contain border border-forest/20 bg-forest/5 p-3 sm:p-7"
+            className="overflow-auto overscroll-contain rounded-xl border border-forest/20 bg-forest/5 p-2 sm:p-4"
           >
             <div
               className={

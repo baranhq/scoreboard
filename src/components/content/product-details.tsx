@@ -32,10 +32,10 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           <p className="max-w-[50ch] text-lg leading-8 text-ink/75">{copy.capability[1]}</p>
         </header>
         <div
-          className={`mt-10 grid min-w-0 gap-8 ${tool === "scoreboard" ? "lg:grid-cols-[1.5fr_0.7fr]" : tool === "leaderboard" ? "lg:grid-cols-[0.7fr_1.5fr]" : ""}`}
+          className={`grid min-w-0 ${tool === "leaderboard" ? "mt-7 gap-6 lg:grid-cols-[0.7fr_1.5fr]" : "mt-10 gap-8"} ${tool === "scoreboard" ? "lg:grid-cols-[1.5fr_0.7fr]" : ""}`}
         >
           <div className={`min-w-0 ${tool === "leaderboard" ? "lg:order-2" : ""}`}>
-            <h3 className="mb-5 font-display text-2xl font-semibold tracking-tight">
+            <h3 className="mb-3 font-display text-2xl font-semibold tracking-tight">
               {campaignCopy[lang].lab[tool]}
             </h3>
             <ProductOutputLab tool={tool} lang={lang} />
