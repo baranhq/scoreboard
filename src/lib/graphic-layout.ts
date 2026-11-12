@@ -1,4 +1,5 @@
 import { bracketRounds, type Bracket } from "./brackets.ts";
+import type { GraphicBase } from "./graphic-style.ts";
 const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 function units(character: string): number {
   if (/^[MWÆŒШЩЖЮФМЫЪ]/u.test(character)) return 1.1;
@@ -41,6 +42,53 @@ export function wrapText(text: string, limit: number): string[] {
   if (line.trim() || !lines.length) lines.push(line.trimEnd());
   return lines.map((value) => value.trimEnd());
 }
+
+export function graphicHeaderHeight(
+  document: Pick<GraphicBase, "title" | "subtitle" | "style">,
+  width: number,
+): number {
+  const titleLines =
+    document.style.titleVisible === false || !document.title.trim()
+      ? 0
+      : wrapText(document.title, (width - 80) / 36).length;
+  const subtitleLines =
+    document.style.subtitleVisible === false || !document.subtitle.trim()
+      ? 0
+      : wrapText(document.subtitle, (width - 80) / 20).length;
+
+  return 48 + titleLines * 47 + subtitleLines * 26;
+}
+
+export function distributeRows<T>(rows: T[], columns: number): T[][] {
+  if (!rows.length) return [];
+
+  const count = Math.min(rows.length, Math.max(1, Math.min(3, Math.floor(columns))));
+  const base = Math.floor(rows.length / count);
+  const remainder = rows.length % count;
+  let start = 0;
+
+  return Array.from({ length: count }, (_, index) => {
+    const size = base + (index < remainder ? 1 : 0);
+    const group = rows.slice(start, start + size);
+    start += size;
+    return group;
+  });
+}
+
+export function fitContentToCanvas(
+  contentWidth: number,
+  contentHeight: number,
+  canvasWidth: number,
+  canvasHeight: number,
+): { scale: number; x: number; y: number } {
+  const scale = Math.min(canvasWidth / contentWidth, canvasHeight / contentHeight);
+  return {
+    scale,
+    x: (canvasWidth - contentWidth * scale) / 2,
+    y: (canvasHeight - contentHeight * scale) / 2,
+  };
+}
+
 export function bracketLayout(board: Bracket) {
   const rounds = bracketRounds(board);
   const split = board.layout === "split" && rounds.length > 1;
@@ -48,14 +96,16 @@ export function bracketLayout(board: Bracket) {
     1,
     ...board.participants.map((p) => wrapText(p.name, 196 / 16).length),
   );
-  const rowHeight = Math.max(44, textLines * 21 + 16);
+  const rowHeight = Math.max(board.style.density === "spacious" ? 60 : 44, textLines * 21 + 16);
   const cardHeight = rowHeight * 2;
-  const pitch = cardHeight + 40;
-  const width = (split ? rounds.length * 2 - 1 : rounds.length) * 260 + 40;
-  const header =
-    100 +
-    wrapText(board.title, (width - 80) / 36).length * 47 +
-    wrapText(board.subtitle, (width - 80) / 20).length * 26;
+  const pitch = cardHeight + (board.style.matchGap ?? 40);
+  const roundPitch = board.style.roundGap ?? 260;
+  const width = split
+    ? (rounds.length * 2 - 1) * roundPitch + 40
+    : (rounds.length - 1) * roundPitch + 220 + 80;
+  const hasTitle = board.style.titleVisible !== false && !!board.title.trim();
+  const hasSubtitle = board.style.subtitleVisible !== false && !!board.subtitle.trim();
+  const header = graphicHeaderHeight(board, width) + (hasSubtitle ? 56 : hasTitle ? 28 : 12);
   const fieldHeight = (rounds[0].length / (split ? 2 : 1)) * pitch;
   const footerHeight = Math.max(
     50,
@@ -71,7 +121,7 @@ export function bracketLayout(board: Bracket) {
         ...match,
         round,
         index,
-        x: 40 + (right ? rounds.length * 2 - 2 - round : round) * 260,
+        x: 40 + (right ? rounds.length * 2 - 2 - round : round) * roundPitch,
         y:
           header +
           (split && final ? fieldHeight / 2 : (localIndex + 0.5) * 2 ** round * pitch) -

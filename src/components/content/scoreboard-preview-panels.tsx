@@ -26,24 +26,22 @@ import type {
 } from "./scoreboard-preview-types";
 import { iconIds } from "@/lib/board-icons";
 import { BoardIcon } from "../scoreboard/board-icon";
+import { DemoPlaybackControls } from "./demo-playback-controls";
 
 function VisualButton({
   children,
   primary = false,
   pressed = false,
   className = "",
-  target,
 }: {
   children: ReactNode;
   primary?: boolean;
   pressed?: boolean;
   className?: string;
-  target?: PreviewTarget;
 }) {
   return (
     <span
       className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border px-2 py-1 text-sm font-medium transition-[color,background-color,border-color,transform] duration-150 motion-reduce:transform-none motion-reduce:transition-none ${primary ? "border-action bg-action text-on-action" : "border-forest/25 bg-transparent text-forest"} ${pressed ? "scale-[.96] brightness-95" : ""} ${className}`}
-      data-demo-target={target}
     >
       {children}
     </span>
@@ -53,17 +51,14 @@ function VisualButton({
 function PreviewCheck({
   label,
   checked = false,
-  target,
   pressed = false,
 }: {
   label: string;
   checked?: boolean;
-  target?: PreviewTarget;
   pressed?: boolean;
 }) {
   return (
     <div
-      data-demo-target={target}
       className={`flex min-h-9 items-center gap-2 text-sm transition-transform duration-150 motion-reduce:transition-none ${pressed ? "scale-[.98]" : ""}`}
     >
       <span
@@ -79,9 +74,17 @@ function PreviewCheck({
 export function PreviewToolbar({
   copy,
   labels,
+  playing,
+  showPlaybackControls = true,
+  onToggle,
+  onReset,
 }: {
   copy: LandingContent["preview"];
   labels: PreviewLabels;
+  playing: boolean;
+  showPlaybackControls?: boolean;
+  onToggle: () => void;
+  onReset: () => void;
 }) {
   return (
     <div className="mb-3 flex min-w-0 items-center justify-between gap-2 [@media(max-height:600px)]:mb-1">
@@ -95,7 +98,19 @@ export function PreviewToolbar({
         <span className="truncate">{copy.boardName}</span>
       </h2>
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-        <div aria-hidden="true" className="flex items-center gap-1 sm:gap-2">
+        {showPlaybackControls && (
+          <DemoPlaybackControls
+            playing={playing}
+            labels={{
+              play: labels.playPreview,
+              pause: labels.pausePreview,
+              reset: labels.resetDemo,
+            }}
+            onToggle={onToggle}
+            onReset={onReset}
+          />
+        )}
+        <div aria-hidden="true" className="hidden items-center gap-1 sm:flex sm:gap-2">
           <VisualButton>
             <Share2 aria-hidden="true" className="h-4 w-4" />
             <span className="sr-only sm:not-sr-only">{labels.share}</span>
@@ -125,7 +140,7 @@ export function PreviewTimer({ state, labels }: { state: PreviewState; labels: P
         </p>
       </div>
       <div className="col-start-3 flex justify-end gap-1.5">
-        <VisualButton target="timer-start" pressed={state.pressed === "timer-start"}>
+        <VisualButton pressed={state.pressed === "timer-start"}>
           {state.timerRunning ? (
             <Pause aria-hidden="true" className="h-4 w-4" />
           ) : (
@@ -135,7 +150,7 @@ export function PreviewTimer({ state, labels }: { state: PreviewState; labels: P
             {state.timerRunning ? labels.pauseTimer : labels.startTimer}
           </span>
         </VisualButton>
-        <VisualButton target="timer-reset" pressed={state.pressed === "timer-reset"}>
+        <VisualButton pressed={state.pressed === "timer-reset"}>
           <RotateCcw aria-hidden="true" className="h-4 w-4" />
           <span className="sr-only">{labels.resetTimer}</span>
         </VisualButton>
@@ -149,11 +164,27 @@ export function PreviewTeamCard({
   index,
   name,
   score,
+  labels,
+  readOnly = false,
+  compact = false,
+  editingName,
+  onEditName,
+  onDoneEditingName,
+  onNameChange,
+  onScoreChange,
 }: {
   state: PreviewState;
   index: number;
   name: string;
   score: number;
+  labels: PreviewLabels;
+  readOnly?: boolean;
+  compact?: boolean;
+  editingName: boolean;
+  onEditName: () => void;
+  onDoneEditingName: () => void;
+  onNameChange: (name: string) => void;
+  onScoreChange: (amount: -1 | 1) => void;
 }) {
   const palette = teamPalette[state.teamPalettes[index]];
   const darkBackground = themePaletteColor(palette.background, "dark");
@@ -183,27 +214,67 @@ export function PreviewTeamCard({
     <article
       data-demo-team={index + 1}
       style={style}
-      className={`[container-type:inline-size] flex min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-1.5 py-2 text-[var(--team-fg)] transition-[opacity,transform,background-color] duration-300 motion-reduce:transition-none sm:flex-1 sm:px-2 sm:py-4 dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] [@media(max-height:600px)]:py-0 ${leaving ? "scale-[.96] opacity-0" : "scale-100 opacity-100"} motion-safe:animate-[appear_180ms_ease-out]`}
+      className={`[container-type:inline-size] flex min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-1.5 py-2 text-[var(--team-fg)] transition-[opacity,transform,background-color] duration-300 motion-reduce:transition-none sm:flex-1 sm:px-2 ${compact ? "sm:py-2" : "sm:py-4"} dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] [@media(max-height:600px)]:py-0 ${leaving ? "scale-[.96] opacity-0" : "scale-100 opacity-100"} motion-safe:animate-[appear_180ms_ease-out]`}
     >
-      <h3 className="max-w-full truncate px-1 py-1 text-center font-display text-sm font-semibold sm:px-2 sm:text-lg [@media(max-height:600px)]:px-1 [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-sm">
-        {name}
+      <h3
+        className={`w-full min-w-0 px-1 py-1 text-center font-display text-sm font-semibold sm:px-2 ${compact ? "sm:py-0 sm:text-base" : "sm:text-lg"} [@media(max-height:600px)]:px-1 [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-sm`}
+      >
+        {readOnly ? (
+          <span className="inline-flex min-h-9 max-w-full items-center justify-center truncate px-1.5">
+            {name}
+          </span>
+        ) : editingName ? (
+          <input
+            aria-label={`${labels.teamName} ${index + 1}`}
+            autoFocus
+            maxLength={64}
+            className="min-h-9 w-full min-w-0 rounded-md border border-action bg-paper px-1.5 text-center text-sm text-ink ring-2 ring-action/20 outline-none sm:text-base"
+            value={name}
+            onChange={(event) => onNameChange(event.target.value)}
+            onBlur={onDoneEditingName}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.currentTarget.blur();
+              if (event.key === "Escape") event.currentTarget.blur();
+            }}
+          />
+        ) : (
+          <button
+            type="button"
+            aria-label={`${labels.editParticipant}: ${name}`}
+            onClick={onEditName}
+            className="inline-flex min-h-9 max-w-full items-center justify-center gap-1 truncate rounded-md px-1.5 text-center hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-current dark:hover:bg-white/10"
+          >
+            <span className="truncate">{name}</span>
+            <Pencil aria-hidden="true" className="size-3 shrink-0 opacity-65" />
+          </button>
+        )}
       </h3>
-      <p className="my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums sm:text-[calc(min(48cqw,7rem))] [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-[calc(min(30cqw,4rem))]">
+      <p
+        className={`my-0 w-full overflow-hidden py-1 text-center font-display text-[calc(min(40cqw,5rem))] leading-[1.15] font-bold tracking-[-0.06em] tabular-nums ${compact ? "sm:text-[calc(min(40cqw,5rem))]" : "sm:text-[calc(min(48cqw,7rem))]"} [@media(max-height:600px)]:py-0 [@media(max-height:600px)]:text-[calc(min(30cqw,4rem))]`}
+      >
         {score}
       </p>
-      <div className="mt-1 flex items-center gap-1 min-[480px]:gap-2 [@media(max-height:600px)]:mt-0">
-        <span
-          data-demo-target={minusTarget ?? undefined}
-          className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-[background-color,transform] duration-150 min-[480px]:h-10 min-[480px]:w-11 sm:h-11 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] [@media(max-height:600px)]:h-8 [@media(max-height:600px)]:w-8 ${minusTarget !== null && state.pressed === minusTarget ? "scale-[.96]" : ""}`}
+      <div
+        className={`mt-1 flex items-center gap-1 min-[480px]:gap-2 [@media(max-height:600px)]:mt-0 ${state.teamCount === 3 ? "flex-col sm:flex-row" : "flex-row"}`}
+      >
+        <button
+          type="button"
+          aria-label={`${labels.decrease} ${name}`}
+          disabled={readOnly}
+          onClick={() => onScoreChange(-1)}
+          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] text-[var(--secondary-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-solid disabled:opacity-100 sm:w-14 dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${minusTarget !== null && state.pressed === minusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
         >
           <Minus aria-hidden="true" className="h-5 w-5" />
-        </span>
-        <span
-          data-demo-target={plusTarget}
-          className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-[background-color,transform] duration-150 min-[480px]:h-10 min-[480px]:w-11 sm:h-11 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] [@media(max-height:600px)]:h-8 [@media(max-height:600px)]:w-8 ${plusTarget !== null && state.pressed === plusTarget ? "scale-[.96] brightness-95" : ""}`}
+        </button>
+        <button
+          type="button"
+          aria-label={`${labels.increase} ${name}`}
+          disabled={readOnly}
+          onClick={() => onScoreChange(1)}
+          className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-text)] transition-colors duration-150 hover:bg-[var(--button-hover)] disabled:cursor-not-allowed disabled:border-solid disabled:opacity-100 sm:w-14 dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:hover:bg-[var(--button-hover-dark)] ${plusTarget !== null && state.pressed === plusTarget ? "bg-[var(--button-hover)] dark:bg-[var(--button-hover-dark)]" : ""}`}
         >
           <Plus aria-hidden="true" className="h-5 w-5" />
-        </span>
+        </button>
       </div>
     </article>
   );
@@ -248,7 +319,6 @@ export function PreviewConfiguration({
         {tabOrder.map((tab) => (
           <span
             key={tab}
-            data-demo-target={tabTargets[tab]}
             className={`inline-flex min-h-9 min-w-0 items-center justify-center rounded-lg px-1 py-1 text-center text-xs font-semibold transition-colors duration-150 motion-reduce:transition-none min-[900px]:px-0 min-[900px]:text-[11px] lg:min-w-0 lg:flex-1 lg:px-2 lg:text-sm ${state.tab === tab ? "bg-action text-on-action" : "text-forest"} ${state.pressed === tabTargets[tab] ? "scale-[.97]" : ""}`}
           >
             {tabLabels[tab]}
@@ -259,7 +329,6 @@ export function PreviewConfiguration({
       <div
         key={state.tab}
         data-demo-scroll-panel
-        data-demo-target={state.tab === "timer" ? "timer-scroll" : undefined}
         className="mt-3 min-h-0 flex-1 touch-pan-y [scrollbar-width:thin] [scrollbar-color:rgba(40,91,53,0.35)_transparent] overflow-x-hidden overflow-y-auto overscroll-contain rounded-b-md border-t border-forest/15 pt-3 pb-2 motion-safe:animate-[appear_160ms_ease-out] motion-reduce:animate-none [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/35 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-forest/5"
       >
         {state.tab === "teams" && (
@@ -274,7 +343,6 @@ export function PreviewConfiguration({
               <div key={index} className="flex min-w-0 items-center gap-1">
                 <span className="sr-only">{`${labels.teamName} ${index + 1}`}</span>
                 <span
-                  data-demo-target={index === 0 ? "team-one-name" : undefined}
                   className={`flex min-h-9 min-w-0 flex-1 items-center truncate rounded-lg border bg-paper px-2.5 text-sm text-ink transition-[border-color,box-shadow] duration-150 motion-reduce:transition-none ${index === 0 && state.editingTeamName ? "border-action ring-2 ring-action/20" : "border-forest/25"}`}
                 >
                   {name}
@@ -289,7 +357,6 @@ export function PreviewConfiguration({
                   <ArrowDown aria-hidden="true" className="h-4 w-4" />
                 </span>
                 <span
-                  data-demo-target={index === 2 ? "team-three-remove" : undefined}
                   className={`flex h-9 w-8 shrink-0 items-center justify-center rounded-md border border-forest/20 text-forest transition-transform duration-150 motion-reduce:transition-none ${index === 2 && state.pressed === "team-three-remove" ? "scale-95" : ""}`}
                 >
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
@@ -298,7 +365,7 @@ export function PreviewConfiguration({
             ))}
             {state.teamCount === 2 && (
               <div className="pt-1">
-                <VisualButton target="add-team" pressed={state.pressed === "add-team"}>
+                <VisualButton pressed={state.pressed === "add-team"}>
                   <Plus aria-hidden="true" className="h-4 w-4" />
                   <span>{labels.addTeam}</span>
                 </VisualButton>
@@ -327,7 +394,6 @@ export function PreviewConfiguration({
                     return (
                       <span
                         key={palette.background}
-                        data-demo-target={target}
                         className={`flex h-7 w-7 items-center justify-center rounded-lg border border-black/15 bg-[var(--swatch-bg)] text-[var(--swatch-check)] transition-[transform,border-color] duration-150 motion-reduce:transition-none min-[480px]:h-8 min-[480px]:w-8 dark:border-white/20 dark:bg-[var(--swatch-bg-dark)] dark:text-[var(--swatch-check-dark)] ${state.pressed === target ? "scale-95" : selected ? "scale-105 border-action" : ""}`}
                         style={
                           {
@@ -438,7 +504,6 @@ export function PreviewConfiguration({
             <PreviewCheck
               label={labels.enableTimer}
               checked={state.timerEnabled}
-              target="timer-enable"
               pressed={state.pressed === "timer-enable"}
             />
             {state.timerEnabled && (
@@ -477,7 +542,6 @@ export function PreviewConfiguration({
                   <PreviewCheck
                     label={labels.trackPausedTime}
                     checked={state.trackPausedTime}
-                    target="timer-paused-time"
                     pressed={state.pressed === "timer-paused-time"}
                   />
                   <PreviewCheck label={labels.pausedScoreNotice} checked />
