@@ -178,6 +178,8 @@ const en = {
   saving: "Saving…",
   storageError:
     "Changes could not be saved. Export a backup now and check browser storage permissions.",
+  storageUnavailable:
+    "Your browser cannot save this board right now. You can keep using it, but changes may be lost when you leave.",
   loading: "Opening your scoreboards…",
   empty: "Your next game starts here.",
   emptyText: "Make a scoreboard. It will be saved automatically in this browser.",
@@ -418,6 +420,8 @@ const bg: Messages = {
   saving: "Запазване…",
   storageError:
     "Промените не са запазени. Изтеглете резервно копие и проверете разрешенията за съхранение.",
+  storageUnavailable:
+    "Браузърът не може да запази това табло в момента. Можете да продължите да го използвате, но промените може да се загубят, когато излезете.",
   loading: "Зареждане на таблата…",
   empty: "Следващата игра започва тук.",
   emptyText: "Създайте табло. То ще се запазва автоматично в този браузър.",
@@ -660,6 +664,8 @@ const tr: Messages = {
   saving: "Kaydediliyor…",
   storageError:
     "Değişiklikler kaydedilemedi. Şimdi bir yedek dışa aktarın ve tarayıcı depolama izinlerini kontrol edin.",
+  storageUnavailable:
+    "Tarayıcınız bu panoyu şu anda kaydedemiyor. Kullanmaya devam edebilirsiniz ancak sayfadan ayrıldığınızda değişiklikler kaybolabilir.",
   loading: "Skor oyunlarınız açılıyor…",
   empty: "Bir sonraki oyun burada başlar.",
   emptyText: "Bir skor tabelası hazırlayın. Bu tarayıcıya otomatik olarak kaydedilir.",
