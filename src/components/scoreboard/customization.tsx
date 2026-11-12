@@ -95,7 +95,7 @@ export function Customization({
   return (
     <section
       aria-label={t.customize}
-      className="mt-5 border-y border-forest/20 bg-surface py-3 sm:py-4"
+      className="mt-5 rounded-xl border border-forest/20 bg-surface p-3 shadow-sm sm:p-4"
     >
       <WorkspaceTabs lang={lang} value={tab} change={setTab} includeTimer />
       <div
