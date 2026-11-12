@@ -11,6 +11,7 @@ import {
   sortRows,
   setLeaderboardTotalColumn,
   moveLeaderboardColumn,
+  addLeaderboardColumn,
   updateLeaderboardCell,
   parseDocument,
 } from "../src/lib/studio.ts";
@@ -203,7 +204,7 @@ test("calculated total columns are validated and survive saved-document parsing"
   assert.throws(() => parseDocument({ ...board, totalColumn: 1.5 }));
 });
 
-test("calculated totals follow their column when columns move and clear when removed", () => {
+test("calculated totals stay in the last column when columns move and clear when removed", () => {
   const board = {
     ...newLeaderboard("total-column-move"),
     columns: ["Team", "Round 1", "Round 2", "Points"],
@@ -221,16 +222,33 @@ test("calculated totals follow their column when columns move and clear when rem
     ],
   );
 
-  const moved = moveLeaderboardColumn(calculated, 3, 1);
-  assert.equal(moved.totalColumn, 1);
+  const moved = moveLeaderboardColumn(calculated, 2, 1);
+  assert.equal(moved.totalColumn, 3);
   assert.deepEqual(
-    moved.rows.map((row) => [row.cells[0], row.cells[1]]),
+    moved.rows.map((row) => [row.cells[0], row.cells[1], row.cells[3]]),
     [
-      ["Team 2", "10"],
-      ["Team 1", "7"],
+      ["Team 2", "2", "10"],
+      ["Team 1", "4", "7"],
     ],
   );
+  assert.equal(moveLeaderboardColumn(calculated, 3, 1), calculated);
   assert.equal(removeColumn(calculated, 3).totalColumn, undefined);
+});
+
+test("new leaderboard columns are inserted before calculated totals", () => {
+  const calculated = setLeaderboardTotalColumn(
+    {
+      ...newLeaderboard("add-column-before-total"),
+      columns: ["Team", "Round 1", "Round 2", "Points"],
+      rows: [{ id: "team-1", cells: ["Team 1", "3", "4", "0"], highlighted: false }],
+    },
+    3,
+  );
+  const updated = addLeaderboardColumn(calculated, "Round 3");
+
+  assert.deepEqual(updated.columns, ["Team", "Round 1", "Round 2", "Round 3", "Points"]);
+  assert.deepEqual(updated.rows[0].cells, ["Team 1", "3", "4", "", "7"]);
+  assert.equal(updated.totalColumn, 4);
 });
 
 test("the GitHub notice appears once per local day and returns on the next day", () => {

@@ -42,6 +42,7 @@ export function HomeScoreboard({
   controlledPlayback = false,
   teamCount,
   showReadOnlyControls = false,
+  allowManualEdit = true,
 }: {
   lang: Lang;
   theme?: ToolTheme;
@@ -53,6 +54,7 @@ export function HomeScoreboard({
   controlledPlayback?: boolean;
   teamCount?: number;
   showReadOnlyControls?: boolean;
+  allowManualEdit?: boolean;
 }) {
   const container = useRef<HTMLElement | null>(null);
   const [full, setFull] = useState(false);
@@ -161,7 +163,7 @@ export function HomeScoreboard({
         </div>
         <div className="relative min-h-0 flex-1">
           <div
-            className={`${teamGridClass(count, "auto", full)} ${compact ? "auto-rows-fr" : ""} h-full min-h-0 gap-2 sm:gap-3`}
+            className={`${teamGridClass(count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : compact ? "auto-rows-fr sm:auto-rows-auto" : ""} h-full min-h-0 gap-2 sm:gap-3`}
           >
             {teamNames.slice(0, count).map((name, index) => (
               <TeamPanel
@@ -176,6 +178,9 @@ export function HomeScoreboard({
                 appearance={{
                   ...defaults,
                   scoreSize: compact ? "medium" : "xlarge",
+                  textScaleEnabled: compact,
+                  scoreScale: compact ? (count === 2 ? 56 : 72) : defaults.scoreScale,
+                  teamScale: compact ? 86 : defaults.teamScale,
                   density: theme.density,
                   cornerRadius: theme.radius,
                   borderWidth: Math.max(theme.borderWidth, 1),
@@ -185,6 +190,7 @@ export function HomeScoreboard({
                 }}
                 controlsVisible
                 interactive={!readOnly}
+                allowManualEdit={allowManualEdit}
                 showControls={!readOnly || showReadOnlyControls}
                 fitCompactGrid={compact && count >= 4}
                 index={index}
@@ -207,7 +213,7 @@ export function HomeScoreboard({
             ))}
           </div>
         </div>
-        {editing !== null && (
+        {allowManualEdit && editing !== null && (
           <label className="mx-auto mt-4 grid max-w-60 gap-2 text-sm font-semibold">
             {t.score}: {teamNames[editing]}
             <input
@@ -250,7 +256,7 @@ export function HomeScoreboard({
           {t.fullscreenError}
         </p>
       )}
-      {!readOnly && (
+      {!readOnly && allowManualEdit && (
         <details
           data-demo-setup
           className="border-t border-current/20 px-4 py-3 sm:px-6"

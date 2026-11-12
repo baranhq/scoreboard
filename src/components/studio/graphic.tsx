@@ -1,7 +1,7 @@
 import { useId, type Ref } from "react";
 import type { Bracket } from "@/lib/brackets";
 import type { Leaderboard, StudioDocument } from "@/lib/studio";
-import { foreground } from "@/lib/colors";
+import { foreground, readableText } from "@/lib/colors";
 import {
   bracketLayout,
   distributeRows,
@@ -179,7 +179,7 @@ export function LeaderboardGraphic({
   const outputHeight = board.canvas?.height || height;
   const placement = fitContentToCanvas(width, height, outputWidth, outputHeight);
   const gradientId = useId();
-  const text = board.style.textColor || foreground(board.style.background);
+  const text = readableText(board.style.background, board.style.textColor);
   const onAccent = foreground(board.style.accent);
   return (
     <svg
@@ -304,7 +304,13 @@ export function LeaderboardGraphic({
                 fill={
                   row.row.color ? foreground(row.row.color) : row.row.highlighted ? onAccent : text
                 }
-                weight={i === 0 ? 600 : 500}
+                weight={
+                  i === board.totalColumn || i === board.columns.length - 1
+                    ? 700
+                    : i === 0
+                      ? 600
+                      : 500
+                }
                 anchor={i === board.columns.length - 1 ? "end" : "start"}
                 edit={
                   i === board.totalColumn
@@ -337,7 +343,7 @@ export function BracketGraphic({
   const outputHeight = board.canvas?.height || height;
   const placement = fitContentToCanvas(width, height, outputWidth, outputHeight);
   const gradientId = useId();
-  const text = board.style.textColor || foreground(board.style.background);
+  const text = readableText(board.style.background, board.style.textColor);
   const onAccent = foreground(board.style.accent);
   const name = (id: string | null) =>
     board.participants.find((p) => p.id === id)?.name || labels.pending;
