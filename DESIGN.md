@@ -110,7 +110,7 @@ Primary buttons use the action colour and its accessible on-action text. Seconda
 
 ### Editors and previews
 
-Keep each product's familiar task visible. Place save and PNG export where people expect them, provide a clear path to the product introduction, and group appearance and graphic-format controls plainly. Use Content, Design, Settings, and Export tabs on desktop, with an Edit/Preview switch on narrow screens. Start previews fitted to available space and offer an aspect-ratio selector, full-size view, and fullscreen. Keep saving explicit, preserve browser-local drafts, and show storage and export errors. Examples belong only in landing-page demonstrations.
+Keep each product's familiar task visible. Place save and PNG export where people expect them, provide a clear path to the product introduction, and group appearance and graphic-format controls plainly. Use Content, Design, Settings, and Export tabs on desktop, with an Edit/Preview switch on narrow screens. Start previews centered at a compact scale; offer Fit, full-size, and fullscreen views alongside the aspect-ratio selector. Keep saving explicit, preserve browser-local drafts, and show storage and export errors. Examples belong only in landing-page demonstrations.
 
 ### Leaderboards
 
