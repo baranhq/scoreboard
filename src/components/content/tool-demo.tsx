@@ -211,7 +211,10 @@ function StudioToolDemo({
     toggle: togglePlayback,
     pause,
     reset: resetPlayback,
-  } = useAutoDemo(advance, reset, 2900, autoplay, { controlled: controlledPlayback });
+  } = useAutoDemo(advance, reset, 2900, autoplay, {
+    controlled: controlledPlayback,
+    allowReducedMotionAutoplay: autoplay && readOnly,
+  });
   const fullscreen = nativeFullscreen || fallbackFullscreen;
   const attachRef = useCallback(
     (node: HTMLElement | null) => {
@@ -292,9 +295,7 @@ function StudioToolDemo({
     ? `flex min-h-0 flex-1 items-center justify-center ${fullscreen ? "overflow-auto" : "overflow-hidden"}`
     : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto";
   const graphicWidthClass =
-    compact && (widePreview || fillPreview || fullscreen)
-      ? "[&>svg]:!w-full"
-      : "[&>svg]:!w-auto";
+    compact && (widePreview || fillPreview || fullscreen) ? "[&>svg]:!w-full" : "[&>svg]:!w-auto";
 
   const demo = (
     <section
