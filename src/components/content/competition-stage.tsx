@@ -82,6 +82,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 readOnly
                 showReadOnlyControls
                 showPlaybackControls={false}
+                showFullscreenControl={tool !== "scoreboard"}
                 showResultControls={false}
                 controlledPlayback
                 useScoreboardPreview={tool === "scoreboard"}

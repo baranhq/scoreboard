@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
+import { Expand, Minimize2 } from "lucide-react";
 import { foreground } from "@/lib/colors";
 import { Graphic } from "@/components/studio/graphic";
 import { DemoPlaybackControls } from "@/components/content/demo-playback-controls";
@@ -33,6 +35,7 @@ export function ToolDemo({
   fillPreview = false,
   readOnly = false,
   showPlaybackControls = true,
+  showFullscreenControl = false,
   showResultControls = true,
   controlledPlayback = false,
   showReadOnlyControls = false,
@@ -51,6 +54,7 @@ export function ToolDemo({
   fillPreview?: boolean;
   readOnly?: boolean;
   showPlaybackControls?: boolean;
+  showFullscreenControl?: boolean;
   showResultControls?: boolean;
   controlledPlayback?: boolean;
   showReadOnlyControls?: boolean;
@@ -108,6 +112,7 @@ export function ToolDemo({
       showPreviewLabel={showPreviewLabel}
       fillPreview={fillPreview}
       showPlaybackControls={showPlaybackControls}
+      showFullscreenControl={showFullscreenControl}
       readOnly={readOnly}
       showResultControls={showResultControls}
       controlledPlayback={controlledPlayback}
@@ -127,6 +132,7 @@ function StudioToolDemo({
   showPreviewLabel,
   fillPreview,
   showPlaybackControls,
+  showFullscreenControl,
   readOnly,
   showResultControls,
   controlledPlayback,
@@ -141,6 +147,7 @@ function StudioToolDemo({
   showPreviewLabel: boolean;
   fillPreview: boolean;
   showPlaybackControls: boolean;
+  showFullscreenControl: boolean;
   readOnly: boolean;
   showResultControls: boolean;
   controlledPlayback: boolean;
@@ -184,6 +191,10 @@ function StudioToolDemo({
     });
   }
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
+  const fullscreenTarget = useRef<HTMLElement | null>(null);
+  const fullscreenButton = useRef<HTMLButtonElement | null>(null);
+  const [nativeFullscreen, setNativeFullscreen] = useState(false);
+  const [fallbackFullscreen, setFallbackFullscreen] = useState(false);
   const step = useRef(0);
   const advance = useCallback(() => {
     setDocument((current) => advanceStudioDemo(current, initial, step.current));
@@ -195,12 +206,69 @@ function StudioToolDemo({
     setDocument(initial);
   }, [initial]);
   const {
-    ref: playbackRef,
+    ref: attachPlayback,
     playing,
     toggle: togglePlayback,
     pause,
     reset: resetPlayback,
   } = useAutoDemo(advance, reset, 2900, autoplay, { controlled: controlledPlayback });
+  const fullscreen = nativeFullscreen || fallbackFullscreen;
+  const attachRef = useCallback(
+    (node: HTMLElement | null) => {
+      fullscreenTarget.current = node;
+      attachPlayback(node);
+    },
+    [attachPlayback],
+  );
+  const toggleFullscreen = useCallback(async () => {
+    const target = fullscreenTarget.current;
+    if (!target) return;
+
+    if (fallbackFullscreen) {
+      setFallbackFullscreen(false);
+      return;
+    }
+
+    if (window.document.fullscreenElement === target) {
+      try {
+        await window.document.exitFullscreen();
+      } catch {
+        setFallbackFullscreen(true);
+      }
+      return;
+    }
+
+    try {
+      if (!target.requestFullscreen) throw new Error("Fullscreen is unavailable");
+      await target.requestFullscreen();
+    } catch {
+      setFallbackFullscreen(true);
+    }
+  }, [fallbackFullscreen]);
+
+  useEffect(() => {
+    const syncFullscreen = () =>
+      setNativeFullscreen(window.document.fullscreenElement === fullscreenTarget.current);
+    window.document.addEventListener("fullscreenchange", syncFullscreen);
+    return () => window.document.removeEventListener("fullscreenchange", syncFullscreen);
+  }, []);
+
+  useEffect(() => {
+    if (!fallbackFullscreen) return;
+
+    const previousOverflow = window.document.body.style.overflow;
+    const button = fullscreenButton.current;
+    window.document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFallbackFullscreen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+      button?.focus();
+    };
+  }, [fallbackFullscreen]);
   const selectedParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
   const selectedMatch =
@@ -215,10 +283,22 @@ function StudioToolDemo({
           )
       : undefined;
   const labels = messages[lang];
+  const frameClass = fullscreen
+    ? "fixed inset-0 z-[100] h-[100dvh] w-screen max-w-none rounded-none border-0 shadow-none"
+    : compact
+      ? "h-full rounded-none"
+      : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]";
+  const graphicViewportClass = compact
+    ? `flex min-h-0 flex-1 items-center justify-center ${fullscreen ? "overflow-auto" : "overflow-hidden"}`
+    : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto";
+  const graphicWidthClass =
+    compact && (widePreview || fillPreview || fullscreen)
+      ? "[&>svg]:!w-full"
+      : "[&>svg]:!w-auto";
 
-  return (
+  const demo = (
     <section
-      ref={playbackRef}
+      ref={attachRef}
       aria-label={t[tool]}
       style={
         compact
@@ -232,7 +312,7 @@ function StudioToolDemo({
             } as CSSProperties)
           : undefined
       }
-      className={`flex min-w-0 flex-col overflow-hidden bg-surface text-ink ${compact ? "h-full rounded-none" : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]"}`}
+      className={`flex min-w-0 flex-col overflow-hidden bg-surface text-ink ${frameClass}`}
     >
       <header className="flex items-center justify-between gap-3 border-b border-forest/15 px-3 py-2.5 sm:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
@@ -240,17 +320,38 @@ function StudioToolDemo({
             {showPreviewLabel ? t.preview : t[tool]}
           </span>
         </div>
-        {showPlaybackControls && (
-          <DemoPlaybackControls
-            playing={playing}
-            labels={{
-              play: labels.playPreview,
-              pause: labels.pausePreview,
-              reset: t.resetDemo,
-            }}
-            onToggle={togglePlayback}
-            onReset={resetPlayback}
-          />
+        {(showPlaybackControls || showFullscreenControl) && (
+          <div className="flex shrink-0 items-center gap-1">
+            {showFullscreenControl && (
+              <button
+                ref={fullscreenButton}
+                type="button"
+                aria-label={fullscreen ? labels.exit : labels.fullscreen}
+                aria-pressed={fullscreen}
+                title={fullscreen ? labels.exit : labels.fullscreen}
+                onClick={toggleFullscreen}
+                className="inline-flex size-11 items-center justify-center rounded-lg text-ink transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action motion-reduce:transition-none"
+              >
+                {fullscreen ? (
+                  <Minimize2 size={16} aria-hidden="true" />
+                ) : (
+                  <Expand size={16} aria-hidden="true" />
+                )}
+              </button>
+            )}
+            {showPlaybackControls && (
+              <DemoPlaybackControls
+                playing={playing}
+                labels={{
+                  play: labels.playPreview,
+                  pause: labels.pausePreview,
+                  reset: t.resetDemo,
+                }}
+                onToggle={togglePlayback}
+                onReset={resetPlayback}
+              />
+            )}
+          </div>
         )}
       </header>
 
@@ -281,7 +382,7 @@ function StudioToolDemo({
           className={`min-w-0 ${compact ? "flex min-h-0 flex-1 flex-col" : ""}`}
         >
           <div
-            className={`${compact ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden" : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto"} overscroll-contain bg-paper [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${compact && (widePreview || fillPreview) ? "[&>svg]:!w-full" : "[&>svg]:!w-auto"} [&>svg]:!max-w-full`}
+            className={`${graphicViewportClass} overscroll-contain bg-paper [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${graphicWidthClass} [&>svg]:!max-w-full`}
           >
             <Graphic
               document={document}
@@ -347,6 +448,10 @@ function StudioToolDemo({
       </div>
     </section>
   );
+
+  return fallbackFullscreen && typeof window !== "undefined"
+    ? createPortal(demo, window.document.body)
+    : demo;
 }
 
 function DocumentFields({
