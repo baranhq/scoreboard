@@ -196,6 +196,19 @@ html[data-scoreboard-fullscreen="true"] [data-frame-chrome] {
   }
 }
 
+@media (pointer: coarse) {
+  button,
+  summary {
+    min-height: 44px;
+  }
+
+  input:not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 @keyframes appear {
   from {
     opacity: 0;

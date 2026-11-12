@@ -21,7 +21,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   const advance = useCallback(() => setActive((index) => (index + 1) % tools.length), []);
   const reset = useCallback(() => setActive(0), []);
   const autoPlayByDefault = !themes;
-  const { ref, playing, toggle } = useAutoDemo(advance, reset, 8400, autoPlayByDefault, {
+  const { ref, playing, toggle, pause } = useAutoDemo(advance, reset, 8400, autoPlayByDefault, {
     allowReducedMotionAutoplay: autoPlayByDefault,
   });
   const t = studioCopy[lang];
@@ -51,7 +51,10 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
             type="button"
             key={item}
             aria-pressed={active === index}
-            onClick={() => setActive(index)}
+            onClick={() => {
+              pause();
+              setActive(index);
+            }}
             className={`min-h-14 min-w-0 px-1 py-3 font-display text-sm font-semibold transition-colors active:brightness-90 motion-reduce:transition-none sm:text-xl ${active === index ? "bg-action text-on-action" : "hover:bg-current/10"}`}
           >
             {t[item]}
