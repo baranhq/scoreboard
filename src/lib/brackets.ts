@@ -13,6 +13,9 @@ export type BracketMatch = {
   scores: [string, string];
   pending: boolean;
 };
+export function isWinnerSlot(winnerId: string | null, playerId: string | null): boolean {
+  return !!playerId && winnerId === playerId;
+}
 export function newBracket(id = crypto.randomUUID()): Bracket {
   return {
     version: 1,

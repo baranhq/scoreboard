@@ -18,6 +18,7 @@ import {
 import {
   newBracket,
   bracketRounds,
+  isWinnerSlot,
   setMatchResult,
   resizeBracket,
   setBracketParticipants,
@@ -67,6 +68,12 @@ test("the shared theme catalog has 15 validated, addressable presets", () => {
 test("new list items get the next available localized name", () => {
   assert.equal(nextAvailableName("Team", ["Team 1", "Team 3"]), "Team 2");
   assert.equal(nextAvailableName("Participant", ["Participant 1"]), "Participant 2");
+});
+
+test("empty bracket slots are not treated as winner rows", () => {
+  assert.equal(isWinnerSlot(null, null), false);
+  assert.equal(isWinnerSlot("player-1", "player-1"), true);
+  assert.equal(isWinnerSlot("player-1", null), false);
 });
 
 test("saved custom themes reject malformed, oversized and unexpected local data", () => {
