@@ -25,6 +25,13 @@ const backgrounds = [
   "#ece7f6",
   "#e9efe6",
   "#18251f",
+  "#14251b",
+  "#181c24",
+  "#203441",
+  "#3d2d21",
+  "#203831",
+  "#3e2829",
+  "#38331f",
 ];
 
 export function ColorControl({

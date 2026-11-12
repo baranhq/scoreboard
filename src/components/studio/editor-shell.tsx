@@ -57,18 +57,8 @@ export function EditorShell({
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
   const [activePosition, setActivePosition] = useState<CSSProperties | null>(null);
   const previewInput = useRef<HTMLInputElement>(null);
-  const workspace = useRef<HTMLDivElement>(null);
-  const [editorPaneRatio, setEditorPaneRatio] = useState(70);
-  const minEditorPaneRatio = 24;
-  const maxEditorPaneRatio = 80;
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
   const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
-  const resizeEditorPane = (clientY: number) => {
-    const bounds = workspace.current?.getBoundingClientRect();
-    if (!bounds) return;
-    const editorRatio = ((bounds.bottom - clientY) / bounds.height) * 100;
-    setEditorPaneRatio(Math.min(maxEditorPaneRatio, Math.max(minEditorPaneRatio, editorRatio)));
-  };
   const previewParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
   const advanceMatch =
@@ -152,7 +142,7 @@ export function EditorShell({
       <main
         id="main"
         data-editor-shell
-        className="mx-auto flex h-[calc(100dvh-4rem)] min-h-0 w-full max-w-[1600px] flex-col overflow-hidden px-3 py-2 sm:px-5 sm:py-3"
+        className="mx-auto w-full max-w-[1600px] px-3 py-2 sm:px-5 sm:py-3"
       >
         <h1 className="sr-only">{doc.title}</h1>
         <header className="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-forest/20 pb-2 sm:mb-3 sm:gap-3 sm:pb-3">
@@ -259,20 +249,11 @@ export function EditorShell({
           ))}
         </div>
 
-        <div
-          ref={workspace}
-          style={
-            {
-              "--editor-pane-height": `${editorPaneRatio}fr`,
-              "--preview-pane-height": `${100 - editorPaneRatio}fr`,
-            } as CSSProperties
-          }
-          className={`min-h-0 min-w-0 flex-1 overflow-hidden ${previewOnly ? "" : "grid grid-cols-1 gap-4 lg:grid-rows-[minmax(0,var(--preview-pane-height))_20px_minmax(0,var(--editor-pane-height))] lg:gap-1"}`}
-        >
+        <div className={`min-w-0 ${previewOnly ? "" : "grid grid-cols-1 gap-4"}`}>
           <section
             ref={preview}
             aria-label={t.preview}
-            className={`flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-full"}`}
+            className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "min-h-[min(60dvh,42rem)] lg:min-h-[min(64dvh,46rem)]"}`}
           >
             <div className="mb-2 grid min-w-0 shrink-0 gap-2 xl:grid-cols-[minmax(10rem,0.7fr)_minmax(0,1.3fr)] xl:items-center">
               <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
@@ -392,39 +373,8 @@ export function EditorShell({
           </section>
 
           {!previewOnly && (
-            <div
-              role="separator"
-              aria-label={`${t.editing}, ${t.preview}`}
-              aria-orientation="horizontal"
-              aria-valuemin={minEditorPaneRatio}
-              aria-valuemax={maxEditorPaneRatio}
-              aria-valuenow={Math.round(editorPaneRatio)}
-              tabIndex={0}
-              onPointerDown={(event) => {
-                event.preventDefault();
-                event.currentTarget.setPointerCapture(event.pointerId);
-                resizeEditorPane(event.clientY);
-              }}
-              onPointerMove={(event) => {
-                if (event.buttons === 1) resizeEditorPane(event.clientY);
-              }}
-              onKeyDown={(event) => {
-                if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
-                event.preventDefault();
-                const change = event.key === "ArrowUp" ? 2 : -2;
-                setEditorPaneRatio((ratio) =>
-                  Math.min(maxEditorPaneRatio, Math.max(minEditorPaneRatio, ratio + change)),
-                );
-              }}
-              className="group hidden h-5 cursor-ns-resize touch-none items-center justify-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-action lg:flex"
-            >
-              <span className="h-1 w-24 rounded-full bg-forest/20 transition-colors group-hover:bg-action group-focus-visible:bg-action" />
-            </div>
-          )}
-
-          {!previewOnly && (
             <aside
-              className={`flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-surface shadow-sm ${mobilePanel === "edit" ? "" : "hidden lg:flex"}`}
+              className={`flex min-w-0 flex-col rounded-xl border border-forest/20 bg-surface shadow-sm ${mobilePanel === "edit" ? "" : "hidden lg:flex"}`}
             >
               <WorkspaceTabs lang={lang} value={activeTab} change={setActiveTab} />
               <fieldset
@@ -432,7 +382,7 @@ export function EditorShell({
                 role="tabpanel"
                 aria-labelledby={`workspace-tab-${activeTab}`}
                 disabled={!state.ready || state.busy}
-                className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4"
+                className="min-w-0 space-y-5 px-3 py-3 sm:px-4"
               >
                 {panels[activeTab]}
               </fieldset>
@@ -481,7 +431,11 @@ export function ThemeControls({
       : undefined;
   return (
     <div className="space-y-5">
-      <ThemeLibrary lang={lang} value={{ ...toolThemes[0], ...doc.style }} change={applyTheme} />
+      <ThemeLibrary
+        lang={lang}
+        value={{ ...toolThemes[0], ...doc.style, id: undefined }}
+        change={applyTheme}
+      />
       {doc.kind === "bracket" && (
         <details className="border-t border-forest/20 pt-3">
           <summary className="min-h-11 cursor-pointer py-2 font-semibold">{t.advanced}</summary>
