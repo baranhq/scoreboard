@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { ToolDemo, type Tool } from "./tool-demo";
 import { useAutoDemo } from "./use-auto-demo";
@@ -9,6 +10,8 @@ import { studioCopy } from "@/lib/studio-copy";
 import { productDetails } from "@/lib/product-details";
 import { route } from "@/lib/routes";
 import { messages, type Lang } from "@/lib/i18n";
+import { themeLabels, toolThemes } from "@/lib/tool-themes";
+import { Modal } from "@/components/ui/ui";
 const tools: Tool[] = ["scoreboard", "leaderboard", "bracket"];
 const editors = {
   scoreboard: "scoreboard",
@@ -18,6 +21,8 @@ const editors = {
 export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?: boolean }) {
   const [active, setActive] = useState(themes ? 1 : 0);
   const [widePreview, setWidePreview] = useState(false);
+  const [themePromptOpen, setThemePromptOpen] = useState(false);
+  const router = useRouter();
   const advance = useCallback(() => setActive((index) => (index + 1) % tools.length), []);
   const reset = useCallback(() => setActive(0), []);
   const autoPlayByDefault = !themes;
@@ -26,6 +31,8 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   });
   const t = studioCopy[lang];
   const tool = tools[active];
+  const demoTheme = toolThemes[1];
+  const demoThemeLabel = themeLabels[lang][1];
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
@@ -114,6 +121,55 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 {playing ? messages[lang].pausePreview : messages[lang].playPreview}
               </button>
             </div>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
+              <p className="flex min-w-0 items-center gap-2 text-sm text-white/70">
+                <span
+                  aria-hidden="true"
+                  className="size-3 shrink-0 rounded-full border border-white/30"
+                  style={{ backgroundColor: demoTheme.accent }}
+                />
+                <span>
+                  {t.demoThemeLabel}:{" "}
+                  <strong className="font-semibold text-white">{demoThemeLabel}</strong>
+                </span>
+              </p>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                onClick={() => {
+                  pause();
+                  setThemePromptOpen(true);
+                }}
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/[0.035] px-3 py-2 text-sm font-semibold text-lime transition-colors hover:bg-white/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime motion-reduce:transition-none"
+                style={{
+                  color: demoTheme.accent,
+                }}
+              >
+                {t.demoThemeAction}
+                <ArrowUpRight size={16} aria-hidden="true" />
+              </button>
+            </div>
+            {themePromptOpen && (
+              <Modal
+                title={t.demoThemeQuestion}
+                close={() => setThemePromptOpen(false)}
+                closeLabel={t.close}
+                footerActions={[
+                  { id: "cancel", label: t.cancel, autoFocus: true },
+                  { id: "create", label: t.demoThemeCreate, primary: true },
+                ]}
+                onAction={(id) => {
+                  if (id !== "create") return;
+                  const params = new URLSearchParams({ new: "1", theme: demoTheme.id ?? "" });
+                  router.push(`${route(lang, editors[tool])}?${params.toString()}`);
+                }}
+              >
+                <p className="text-base leading-relaxed text-ink/85">{t.demoThemeDetails}</p>
+                <p className="mt-3 rounded-lg border border-forest/15 bg-forest/5 px-3 py-2 text-sm font-semibold text-forest">
+                  {t.demoThemeLabel}: {demoThemeLabel}
+                </p>
+              </Modal>
+            )}
           </div>
         )}
       </div>
