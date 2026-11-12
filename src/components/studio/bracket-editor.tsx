@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/ui";
 import { Select } from "@/components/ui/select";
 import {
@@ -207,7 +207,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
             <li
               key={p.id}
               data-motion-item={p.id}
-              className="grid min-w-0 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2"
+              className="group grid min-w-0 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2"
             >
               <span className="text-sm text-ink/65 tabular-nums">{i + 1}</span>
               <input
@@ -227,7 +227,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
               <div className="flex shrink-0 items-center gap-1">
                 <button
                   type="button"
-                  className="min-h-11 min-w-11 rounded-md border border-forest/20 text-sm hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-forest/20 text-sm opacity-100 hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 motion-safe:transition-[background-color,opacity] motion-safe:duration-150 motion-reduce:transition-none [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100"
                   disabled={i === 0}
                   aria-label={`${t.up} ${i + 1}`}
                   onClick={() => {
@@ -236,11 +236,11 @@ export function BracketEditor({ lang }: { lang: Lang }) {
                     void applyParticipants(participants);
                   }}
                 >
-                  ↑
+                  <ArrowUp aria-hidden="true" size={16} />
                 </button>
                 <button
                   type="button"
-                  className="min-h-11 min-w-11 rounded-md border border-forest/20 text-sm hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-forest/20 text-sm opacity-100 hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 motion-safe:transition-[background-color,opacity] motion-safe:duration-150 motion-reduce:transition-none [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100"
                   disabled={i === board.participants.length - 1}
                   aria-label={`${t.down} ${i + 1}`}
                   onClick={() => {
@@ -249,7 +249,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
                     void applyParticipants(participants);
                   }}
                 >
-                  ↓
+                  <ArrowDown aria-hidden="true" size={16} />
                 </button>
                 <button
                   type="button"
