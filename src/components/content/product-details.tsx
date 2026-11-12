@@ -121,9 +121,12 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           <div>
             <p className="leading-8 text-white/80">{copy.advanced[1]}</p>
             <h3 className="mt-8 text-lg font-semibold text-lime">{locale.useCases}</h3>
-            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+            <ul className="mt-4 grid grid-cols-2 gap-x-4 sm:gap-x-6">
               {copy.uses.map((use) => (
-                <li key={use} className="border-b border-white/25 py-2 text-base">
+                <li
+                  key={use}
+                  className="flex min-h-12 min-w-0 items-center border-b border-white/25 py-2 text-base"
+                >
                   {use}
                 </li>
               ))}
