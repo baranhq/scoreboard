@@ -88,8 +88,8 @@ export function useAutoDemo(
     resetRef.current();
     setRevision(0);
     setManualOverride(true);
-    setPlaying(false);
-  }, []);
+    setPlaying(autoplay);
+  }, [autoplay]);
 
   return {
     ref: attach,
