@@ -1,123 +1,632 @@
 "use client";
-import { useMemo, useState } from "react";
-import { RotateCcw, Plus, Minus, ArrowUpRight } from "lucide-react";
+
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
+import { Expand, Minimize2 } from "lucide-react";
+import { foreground } from "@/lib/colors";
 import { Graphic } from "@/components/studio/graphic";
-import { Button } from "@/components/ui/ui";
-import { studioDemo } from "@/lib/studio-demo";
+import { DemoPlaybackControls } from "@/components/content/demo-playback-controls";
+import { ScoreboardPreview } from "@/components/content/scoreboard-preview";
+import { landingContent } from "@/lib/landing-content";
+import { bracketRounds, resizeBracket, setMatchResult, type Bracket } from "@/lib/brackets";
+import { messages, type Lang } from "@/lib/i18n";
+import { advanceStudioDemo, studioDemo } from "@/lib/studio-demo";
+import { updateLeaderboardCell, type Leaderboard, type StudioDocument } from "@/lib/studio";
+import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
 import { studioCopy } from "@/lib/studio-copy";
-import type { Lang } from "@/lib/i18n";
-import { bracketRounds, setMatchResult } from "@/lib/brackets";
-import { moveItem } from "@/lib/studio";
+import { useAutoDemo } from "./use-auto-demo";
+import { toolThemes, type ToolTheme } from "@/lib/tool-themes";
+import { HomeScoreboard } from "./home-scoreboard";
+import { Select } from "@/components/ui/select";
+
 export type Tool = "scoreboard" | "leaderboard" | "bracket";
-export function ToolDemo({ tool, lang }: { tool: Tool; lang: Lang }) {
-  const t = studioCopy[lang];
-  const initial = useMemo(
-    () => studioDemo(tool === "scoreboard" ? "leaderboard" : tool, lang),
-    [tool, lang],
-  );
-  const [document, setDocument] = useState(initial);
-  const [scores, setScores] = useState([12, 9]);
-  const reset = () => {
-    setDocument(initial);
-    setScores([12, 9]);
-  };
-  const advance = () => {
-    if (document.kind === "leaderboard")
-      setDocument({ ...document, rows: moveItem(document.rows, 1, 0) });
-    else {
-      const match = bracketRounds(document)
-        .flat()
-        .find((m) => !m.winner && m.players.every(Boolean));
-      if (match) setDocument(setMatchResult(document, match.id, match.players[0], ["2", "1"]));
-    }
-  };
+
+const demoInputClass =
+  "min-h-9 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-2.5 py-1.5 text-sm text-ink";
+
+export function ToolDemo({
+  tool,
+  lang,
+  compact = false,
+  theme,
+  expanded = false,
+  autoplay = true,
+  hideHeading = false,
+  showPreviewLabel = false,
+  fillPreview = false,
+  readOnly = false,
+  showPlaybackControls = true,
+  showFullscreenControl = false,
+  showResultControls = true,
+  controlledPlayback = false,
+  showReadOnlyControls = false,
+  useScoreboardPreview = false,
+  barePreview = false,
+  widePreview = false,
+  teamCount,
+}: {
+  tool: Tool;
+  lang: Lang;
+  compact?: boolean;
+  theme?: ToolTheme;
+  expanded?: boolean;
+  autoplay?: boolean;
+  hideHeading?: boolean;
+  showPreviewLabel?: boolean;
+  fillPreview?: boolean;
+  readOnly?: boolean;
+  showPlaybackControls?: boolean;
+  showFullscreenControl?: boolean;
+  showResultControls?: boolean;
+  controlledPlayback?: boolean;
+  showReadOnlyControls?: boolean;
+  useScoreboardPreview?: boolean;
+  barePreview?: boolean;
+  widePreview?: boolean;
+  teamCount?: number;
+}) {
+  const demoKey = [
+    tool,
+    lang,
+    compact ? "compact" : "full",
+    expanded ? "expanded" : "default",
+    widePreview ? "wide" : "standard",
+    hideHeading ? "hidden-heading" : "heading",
+    JSON.stringify(theme ?? null),
+  ].join(":");
+
+  if (tool === "scoreboard" && compact && !useScoreboardPreview)
+    return (
+      <HomeScoreboard
+        lang={lang}
+        theme={theme}
+        expanded={expanded}
+        autoplay={autoplay}
+        compact
+        readOnly={readOnly}
+        showPlaybackControls={showPlaybackControls}
+        controlledPlayback={controlledPlayback}
+        showReadOnlyControls={showReadOnlyControls}
+        teamCount={teamCount}
+      />
+    );
+  if (tool === "scoreboard") {
+    return (
+      <ScoreboardPreview
+        copy={landingContent[lang].preview}
+        labels={{
+          ...messages[lang],
+          save: messages[lang].saveBoardShort,
+          addTeam: messages[lang].add,
+          fineTuneSizes: messages[lang].enableTextSizeSlider,
+          editParticipant: studioCopy[lang].editParticipant,
+          increase: studioCopy[lang].increase,
+          decrease: studioCopy[lang].decrease,
+          resetDemo: studioCopy[lang].resetDemo,
+        }}
+        compact={compact}
+        readOnly={readOnly}
+        autoplay={autoplay}
+        showPlaybackControls={showPlaybackControls}
+      />
+    );
+  }
+
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-forest/20 bg-surface shadow-[0_16px_48px_-24px_rgba(16,40,24,0.3)]">
-      <div className="flex items-center justify-between border-b border-forest/15 px-4 py-3">
-        <span className="text-sm font-semibold">{t[tool]}</span>
-        <button
-          aria-label={t.newExample}
-          title={t.newExample}
-          onClick={reset}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg hover:bg-forest/10"
-        >
-          <RotateCcw size={16} />
-        </button>
-      </div>
-      {tool === "scoreboard" ? (
-        <div className="bg-[#203e29] px-4 py-8 text-[#f5f7ef] sm:px-7 sm:py-10">
-          <p className="text-center text-sm font-medium tracking-wide">{t.round} 2 · 04:32</p>
-          <div className="mt-7 grid grid-cols-2 divide-x divide-[#f5f7ef]/25">
-            {scores.map((score, i) => (
-              <div key={i} className="min-w-0 px-2 text-center">
-                <p className="font-display text-xl font-semibold">
-                  {t.team} {i + 1}
-                </p>
-                <p
-                  aria-live="polite"
-                  className="my-3 font-display text-7xl font-bold tracking-tight tabular-nums sm:text-8xl"
-                >
-                  {score}
-                </p>
-                <div className="flex justify-center gap-2">
-                  <button
-                    aria-label={`${t.score} −1, ${t.team} ${i + 1}`}
-                    className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/35 hover:bg-white/10"
-                    onClick={() => setScores((all) => all.map((n, j) => (i === j ? n - 1 : n)))}
-                  >
-                    <Minus size={18} />
-                  </button>
-                  <button
-                    aria-label={`${t.score} +1, ${t.team} ${i + 1}`}
-                    className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#c2d9a3] text-[#18251f] hover:brightness-95"
-                    onClick={() => setScores((all) => all.map((n, j) => (i === j ? n + 1 : n)))}
-                  >
-                    <Plus size={18} />
-                  </button>
-                </div>
-              </div>
-            ))}
+    <StudioToolDemo
+      key={demoKey}
+      tool={tool}
+      lang={lang}
+      compact={compact}
+      theme={theme}
+      expanded={expanded}
+      autoplay={autoplay}
+      hideHeading={hideHeading}
+      showPreviewLabel={showPreviewLabel}
+      fillPreview={fillPreview}
+      showPlaybackControls={showPlaybackControls}
+      showFullscreenControl={showFullscreenControl}
+      readOnly={readOnly}
+      showResultControls={showResultControls}
+      controlledPlayback={controlledPlayback}
+      widePreview={widePreview}
+      barePreview={barePreview}
+    />
+  );
+}
+
+function StudioToolDemo({
+  tool,
+  lang,
+  compact,
+  theme,
+  expanded,
+  autoplay,
+  hideHeading,
+  showPreviewLabel,
+  fillPreview,
+  showPlaybackControls,
+  showFullscreenControl,
+  readOnly,
+  showResultControls,
+  controlledPlayback,
+  barePreview,
+  widePreview,
+}: {
+  tool: Exclude<Tool, "scoreboard">;
+  lang: Lang;
+  compact: boolean;
+  expanded: boolean;
+  autoplay: boolean;
+  hideHeading: boolean;
+  showPreviewLabel: boolean;
+  fillPreview: boolean;
+  showPlaybackControls: boolean;
+  showFullscreenControl: boolean;
+  readOnly: boolean;
+  showResultControls: boolean;
+  controlledPlayback: boolean;
+  barePreview: boolean;
+  widePreview: boolean;
+  theme?: ToolTheme;
+}) {
+  const t = studioCopy[lang];
+  const initial = useMemo(() => {
+    let sample = studioDemo(tool, lang);
+    if (compact) {
+      if (sample.kind === "bracket") sample = resizeBracket(sample, 4);
+      sample.style = { ...sample.style, ...(theme || toolThemes[1]) };
+      if (sample.kind === "bracket") {
+        sample.layout = expanded ? "split" : "single";
+        sample.style = {
+          ...sample.style,
+          titleVisible: false,
+          subtitleVisible: false,
+          ...(widePreview && !expanded ? { density: "compact", roundGap: 400, matchGap: 28 } : {}),
+        };
+      } else sample.gridColumns = widePreview || expanded ? 2 : 1;
+    }
+    if (hideHeading)
+      sample.style = { ...sample.style, titleVisible: false, subtitleVisible: false };
+    return sample;
+  }, [tool, lang, compact, theme, expanded, hideHeading, widePreview]);
+  const [document, setDocument] = useState(initial);
+  const [activeField, setActiveField] = useState<PreviewField | null>(null);
+  const fullscreenTarget = useRef<HTMLElement | null>(null);
+  const fullscreenButton = useRef<HTMLButtonElement | null>(null);
+  const [nativeFullscreen, setNativeFullscreen] = useState(false);
+  const [fallbackFullscreen, setFallbackFullscreen] = useState(false);
+  const step = useRef(0);
+  const advance = useCallback(() => {
+    setDocument((current) => advanceStudioDemo(current, initial, step.current));
+    step.current += 1;
+  }, [initial]);
+  const reset = useCallback(() => {
+    step.current = 0;
+    setActiveField(null);
+    setDocument(initial);
+  }, [initial]);
+  const {
+    ref: attachPlayback,
+    playing,
+    toggle: togglePlayback,
+    pause,
+    reset: resetPlayback,
+  } = useAutoDemo(advance, reset, 2900, autoplay, {
+    controlled: controlledPlayback,
+    allowReducedMotionAutoplay: autoplay && readOnly,
+  });
+  const fullscreen = nativeFullscreen || fallbackFullscreen;
+  const attachRef = useCallback(
+    (node: HTMLElement | null) => {
+      fullscreenTarget.current = node;
+      attachPlayback(node);
+    },
+    [attachPlayback],
+  );
+  const toggleFullscreen = useCallback(async () => {
+    const target = fullscreenTarget.current;
+    if (!target) return;
+
+    if (fallbackFullscreen) {
+      setFallbackFullscreen(false);
+      return;
+    }
+
+    if (window.document.fullscreenElement === target) {
+      try {
+        await window.document.exitFullscreen();
+      } catch {
+        setFallbackFullscreen(true);
+      }
+      return;
+    }
+
+    try {
+      if (!target.requestFullscreen) throw new Error("Fullscreen is unavailable");
+      await target.requestFullscreen();
+    } catch {
+      setFallbackFullscreen(true);
+    }
+  }, [fallbackFullscreen]);
+
+  useEffect(() => {
+    const syncFullscreen = () =>
+      setNativeFullscreen(window.document.fullscreenElement === fullscreenTarget.current);
+    window.document.addEventListener("fullscreenchange", syncFullscreen);
+    return () => window.document.removeEventListener("fullscreenchange", syncFullscreen);
+  }, []);
+
+  useEffect(() => {
+    if (!fallbackFullscreen) return;
+
+    const previousOverflow = window.document.body.style.overflow;
+    const button = fullscreenButton.current;
+    window.document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFallbackFullscreen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+      button?.focus();
+    };
+  }, [fallbackFullscreen]);
+  const selectedParticipant =
+    activeField?.kind === "bracket-participant" ? activeField.participantId : null;
+  const selectedMatch =
+    document.kind === "bracket" && selectedParticipant
+      ? bracketRounds(document)
+          .flat()
+          .find(
+            (match) =>
+              !match.winner &&
+              match.players.every(Boolean) &&
+              match.players.includes(selectedParticipant),
+          )
+      : undefined;
+  const labels = messages[lang];
+  const bareCompactPreview = barePreview && compact;
+  const frameClass = fullscreen
+    ? "fixed inset-0 z-[100] h-[100dvh] w-screen max-w-none rounded-none border-0 shadow-none"
+    : compact
+      ? bareCompactPreview
+        ? "h-auto rounded-none sm:h-full"
+        : "h-full rounded-none"
+      : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]";
+  const graphicViewportClass = bareCompactPreview
+    ? "flex items-center justify-center sm:min-h-0 sm:flex-1 sm:overflow-hidden"
+    : compact
+      ? `flex min-h-0 flex-1 items-center justify-center ${fullscreen ? "overflow-auto" : "overflow-hidden"}`
+      : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto";
+  const graphicWidthClass =
+    compact && (widePreview || fillPreview || fullscreen) ? "[&>svg]:!w-full" : "[&>svg]:!w-auto";
+
+  const demo = (
+    <section
+      ref={attachRef}
+      aria-label={t[tool]}
+      style={
+        compact
+          ? ({
+              "--color-surface": document.style.background,
+              "--color-paper": document.style.background,
+              "--color-ink": document.style.textColor || "#202820",
+              "--color-forest": document.style.accent,
+              "--color-action": document.style.accent,
+              "--color-on-action": foreground(document.style.accent),
+            } as CSSProperties)
+          : undefined
+      }
+      className={`flex min-w-0 flex-col overflow-hidden ${barePreview ? "bg-transparent" : "bg-surface"} text-ink ${frameClass}`}
+    >
+      <header
+        className={`flex items-center justify-between gap-3 py-2.5 ${barePreview ? "" : "border-b border-forest/15 px-3 sm:px-4"}`}
+      >
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="truncate text-sm font-semibold">
+            {showPreviewLabel ? t.preview : t[tool]}
+          </span>
+        </div>
+        {(showPlaybackControls || showFullscreenControl) && (
+          <div className="flex shrink-0 items-center gap-1">
+            {showFullscreenControl && (
+              <button
+                ref={fullscreenButton}
+                type="button"
+                aria-label={fullscreen ? labels.exit : labels.fullscreen}
+                aria-pressed={fullscreen}
+                title={fullscreen ? labels.exit : labels.fullscreen}
+                onClick={toggleFullscreen}
+                className="inline-flex size-11 items-center justify-center rounded-lg text-ink transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action motion-reduce:transition-none"
+              >
+                {fullscreen ? (
+                  <Minimize2 size={16} aria-hidden="true" />
+                ) : (
+                  <Expand size={16} aria-hidden="true" />
+                )}
+              </button>
+            )}
+            {showPlaybackControls && (
+              <DemoPlaybackControls
+                playing={playing}
+                labels={{
+                  play: labels.playPreview,
+                  pause: labels.pausePreview,
+                  reset: t.resetDemo,
+                }}
+                onToggle={togglePlayback}
+                onReset={resetPlayback}
+              />
+            )}
           </div>
-        </div>
-      ) : (
-        <div
-          className="max-h-[28rem] overflow-auto bg-forest/5 p-3 sm:p-5"
-          tabIndex={0}
-          aria-label={t.preview}
-        >
-          <Graphic document={document} labels={t} />
-        </div>
-      )}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-forest/15 px-4 py-3">
-        <p className="max-w-[28ch] text-sm leading-5 text-ink/75">{t.demoHint}</p>
-        {tool !== "scoreboard" && (
-          <Button className="!px-3 !text-sm" onClick={advance}>
-            {tool === "leaderboard" ? t.up : t.winnerAction}
-            <ArrowUpRight size={15} />
-          </Button>
         )}
+      </header>
+
+      <div
+        className={`min-w-0 gap-3 ${compact ? `flex flex-col ${bareCompactPreview ? "flex-none overflow-visible p-0 sm:min-h-0 sm:flex-1 sm:overflow-hidden" : `min-h-0 flex-1 overflow-hidden ${barePreview ? "p-0" : "p-3 sm:p-4"}`}` : "grid items-start p-3 sm:p-4 lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
+        onFocusCapture={pause}
+        onInputCapture={pause}
+        onChangeCapture={pause}
+      >
+        <div className={compact ? "hidden" : "min-w-0 space-y-3"}>
+          <DocumentFields document={document} setDocument={setDocument} lang={lang} />
+          {document.kind === "leaderboard" ? (
+            <LeaderboardFields board={document} setDocument={setDocument} lang={lang} />
+          ) : (
+            <BracketFields board={document} setDocument={setDocument} lang={lang} />
+          )}
+        </div>
+
+        {compact && showResultControls && !readOnly && document.kind === "bracket" && (
+          <details className="rounded-lg border border-forest/20 px-3 py-2 text-sm">
+            <summary className="cursor-pointer py-1 font-semibold text-action">{t.results}</summary>
+            <BracketFields board={document} setDocument={setDocument} lang={lang} />
+          </details>
+        )}
+
+        <section
+          aria-label={t.preview}
+          className={`min-w-0 ${compact ? (bareCompactPreview ? "sm:flex sm:min-h-0 sm:flex-1 sm:flex-col" : "flex min-h-0 flex-1 flex-col") : ""}`}
+        >
+          <div
+            className={`${graphicViewportClass} overscroll-contain ${barePreview ? "bg-transparent" : "bg-paper"} [&>svg]:!block [&>svg]:!h-auto ${bareCompactPreview ? "sm:[&>svg]:!max-h-full" : "[&>svg]:!max-h-full"} ${graphicWidthClass} [&>svg]:!max-w-full`}
+          >
+            <Graphic
+              document={document}
+              labels={t}
+              onEdit={
+                readOnly
+                  ? undefined
+                  : (field) => {
+                      pause();
+                      setActiveField(field);
+                    }
+              }
+            />
+          </div>
+          {!readOnly && (
+            <p className="mt-2 text-xs leading-relaxed text-ink/70">
+              {compact ? `${t.exploreGraphic} · ${t.clickToEdit}` : t.clickToEdit}
+            </p>
+          )}
+          {activeField && (
+            <div className="mt-2 flex min-w-0 items-end gap-2 rounded-lg border border-forest/15 bg-paper p-2">
+              <label className="grid min-w-0 flex-1 gap-1 text-xs font-semibold">
+                {t.selectedPreview}
+                <input
+                  className={demoInputClass}
+                  maxLength={activeField.kind === "bracket-score" ? 12 : 200}
+                  value={previewFieldValue(document, activeField)}
+                  onChange={(event) =>
+                    setDocument((current) =>
+                      updatePreviewField(current, activeField, event.target.value),
+                    )
+                  }
+                />
+              </label>
+              {document.kind === "bracket" && selectedMatch && selectedParticipant && (
+                <button
+                  type="button"
+                  className="min-h-11 bg-action px-3 text-sm font-semibold text-on-action"
+                  onClick={() =>
+                    setDocument(
+                      setMatchResult(
+                        document,
+                        selectedMatch.id,
+                        selectedParticipant,
+                        selectedMatch.scores,
+                      ),
+                    )
+                  }
+                >
+                  {t.chooseWinner}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setActiveField(null)}
+                className="min-h-9 rounded-lg px-3 text-sm font-semibold text-action hover:bg-action/10"
+              >
+                {t.done}
+              </button>
+            </div>
+          )}
+        </section>
+      </div>
+    </section>
+  );
+
+  return fallbackFullscreen && typeof window !== "undefined"
+    ? createPortal(demo, window.document.body)
+    : demo;
+}
+
+function DocumentFields({
+  document,
+  setDocument,
+  lang,
+}: {
+  document: StudioDocument;
+  setDocument: (document: StudioDocument) => void;
+  lang: Lang;
+}) {
+  const t = studioCopy[lang];
+
+  return (
+    <div className="grid min-w-0 gap-2">
+      <label className="grid min-w-0 gap-1 text-xs font-semibold">
+        {t.title}
+        <input
+          className={demoInputClass}
+          maxLength={200}
+          value={document.title}
+          onChange={(event) => setDocument({ ...document, title: event.target.value })}
+        />
+      </label>
+      <label className="grid min-w-0 gap-1 text-xs font-semibold">
+        {t.subtitle}
+        <input
+          className={demoInputClass}
+          maxLength={200}
+          value={document.subtitle}
+          onChange={(event) => setDocument({ ...document, subtitle: event.target.value })}
+        />
+      </label>
+    </div>
+  );
+}
+
+function LeaderboardFields({
+  board,
+  setDocument,
+  lang,
+}: {
+  board: Leaderboard;
+  setDocument: (document: StudioDocument) => void;
+  lang: Lang;
+}) {
+  const t = studioCopy[lang];
+
+  return (
+    <div className="min-w-0 space-y-2 border-t border-forest/15 pt-3">
+      <div className="flex items-center justify-between gap-2">
+        <h4 className="text-sm font-semibold">{t.rows}</h4>
+        <label className="grid w-32 shrink-0 gap-1 text-xs font-semibold sm:w-36">
+          {t.leaderboardLayout}
+          <Select
+            label={t.leaderboardLayout}
+            value={String(board.gridColumns || 1)}
+            triggerClassName="!min-h-11 !bg-surface !px-2 !text-sm"
+            change={(value) => setDocument({ ...board, gridColumns: Number(value) as 1 | 2 | 3 })}
+            options={[1, 2, 3].map((columns) => ({
+              value: String(columns),
+              label: String(columns),
+            }))}
+          />
+        </label>
+      </div>
+      <div className="max-h-60 space-y-1.5 overflow-auto pr-1">
+        {board.rows.map((row, index) => (
+          <div key={row.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_5.5rem] gap-1.5">
+            <label className="sr-only">
+              {t.team} {index + 1}
+            </label>
+            <input
+              aria-label={`${t.team} ${index + 1}`}
+              className={demoInputClass}
+              maxLength={200}
+              value={row.cells[0]}
+              onChange={(event) =>
+                setDocument(updateLeaderboardCell(board, row.id, 0, event.target.value))
+              }
+            />
+            <input
+              aria-label={`${t.points}: ${row.cells[0]}`}
+              className={`${demoInputClass} text-right tabular-nums`}
+              inputMode="numeric"
+              maxLength={200}
+              value={row.cells[1]}
+              onChange={(event) =>
+                setDocument(updateLeaderboardCell(board, row.id, 1, event.target.value, 1))
+              }
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
 }
-export function PlatformDemo({ lang }: { lang: Lang }) {
-  const [tool, setTool] = useState<Tool>("scoreboard");
+
+function BracketFields({
+  board,
+  setDocument,
+  lang,
+}: {
+  board: Bracket;
+  setDocument: (document: StudioDocument) => void;
+  lang: Lang;
+}) {
   const t = studioCopy[lang];
+  const rounds = bracketRounds(board);
+  const match = rounds.flat().find((item) => item.players.every(Boolean) && !item.winner);
+  const participantName = (id: string | null) =>
+    board.participants.find((participant) => participant.id === id)?.name || t.pending;
+
+  if (!match) {
+    return (
+      <p className="border-t border-forest/15 pt-3 text-sm font-medium text-ink/75">
+        {t.champion}: {participantName(rounds.at(-1)?.[0]?.winner || null)}
+      </p>
+    );
+  }
+
+  const roundIndex = Number(match.id.split("-")[0]);
+
   return (
-    <div className="min-w-0">
-      <div className="mb-3 flex flex-wrap gap-1" role="group" aria-label={t.tools}>
-        {(["scoreboard", "leaderboard", "bracket"] as const).map((key) => (
-          <button
-            key={key}
-            aria-pressed={tool === key}
-            onClick={() => setTool(key)}
-            className={`min-h-11 rounded-lg px-3 py-2 text-sm font-semibold transition-colors motion-reduce:transition-none ${tool === key ? "bg-action text-on-action" : "hover:bg-forest/10"}`}
-          >
-            {t[key]}
-          </button>
-        ))}
-      </div>
-      <ToolDemo key={tool} tool={tool} lang={lang} />
-    </div>
+    <fieldset className="min-w-0 space-y-2 border-t border-forest/15 pt-3">
+      <legend className="px-1 text-sm font-semibold">
+        {roundIndex === rounds.length - 1 ? t.final : `${t.round} ${roundIndex + 1}`} · {t.match} 1
+      </legend>
+      {match.players.map((id, side) => (
+        <label
+          key={id}
+          className="grid min-w-0 grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-2"
+        >
+          <span className="min-w-0 truncate text-sm">{participantName(id)}</span>
+          <input
+            aria-label={`${t.score}: ${participantName(id)}`}
+            className={`${demoInputClass} text-right tabular-nums`}
+            inputMode="numeric"
+            maxLength={12}
+            value={match.scores[side]}
+            onChange={(event) => {
+              const scores: [string, string] = [...match.scores];
+              scores[side] = event.target.value;
+              setDocument(setMatchResult(board, match.id, match.winner, scores));
+            }}
+          />
+        </label>
+      ))}
+      <label className="grid gap-1 text-xs font-semibold">
+        {t.winner}
+        <Select
+          label={t.winner}
+          value={match.winner || ""}
+          triggerClassName="!min-h-11 !bg-surface !text-sm"
+          change={(value) =>
+            setDocument(setMatchResult(board, match.id, value || null, match.scores))
+          }
+          options={[
+            { value: "", label: t.noWinner },
+            ...match.players.map((id) => ({
+              value: id || "",
+              label: participantName(id),
+            })),
+          ]}
+        />
+      </label>
+    </fieldset>
   );
 }

@@ -1,3 +1,5 @@
+import { onlyKeys } from "./validation.ts";
+
 export type GameTimer = {
   enabled: boolean;
   durationMs: number;
@@ -15,6 +17,23 @@ export type GameTimer = {
   timeoutStartedAt?: number | null;
   resumeAfterTimeout?: boolean;
 };
+const timerKeys = [
+  "enabled",
+  "durationMs",
+  "remainingMs",
+  "startedAt",
+  "mode",
+  "trackPausedTime",
+  "showHours",
+  "pausedAt",
+  "periodCount",
+  "period",
+  "timeoutMs",
+  "timeoutActive",
+  "timeoutRemainingMs",
+  "timeoutStartedAt",
+  "resumeAfterTimeout",
+];
 export const MAX_TIMER_DURATION_MS = 999 * 60 * 60 * 1000 + 59 * 60 * 1000 + 59 * 1000;
 export function durationFromParts(
   parts: readonly [string, string, string],
@@ -82,6 +101,7 @@ export function parseTimer(input: unknown): GameTimer | undefined {
   if (input === undefined) return undefined;
   if (!input || typeof input !== "object") throw new Error("timer");
   const t = input as Record<string, unknown>;
+  if (!onlyKeys(t, timerKeys)) throw new Error("timer");
   const integer = (v: unknown, min: number, max: number) =>
     typeof v === "number" && Number.isSafeInteger(v) && v >= min && v <= max;
   const timestamp = (v: unknown) => v === null || integer(v, 0, 8640000000000000);
