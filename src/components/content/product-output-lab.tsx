@@ -122,7 +122,15 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
             aria-label={t.exploreGraphic}
             className="overflow-auto overscroll-contain border border-forest/20 bg-forest/5 p-3 sm:p-7"
           >
-            <div className={tool === "bracket" ? bracketPreviewWidth : "min-w-[30rem]"}>
+            <div
+              className={
+                tool === "bracket"
+                  ? bracketPreviewWidth
+                  : view === 1
+                    ? "min-w-[30rem]"
+                    : "mx-auto w-full min-w-0 max-w-2xl"
+              }
+            >
               <Graphic document={document} labels={t} />
             </div>
           </div>
