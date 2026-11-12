@@ -88,7 +88,6 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 showFullscreenControl={tool !== "scoreboard"}
                 showResultControls={false}
                 controlledPlayback
-                useScoreboardPreview={tool === "scoreboard"}
               />
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
