@@ -109,7 +109,7 @@ export function HomeScoreboard({
     toggle,
     pause,
     reset: resetPlayback,
-  } = useAutoDemo(advance, reset, 1500, autoplay, controlledPlayback);
+  } = useAutoDemo(advance, reset, 1500, autoplay, { controlled: controlledPlayback });
 
   const attach = useCallback(
     (node: HTMLElement | null) => {

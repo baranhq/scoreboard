@@ -2,12 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+type AutoDemoOptions = {
+  controlled?: boolean;
+  allowReducedMotionAutoplay?: boolean;
+};
+
 export function useAutoDemo(
   advance: () => void,
   resetDemo: () => void,
   delay = 2600,
   autoplay = true,
-  controlled = false,
+  { controlled = false, allowReducedMotionAutoplay = false }: AutoDemoOptions = {},
 ) {
   const ref = useRef<HTMLElement | null>(null);
   const advanceRef = useRef(advance);
@@ -20,7 +25,9 @@ export function useAutoDemo(
   const [playing, setPlaying] = useState(autoplay);
   const [revision, setRevision] = useState(0);
   const requestedPlayback = controlled ? autoplay : playing;
-  const canPlay = requestedPlayback && (!reducedMotion || (controlled ? autoplay : manualOverride));
+  const canPlay =
+    requestedPlayback &&
+    (!reducedMotion || allowReducedMotionAutoplay || (controlled ? autoplay : manualOverride));
 
   useEffect(() => {
     advanceRef.current = advance;
