@@ -1,5 +1,5 @@
 import { useId, type Ref } from "react";
-import type { Bracket } from "@/lib/brackets";
+import { isWinnerSlot, type Bracket } from "@/lib/brackets";
 import type { Leaderboard, StudioDocument } from "@/lib/studio";
 import { foreground, readableText } from "@/lib/colors";
 import {
@@ -439,15 +439,14 @@ export function BracketGraphic({
             />
             {node.players.map((id, i) => {
               const participant = board.participants.find((player) => player.id === id);
-              const highlighted = !!id && (node.winner === id || !!participant?.color);
-              const rowColor =
-                node.winner === id ? board.style.accent : participant?.color || "transparent";
-              const rowText =
-                node.winner === id
-                  ? onAccent
-                  : participant?.color
-                    ? foreground(participant.color)
-                    : text;
+              const winner = isWinnerSlot(node.winner, id);
+              const highlighted = winner || (!!id && !!participant?.color);
+              const rowColor = winner ? board.style.accent : participant?.color || "transparent";
+              const rowText = winner
+                ? onAccent
+                : participant?.color
+                  ? foreground(participant.color)
+                  : text;
 
               return (
                 <g key={i}>
@@ -469,7 +468,7 @@ export function BracketGraphic({
                     width={196 / 16}
                     size={16}
                     fill={rowText}
-                    weight={node.winner === id ? 700 : 500}
+                    weight={winner ? 700 : 500}
                     edit={id ? { kind: "bracket-participant", participantId: id } : undefined}
                     labels={onEdit ? labels : undefined}
                     onEdit={onEdit}
