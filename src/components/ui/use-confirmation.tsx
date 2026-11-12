@@ -67,6 +67,8 @@ export function useConfirmation(labels: {
       title={labels.confirmationTitle}
       close={close}
       closeLabel={labels.close}
+      size="confirmation"
+      footerLayout="confirmation"
       footerActions={[
         { id: "cancel", label: request.cancelLabel, autoFocus: true },
         ...(request.secondaryLabel
