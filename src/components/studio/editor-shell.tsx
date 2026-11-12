@@ -58,14 +58,16 @@ export function EditorShell({
   const [activePosition, setActivePosition] = useState<CSSProperties | null>(null);
   const previewInput = useRef<HTMLInputElement>(null);
   const workspace = useRef<HTMLDivElement>(null);
-  const [editorPaneRatio, setEditorPaneRatio] = useState(36);
+  const [editorPaneRatio, setEditorPaneRatio] = useState(70);
+  const minEditorPaneRatio = 24;
+  const maxEditorPaneRatio = 80;
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
   const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
   const resizeEditorPane = (clientY: number) => {
     const bounds = workspace.current?.getBoundingClientRect();
     if (!bounds) return;
     const editorRatio = ((bounds.bottom - clientY) / bounds.height) * 100;
-    setEditorPaneRatio(Math.min(60, Math.max(28, editorRatio)));
+    setEditorPaneRatio(Math.min(maxEditorPaneRatio, Math.max(minEditorPaneRatio, editorRatio)));
   };
   const previewParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
@@ -394,8 +396,8 @@ export function EditorShell({
               role="separator"
               aria-label={`${t.editing}, ${t.preview}`}
               aria-orientation="horizontal"
-              aria-valuemin={28}
-              aria-valuemax={60}
+              aria-valuemin={minEditorPaneRatio}
+              aria-valuemax={maxEditorPaneRatio}
               aria-valuenow={Math.round(editorPaneRatio)}
               tabIndex={0}
               onPointerDown={(event) => {
@@ -410,7 +412,9 @@ export function EditorShell({
                 if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
                 event.preventDefault();
                 const change = event.key === "ArrowUp" ? 2 : -2;
-                setEditorPaneRatio((ratio) => Math.min(60, Math.max(28, ratio + change)));
+                setEditorPaneRatio((ratio) =>
+                  Math.min(maxEditorPaneRatio, Math.max(minEditorPaneRatio, ratio + change)),
+                );
               }}
               className="group hidden h-5 cursor-ns-resize touch-none items-center justify-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-action lg:flex"
             >
