@@ -59,43 +59,39 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
   return (
     <main id="main" data-campaign="dark" data-landing-home>
       <section className="bg-campaign text-campaign-ink">
-        <div className="mx-auto flex max-w-[90rem] flex-col px-5 pt-7 pb-8 sm:px-8 lg:min-h-[calc(100svh-4rem)] lg:px-10 lg:pt-6 lg:pb-7">
-          <div className="grid gap-6 border-b border-white/20 pb-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-12 lg:pb-7">
-            <div>
-              <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
-                <span className="text-lime">{t.free}</span>
-                <span aria-hidden="true" className="text-white/45">
-                  ·
-                </span>
-                <span className="text-white/70">{t.local}</span>
-              </p>
-              <h1 className="max-w-[13ch] font-display text-[clamp(3rem,6.4vw,6.25rem)] leading-[0.9] font-bold tracking-[-0.05em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
-                {copy.headline}
-              </h1>
-            </div>
-            <div className="lg:pb-1">
-              <p className="max-w-[40ch] text-base leading-7 text-white/80 sm:text-lg sm:leading-8">
-                {copy.intro}
-              </p>
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <Link
-                  href={route(lang, toolEditors.scoreboard)}
-                  className="inline-flex min-h-12 items-center gap-2 bg-lime px-5 py-3 font-semibold text-campaign transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:translate-y-0 motion-reduce:transform-none"
-                >
-                  {t.scoreAction}
-                  <ArrowUpRight size={18} aria-hidden="true" />
-                </Link>
-                <a
-                  href="#tools"
-                  className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold"
-                >
-                  {t.explore}
-                  <ArrowDown size={16} aria-hidden="true" />
-                </a>
-              </div>
+        <div className="mx-auto grid max-w-[90rem] grid-cols-1 px-5 pt-7 pb-8 sm:px-8 lg:h-[calc(100svh-4rem)] lg:min-h-0 lg:grid-cols-[minmax(20rem,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-x-10 lg:px-10 lg:py-6">
+          <div className="lg:flex lg:min-h-0 lg:flex-col lg:justify-center">
+            <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
+              <span className="text-lime">{t.free}</span>
+              <span aria-hidden="true" className="text-white/45">
+                ·
+              </span>
+              <span className="text-white/70">{t.local}</span>
+            </p>
+            <h1 className="max-w-[13ch] font-display text-[clamp(3rem,6.4vw,6.25rem)] leading-[0.9] font-bold tracking-[-0.05em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
+              {copy.headline}
+            </h1>
+            <p className="mt-5 max-w-[40ch] text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:mt-6">
+              {copy.intro}
+            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <Link
+                href={route(lang, toolEditors.scoreboard)}
+                className="inline-flex min-h-12 items-center gap-2 bg-lime px-5 py-3 font-semibold text-campaign transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:translate-y-0 motion-reduce:transform-none"
+              >
+                {t.scoreAction}
+                <ArrowUpRight size={18} aria-hidden="true" />
+              </Link>
+              <a
+                href="#tools"
+                className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold"
+              >
+                {t.explore}
+                <ArrowDown size={16} aria-hidden="true" />
+              </a>
             </div>
           </div>
-          <div className="mt-5 min-w-0 lg:mt-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
+          <div className="mt-8 min-w-0 lg:mt-0 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:justify-center">
             <CompetitionStage lang={lang} />
           </div>
         </div>
