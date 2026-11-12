@@ -12,7 +12,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
-  return pageMetadata(lang, "scoreboard");
+  return pageMetadata(lang, "scoreboard", `/${lang}/scoreboard/`);
 }
 
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {

@@ -146,11 +146,11 @@ test("localized alternates are reciprocal and provide both generic and British E
 test("scoreboard routes stay localized while the root aliases remain useful", () => {
   assert.equal(homeRoute("en"), "/");
   assert.equal(route("en", "scoreboard"), "/en/scoreboard/");
-  assert.equal(route("bg", "scoreboard"), "/bg/scoreboard/");
-  assert.equal(route("tr", "scoreboard"), "/tr/scoreboard/");
+  assert.equal(route("bg", "scoreboard"), "/bg/tablo/");
+  assert.equal(route("tr", "scoreboard"), "/tr/skor-tahtasi/");
   assert.equal(pageForPath("/scoreboard"), "scoreboard");
   assert.equal(pageForPath("/bg/scoreboard/"), "scoreboard");
-  assert.equal(translatedPath("/scoreboard/", "tr"), "/tr/scoreboard/");
+  assert.equal(translatedPath("/scoreboard/", "tr"), "/tr/skor-tahtasi/");
 
   const homeAlternates = localizedAlternates("https://scoreboard.baranhq.com", "home");
   assert.equal(homeAlternates.en, "https://scoreboard.baranhq.com/");
@@ -166,7 +166,7 @@ test("shared scoreboard snapshots link to the localized application route", () =
   const board = newBoard("Friendly game", "Team");
   const url = shareUrl(board, "bg", "https://scoreboard.baranhq.com");
 
-  assert.match(url, /^https:\/\/scoreboard\.baranhq\.com\/bg\/scoreboard\/#share=/);
+  assert.match(url, /^https:\/\/scoreboard\.baranhq\.com\/bg\/tablo\/#share=/);
   assert.equal(decodeGame(url.split("#share=")[1]).board.name, "Friendly game");
 });
 test("software schema uses stable multilingual entities and omits unsupported ratings", () => {
@@ -184,7 +184,7 @@ test("software schema uses stable multilingual entities and omits unsupported ra
   assert.deepEqual(en[0].inLanguage, ["en-GB", "bg", "tr"]);
   assert.equal((en[1].offers as { price: number }).price, 0);
   assert.equal(en[1].url, "https://scoreboard.baranhq.com/en/scoreboard/");
-  assert.equal(bg[1].url, "https://scoreboard.baranhq.com/bg/scoreboard/");
+  assert.equal(bg[1].url, "https://scoreboard.baranhq.com/bg/tablo/");
   assert.deepEqual(en[1].author, { "@id": "https://scoreboard.baranhq.com/#developer" });
   assert.deepEqual(en[1].sameAs, ["https://github.com/baranhq/scoreboard"]);
   assert.deepEqual(en[0].publisher, { "@id": "https://scoreboard.baranhq.com/#developer" });
@@ -202,7 +202,7 @@ test("software schema uses stable multilingual entities and omits unsupported ra
   assert.equal(en[1].image, "https://scoreboard.baranhq.com/social.png");
   assert.equal(bg[2].url, "https://scoreboard.baranhq.com/bg/");
   assert.equal(tr[2].url, "https://scoreboard.baranhq.com/tr/");
-  assert.equal(tr[1].url, "https://scoreboard.baranhq.com/tr/scoreboard/");
+  assert.equal(tr[1].url, "https://scoreboard.baranhq.com/tr/skor-tahtasi/");
 });
 test("scoreboard limits added teams and reflows panels to fit fullscreen", () => {
   assert.equal(MAX_SCOREBOARD_TEAMS, 6);
