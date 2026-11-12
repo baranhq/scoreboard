@@ -1,5 +1,5 @@
 "use client";
-import { Pin, Save, Share2 } from "lucide-react";
+import { CircleAlert, Pin, Save, Share2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { BoardIcon } from "./board-icon";
 import { foreground, validColor } from "@/lib/colors";
@@ -23,6 +23,7 @@ import { applyToolTheme } from "@/lib/board-theme";
 import { exportElementPng } from "@/lib/export-png";
 import { DailyGithubStarNotice } from "@/components/studio/daily-github-star-notice";
 type Action = { title: string; value?: string; numeric?: boolean; run: (value: string) => void };
+type ScoreboardError = "storage" | "share";
 type TeamBounds = { left: number; top: number; width: number; height: number };
 const ShareDialog = dynamic(() => import("./share-dialog").then((module) => module.ShareDialog));
 const initialBoardId = "scoreboard-initial-placeholder";
@@ -79,9 +80,10 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const [boards, setBoards] = useState<Board[]>(() => [initialBoard(t)]);
   const current = useRef(boards);
   const [id, setId] = useState<string>(initialBoardId);
-  const [ready, setReady] = useState(false);
+  const selectedId = useRef(initialBoardId);
+  const hasLocalChanges = useRef(false);
   const [undoBoards, setUndoBoards] = useState<Board[]>([]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<ScoreboardError>();
   const [notice, setNotice] = useState("");
   const themeLaunchHandled = useRef(false);
   const [pending, setPending] = useState(0);
@@ -165,80 +167,116 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
 
     return () => animations.forEach((animation) => animation.cancel());
   }, [teamOrderKey]);
-  const persist = useCallback(
-    (items: Board[], removeId?: string) => {
-      setPending((n) => n + 1);
-      void writeBoards(items, removeId)
-        .then(() => setError(""))
-        .catch(() => setError(t.storageError))
-        .finally(() => setPending((n) => n - 1));
-    },
-    [t.storageError],
-  );
+  const persist = useCallback((items: Board[], removeId?: string) => {
+    setPending((n) => n + 1);
+    void writeBoards(items, removeId)
+      .then(() => setError(undefined))
+      .catch(() => setError("storage"))
+      .finally(() => setPending((n) => n - 1));
+  }, []);
   useEffect(() => {
     let alive = true;
     const openGame = async () => {
-      const fragment = location.hash;
-      const search = new URLSearchParams(location.search);
-      const hasSharedTarget = fragment.startsWith("#share=") || fragment.startsWith("#board=");
-      const launchTheme =
-        !themeLaunchHandled.current && !hasSharedTarget && search.get("new") === "1"
-          ? getToolTheme(search.get("theme"))
-          : undefined;
-      if (fragment.startsWith("#share=") || fragment.startsWith("#board="))
-        history.replaceState(null, "", location.pathname + location.search);
       try {
-        let items = await loadBoards();
-        if (!alive) return;
+        const fragment = location.hash;
+        const search = new URLSearchParams(location.search);
+        const isSharedTarget = fragment.startsWith("#share=");
+        const isBoardTarget = fragment.startsWith("#board=");
+        const hasSharedTarget = isSharedTarget || isBoardTarget;
+        const launchTheme =
+          !themeLaunchHandled.current && !hasSharedTarget && search.get("new") === "1"
+            ? getToolTheme(search.get("theme"))
+            : undefined;
+        if (hasSharedTarget) history.replaceState(null, "", location.pathname + location.search);
+        let items: Board[] = [];
+        let storageAvailable = true;
         let requested: string | null = null;
-        if (fragment.startsWith("#share=")) {
-          const incoming = decodeGame(fragment.slice(7));
-          const existing = items.find(
-            (b) => b.id === incoming.sourceId || b.shareKey === incoming.key,
-          );
-          if (existing) requested = existing.id;
-          else {
-            const copy = { ...incoming.board, shareKey: incoming.key };
-            await writeBoards([copy]);
-            items = [...items, copy];
-            requested = copy.id;
+
+        try {
+          items = await loadBoards();
+        } catch {
+          storageAvailable = false;
+          if (alive) setError("storage");
+        }
+        if (!alive) return;
+
+        if (isSharedTarget) {
+          try {
+            const incoming = decodeGame(fragment.slice(7));
+            const existing = items.find(
+              (b) => b.id === incoming.sourceId || b.shareKey === incoming.key,
+            );
+            if (existing) {
+              requested = existing.id;
+            } else {
+              const copy = { ...incoming.board, shareKey: incoming.key };
+              items = [...items, copy];
+              requested = copy.id;
+              if (storageAvailable) {
+                try {
+                  await writeBoards([copy]);
+                } catch {
+                  storageAvailable = false;
+                  if (alive) setError("storage");
+                }
+              }
+            }
+          } catch {
+            if (alive) setError("share");
+          }
+        } else if (launchTheme) {
+          const fresh = boardWithTheme(t.board, t.team, launchTheme);
+          items = [...items, fresh];
+          requested = fresh.id;
+          themeLaunchHandled.current = true;
+          window.history.replaceState(window.history.state, "", window.location.pathname);
+        } else if (isBoardTarget) {
+          try {
+            requested = decodeURIComponent(fragment.slice(7));
+          } catch {
+            requested = null;
           }
         } else {
-          if (launchTheme && !fragment.startsWith("#board=")) {
-            const fresh = boardWithTheme(t.board, t.team, launchTheme);
-            items = [...items, fresh];
-            requested = fresh.id;
-            themeLaunchHandled.current = true;
-            window.history.replaceState(window.history.state, "", window.location.pathname);
-          } else {
-            if (!items.length) items = await loadOrCreateBoard(() => newBoard(t.board, t.team));
-            requested = fragment.startsWith("#board=")
-              ? decodeURIComponent(fragment.slice(7))
-              : null;
+          try {
+            requested = localStorage.getItem("scoreboard-active");
+          } catch {}
+        }
+
+        if (!items.length && storageAvailable && !hasLocalChanges.current) {
+          try {
+            items = await loadOrCreateBoard(() => newBoard(t.board, t.team));
+          } catch {
+            storageAvailable = false;
+            if (alive) setError("storage");
+          }
+        }
+        if (!alive) return;
+
+        if (hasLocalChanges.current) {
+          const localItems = current.current;
+          items = [
+            ...items.filter((saved) => !localItems.some((local) => local.id === saved.id)),
+            ...localItems,
+          ];
+        } else if (!items.length) {
+          items = current.current;
+        }
+
+        const keepLocalSelection = hasLocalChanges.current && !hasSharedTarget && !launchTheme;
+        const activeId = keepLocalSelection ? selectedId.current : requested;
+        const nextId = items.some((item) => item.id === activeId) ? activeId! : items[0]?.id;
+        replace(items);
+        if (nextId) {
+          selectedId.current = nextId;
+          setId(nextId);
+          if (keepLocalSelection) {
             try {
-              requested ??= localStorage.getItem("scoreboard-active");
+              localStorage.setItem("scoreboard-active", nextId);
             } catch {}
           }
         }
-        if (alive) {
-          replace(items);
-          setId(items.some((b) => b.id === requested) ? requested! : items[0]?.id);
-          setReady(true);
-        }
       } catch {
-        if (alive) {
-          const fallback = launchTheme
-            ? boardWithTheme(t.board, t.team, launchTheme)
-            : newBoard(t.board, t.team);
-          if (launchTheme) {
-            themeLaunchHandled.current = true;
-            window.history.replaceState(window.history.state, "", window.location.pathname);
-          }
-          replace([fallback]);
-          setId(fallback.id);
-          setReady(true);
-          setError(fragment.startsWith("#share=") ? t.shareInvalid : t.storageError);
-        }
+        if (alive) setError(location.hash.startsWith("#share=") ? "share" : "storage");
       } finally {
         window.dispatchEvent(new Event("scoreboard-ready"));
       }
@@ -249,16 +287,17 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
       alive = false;
       window.removeEventListener("hashchange", openGame);
     };
-  }, [replace, t.board, t.team, t.storageError, t.shareInvalid]);
+  }, [replace, t.board, t.team]);
   useEffect(() => {
-    if (ready && id !== initialBoardId) {
+    if (id !== initialBoardId) {
       try {
         localStorage.setItem("scoreboard-active", id);
       } catch {}
     }
-  }, [id, ready]);
+  }, [id]);
   const update = useCallback(
     (change: (b: Board) => Board) => {
+      hasLocalChanges.current = true;
       const all = current.current;
       const old = all.find((b) => b.id === id);
       if (!old) return;
@@ -322,7 +361,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
     };
     const key = (e: KeyboardEvent) => {
       if (
-        !ready ||
         (e.target instanceof HTMLElement &&
           (e.target.closest("input,textarea,select,dialog") || e.target.isContentEditable)) ||
         e.ctrlKey ||
@@ -345,18 +383,19 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
       document.removeEventListener("fullscreenchange", change);
       window.removeEventListener("keydown", key);
     };
-  }, [toggleFull, changeFullscreen, action, dialogMode, board, score, appearance.increment, ready]);
+  }, [toggleFull, changeFullscreen, action, dialogMode, board, score, appearance.increment]);
   const saveNamed = async (name: string): Promise<Board> => {
     const latest = current.current.find((b) => b.id === id);
     if (!latest) throw new Error("missing");
+    hasLocalChanges.current = true;
     const next = { ...latest, name, automaticName: false, updatedAt: Date.now() };
     replace(current.current.map((b) => (b.id === id ? next : b)));
     try {
       await writeBoards([next]);
-      setError("");
+      setError(undefined);
       return next;
     } catch {
-      setError(t.storageError);
+      setError("storage");
       throw new Error("save");
     }
   };
@@ -375,8 +414,10 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
     setAction({ title, run, value: initial });
   };
   const addBoard = () => {
+    hasLocalChanges.current = true;
     const b = newBoard(t.board, t.team);
     replace([...current.current, b]);
+    selectedId.current = b.id;
     setId(b.id);
     persist([b]);
     track("create_scoreboard");
@@ -420,23 +461,45 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
         )}
         {error && (
           <div
-            role="alert"
-            className="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 text-base text-red-900 dark:bg-red-950/40 dark:text-red-200"
+            role={error === "storage" ? "status" : "alert"}
+            aria-live={error === "storage" ? "polite" : "assertive"}
+            className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-forest/20 bg-paper px-3 py-2 text-ink shadow-sm"
           >
-            {error} <Button onClick={() => persist(boards)}>{t.retry}</Button>
-            <Button onClick={() => download(boards)}>{t.export}</Button>
+            <div className="flex min-w-0 flex-1 items-start gap-2">
+              <CircleAlert aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
+              <p className="min-w-0 text-sm leading-5 break-words">
+                {error === "storage" ? t.storageUnavailable : t.shareInvalid}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              {error === "storage" && (
+                <>
+                  <Button
+                    disabled={pending > 0}
+                    onClick={() => persist(current.current)}
+                    className="min-h-9 px-3 py-1 text-sm"
+                  >
+                    {t.retry}
+                  </Button>
+                  <Button
+                    onClick={() => download(current.current)}
+                    className="min-h-9 px-3 py-1 text-sm"
+                  >
+                    {t.export}
+                  </Button>
+                </>
+              )}
+              <Button
+                aria-label={t.close}
+                onClick={() => setError(undefined)}
+                className="min-h-9 px-3 py-1 text-lg leading-none"
+              >
+                ×
+              </Button>
+            </div>
           </div>
         )}
-        {!ready && (
-          <p aria-live="polite" className="py-2 text-center">
-            {t.loading}
-          </p>
-        )}
-        <div
-          aria-busy={!ready}
-          inert={!ready}
-          className={full ? "flex min-h-0 flex-1 flex-col" : ""}
-        >
+        <div className={full ? "flex min-h-0 flex-1 flex-col" : ""}>
           {board ? (
             <section aria-label={t.board} className="flex min-h-0 flex-1 flex-col">
               {full ? (
@@ -498,7 +561,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                             aria-label={t.boardName}
                             maxLength={200}
                             value={board.name}
-                            disabled={!ready}
                             onChange={(event) =>
                               update((current) => ({
                                 ...current,
@@ -662,17 +724,17 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                 </div>
               </div>
             </section>
-          ) : ready ? (
+          ) : (
             <section className="rounded-xl bg-forest/5 px-5 py-12 text-center">
               <h2 className="font-display text-xl font-semibold">{t.empty}</h2>
               <Button onClick={addBoard} className="mt-5">
                 {t.create}
               </Button>
             </section>
-          ) : null}
+          )}
           {!full && (
             <>
-              {ready && board && (
+              {board && (
                 <>
                   <div className="mt-3 flex justify-end gap-2">
                     <Button
