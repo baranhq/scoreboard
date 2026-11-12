@@ -103,6 +103,7 @@ const en = {
   layoutLabel: "Layout",
   automatic: "Automatic",
   horizontal: "Side by side",
+  vertical: "Stacked",
   grid: "Grid",
   density: "Spacing",
   compact: "Compact",
@@ -130,6 +131,7 @@ const en = {
   presetGreen: "Forest",
   presetSand: "Sand",
   presetInk: "Slate",
+  undoAction: "Undo",
   undo: "Undo appearance changes",
   gameMenu: "Game actions",
   search: "Find a scoreboard",
@@ -176,6 +178,8 @@ const en = {
   saving: "Saving…",
   storageError:
     "Changes could not be saved. Export a backup now and check browser storage permissions.",
+  storageUnavailable:
+    "Your browser cannot save this board right now. You can keep using it, but changes may be lost when you leave.",
   loading: "Opening your scoreboards…",
   empty: "Your next game starts here.",
   emptyText: "Make a scoreboard. It will be saved automatically in this browser.",
@@ -188,6 +192,9 @@ const en = {
     "Backup imported. Existing scoreboards were preserved; imported copies have new identifiers.",
   importError:
     "This backup could not be imported. Use a valid Scoreboard JSON backup (up to 5 MB).",
+  importSummary: "This backup contains {boards} scoreboards and {teams} teams.",
+  importNote: "Importing adds new copies. It does not replace existing scoreboards.",
+  importConfirm: "Continue importing this backup?",
   sourceTitle: "Open by design.",
   sourceText:
     "Baran's Scoreboard is free software under the MIT License. Explore the code, adapt it, or help make it better.",
@@ -214,7 +221,7 @@ const en = {
   usageSummary:
     "Measures visits, page views and limited page paths, predefined button actions and estimated active time.",
   usageText:
-    "This site's own analytics records visits and page views, limited public page paths, predefined actions (creating a scoreboard, entering fullscreen, exporting or importing a backup), and estimated active time. Records are linked to a random browser token stored as a hash and kept on the hosting server for up to one year. Scoreboard names, team names, scores and field contents are not included.",
+    "This site's own analytics records visits and page views, limited public page paths, predefined actions (making a scoreboard, entering fullscreen, exporting or importing a backup), and estimated active time. Records are linked to a random browser token stored as a hash and kept on the hosting server for up to one year. Scoreboard names, team names, scores and field contents are not included.",
   cloud: "Cloudflare Web Analytics",
   cloudSummary: "Loads Cloudflare Web Analytics.",
   cloudText: "Check Cloudflare's privacy policy for details about how it handles data.",
@@ -231,6 +238,7 @@ const en = {
   updated: "Last modified",
   scoreRange: "Enter a whole number between −999999999 and 999999999.",
   boardName: "Scoreboard name",
+  backupHint: "Download a JSON copy of this scoreboard to keep or move it.",
   teamName: "Team name",
   retry: "Try again",
   more: "Scoreboard actions",
@@ -239,7 +247,7 @@ const en = {
 export type Messages = typeof en;
 const bg: Messages = {
   autoHideControls: "Автоматично скриване на бутоните на цял екран",
-  keepVisible: "Бутоните да остават видими",
+  keepVisible: "Контролите да остават видими",
   copyManually: "Изберете и копирайте връзката ръчно — клипбордът не е достъпен.",
   share: "Сподели",
   githubStarNote: "Ако таблото ви е полезно, можете да дадете звезда на проекта в GitHub.",
@@ -251,7 +259,7 @@ const bg: Messages = {
   shareError: "Играта е твърде голяма за връзка. Изтеглете JSON резервно копие.",
   shareInvalid: "Връзката е невалидна или твърде голяма. Запазените игри не са променени.",
   saveName: "Как искате да се казва тази игра?",
-  savedLocal: "Запазено в този браузър. Отворете го от „Запазени“.",
+  savedLocal: "Запазено в този браузър. Отворете го от раздела „Запазени“.",
   trackPausedTime: "Показвай времето на пауза",
   showTimerHours: "Показвай часовете в таймера",
   showTimerHoursHint: "При изключване се показва общият брой минути.",
@@ -304,7 +312,7 @@ const bg: Messages = {
   saveBoardShort: "Запази",
   saveBoard: "Запази таблото",
   savedSuccess: "Успешно запазено",
-  customColor: "Друг цвят",
+  customColor: "Собствен цвят",
   resetAppearance: "Върни началния изглед",
   actions: "Действия",
   open: "Отвори",
@@ -337,6 +345,7 @@ const bg: Messages = {
   layoutLabel: "Подредба",
   automatic: "Автоматична",
   horizontal: "Един до друг",
+  vertical: "Един под друг",
   grid: "Мрежа",
   density: "Разстояние",
   compact: "Компактно",
@@ -364,6 +373,7 @@ const bg: Messages = {
   presetGreen: "Гора",
   presetSand: "Пясък",
   presetInk: "Шисти",
+  undoAction: "Отмени",
   undo: "Отмени промените в изгледа",
   gameMenu: "Действия с играта",
   search: "Намери табло",
@@ -382,7 +392,7 @@ const bg: Messages = {
   scoreboardPageTitle: "Табло за резултати",
   saved: "Моите таблици",
   savedShort: "Запазени",
-  create: "Нова игра",
+  create: "Ново табло",
   newScoreboard: "Ново табло",
   language: "Език",
   star: "Звезда в GitHub",
@@ -410,6 +420,8 @@ const bg: Messages = {
   saving: "Запазване…",
   storageError:
     "Промените не са запазени. Изтеглете резервно копие и проверете разрешенията за съхранение.",
+  storageUnavailable:
+    "Браузърът не може да запази това табло в момента. Можете да продължите да го използвате, но промените може да се загубят, когато излезете.",
   loading: "Зареждане на таблата…",
   empty: "Следващата игра започва тук.",
   emptyText: "Създайте табло. То ще се запазва автоматично в този браузър.",
@@ -422,7 +434,10 @@ const bg: Messages = {
     "Копието е внесено. Съществуващите табла са запазени, а внесените имат нови идентификатори.",
   importError:
     "Копието не може да бъде внесено. Използвайте валиден JSON архив на Scoreboard (до 5 MB).",
-  sourceTitle: "Отворен по замисъл.",
+  importSummary: "Това копие съдържа {boards} табла и {teams} отбора.",
+  importNote: "Ще се добавят нови копия. Запазените табла няма да бъдат заменени.",
+  importConfirm: "Да внеса ли това копие?",
+  sourceTitle: "С отворен код.",
   sourceText:
     "Baran's Scoreboard е безплатен софтуер под лиценза MIT. Разгледайте кода, адаптирайте го или помогнете за развитието му.",
   source: "Виж кода в GitHub",
@@ -432,7 +447,7 @@ const bg: Messages = {
   licenses: "Лицензи",
   contact: "Контакт",
   help: "Помощ",
-  how: "Създайте табло, дайте имена на отборите и използвайте + или − за точките. Изберете резултат, за да го въведете директно. Добавяйте и пренареждайте отборите при нужда.",
+  how: "Дайте имена на отборите и натискайте + или −, за да добавяте или отнемате точки. Изберете числото на резултата, за да го редактирате директно. При нужда добавяйте отбори и променяйте подредбата им.",
   fullHelp:
     "Използвайте цял екран за класна стая или проектор. Escape излиза от този режим. Когато не въвеждате текст, F превключва цял екран, а 1 и 2 добавят точка на първите два отбора.",
   backupTitle: "Запазете резултатите си",
@@ -468,6 +483,8 @@ const bg: Messages = {
   updated: "Последна промяна",
   scoreRange: "Въведете цяло число между −999999999 и 999999999.",
   boardName: "Име на играта",
+  backupHint:
+    "Изтеглете JSON архив, за да запазите таблото или да го преместите на друго устройство.",
   teamName: "Име на отбора",
   retry: "Опитай отново",
   more: "Действия с таблото",
@@ -475,10 +492,10 @@ const bg: Messages = {
 };
 const tr: Messages = {
   autoHideControls: "Tam ekranda düğmeleri otomatik gizle",
-  keepVisible: "Düğmeler görünür kalsın",
+  keepVisible: "Kontroller görünür kalsın",
   copyManually: "Pano kullanılamadı. Bağlantıyı seçip elle kopyalayın.",
   share: "Paylaş",
-  githubStarNote: "Skor tablosu işinize yarıyorsa GitHub’da projeye yıldız verebilirsiniz.",
+  githubStarNote: "Skor tabelası işinize yarıyorsa GitHub’da projeye yıldız verebilirsiniz.",
   githubStarAction: "GitHub’da yıldız verin",
   copyLink: "Bağlantıyı kopyala",
   linkCopied: "Bağlantı kopyalandı",
@@ -487,7 +504,7 @@ const tr: Messages = {
   shareError: "Bu oyun bir bağlantı için çok büyük. JSON yedeğini dışa aktarın.",
   shareInvalid: "Bu oyun bağlantısı geçersiz veya çok büyük. Kayıtlı oyunlarınız korundu.",
   saveName: "Bu oyuna ne ad vermek istersiniz?",
-  savedLocal: "Bu tarayıcıya kaydedildi. „Kayıtlı“ bölümünden açabilirsiniz.",
+  savedLocal: "Bu tarayıcıya kaydedildi. Tablolarım bölümünden açabilirsiniz.",
   trackPausedTime: "Duraklama süresini göster",
   showTimerHours: "Zamanlayıcıda saatleri göster",
   showTimerHoursHint: "Kapalıyken toplam dakika gösterilir.",
@@ -573,6 +590,7 @@ const tr: Messages = {
   layoutLabel: "Düzen",
   automatic: "Otomatik",
   horizontal: "Yan yana",
+  vertical: "Alt alta",
   grid: "Izgara",
   density: "Aralık",
   compact: "Kompakt",
@@ -600,6 +618,7 @@ const tr: Messages = {
   presetGreen: "Orman",
   presetSand: "Kum",
   presetInk: "Arduvaz",
+  undoAction: "Geri al",
   undo: "Görünüm değişikliklerini geri al",
   gameMenu: "Oyun işlemleri",
   search: "Oyun ara",
@@ -618,11 +637,11 @@ const tr: Messages = {
   scoreboardPageTitle: "Skor tabelası",
   saved: "Tablolarım",
   savedShort: "Kaydedilenler",
-  create: "Skor panosu oluştur",
+  create: "Skor tabelası hazırlayın",
   newScoreboard: "Yeni skor tabelası",
   language: "Dil",
   star: "GitHub’da yıldızla",
-  board: "Skor panosu",
+  board: "Skor tabelası",
   team: "Takım",
   add: "Takım ekle",
   reset: "Skorları sıfırla",
@@ -645,9 +664,11 @@ const tr: Messages = {
   saving: "Kaydediliyor…",
   storageError:
     "Değişiklikler kaydedilemedi. Şimdi bir yedek dışa aktarın ve tarayıcı depolama izinlerini kontrol edin.",
+  storageUnavailable:
+    "Tarayıcınız bu panoyu şu anda kaydedemiyor. Kullanmaya devam edebilirsiniz ancak sayfadan ayrıldığınızda değişiklikler kaybolabilir.",
   loading: "Skor oyunlarınız açılıyor…",
   empty: "Bir sonraki oyun burada başlar.",
-  emptyText: "Bir skor panosu oluşturun. Bu tarayıcıda otomatik olarak kaydedilir.",
+  emptyText: "Bir skor tabelası hazırlayın. Bu tarayıcıya otomatik olarak kaydedilir.",
   export: "Yedeği dışa aktar",
   import: "Yedeği içe aktar",
   exportOne: "Bu oyunu dışa aktar",
@@ -657,7 +678,10 @@ const tr: Messages = {
     "Yedek içe aktarıldı. Mevcut oyunlar korundu; içe aktarılan kopyalara yeni kimlikler verildi.",
   importError:
     "Bu yedek içe aktarılamadı. Geçerli bir Scoreboard JSON yedeği kullanın (en fazla 5 MB).",
-  sourceTitle: "Doğası gereği açık.",
+  importSummary: "Bu yedekte {boards} skor tabelası ve {teams} takım var.",
+  importNote: "Yeni kopyalar eklenir. Kayıtlı skor tabloları değiştirilmez.",
+  importConfirm: "Bu yedek içe aktarılsın mı?",
+  sourceTitle: "Açık kaynak.",
   sourceText:
     "Baran's Scoreboard, MIT Lisansı ile sunulan ücretsiz bir yazılımdır. Kodu inceleyin, uyarlayın veya gelişmesine katkıda bulunun.",
   source: "Kaynak kodunu GitHub’da gör",
@@ -667,7 +691,7 @@ const tr: Messages = {
   licenses: "Lisanslar",
   contact: "İletişim",
   help: "Yardım",
-  how: "Bir skor panosu oluşturun, takımlarınızı adlandırın ve puanları + veya − ile değiştirin. Doğrudan girmek için skoru seçin. İstediğiniz zaman takım ekleyin veya sıralamayı değiştirin.",
+  how: "Takım adlarını yazın ve + veya − düğmeleriyle puanları değiştirin. Skoru doğrudan düzenlemek için sayı alanını seçin. Gerektiğinde takım ekleyip sıralarını değiştirebilirsiniz.",
   fullHelp:
     "Sınıf ekranı veya projektör için tam ekranı kullanın. Çıkmak için Escape tuşuna basın. Metin girmediğinizde F tam ekranı değiştirir; 1 ve 2 ilk iki takıma bir puan ekler.",
   backupTitle: "Sonuçlarınızı saklayın",
@@ -683,7 +707,7 @@ const tr: Messages = {
   usageSummary:
     "Ziyaretleri, sayfa görüntülemelerini ve sınırlı sayfa yollarını, önceden belirlenmiş düğme işlemlerini ve tahmini etkin süreyi ölçer.",
   usageText:
-    "Sitenin kendi analiz sistemi ziyaretleri, sayfa görüntüleme zamanlarını, sınırlı herkese açık sayfa yollarını, önceden belirlenmiş işlemleri (skor tablosu oluşturma, tam ekrana geçme, yedek dışa veya içe aktarma) ve tahmini etkin süreyi kaydeder. Kayıtlar, hash olarak saklanan rastgele bir tarayıcı belirteciyle ilişkilendirilir ve barındırma sunucusunda en fazla bir yıl tutulur. Skor tablosu adları, takım adları, skorlar ve alan içerikleri kaydedilmez.",
+    "Sitenin kendi analiz sistemi ziyaretleri, sayfa görüntüleme zamanlarını, sınırlı herkese açık sayfa yollarını, önceden belirlenmiş işlemleri (skor tabelası oluşturma, tam ekrana geçme, yedek dışa veya içe aktarma) ve tahmini etkin süreyi kaydeder. Kayıtlar, hash olarak saklanan rastgele bir tarayıcı belirteciyle ilişkilendirilir ve barındırma sunucusunda en fazla bir yıl tutulur. Skor tabelası adları, takım adları, skorlar ve alan içerikleri kaydedilmez.",
   cloud: "Cloudflare Web Analytics",
   cloudSummary: "Cloudflare Web Analytics yüklenir.",
   cloudText:
@@ -703,6 +727,7 @@ const tr: Messages = {
   updated: "Son değişiklik",
   scoreRange: "−999999999 ile 999999999 arasında bir tam sayı girin.",
   boardName: "Oyun adı",
+  backupHint: "Skor tabelasını saklamak veya başka bir cihaza taşımak için JSON yedeğini indirin.",
   teamName: "Takım adı",
   retry: "Tekrar dene",
   more: "Oyun işlemleri",

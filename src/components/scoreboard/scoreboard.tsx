@@ -1,5 +1,5 @@
 "use client";
-import { Pin, Save, Share2, Star, X } from "lucide-react";
+import { CircleAlert, Pin, Save, Share2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { BoardIcon } from "./board-icon";
 import { foreground, validColor } from "@/lib/colors";
@@ -18,8 +18,12 @@ import { loadBoards, loadOrCreateBoard, writeBoards } from "@/store/database";
 import { Button, Modal } from "../ui/ui";
 import { TeamPanel } from "./team-panel";
 import { track } from "@/lib/analytics";
-import { repo } from "@/lib/site";
+import { getToolTheme, toolThemes } from "@/lib/tool-themes";
+import { applyToolTheme } from "@/lib/board-theme";
+import { exportElementPng } from "@/lib/export-png";
+import { DailyGithubStarNotice } from "@/components/studio/daily-github-star-notice";
 type Action = { title: string; value?: string; numeric?: boolean; run: (value: string) => void };
+type ScoreboardError = "storage" | "share";
 type TeamBounds = { left: number; top: number; width: number; height: number };
 const ShareDialog = dynamic(() => import("./share-dialog").then((module) => module.ShareDialog));
 const initialBoardId = "scoreboard-initial-placeholder";
@@ -45,29 +49,43 @@ function readTeamBounds(grid: HTMLElement): Map<string, TeamBounds> {
 }
 
 function initialBoard(t: Messages): Board {
-  return {
-    id: initialBoardId,
-    name: t.board,
-    automaticName: true,
-    icon: "scoreboard",
-    accent: "#285b35",
-    updatedAt: 0,
-    teams: [1, 2].map((n) => ({
-      id: `${initialBoardId}-${n}`,
-      name: `${t.team} ${n}`,
+  return applyToolTheme(
+    {
+      id: initialBoardId,
+      name: t.board,
       automaticName: true,
-      score: 0,
-    })),
-  };
+      icon: "scoreboard",
+      accent: "#285b35",
+      updatedAt: 0,
+      teams: [1, 2].map((n) => ({
+        id: `${initialBoardId}-${n}`,
+        name: `${t.team} ${n}`,
+        automaticName: true,
+        score: 0,
+      })),
+    },
+    toolThemes[0],
+  );
 }
+
+function boardWithTheme(
+  name: string,
+  teamName: string,
+  theme: NonNullable<ReturnType<typeof getToolTheme>>,
+): Board {
+  return applyToolTheme(newBoard(name, teamName), theme);
+}
+
 export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const [boards, setBoards] = useState<Board[]>(() => [initialBoard(t)]);
   const current = useRef(boards);
   const [id, setId] = useState<string>(initialBoardId);
-  const [ready, setReady] = useState(false);
-  const [error, setError] = useState("");
+  const selectedId = useRef(initialBoardId);
+  const hasLocalChanges = useRef(false);
+  const [undoBoards, setUndoBoards] = useState<Board[]>([]);
+  const [error, setError] = useState<ScoreboardError>();
   const [notice, setNotice] = useState("");
-  const [showStarPrompt, setShowStarPrompt] = useState(true);
+  const themeLaunchHandled = useRef(false);
   const [pending, setPending] = useState(0);
   const [dialogMode, setDialogMode] = useState<"save" | "share">();
   const [full, setFull] = useState(false);
@@ -75,9 +93,19 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
   const [value, setValue] = useState("");
   const display = useRef<HTMLDivElement>(null);
   const teamGridRef = useRef<HTMLDivElement>(null);
+  const boardOutputRef = useRef<HTMLDivElement>(null);
   const teamLayoutSnapshotRef = useRef<Map<string, TeamBounds> | null>(null);
   const storedBoard = boards.find((b) => b.id === id);
   const board = storedBoard ? displayBoard(storedBoard, t) : undefined;
+  const exportBoard = useCallback(async () => {
+    if (!boardOutputRef.current || !board) throw new Error("Preview is unavailable");
+    await exportElementPng(
+      boardOutputRef.current,
+      board.name,
+      board.canvas,
+      board.exportScale ?? 1,
+    );
+  }, [board]);
   const teamOrderKey = board?.teams.map((team) => team.id).join("\u0000") ?? "";
   const appearance = resolveAppearance(board?.appearance);
   const controls = useFullscreenControls(full, appearance.autoHideControls);
@@ -139,55 +167,116 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
 
     return () => animations.forEach((animation) => animation.cancel());
   }, [teamOrderKey]);
-  const persist = useCallback(
-    (items: Board[], removeId?: string) => {
-      setPending((n) => n + 1);
-      void writeBoards(items, removeId)
-        .then(() => setError(""))
-        .catch(() => setError(t.storageError))
-        .finally(() => setPending((n) => n - 1));
-    },
-    [t.storageError],
-  );
+  const persist = useCallback((items: Board[], removeId?: string) => {
+    setPending((n) => n + 1);
+    void writeBoards(items, removeId)
+      .then(() => setError(undefined))
+      .catch(() => setError("storage"))
+      .finally(() => setPending((n) => n - 1));
+  }, []);
   useEffect(() => {
     let alive = true;
     const openGame = async () => {
-      const fragment = location.hash;
-      if (fragment.startsWith("#share=") || fragment.startsWith("#board="))
-        history.replaceState(null, "", location.pathname + location.search);
       try {
-        let items = await loadBoards();
-        if (!alive) return;
+        const fragment = location.hash;
+        const search = new URLSearchParams(location.search);
+        const isSharedTarget = fragment.startsWith("#share=");
+        const isBoardTarget = fragment.startsWith("#board=");
+        const hasSharedTarget = isSharedTarget || isBoardTarget;
+        const launchTheme =
+          !themeLaunchHandled.current && !hasSharedTarget && search.get("new") === "1"
+            ? getToolTheme(search.get("theme"))
+            : undefined;
+        if (hasSharedTarget) history.replaceState(null, "", location.pathname + location.search);
+        let items: Board[] = [];
+        let storageAvailable = true;
         let requested: string | null = null;
-        if (fragment.startsWith("#share=")) {
-          const incoming = decodeGame(fragment.slice(7));
-          const existing = items.find(
-            (b) => b.id === incoming.sourceId || b.shareKey === incoming.key,
-          );
-          if (existing) requested = existing.id;
-          else {
-            const copy = { ...incoming.board, shareKey: incoming.key };
-            await writeBoards([copy]);
-            items = [...items, copy];
-            requested = copy.id;
+
+        try {
+          items = await loadBoards();
+        } catch {
+          storageAvailable = false;
+          if (alive) setError("storage");
+        }
+        if (!alive) return;
+
+        if (isSharedTarget) {
+          try {
+            const incoming = decodeGame(fragment.slice(7));
+            const existing = items.find(
+              (b) => b.id === incoming.sourceId || b.shareKey === incoming.key,
+            );
+            if (existing) {
+              requested = existing.id;
+            } else {
+              const copy = { ...incoming.board, shareKey: incoming.key };
+              items = [...items, copy];
+              requested = copy.id;
+              if (storageAvailable) {
+                try {
+                  await writeBoards([copy]);
+                } catch {
+                  storageAvailable = false;
+                  if (alive) setError("storage");
+                }
+              }
+            }
+          } catch {
+            if (alive) setError("share");
+          }
+        } else if (launchTheme) {
+          const fresh = boardWithTheme(t.board, t.team, launchTheme);
+          items = [...items, fresh];
+          requested = fresh.id;
+          themeLaunchHandled.current = true;
+          window.history.replaceState(window.history.state, "", window.location.pathname);
+        } else if (isBoardTarget) {
+          try {
+            requested = decodeURIComponent(fragment.slice(7));
+          } catch {
+            requested = null;
           }
         } else {
-          if (!items.length) items = await loadOrCreateBoard(() => newBoard(t.board, t.team));
-          requested = fragment.startsWith("#board=") ? decodeURIComponent(fragment.slice(7)) : null;
           try {
-            requested ??= localStorage.getItem("scoreboard-active");
+            requested = localStorage.getItem("scoreboard-active");
           } catch {}
         }
-        if (alive) {
-          replace(items);
-          setId(items.some((b) => b.id === requested) ? requested! : items[0]?.id);
-          setReady(true);
+
+        if (!items.length && storageAvailable && !hasLocalChanges.current) {
+          try {
+            items = await loadOrCreateBoard(() => newBoard(t.board, t.team));
+          } catch {
+            storageAvailable = false;
+            if (alive) setError("storage");
+          }
+        }
+        if (!alive) return;
+
+        if (hasLocalChanges.current) {
+          const localItems = current.current;
+          items = [
+            ...items.filter((saved) => !localItems.some((local) => local.id === saved.id)),
+            ...localItems,
+          ];
+        } else if (!items.length) {
+          items = current.current;
+        }
+
+        const keepLocalSelection = hasLocalChanges.current && !hasSharedTarget && !launchTheme;
+        const activeId = keepLocalSelection ? selectedId.current : requested;
+        const nextId = items.some((item) => item.id === activeId) ? activeId! : items[0]?.id;
+        replace(items);
+        if (nextId) {
+          selectedId.current = nextId;
+          setId(nextId);
+          if (keepLocalSelection) {
+            try {
+              localStorage.setItem("scoreboard-active", nextId);
+            } catch {}
+          }
         }
       } catch {
-        if (alive) {
-          setReady(true);
-          setError(fragment.startsWith("#share=") ? t.shareInvalid : t.storageError);
-        }
+        if (alive) setError(location.hash.startsWith("#share=") ? "share" : "storage");
       } finally {
         window.dispatchEvent(new Event("scoreboard-ready"));
       }
@@ -198,16 +287,17 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
       alive = false;
       window.removeEventListener("hashchange", openGame);
     };
-  }, [replace, t.board, t.team, t.storageError, t.shareInvalid]);
+  }, [replace, t.board, t.team]);
   useEffect(() => {
-    if (ready && id !== initialBoardId) {
+    if (id !== initialBoardId) {
       try {
         localStorage.setItem("scoreboard-active", id);
       } catch {}
     }
-  }, [id, ready]);
+  }, [id]);
   const update = useCallback(
     (change: (b: Board) => Board) => {
+      hasLocalChanges.current = true;
       const all = current.current;
       const old = all.find((b) => b.id === id);
       if (!old) return;
@@ -218,6 +308,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
       if (orderChanged && teamGridRef.current) {
         teamLayoutSnapshotRef.current = readTeamBounds(teamGridRef.current);
       }
+      setUndoBoards((previous) => [...previous.slice(-49), old]);
       const next = { ...changed, updatedAt: Date.now() };
       replace(all.map((b) => (b.id === id ? next : b)));
       persist([next]);
@@ -270,7 +361,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
     };
     const key = (e: KeyboardEvent) => {
       if (
-        !ready ||
         (e.target instanceof HTMLElement &&
           (e.target.closest("input,textarea,select,dialog") || e.target.isContentEditable)) ||
         e.ctrlKey ||
@@ -293,18 +383,19 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
       document.removeEventListener("fullscreenchange", change);
       window.removeEventListener("keydown", key);
     };
-  }, [toggleFull, changeFullscreen, action, dialogMode, board, score, appearance.increment, ready]);
+  }, [toggleFull, changeFullscreen, action, dialogMode, board, score, appearance.increment]);
   const saveNamed = async (name: string): Promise<Board> => {
     const latest = current.current.find((b) => b.id === id);
     if (!latest) throw new Error("missing");
+    hasLocalChanges.current = true;
     const next = { ...latest, name, automaticName: false, updatedAt: Date.now() };
     replace(current.current.map((b) => (b.id === id ? next : b)));
     try {
       await writeBoards([next]);
-      setError("");
+      setError(undefined);
       return next;
     } catch {
-      setError(t.storageError);
+      setError("storage");
       throw new Error("save");
     }
   };
@@ -323,8 +414,10 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
     setAction({ title, run, value: initial });
   };
   const addBoard = () => {
+    hasLocalChanges.current = true;
     const b = newBoard(t.board, t.team);
     replace([...current.current, b]);
+    selectedId.current = b.id;
     setId(b.id);
     persist([b]);
     track("create_scoreboard");
@@ -347,37 +440,11 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
         className={
           full
             ? "relative mx-auto flex h-dvh max-w-[160rem] flex-col p-3 sm:p-4"
-            : "mx-auto max-w-6xl px-4 pt-2 pb-8 sm:px-6 sm:pt-3 sm:pb-10"
+            : "mx-auto max-w-[1600px] px-4 pt-2 pb-8 sm:px-6 sm:pt-3 sm:pb-10"
         }
       >
         <h1 className="sr-only">{t.scoreboardPageTitle}</h1>
-
-        {showStarPrompt && !full && (
-          <div
-            role="status"
-            className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-lg border border-forest/15 bg-surface px-2.5 py-2 text-sm sm:gap-3"
-          >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-forest/10">
-              <Star aria-hidden="true" className="h-4 w-4 text-forest" />
-            </span>
-            <p className="min-w-0 flex-1 text-sm leading-5 text-ink/85">{t.githubStarNote}</p>
-            <a
-              href={repo}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-8 shrink-0 items-center rounded-md px-2 text-sm font-semibold text-forest transition-colors duration-150 hover:bg-forest/10 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none"
-            >
-              {t.githubStarAction}
-            </a>
-            <Button
-              aria-label={t.close}
-              onClick={() => setShowStarPrompt(false)}
-              className="min-h-8 min-w-8 shrink-0 p-1.5"
-            >
-              <X aria-hidden="true" className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <DailyGithubStarNotice lang={lang} />
 
         {notice && (
           <div
@@ -394,23 +461,45 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
         )}
         {error && (
           <div
-            role="alert"
-            className="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 text-base text-red-900 dark:bg-red-950/40 dark:text-red-200"
+            role={error === "storage" ? "status" : "alert"}
+            aria-live={error === "storage" ? "polite" : "assertive"}
+            className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-forest/20 bg-paper px-3 py-2 text-ink shadow-sm"
           >
-            {error} <Button onClick={() => persist(boards)}>{t.retry}</Button>
-            <Button onClick={() => download(boards)}>{t.export}</Button>
+            <div className="flex min-w-0 flex-1 items-start gap-2">
+              <CircleAlert aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
+              <p className="min-w-0 text-sm leading-5 break-words">
+                {error === "storage" ? t.storageUnavailable : t.shareInvalid}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              {error === "storage" && (
+                <>
+                  <Button
+                    disabled={pending > 0}
+                    onClick={() => persist(current.current)}
+                    className="min-h-9 px-3 py-1 text-sm"
+                  >
+                    {t.retry}
+                  </Button>
+                  <Button
+                    onClick={() => download(current.current)}
+                    className="min-h-9 px-3 py-1 text-sm"
+                  >
+                    {t.export}
+                  </Button>
+                </>
+              )}
+              <Button
+                aria-label={t.close}
+                onClick={() => setError(undefined)}
+                className="min-h-9 px-3 py-1 text-lg leading-none"
+              >
+                ×
+              </Button>
+            </div>
           </div>
         )}
-        {!ready && (
-          <p aria-live="polite" className="py-2 text-center">
-            {t.loading}
-          </p>
-        )}
-        <div
-          aria-busy={!ready}
-          inert={!ready}
-          className={full ? "flex min-h-0 flex-1 flex-col" : ""}
-        >
+        <div className={full ? "flex min-h-0 flex-1 flex-col" : ""}>
           {board ? (
             <section aria-label={t.board} className="flex min-h-0 flex-1 flex-col">
               {full ? (
@@ -454,17 +543,34 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                         <span
                           style={
                             {
-                              "--accent": validColor(board.accent) ? board.accent : "#285b35",
-                              "--accent-text": foreground(
-                                validColor(board.accent) ? board.accent : "#285b35",
-                              ),
+                              "--accent": validColor(board.accent)
+                                ? board.accent
+                                : "var(--color-forest)",
+                              "--accent-text": validColor(board.accent)
+                                ? foreground(board.accent)
+                                : "var(--color-on-action)",
                             } as CSSProperties
                           }
                           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--accent-text)]"
                         >
                           <BoardIcon id={board.icon} />
                         </span>
-                        <span className="min-w-0 [overflow-wrap:anywhere]">{board.name}</span>
+                        <label className="min-w-0 flex-1">
+                          <span className="sr-only">{t.boardName}</span>
+                          <input
+                            aria-label={t.boardName}
+                            maxLength={200}
+                            value={board.name}
+                            onChange={(event) =>
+                              update((current) => ({
+                                ...current,
+                                name: event.target.value,
+                                automaticName: false,
+                              }))
+                            }
+                            className="min-h-10 w-full min-w-0 border-b border-transparent bg-transparent px-1 font-display text-xl font-bold tracking-tight text-ink hover:border-forest/25 focus-visible:border-forest focus-visible:outline-none sm:text-2xl"
+                          />
+                        </label>
                       </span>
                     </h2>
                     <div className="flex shrink-0 items-center gap-2">
@@ -556,65 +662,96 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                 </>
               )}
 
-              {board.timer?.enabled && (
-                <TimerDisplay
-                  timer={board.timer}
-                  t={t}
-                  change={changeTimer}
-                  full={full}
-                  controlsVisible={controls.visible}
-                  textScale={appearance.textScaleEnabled ? appearance.timerScale : 100}
-                />
-              )}
               <div
-                ref={teamGridRef}
-                style={{ "--board-background": board.background || "transparent" } as CSSProperties}
-                className={`min-h-0 flex-1 gap-3 bg-[var(--board-background)] ${board.background ? "rounded-xl p-2" : ""} ${teamGridClass(board.teams.length, appearance.layout, full)}`}
+                ref={boardOutputRef}
+                style={
+                  {
+                    "--board-background": board.background || "transparent",
+                    ...(board.canvas
+                      ? {
+                          aspectRatio: `${board.canvas.width} / ${board.canvas.height}`,
+                          width: `min(100%, ${Math.round(720 * (board.canvas.width / board.canvas.height))}px)`,
+                        }
+                      : {}),
+                  } as CSSProperties
+                }
+                className={`mx-auto flex min-h-0 min-w-0 flex-col bg-[var(--board-background)] ${board.canvas ? "max-w-full" : "w-full flex-1"} ${board.background ? "rounded-xl p-2" : ""}`}
               >
-                {board.teams.map((team, index) => (
-                  <TeamPanel
-                    key={team.id}
-                    team={team}
-                    color={board.color}
-                    textColor={board.textColor}
-                    paused={isGamePaused(board.timer)}
-                    appearance={appearance}
-                    controlsVisible={controls.visible}
-                    index={index}
-                    count={board.teams.length}
-                    full={full}
+                {board.timer?.enabled && (
+                  <TimerDisplay
+                    timer={board.timer}
                     t={t}
-                    change={(amount) => score(team.id, amount * appearance.increment)}
-                    manual={() => {
-                      if (isGamePaused(board.timer)) {
-                        if (appearance.showPausedNotice) setNotice(t.matchPaused);
-                        return;
-                      }
-                      setValue(String(team.score));
-                      setAction({
-                        title: `${team.name}: ${t.score}`,
-                        value: String(team.score),
-                        numeric: true,
-                        run: (value) => teamEdit(team.id, { score: Number(value) }),
-                      });
-                    }}
+                    change={changeTimer}
+                    full={full}
+                    controlsVisible={controls.visible}
+                    textScale={appearance.textScaleEnabled ? appearance.timerScale : 100}
                   />
-                ))}
+                )}
+                <div
+                  ref={teamGridRef}
+                  style={{ "--board-background": "transparent" } as CSSProperties}
+                  className={`min-h-0 flex-1 gap-3 ${teamGridClass(board.teams.length, appearance.layout, full, board.canvas)}`}
+                >
+                  {board.teams.map((team, index) => (
+                    <TeamPanel
+                      key={team.id}
+                      team={team}
+                      color={board.themeId ? board.background : board.color}
+                      textColor={board.textColor}
+                      paused={isGamePaused(board.timer)}
+                      appearance={appearance}
+                      controlsVisible={controls.visible}
+                      index={index}
+                      count={board.teams.length}
+                      full={full}
+                      t={t}
+                      change={(amount) => score(team.id, amount * appearance.increment)}
+                      manual={() => {
+                        if (isGamePaused(board.timer)) {
+                          if (appearance.showPausedNotice) setNotice(t.matchPaused);
+                          return;
+                        }
+                        setValue(String(team.score));
+                        setAction({
+                          title: `${team.name}: ${t.score}`,
+                          value: String(team.score),
+                          numeric: true,
+                          run: (value) => teamEdit(team.id, { score: Number(value) }),
+                        });
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </section>
-          ) : ready ? (
+          ) : (
             <section className="rounded-xl bg-forest/5 px-5 py-12 text-center">
               <h2 className="font-display text-xl font-semibold">{t.empty}</h2>
               <Button onClick={addBoard} className="mt-5">
                 {t.create}
               </Button>
             </section>
-          ) : null}
+          )}
           {!full && (
             <>
-              {ready && board && (
+              {board && (
                 <>
-                  <div className="mt-3 flex justify-end">
+                  <div className="mt-3 flex justify-end gap-2">
+                    <Button
+                      disabled={!undoBoards.some((previous) => previous.id === id)}
+                      onClick={() => {
+                        const previous = undoBoards.findLast((saved) => saved.id === id);
+                        if (!previous) return;
+                        const index = undoBoards.lastIndexOf(previous);
+                        setUndoBoards(undoBoards.filter((_, position) => position !== index));
+                        replace(
+                          current.current.map((saved) => (saved.id === id ? previous : saved)),
+                        );
+                        persist([previous]);
+                      }}
+                    >
+                      {t.undoAction}
+                    </Button>
                     <Button
                       onClick={() => {
                         const reset = () =>
@@ -623,11 +760,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                             teams: b.teams.map((team) => ({ ...team, score: 0 })),
                           }));
 
-                        if (window.matchMedia("(pointer: coarse), (max-width: 767px)").matches) {
-                          if (window.confirm(t.resetConfirm)) reset();
-                          return;
-                        }
-
                         ask(t.resetConfirm, reset);
                       }}
                     >
@@ -635,10 +767,11 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                     </Button>
                   </div>
                   <Customization
+                    lang={lang}
                     board={board}
                     t={t}
                     change={update}
-                    renameBoard={(name) => update((b) => ({ ...b, name, automaticName: false }))}
+                    exportImage={exportBoard}
                     remove={(teamId) =>
                       ask(t.deleteConfirm, () => {
                         const removeTeam = () =>
