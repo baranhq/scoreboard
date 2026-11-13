@@ -1,4 +1,14 @@
 node_modules/
+.*-skill/
+# Ignore hidden root directories, except project configuration.
+/.*/
+!/.agents/
+!/.agents/**
+/.agents/skills/
+!/.codex/
+!/.codex/**
+!/.github/
+!/.github/**
 out/
 coverage/
 .env*
