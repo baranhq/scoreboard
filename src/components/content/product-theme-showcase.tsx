@@ -186,6 +186,7 @@ export function ProductThemeShowcase({
           tool={tool}
           lang={lang}
           compact
+          showHeader={false}
           autoplay={false}
           fillPreview={tool === "bracket"}
           readOnly
