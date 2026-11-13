@@ -37,6 +37,10 @@ export function ProductThemeShowcase({
   const { dark } = useSiteThemeMode();
   const [chosenTheme, setChosenTheme] = useState<number | null>(null);
   const theme = chosenTheme ?? (dark ? 1 : 3);
+  const [stableLayout] = useState(() => {
+    const { density, roundGap, matchGap } = toolThemes[dark ? 1 : 3];
+    return { density, roundGap, matchGap };
+  });
   const [expanded, setExpanded] = useState(false);
   const [scoreTeamCount, setScoreTeamCount] = useState(2);
   const [showLimit, setShowLimit] = useState(false);
@@ -54,6 +58,7 @@ export function ProductThemeShowcase({
   const selectedTheme: ToolTheme = {
     ...preset,
     ...colors,
+    ...(tool !== "scoreboard" ? stableLayout : {}),
   };
   const setPreset = (index: number) => {
     setChosenTheme(index);
