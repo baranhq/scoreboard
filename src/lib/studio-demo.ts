@@ -22,7 +22,7 @@ export function studioDemo(kind: StudioDocument["kind"], lang: Lang): StudioDocu
     ].map((cells, index) => ({
       id: `row-${index}`,
       cells,
-      highlighted: index === 0,
+      highlighted: false,
     }));
     return board;
   }

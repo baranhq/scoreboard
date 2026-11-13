@@ -566,6 +566,14 @@ test("every supported bracket size resolves to one champion with each participan
   }
 });
 
+test("leaderboard demos do not start with a highlighted row", () => {
+  for (const lang of ["en", "bg", "tr"] as const) {
+    const demo = studioDemo("leaderboard", lang);
+    if (demo.kind !== "leaderboard") throw new Error("Expected a leaderboard demo");
+    assert.ok(demo.rows.every((row) => !row.highlighted));
+  }
+});
+
 test("leaderboard demo updates standings and resets its animation loop", () => {
   const initial = studioDemo("leaderboard", "en");
   assert.equal(initial.kind, "leaderboard");
