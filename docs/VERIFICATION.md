@@ -22,7 +22,7 @@ The GitHub Checks workflow runs these gates with Node.js 24. A successful local 
 - Production export: 45 generated routes, including 24 canonical public pages; one HTML title/H1, reciprocal hreflang, canonical URLs, robots directives, sitemap, static internal links and truthful JSON-LD. SVG accessibility titles are excluded from the HTML document-title count.
 - Browser checks: tool navigation, responsive editors, saving/reopening, scoring and exported PNGs. Development-only Demo data / Worst case controls provide 100-row/10-column and 64-participant fixtures without touching saved records.
 
-The platform introduces no runtime dependencies. An advisory-feed check on 10 November 2026 returned no known npm vulnerabilities. This is time-specific, not a security guarantee.
+The CI dependency gate runs `npm audit --audit-level=high`; a pass at that threshold does not rule out moderate or low advisories. The lockfile pins Next.js 16.4.4, while the upstream 16.4.5 release includes fixes for multiple moderate advisories published on 3 November 2026. The production artifact is a static export, and the repository does not use Next.js route handlers, `use cache`, or image optimisation, so those advisory paths are not present in the deployed runtime. Recheck the dependency tree and production build when upgrading to a patched release. ([Next.js security advisories](https://github.com/vercel/next.js/security/advisories), [Next.js 16.4.5 release](https://github.com/vercel/next.js/releases/tag/v16.4.5))
 
 ## Limits and release checks
 
