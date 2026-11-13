@@ -89,7 +89,8 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
                 fillPreview={!isScoreboard}
                 showReadOnlyControls
                 showResultControls={false}
-                showFullscreenControl={!isScoreboard}
+                showFullscreenControl={false}
+                showResetControl={false}
               />
             </div>
             {isScoreboard ? (

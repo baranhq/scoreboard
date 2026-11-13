@@ -38,6 +38,7 @@ export function ToolDemo({
   readOnly = false,
   showPlaybackControls = true,
   showFullscreenControl = false,
+  showResetControl = true,
   showResultControls = true,
   controlledPlayback = false,
   showReadOnlyControls = false,
@@ -59,6 +60,7 @@ export function ToolDemo({
   readOnly?: boolean;
   showPlaybackControls?: boolean;
   showFullscreenControl?: boolean;
+  showResetControl?: boolean;
   showResultControls?: boolean;
   controlledPlayback?: boolean;
   showReadOnlyControls?: boolean;
@@ -131,6 +133,7 @@ export function ToolDemo({
       fillPreview={fillPreview}
       showPlaybackControls={showPlaybackControls}
       showFullscreenControl={showFullscreenControl}
+      showResetControl={showResetControl}
       readOnly={readOnly}
       showResultControls={showResultControls}
       controlledPlayback={controlledPlayback}
@@ -153,6 +156,7 @@ function StudioToolDemo({
   fillPreview,
   showPlaybackControls,
   showFullscreenControl,
+  showResetControl,
   readOnly,
   showResultControls,
   controlledPlayback,
@@ -170,6 +174,7 @@ function StudioToolDemo({
   fillPreview: boolean;
   showPlaybackControls: boolean;
   showFullscreenControl: boolean;
+  showResetControl: boolean;
   readOnly: boolean;
   showResultControls: boolean;
   controlledPlayback: boolean;
@@ -361,6 +366,7 @@ function StudioToolDemo({
                   }}
                   onToggle={togglePlayback}
                   onReset={resetPlayback}
+                  showReset={showResetControl}
                 />
               )}
             </div>
