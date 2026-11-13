@@ -109,7 +109,34 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 controlledPlayback
               />
             </div>
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-white/15 pt-2 sm:mt-4 sm:pt-3">
+            <div className="mt-2 border-t border-white/15 pt-2">
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                onClick={() => {
+                  pause();
+                  setThemePromptOpen(true);
+                }}
+                className="group inline-flex min-h-11 max-w-full items-center gap-2 rounded-md text-left text-sm text-white/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime motion-reduce:transition-none"
+              >
+                <span
+                  aria-hidden="true"
+                  className="size-3 shrink-0 rounded-full border border-white/30"
+                  style={{ backgroundColor: demoTheme.accent }}
+                />
+                <span className="min-w-0">
+                  {t.demoThemeLabel}:{" "}
+                  <strong className="font-semibold text-white">{demoThemeLabel}</strong>
+                </span>
+                <ArrowUpRight
+                  size={16}
+                  aria-hidden="true"
+                  className="shrink-0"
+                  style={{ color: demoTheme.accent }}
+                />
+              </button>
+            </div>
+            <div className="mt-1 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
               <Link
                 href={route(lang, editors[tool])}
                 className="inline-flex min-h-11 items-center gap-2 font-semibold"
@@ -128,34 +155,6 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 className="min-h-11 px-2 text-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime"
               >
                 {playing ? messages[lang].pausePreview : messages[lang].playPreview}
-              </button>
-            </div>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
-              <p className="flex min-w-0 items-center gap-2 text-sm text-white/70">
-                <span
-                  aria-hidden="true"
-                  className="size-3 shrink-0 rounded-full border border-white/30"
-                  style={{ backgroundColor: demoTheme.accent }}
-                />
-                <span>
-                  {t.demoThemeLabel}:{" "}
-                  <strong className="font-semibold text-white">{demoThemeLabel}</strong>
-                </span>
-              </p>
-              <button
-                type="button"
-                aria-haspopup="dialog"
-                onClick={() => {
-                  pause();
-                  setThemePromptOpen(true);
-                }}
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/[0.035] px-3 py-2 text-sm font-semibold text-lime transition-colors hover:bg-white/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime motion-reduce:transition-none"
-                style={{
-                  color: demoTheme.accent,
-                }}
-              >
-                {t.demoThemeAction}
-                <ArrowUpRight size={16} aria-hidden="true" />
               </button>
             </div>
             {themePromptOpen && (
