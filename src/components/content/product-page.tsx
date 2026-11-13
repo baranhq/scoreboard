@@ -5,6 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Frame } from "@/components/layout/frame";
 import { messages, type Lang } from "@/lib/i18n";
 import { studioCopy } from "@/lib/studio-copy";
+import { themeLabels, toolThemes } from "@/lib/tool-themes";
 import { route } from "@/lib/routes";
 import { siteOrigin, brand, repo } from "@/lib/site";
 import { ToolDemo, type Tool } from "./tool-demo";
@@ -13,6 +14,7 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
   const t = studioCopy[lang];
   const content = toolContent(lang, tool);
   const isScoreboard = tool === "scoreboard";
+  const demoTheme = toolThemes[1];
   const previewFrameClass = isScoreboard
     ? "h-[clamp(24rem,46svh,35rem)] lg:min-h-0"
     : tool === "leaderboard"
@@ -81,6 +83,7 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
                 tool={tool}
                 lang={lang}
                 compact
+                theme={isScoreboard ? demoTheme : undefined}
                 readOnly
                 showPreviewLabel={!isScoreboard}
                 fillPreview={!isScoreboard}
@@ -90,9 +93,20 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
               />
             </div>
             {isScoreboard ? (
-              <p className="mt-4 max-w-4xl text-sm leading-6 text-white/75 lg:col-span-2">
-                {content.features}
-              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm leading-6">
+                <p className="max-w-4xl text-white/75">{content.features}</p>
+                <p className="flex items-center gap-2 text-white/70">
+                  <span
+                    aria-hidden="true"
+                    className="size-3 shrink-0 rounded-full border border-white/30"
+                    style={{ backgroundColor: demoTheme.accent }}
+                  />
+                  <span>
+                    {t.demoThemeLabel}:{" "}
+                    <strong className="font-semibold text-white">{themeLabels[lang][1]}</strong>
+                  </span>
+                </p>
+              </div>
             ) : (
               <ul className="grid grid-cols-1 gap-x-5 gap-y-2 border-t border-white/15 pt-4 text-sm leading-5 text-white/80 min-[480px]:grid-cols-2 sm:grid-cols-4 lg:col-span-2">
                 {content.features.split(" · ").map((feature) => (
