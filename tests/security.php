@@ -32,7 +32,9 @@ check(str_contains($renderedPolicy,'id="policy-content" class="max-w-3xl min-w-0
 check(str_contains($renderedPolicy,'id="policy-section-0"'),'policy section anchor');
 check(str_contains($renderedPolicy,'data-fullscreen-control="true"'),'privacy settings button in rendered policy');
 check(str_contains($policyTopics,'href="#policy-section-0"'),'policy contents match rendered section anchors');
+check(str_contains($policyTopics,'data-topic-navigation="mobile"')&&str_contains($policyTopics,'data-topic-navigation="desktop"'),'policy navigation has stable replacement markers');
 $topicComponent=file_get_contents(__DIR__.'/../src/components/content/topic-navigation.tsx');
+check(str_contains($topicComponent,'data-topic-navigation="mobile"')&&str_contains($topicComponent,'data-topic-navigation="desktop"'),'hydrated policy navigation keeps the server markers');
 preg_match_all('/class="([^"]*)"/u',$policyTopics,$topicClasses);
 foreach($topicClasses[1] as $classes){
     check(str_contains($topicComponent,'className="'.$classes.'"'),'server policy navigation classes match the hydrated component');
@@ -109,11 +111,16 @@ function admin_route_response(string $path, string $documentRoot): array {
 [$body,$status]=admin_route_response('/admin',$webRoot);check($status==='404'&&!str_contains($body,'/baranhq_admin'),'default admin entry does not reveal custom private path');
 [$body,$status]=admin_route_response('/admin/',$webRoot);check($status==='404','default admin trailing slash is also not found');
 [$body,$status]=admin_route_response('/baranhq_admin',$webRoot);check(str_ends_with($status,'503')&&str_contains($body,'Administration is temporarily unavailable')&&!str_contains($body,'Request unavailable'),'admin configuration failure renders safe HTML');
+mkdir($accountPrivate.'/policies',0700);
+mkdir($webRoot.'/en/privacy',0700,true);
+file_put_contents($accountPrivate.'/policies/en.json',json_encode(['title'=>'Privacy Policy','content'=>"## Summary\n\nA valid privacy policy for route rendering.",'revision'=>0,'updatedAt'=>'2026-11-13'],JSON_THROW_ON_ERROR));
+file_put_contents($webRoot.'/en/privacy/index.html','<!doctype html><html><head><title>Privacy</title></head><body><details><summary>Site menu</summary></details><details><summary>Language menu</summary></details><main><script id="policy-document" type="application/json">{"title":"Static policy"}</script><details data-topic-navigation="mobile"><summary>On this page</summary></details><aside data-topic-navigation="desktop"><nav>On this page</nav></aside><article id="policy-content"><p>Static policy</p></article></main></body></html>');
+[$body,$status]=admin_route_response('/en/privacy/',$webRoot);check(($status===''||str_ends_with($status,'200'))&&str_contains($body,'id="policy-document"')&&str_contains($body,'id="policy-content"')&&str_contains($body,'A valid privacy policy for route rendering.')&&!str_contains($body,'Request unavailable'),'public privacy route preserves its data and renders HTML with site navigation present');
 [$body,$status]=admin_route_response('/unknown-page',$webRoot);check($status==='404','unknown single-segment routes remain not found');
 file_put_contents($accountEnv,"ADMIN_PATH=\n");
 [$body,$status]=admin_route_response('/admin',$webRoot);check(str_ends_with($status,'503')&&str_contains($body,'Administration is temporarily unavailable'),'empty admin path defaults to admin');
 chmod($accountEnv,0644);try{configuration();throw new LogicException('insecure discovered config accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'discovered private config requires restrictive permissions');}
-unlink($accountEnv);rmdir($accountPrivate);rmdir($webRoot);rmdir($root.'/public_html');
+unlink($webRoot.'/en/privacy/index.html');rmdir($webRoot.'/en/privacy');rmdir($webRoot.'/en');unlink($accountPrivate.'/policies/en.json');rmdir($accountPrivate.'/policies');unlink($accountEnv);rmdir($accountPrivate);rmdir($webRoot);rmdir($root.'/public_html');
 foreach($oldEnvironment as $name=>$value){if($value===false)putenv($name);else putenv($name.'='.$value);}
 if($oldServerFile===null)unset($_SERVER['SCOREBOARD_ENV_FILE']);else $_SERVER['SCOREBOARD_ENV_FILE']=$oldServerFile;if($oldRoot===null)unset($_SERVER['DOCUMENT_ROOT']);else $_SERVER['DOCUMENT_ROOT']=$oldRoot;
 unlink($env);rmdir($private);rmdir($public);rmdir($root);
