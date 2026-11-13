@@ -189,7 +189,7 @@ function StudioToolDemo({
           ...sample.style,
           titleVisible: false,
           subtitleVisible: false,
-          ...(widePreview && !expanded ? { density: "compact", roundGap: 400, matchGap: 28 } : {}),
+          ...(widePreview && !expanded ? { density: "compact", roundGap: 260, matchGap: 28 } : {}),
         };
       } else sample.gridColumns = expanded ? 2 : 1;
     }
