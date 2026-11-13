@@ -105,6 +105,7 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
                 compact
                 autoplay
                 readOnly
+                showHeader={false}
                 showReadOnlyControls={tool === "scoreboard"}
                 showPlaybackControls={false}
                 showResultControls={false}
