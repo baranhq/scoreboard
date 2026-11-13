@@ -30,7 +30,7 @@ export const campaignCopy = {
     views: {
       scoreboard: ["Two teams", "Three teams"],
       leaderboard: ["Standings", "Multiple columns"],
-      bracket: ["One side", "Two sides", "Automatic byes"],
+      bracket: ["One side", "Two sides", "Some players move on without a match"],
     },
   },
   bg: {
@@ -63,7 +63,7 @@ export const campaignCopy = {
     views: {
       scoreboard: ["Два отбора", "Три отбора"],
       leaderboard: ["Класиране", "Няколко колони"],
-      bracket: ["Едностранна схема", "Двустранна схема", "Автоматично преминаване напред"],
+      bracket: ["Едностранна схема", "Двустранна схема", "Някои участници продължават без мач"],
     },
   },
   tr: {
@@ -99,7 +99,7 @@ export const campaignCopy = {
     views: {
       scoreboard: ["İki takım", "Üç takım"],
       leaderboard: ["Sıralama", "Birden çok sütun"],
-      bracket: ["Tek taraflı", "İki taraflı", "Otomatik maçsız geçiş"],
+      bracket: ["Tek taraflı", "İki taraflı", "Bazı oyuncular maç yapmadan ilerler"],
     },
   },
 } satisfies Record<Lang, unknown>;
