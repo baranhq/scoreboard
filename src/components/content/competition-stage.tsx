@@ -35,9 +35,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   const demoTheme = toolThemes[1];
   const demoThemeLabel = themeLabels[lang][1];
   const previewHeightClass =
-    tool === "scoreboard"
-      ? "h-[clamp(17rem,40svh,24rem)] sm:h-[clamp(18rem,40svh,25rem)] lg:h-[clamp(17rem,38svh,24rem)]"
-      : "h-[clamp(17rem,40svh,24rem)] sm:h-[clamp(22rem,70svh,40rem)] lg:h-[clamp(22rem,60svh,36rem)]";
+    "h-[clamp(17rem,40svh,24rem)] sm:h-[clamp(22rem,70svh,40rem)] lg:h-[clamp(22rem,60svh,36rem)]";
 
   useEffect(() => {
     const preview = previewRef.current;
