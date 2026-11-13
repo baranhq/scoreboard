@@ -184,7 +184,7 @@ function StudioToolDemo({
           subtitleVisible: false,
           ...(widePreview && !expanded ? { density: "compact", roundGap: 400, matchGap: 28 } : {}),
         };
-      } else sample.gridColumns = widePreview || expanded ? 2 : 1;
+      } else sample.gridColumns = expanded ? 2 : 1;
     }
     if (hideHeading)
       sample.style = { ...sample.style, titleVisible: false, subtitleVisible: false };
