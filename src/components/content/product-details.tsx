@@ -113,7 +113,7 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           </figure>
         </div>
       </section>
-      <section className="bg-campaign text-campaign-ink">
+      <section className="bg-campaign-muted text-campaign-ink dark:bg-campaign">
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
           <h2 className="max-w-[22ch] font-display text-4xl leading-[1.02] font-bold tracking-[-0.045em] sm:text-5xl">
             {copy.advanced[0]}
@@ -135,33 +135,39 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
         </div>
       </section>
       <section
-        className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20"
+        className="bg-campaign-soft dark:bg-campaign-muted"
         aria-labelledby="product-faq-title"
       >
-        <h2
-          id="product-faq-title"
-          className="mb-7 font-display text-4xl font-bold tracking-[-0.04em] sm:text-5xl"
-        >
-          {locale.questions}
-        </h2>
-        <div className="border-t border-forest/25">
-          {copy.faq.map(([question, answer], index) => (
-            <details key={question} name="product-faq" className="group border-b border-forest/20">
-              <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-5 py-4 font-semibold [&::-webkit-details-marker]:hidden">
-                <span>{question}</span>
-                <ChevronDown
-                  className="size-5 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                  aria-hidden="true"
-                />
-              </summary>
-              <p id={`answer-${index}`} className="max-w-4xl pb-6 leading-8 text-ink/75">
-                {answer}
-              </p>
-            </details>
-          ))}
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
+          <h2
+            id="product-faq-title"
+            className="mb-7 font-display text-4xl font-bold tracking-[-0.04em] sm:text-5xl"
+          >
+            {locale.questions}
+          </h2>
+          <div className="border-t border-forest/25">
+            {copy.faq.map(([question, answer], index) => (
+              <details
+                key={question}
+                name="product-faq"
+                className="group border-b border-forest/20"
+              >
+                <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-5 py-4 font-semibold [&::-webkit-details-marker]:hidden">
+                  <span>{question}</span>
+                  <ChevronDown
+                    className="size-5 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <p id={`answer-${index}`} className="max-w-4xl pb-6 leading-8 text-ink/75">
+                  {answer}
+                </p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
-      <section className="bg-action text-on-action">
+      <section className="bg-campaign text-campaign-ink">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-7 px-5 py-10 sm:px-8 sm:py-14">
           <h2 className="max-w-[20ch] font-display text-[clamp(3rem,6vw,6rem)] leading-[0.98] font-bold tracking-[-0.04em]">
             {copy.close}
