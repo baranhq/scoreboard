@@ -63,10 +63,11 @@ export function EditorShell({
   const previewCanvasClass =
     "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-full [&>svg]:!max-h-full [&>svg]:!w-full [&>svg]:!max-w-full";
   const fullscreenOnDark = fullscreen && foreground(doc.style.background) === "#ffffff";
+  const previewBackground = doc.style.gradient
+    ? `linear-gradient(135deg, ${doc.style.background}, ${doc.style.backgroundEnd || doc.style.accent})`
+    : doc.style.background;
   const fullscreenStyle: CSSProperties = {
-    background: doc.style.gradient
-      ? `linear-gradient(135deg, ${doc.style.background}, ${doc.style.backgroundEnd || doc.style.accent})`
-      : doc.style.background,
+    background: previewBackground,
     color: readableText(doc.style.background, doc.style.textColor),
   };
   const previewParticipant =
@@ -327,7 +328,13 @@ export function EditorShell({
             </div>
             <div
               ref={previewViewport}
-              className={`min-h-0 flex-1 overflow-auto overscroll-contain rounded-lg border p-2 focus-visible:outline-offset-0 sm:p-4 ${fullscreen ? "border-transparent bg-transparent" : "border-forest/20 bg-forest/5"}`}
+              style={{
+                background: previewBackground,
+                borderColor: fullscreen
+                  ? "transparent"
+                  : `color-mix(in srgb, ${doc.style.accent} 20%, transparent)`,
+              }}
+              className={`min-h-0 flex-1 overflow-auto overscroll-contain rounded-lg border p-2 focus-visible:outline-offset-0 sm:p-4 ${fullscreen ? "border-transparent bg-transparent" : ""}`}
               tabIndex={0}
               aria-label={t.scrollHint}
             >
