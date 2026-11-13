@@ -161,7 +161,7 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           ))}
         </div>
       </section>
-      <section className="bg-campaign text-campaign-ink">
+      <section className="bg-action text-on-action">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-7 px-5 py-10 sm:px-8 sm:py-14">
           <h2 className="max-w-[20ch] font-display text-[clamp(3rem,6vw,6rem)] leading-[0.98] font-bold tracking-[-0.04em]">
             {copy.close}
