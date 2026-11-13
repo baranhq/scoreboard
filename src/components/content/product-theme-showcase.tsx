@@ -100,7 +100,7 @@ export function ProductThemeShowcase({
             </button>
           ))}
         </div>
-        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-2 sm:flex sm:justify-between">
+        <div className="grid h-[4.25rem] min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-2 sm:flex sm:justify-between">
           {tool === "scoreboard" ? (
             <div
               className="relative flex shrink-0 items-center gap-1.5"
@@ -145,7 +145,9 @@ export function ProductThemeShowcase({
             </div>
           ) : (
             <label className="grid min-w-0 gap-1 text-sm font-semibold sm:w-56">
-              {tool === "leaderboard" ? t.leaderboardLayout : t.layout}
+              <span className="truncate">
+                {tool === "leaderboard" ? t.leaderboardLayout : t.layout}
+              </span>
               <Select
                 label={tool === "leaderboard" ? t.leaderboardLayout : t.layout}
                 value={expanded ? "expanded" : "default"}
@@ -175,13 +177,7 @@ export function ProductThemeShowcase({
           </Button>
         </div>
       </div>
-      <div
-        className={
-          tool === "bracket"
-            ? "-mx-5 h-auto min-w-0 overflow-hidden sm:mx-0 sm:h-[31rem]"
-            : "h-[30rem] min-w-0 overflow-hidden rounded-xl border border-forest/20 sm:h-[31rem]"
-        }
-      >
+      <div className="h-[30rem] min-w-0 overflow-hidden rounded-xl border border-forest/20 sm:h-[31rem]">
         <ToolDemo
           tool={tool}
           lang={lang}

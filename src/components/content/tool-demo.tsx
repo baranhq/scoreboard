@@ -294,19 +294,14 @@ function StudioToolDemo({
           )
       : undefined;
   const labels = messages[lang];
-  const bareCompactPreview = barePreview && compact;
   const frameClass = fullscreen
     ? "fixed inset-0 z-[100] h-[100dvh] w-screen max-w-none rounded-none border-0 shadow-none"
     : compact
-      ? bareCompactPreview
-        ? "h-auto rounded-none sm:h-full"
-        : "h-full rounded-none"
+      ? "h-full rounded-none"
       : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]";
-  const graphicViewportClass = bareCompactPreview
-    ? "flex items-center justify-center sm:min-h-0 sm:flex-1 sm:overflow-hidden"
-    : compact
-      ? `flex min-h-0 flex-1 items-center justify-center ${fullscreen ? "overflow-auto" : "overflow-hidden"}`
-      : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto";
+  const graphicViewportClass = compact
+    ? `flex min-h-0 flex-1 items-center justify-center ${fullscreen ? "overflow-auto" : "overflow-hidden"}`
+    : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto";
   const graphicWidthClass =
     compact && (widePreview || fillPreview || fullscreen) ? "[&>svg]:!w-full" : "[&>svg]:!w-auto";
 
@@ -374,7 +369,7 @@ function StudioToolDemo({
       )}
 
       <div
-        className={`min-w-0 gap-3 ${compact ? `flex flex-col ${bareCompactPreview ? "flex-none overflow-visible p-0 sm:min-h-0 sm:flex-1 sm:overflow-hidden" : `min-h-0 flex-1 overflow-hidden ${barePreview ? "p-0" : "p-3 sm:p-4"}`}` : "grid items-start p-3 sm:p-4 lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
+        className={`min-w-0 gap-3 ${compact ? `flex min-h-0 flex-1 flex-col overflow-hidden ${barePreview ? "p-0" : "p-3 sm:p-4"}` : "grid items-start p-3 sm:p-4 lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
         onFocusCapture={pause}
         onInputCapture={pause}
         onChangeCapture={pause}
@@ -397,10 +392,10 @@ function StudioToolDemo({
 
         <section
           aria-label={t.preview}
-          className={`min-w-0 ${compact ? (bareCompactPreview ? "sm:flex sm:min-h-0 sm:flex-1 sm:flex-col" : "flex min-h-0 flex-1 flex-col") : ""}`}
+          className={`min-w-0 ${compact ? "flex min-h-0 flex-1 flex-col" : ""}`}
         >
           <div
-            className={`${graphicViewportClass} overscroll-contain ${barePreview ? "bg-transparent" : "bg-paper"} [&>svg]:!block [&>svg]:!h-auto ${bareCompactPreview ? "sm:[&>svg]:!max-h-full" : "[&>svg]:!max-h-full"} ${graphicWidthClass} [&>svg]:!max-w-full`}
+            className={`${graphicViewportClass} overscroll-contain ${barePreview ? "bg-transparent" : "bg-paper"} [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${graphicWidthClass} [&>svg]:!max-w-full`}
           >
             <Graphic
               document={document}
