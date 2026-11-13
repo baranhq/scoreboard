@@ -299,7 +299,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
               {match.players.map((id, side) => (
                 <div key={side} className="flex min-w-0 items-center gap-2">
                   <span className="min-w-0 flex-1 text-base [overflow-wrap:anywhere]">
-                    {id ? participantName(id) : match.pending ? t.pending : t.bye}
+                    {id ? participantName(id) : match.pending ? t.pending : t.noOpponent}
                   </span>
                   <input
                     aria-label={`${t.score}: ${id ? participantName(id) : t.pending}`}

@@ -162,7 +162,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
         stories: [
           [
             "Start with the people taking part.",
-            "Choose 2–64 participants, enter their names and arrange the initial order. Automatic byes handle a field that does not fill a power-of-two draw.",
+            "Choose 2–64 participants, enter their names and set the order. If someone has no opponent in the first round, they move on without playing.",
           ],
           [
             "A result becomes the next match.",
@@ -208,7 +208,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "What happens with an uneven participant count?",
-            "The bracket adds automatic byes where necessary. A bye advances its participant without requiring a played match.",
+            "If someone has no opponent in the first round, the bracket moves them to the next round without a match. It handles this automatically.",
           ],
           [
             "Can I correct an earlier winner?",
@@ -372,7 +372,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
         stories: [
           [
             "Започнете с участниците.",
-            "Добавете от 2 до 64 участници и подредете началния списък. Когато е нужно, част от тях преминават автоматично напред без среща.",
+            "Добавете от 2 до 64 участници и подредете началния списък. Ако някой няма съперник в първия кръг, продължава напред без мач.",
           ],
           [
             "Резултатът води към следващата среща.",
@@ -418,7 +418,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "Какво става при непълен брой участници?",
-            "Когато е нужно, схемата придвижва участник напред без изиграна среща.",
+            "Ако участник няма съперник в първия кръг, схемата го придвижва в следващия без мач.",
           ],
           [
             "Мога ли да коригирам по-ранен победител?",
@@ -577,7 +577,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
         stories: [
           [
             "Katılımcı listesini hazırlayın.",
-            "2–64 katılımcı ekleyip adlarını ve başlangıç sırasını belirleyin. Katılımcı sayısı şemayı doldurmadığında bazıları maç yapmadan sonraki tura geçer.",
+            "2–64 katılımcı ekleyip adlarını ve sıralarını belirleyin. İlk turda rakibi olmayan katılımcı maç yapmadan ilerler.",
           ],
           [
             "Bir sonuç, sonraki maçı belirler.",
@@ -618,7 +618,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "Katılımcı sayısı tabloyu doldurmazsa ne olur?",
-            "Şema gerektiğinde bir katılımcıyı maç yapmadan sonraki tura geçirir.",
+            "İlk turda rakibi olmayan katılımcı maç yapmadan sonraki tura geçer. Şema bunu otomatik yapar.",
           ],
           [
             "Önceki bir kazananı düzeltebilir miyim?",

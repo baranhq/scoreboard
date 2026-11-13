@@ -117,7 +117,8 @@ const en = {
   back: "About this tool",
   scoreFeatures: "Multiple teams · Timers & periods · Fullscreen · Snapshot links",
   leaderFeatures: "Flexible columns · Winner highlights · Visual presets · PNG export",
-  bracketFeatures: "2–64 participants · Automatic byes · Winner progression · PNG export",
+  bracketFeatures:
+    "2–64 participants · Some players move on without a match · Winner progression · PNG export",
   together: "From score to final.",
   togetherText:
     "Track the live result, rank participants by points and move each winner into the next round.",
@@ -231,7 +232,8 @@ const en = {
   final: "Final",
   champion: "Champion",
   pending: "To be decided",
-  bye: "Bye",
+  bye: "Advanced without a match",
+  noOpponent: "No opponent",
   results: "Match results",
   winner: "Winner",
   noWinner: "No winner yet",
@@ -377,7 +379,7 @@ const bg: Copy = {
   back: "За инструмента",
   scoreFeatures: "Няколко отбора · Таймер и периоди · Цял екран · Връзка за споделяне",
   leaderFeatures: "Гъвкави колони · Открояване на лидерите · Готови теми · PNG",
-  bracketFeatures: "2–64 участници · Автоматично преминаване напред · Победителят продължава · PNG",
+  bracketFeatures: "2–64 участници · Някои продължават без мач · Победителят продължава · PNG",
   together: "От резултата до финала.",
   togetherText:
     "Следете текущия резултат, подреждайте класирането по точки и преминавайте през турнирната схема с победителите.",
@@ -494,7 +496,8 @@ const bg: Copy = {
   final: "Финал",
   champion: "Шампион",
   pending: "Предстои",
-  bye: "Преминава без мач",
+  bye: "Премина без мач",
+  noOpponent: "Няма съперник",
   results: "Резултати от срещите",
   winner: "Победител",
   noWinner: "Все още няма победител",
@@ -640,7 +643,8 @@ const tr: Copy = {
   back: "Bu araç hakkında",
   scoreFeatures: "Birden çok takım · Zamanlayıcı ve devreler · Tam ekran · Paylaşım bağlantısı",
   leaderFeatures: "Esnek sütunlar · Lider vurgusu · Hazır temalar · PNG",
-  bracketFeatures: "2–64 katılımcı · Maçsız otomatik geçiş · Kazananı sonraki tura taşıma · PNG",
+  bracketFeatures:
+    "2–64 katılımcı · Bazı oyuncular maç yapmadan ilerler · Kazananı sonraki tura taşıma · PNG",
   together: "Skordan finale.",
   togetherText:
     "Canlı skoru takip edin, puanlara göre sıralayın ve kazananları turnuva şemasında sonraki tura taşıyın.",
@@ -755,7 +759,8 @@ const tr: Copy = {
   final: "Final",
   champion: "Şampiyon",
   pending: "Henüz belli değil",
-  bye: "Maçsız geçiş",
+  bye: "Maç yapmadan ilerledi",
+  noOpponent: "Rakip yok",
   results: "Maç sonuçları",
   winner: "Kazanan",
   noWinner: "Henüz kazanan yok",
