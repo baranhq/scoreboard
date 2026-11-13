@@ -99,7 +99,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 compact
                 showPreviewLabel={tool !== "scoreboard"}
                 widePreview={widePreview}
-                fillPreview={tool === "bracket"}
+                fillPreview={tool !== "scoreboard"}
                 autoplay={playing}
                 readOnly
                 showReadOnlyControls
