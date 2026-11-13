@@ -5,12 +5,12 @@ import {
   ArrowRight,
   ArrowUp,
   Expand,
-  Minimize2,
   Minus,
   Pencil,
   Plus,
   Star,
   Trash2,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ColorControl, accentColors } from "./color-control";
@@ -67,58 +67,74 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const spreadsheetRef = useRef<HTMLElement>(null);
   const [sortColumn, setSortColumn] = useState("1");
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
-  const [nativeFullscreen, setNativeFullscreen] = useState(false);
-  const [fallbackFullscreen, setFallbackFullscreen] = useState(false);
-  const spreadsheetFullscreen = nativeFullscreen || fallbackFullscreen;
+  const [spreadsheetFullscreen, setSpreadsheetFullscreen] = useState(false);
   const editingRow = board.rows.find((row) => row.id === editingRowId);
 
-  const toggleSpreadsheetFullscreen = async () => {
-    const target = spreadsheetRef.current;
-    if (!target) return;
-
-    if (fallbackFullscreen) {
-      setFallbackFullscreen(false);
-      return;
-    }
-
-    if (document.fullscreenElement === target) {
-      try {
-        await document.exitFullscreen();
-      } catch {
-        setFallbackFullscreen(true);
-      }
-      return;
-    }
-
-    try {
-      if (!target.requestFullscreen) throw new Error("Fullscreen is unavailable");
-      await target.requestFullscreen();
-    } catch {
-      setFallbackFullscreen(true);
-    }
-  };
+  const toggleSpreadsheetFullscreen = () => setSpreadsheetFullscreen((fullscreen) => !fullscreen);
 
   useEffect(() => {
-    const syncFullscreen = () =>
-      setNativeFullscreen(document.fullscreenElement === spreadsheetRef.current);
-    document.addEventListener("fullscreenchange", syncFullscreen);
-    return () => document.removeEventListener("fullscreenchange", syncFullscreen);
-  }, []);
+    if (!spreadsheetFullscreen) return;
 
-  useEffect(() => {
-    if (!fallbackFullscreen) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setFallbackFullscreen(false);
+    const previousFocus =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const body = document.body;
+    const scrollY = window.scrollY;
+    const previousBodyStyles = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
     };
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setSpreadsheetFullscreen(false);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const panel = spreadsheetRef.current;
+      if (!panel) return;
+
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [contenteditable="true"], [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) {
+        event.preventDefault();
+      } else if (
+        event.shiftKey &&
+        (document.activeElement === first || !panel.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last || !panel.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    spreadsheetRef.current?.focus();
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      body.style.overflow = previousBodyStyles.overflow;
+      body.style.position = previousBodyStyles.position;
+      body.style.top = previousBodyStyles.top;
+      body.style.width = previousBodyStyles.width;
+      window.scrollTo(0, scrollY);
       window.removeEventListener("keydown", handleKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [fallbackFullscreen]);
+  }, [spreadsheetFullscreen]);
 
   const changeCell = (rowId: string, column: number, value: string) =>
     state.change(updateLeaderboardCell(board, rowId, column, value, Number(sortColumn)));
@@ -225,9 +241,13 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
       <section
         ref={spreadsheetRef}
         id="leaderboard-spreadsheet-panel"
+        role={spreadsheetFullscreen ? "dialog" : undefined}
+        aria-modal={spreadsheetFullscreen || undefined}
+        aria-labelledby={spreadsheetFullscreen ? "leaderboard-spreadsheet-title" : undefined}
+        tabIndex={spreadsheetFullscreen ? -1 : undefined}
         className={
           spreadsheetFullscreen
-            ? "fixed inset-0 z-[100] flex h-dvh w-screen flex-col gap-3 overflow-hidden bg-paper px-3 pt-[calc(0.75rem_+_env(safe-area-inset-top,0px))] pb-[calc(0.75rem_+_env(safe-area-inset-bottom,0px))] sm:px-5"
+            ? "fixed inset-0 z-[100] flex h-dvh flex-col gap-3 overflow-hidden bg-paper px-3 pt-[calc(0.75rem_+_env(safe-area-inset-top,0px))] pb-[calc(0.75rem_+_env(safe-area-inset-bottom,0px))] sm:px-5"
             : "min-w-0 space-y-3"
         }
       >
@@ -256,7 +276,10 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
         <div
           className={`flex shrink-0 flex-wrap items-center justify-between gap-2 ${spreadsheetFullscreen ? "border-b border-forest/20 pb-2" : "border-t border-forest/20 pt-4"}`}
         >
-          <h2 className="text-lg font-semibold">
+          <h2
+            id={spreadsheetFullscreen ? "leaderboard-spreadsheet-title" : undefined}
+            className="text-lg font-semibold"
+          >
             {t.rows} & {t.columns}
           </h2>
           <div className="flex items-center gap-2">
@@ -268,11 +291,12 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
               aria-label={spreadsheetFullscreen ? t.exitFullscreen : t.fullscreen}
               aria-expanded={spreadsheetFullscreen}
               aria-controls="leaderboard-spreadsheet-panel"
+              aria-haspopup={spreadsheetFullscreen ? undefined : "dialog"}
               onClick={() => void toggleSpreadsheetFullscreen()}
               className="!min-h-11 !min-w-11 !px-2 sm:!px-3"
             >
               {spreadsheetFullscreen ? (
-                <Minimize2 aria-hidden="true" size={16} />
+                <X aria-hidden="true" size={16} />
               ) : (
                 <Expand aria-hidden="true" size={16} />
               )}
