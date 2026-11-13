@@ -175,7 +175,7 @@ export function HomeScoreboard({
         )}
       </header>
       <div
-        className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "py-1 sm:px-5" : "py-7 sm:px-7 sm:py-4"}`}
+        className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "pt-1 pb-4 sm:px-5 sm:pb-5" : "py-7 sm:px-7 sm:py-4"}`}
       >
         <TimerDisplay
           timer={timer}
