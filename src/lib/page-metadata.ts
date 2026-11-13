@@ -55,8 +55,8 @@ export function pageMetadata(
     case "scoreboardIntro":
       heading = {
         en: "Online Scoreboard & Timer",
-        bg: "Онлайн табло и таймер",
-        tr: "Çevrim İçi Skor Tabelası ve Zamanlayıcı",
+        bg: "Онлайн табло за резултати и таймер",
+        tr: "Çevrim içi skor tabelası ve zamanlayıcı",
       }[lang];
       description = studioCopy[lang].scoreDescription;
       break;

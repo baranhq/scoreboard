@@ -19,7 +19,7 @@ export const help: Record<Lang, HelpCopy> = {
   en: {
     title: "Baran's Scoreboard help",
     intro:
-      "Set up a board for a class game, a match, or friendly competition. This guide explains how to run it and keep a copy of your results. No account is needed.",
+      "Set up a board for a classroom game, match or friendly competition. This guide explains how to use it and keep a copy of your results. No account is needed.",
     contentsTitle: "On this page",
     quickGuide: {
       title: "How to use the scoreboard",
@@ -74,9 +74,9 @@ export const help: Record<Lang, HelpCopy> = {
       },
       {
         id: "customize",
-        title: "Customize the board",
+        title: "Customise the board",
         paragraphs: [
-          "Use Colors to set team colours and the board background. Appearance controls the board layout, spacing, size presets, and icon. Changes are saved automatically in this browser.",
+          "Use Colours to set team colours and the board background. Appearance controls the board layout, spacing, size presets and icon. Changes are saved automatically in this browser.",
           "Turn on Fine-tune sizes to adjust the score, team names, and timer text independently. Each slider changes only its own item. The current score and team-name presets are temporarily disabled while fine tuning is on; their selected values remain the starting size.",
         ],
       },
@@ -118,7 +118,7 @@ export const help: Record<Lang, HelpCopy> = {
         id: "share",
         title: "Share a snapshot",
         paragraphs: [
-          "Share creates a link containing a snapshot of the board, including team names, scores, and appearance. Anyone with the link can open that snapshot. Later changes to your board do not update the shared copy.",
+          "Choose Share to make a link containing a snapshot of the board, including team names, scores and appearance. Anyone with the link can open that snapshot. Later changes to your board do not update the shared copy.",
         ],
       },
     ],
@@ -126,11 +126,11 @@ export const help: Record<Lang, HelpCopy> = {
   bg: {
     title: "Помощ за Baran's Scoreboard",
     intro:
-      "Използвайте таблото за игри в клас, мачове или приятелски състезания. Тук ще научите как да го настроите, да следите резултата и да запазите копие. Не е нужна регистрация.",
+      "Настройте табло за класна игра, мач или приятелско състезание. Тук ще научите как да следите резултата и да запазите копие. Не е нужна регистрация.",
     contentsTitle: "В тази страница",
     quickGuide: {
       title: "Как да използвате таблото",
-      intro: "Изберете какво искате да направите и натиснете съответния бутон.",
+      intro: "Изберете какво искате да направите и използвайте съответния бутон.",
       actions: [
         {
           title: "Настройте отборите",
@@ -149,7 +149,7 @@ export const help: Record<Lang, HelpCopy> = {
         },
         {
           title: "Покажете таблото",
-          description: "Изберете „Цял екран“, за да покажете таблото по-голямо.",
+          description: "Изберете „Цял екран“, за да покажете таблото на целия екран.",
           example: "fullscreen",
         },
         {
@@ -171,7 +171,7 @@ export const help: Record<Lang, HelpCopy> = {
         id: "get-started",
         title: "Първи стъпки",
         paragraphs: [
-          "Отворете началната страница, за да започнете. Новото табло съдържа два отбора с по нула точки. В раздел „Отбори“ можете да промените имената на таблото и отборите, да добавите още отбори и да ги подредите със стрелките.",
+          "Отворете началната страница, за да започнете. Новото табло започва с два отбора с по 0 точки. В раздел „Отбори“ променете заглавието на таблото и имената на отборите, добавете още отбори и ги подредете със стрелките.",
         ],
       },
       {
@@ -197,7 +197,7 @@ export const help: Record<Lang, HelpCopy> = {
         id: "timer",
         title: "Използване на таймера",
         paragraphs: [
-          "Отворете Таймер и включете Показвай таймера. Изберете обратно броене или хронометър. За обратно броене въведете часове, минути и секунди или изберете готова продължителност. Бутоните за старт, пауза и рестартиране са до таймера.",
+          "Отворете „Таймер“ и включете „Показвай таймера“. Изберете обратно броене или хронометър. За обратно броене въведете часове, минути и секунди или изберете готова продължителност. Бутоните за старт, пауза и рестартиране са до таймера.",
           "Можете да скриете полето за часове, за да се показват общите минути. Опцията „Показвай времето на пауза“ показва колко време е минало от спирането на играта. Когато изключите таймера, той спира и се връща към зададената продължителност.",
         ],
       },
@@ -205,7 +205,7 @@ export const help: Record<Lang, HelpCopy> = {
         id: "match-options",
         title: "Настройки за мач",
         paragraphs: [
-          "В раздел „Таймер“ отворете „Спортни настройки“, за да разделите времето на полувремена, части или четвъртини и да разрешите почивки. По време на почивка резултатите не могат да се променят. За другите игри можете да оставите тези настройки изключени.",
+          "В раздел „Таймер“ отворете „Спортни настройки“, за да разделите времето на периоди и да разрешите таймаути. По време на таймаут резултатите не могат да се променят. За другите игри можете да оставите тези настройки изключени.",
         ],
       },
       {
@@ -224,14 +224,14 @@ export const help: Record<Lang, HelpCopy> = {
         title: "Запазване и прехвърляне на резултати",
         paragraphs: [
           "Изберете „Запази“, за да дадете име на таблото и да го добавите в „Моите таблици“ на това устройство. Промените се записват в браузъра, докато работите. Отворете „Моите таблици“, за да продължите играта.",
-          "Изберете „Изтегли резервно копие“, за да запазите JSON файл, или „Внеси резервно копие“ на друго устройство. Пазете архива: ако изчистите данните на браузъра или смените устройството, може да загубите достъп до запазените игри.",
+          "Изберете „Изтегли архив“, за да запазите JSON файл, или „Импортирай архив“ на друго устройство. Пазете копието: ако изчистите данните на браузъра или смените устройството, може да загубите достъп до запазените игри.",
         ],
       },
       {
         id: "share",
         title: "Споделяне на моментно копие",
         paragraphs: [
-          "„Сподели“ създава връзка към моментно копие на таблото с имената на отборите, резултатите и изгледа. Всеки с връзката може да го отвори. Следващите промени по таблото няма да се отразят в споделеното копие.",
+          "„Сподели“ подготвя връзка към моментно копие на таблото с имената на отборите, резултатите и изгледа. Всеки с връзката може да го отвори. Следващите промени по таблото няма да се отразят в споделеното копие.",
         ],
       },
     ],
@@ -239,7 +239,7 @@ export const help: Record<Lang, HelpCopy> = {
   tr: {
     title: "Baran's Scoreboard için yardım",
     intro:
-      "Sınıf içi oyunlarda, maçlarda veya arkadaşlarınızla yaptığınız yarışmalarda skor tabelasını kullanın. Bu sayfada tabelayı ayarlamayı, kullanmayı ve sonuçlarınızın yedeğini almayı öğrenin. Hesap gerekmez.",
+      "Sınıf oyunlarında, maçlarda veya arkadaşlarınızla yaptığınız yarışmalarda skor tutun. Bu rehberde takımları ve zamanlayıcıyı ayarlamayı, skoru güncellemeyi ve sonuçları yedeklemeyi öğrenin. Hesap gerekmez.",
     contentsTitle: "Bu sayfada",
     quickGuide: {
       title: "Skor tabelası nasıl kullanılır?",
@@ -344,7 +344,7 @@ export const help: Record<Lang, HelpCopy> = {
         id: "share",
         title: "Anlık kopya paylaşma",
         paragraphs: [
-          "Paylaş, takım adlarını, skorları ve görünümü içeren mevcut tabloya bir bağlantı oluşturur. Bağlantıya sahip herkes bu kopyayı açabilir. Sonraki değişiklikler paylaşılan kopyaya yansımaz.",
+          "Paylaş seçeneği; takım adlarını, skorları ve görünümü içeren anlık tablo için bir bağlantı hazırlar. Bağlantıya sahip herkes bu kopyayı açabilir. Sonraki değişiklikler paylaşılan kopyaya yansımaz.",
         ],
       },
     ],
