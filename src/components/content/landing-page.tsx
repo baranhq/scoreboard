@@ -9,7 +9,7 @@ import { route } from "@/lib/routes";
 import { repo } from "@/lib/site";
 
 export const primaryLinkClass =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-action px-6 py-3 text-base font-semibold text-on-action transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[.98] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest motion-reduce:transition-none";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-lime px-6 py-3 text-base font-semibold text-campaign transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[.98] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime motion-reduce:transition-none";
 
 export const toolPages = {
   scoreboard: "scoreboardIntro",
@@ -171,21 +171,23 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
           </div>
         </div>
       </section>
-      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
-        <h2 className="font-display text-[clamp(3rem,7.5vw,7rem)] leading-[0.95] font-bold tracking-[-0.04em] whitespace-pre-line">
-          {copy.close}
-        </h2>
-        <div className="mt-8 flex flex-wrap gap-3">
-          {(["scoreboard", "leaderboard", "bracket"] as const).map((tool) => (
-            <Link
-              key={tool}
-              href={route(lang, toolEditors[tool])}
-              className={`${primaryLinkClass} !rounded-none`}
-            >
-              {t[tool]}
-              <ArrowUpRight size={18} aria-hidden="true" />
-            </Link>
-          ))}
+      <section className="border-t border-white/10 bg-campaign text-campaign-ink">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
+          <h2 className="font-display text-[clamp(3rem,7.5vw,7rem)] leading-[0.95] font-bold tracking-[-0.04em] whitespace-pre-line">
+            {copy.close}
+          </h2>
+          <div className="mt-8 flex flex-wrap gap-3">
+            {(["scoreboard", "leaderboard", "bracket"] as const).map((tool) => (
+              <Link
+                key={tool}
+                href={route(lang, toolEditors[tool])}
+                className={`${primaryLinkClass} !rounded-none`}
+              >
+                {t[tool]}
+                <ArrowUpRight size={18} aria-hidden="true" />
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
     </main>

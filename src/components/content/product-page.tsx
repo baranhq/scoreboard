@@ -103,21 +103,26 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
           </div>
         </section>
         <ProductDetails tool={tool} lang={lang} />
-        <div className="mx-auto max-w-7xl px-5 pb-8 sm:px-8">
-          <nav aria-label={t.tools} className="flex flex-wrap gap-3 border-t border-forest/20 pt-6">
-            {(["scoreboard", "leaderboard", "bracket"] as const)
-              .filter((key) => key !== tool)
-              .map((key) => (
-                <Link
-                  key={key}
-                  href={route(lang, toolPages[key])}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-forest/25 px-4 text-base font-semibold"
-                >
-                  {t[key]}
-                  <ArrowUpRight size={16} />
-                </Link>
-              ))}
-          </nav>
+        <div className="bg-campaign text-campaign-ink">
+          <div className="mx-auto max-w-7xl px-5 pb-8 sm:px-8">
+            <nav
+              aria-label={t.tools}
+              className="flex flex-wrap gap-3 border-t border-white/20 pt-6"
+            >
+              {(["scoreboard", "leaderboard", "bracket"] as const)
+                .filter((key) => key !== tool)
+                .map((key) => (
+                  <Link
+                    key={key}
+                    href={route(lang, toolPages[key])}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 px-4 text-base font-semibold text-campaign-ink transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime motion-reduce:transition-none"
+                  >
+                    {t[key]}
+                    <ArrowUpRight size={16} />
+                  </Link>
+                ))}
+            </nav>
+          </div>
         </div>
       </main>
     </Frame>
