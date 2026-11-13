@@ -31,9 +31,9 @@ export const homeFaq: Record<
           "Yes. Add teams, choose their names and colours, and keep every score together on one board.",
       },
       {
-        question: "Can I customize the scoreboard?",
+        question: "Can I customise the scoreboard?",
         answer:
-          "Yes. Add and rename teams, choose colors and layouts, adjust text sizes, and use a countdown or stopwatch.",
+          "Yes. Add and rename teams, choose colours and layouts, adjust text sizes, and use a countdown or stopwatch.",
       },
       {
         question: "Where are my scoreboards saved?",
@@ -55,8 +55,8 @@ export const homeFaq: Record<
         answer: "Да. Всички функции са без абонамент и плащане.",
       },
       {
-        question: "Трябва ли да си направя акаунт?",
-        answer: "Не. Отворете таблото и започнете веднага, без да се регистрирате.",
+        question: "Нужна ли ми е регистрация?",
+        answer: "Не. Отворете таблото и започнете веднага.",
       },
       {
         question: "Мога ли да го използвам на телефон или таблет?",
@@ -66,7 +66,7 @@ export const homeFaq: Record<
       {
         question: "Подходящо ли е за игри в класната стая?",
         answer:
-          "Да. Създайте отбор за всяка група и показвайте резултата от викторина или класна игра пред целия клас.",
+          "Да. Добавете отбор за всяка група и показвайте точките от викторината или класната игра пред целия клас.",
       },
       {
         question: "Мога ли да следя резултата на няколко отбора едновременно?",

@@ -27,7 +27,7 @@ test("published policy copies include the updated analytics disclosure in every 
       readFileSync(new URL(`../public/policies/${lang}.json`, import.meta.url), "utf8"),
     ) as { content: string; updatedAt: string };
     assert.match(published.content, clickDisclosure[lang], lang);
-    assert.equal(published.updatedAt, "2026-11-13", lang);
+    assert.equal(published.updatedAt, "2026-11-14", lang);
   }
 });
 

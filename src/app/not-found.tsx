@@ -1,33 +1,53 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { isLang, messages, type Lang } from "@/lib/i18n";
+
+const languageLinks: { lang: Lang; label: string }[] = [
+  { lang: "en", label: "English" },
+  { lang: "bg", label: "Български" },
+  { lang: "tr", label: "Türkçe" },
+];
+
+function languageFromPath(pathname: string | null): Lang {
+  const segment = pathname?.split("/").filter(Boolean)[0] ?? "";
+  return isLang(segment) ? segment : "bg";
+}
 
 export default function NotFound() {
+  const pathname = usePathname();
+  const [lang, setLang] = useState<Lang>("bg");
+  const copy = messages[lang];
+
+  useEffect(() => {
+    const nextLanguage = languageFromPath(pathname);
+    setLang(nextLanguage);
+  }, [pathname]);
+
   return (
-    <html lang="bg" suppressHydrationWarning>
+    <html lang={lang === "en" ? "en-GB" : lang} suppressHydrationWarning>
       <head>
         <meta name="robots" content="noindex,nofollow" />
-        <title>Страницата не е намерена | Baran’s Scoreboard</title>
+        <title>{copy.notFoundTitle} | Baran’s Scoreboard</title>
       </head>
       <body>
         <main className="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-6 py-12">
-          <h1 className="font-display text-4xl font-bold tracking-tight">
-            Тази страница не е намерена.
-          </h1>
-          <p className="mt-5 text-lg leading-8">
-            Връзката може да е променена. Запазените ви табла остават в този браузър.
-          </p>
+          <h1 className="font-display text-4xl font-bold tracking-tight">{copy.notFoundTitle}</h1>
+          <p className="mt-5 text-lg leading-8">{copy.notFoundDescription}</p>
           <Link
-            href="/bg/"
+            href={`/${lang}/`}
             className="mt-6 inline-flex min-h-12 w-fit items-center rounded-lg bg-action px-5 py-2 text-lg font-medium text-on-action"
           >
-            Към таблото
+            {copy.notFoundHome}
           </Link>
           <p className="mt-8 flex gap-5">
-            <Link className="underline" href="/en/">
-              English
-            </Link>
-            <Link className="underline" href="/tr/">
-              Türkçe
-            </Link>
+            {languageLinks.map(({ lang: language, label }) => (
+              <Link key={language} className="underline" href={`/${language}/`} lang={language}>
+                {label}
+              </Link>
+            ))}
           </p>
         </main>
       </body>
