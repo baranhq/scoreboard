@@ -32,7 +32,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
     if (sample.kind === "leaderboard")
       return {
         ...sample,
-        gridColumns: 2,
+        gridColumns: 1,
         style: { ...sample.style, ...defaultTheme },
       } satisfies Leaderboard;
     const board: Bracket = view === 2 ? resizeBracket(sample, 3) : sample;
