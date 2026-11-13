@@ -161,14 +161,14 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           ))}
         </div>
       </section>
-      <section className={tool === "leaderboard" ? "bg-forest/10" : "bg-lime text-campaign"}>
+      <section className="bg-campaign text-campaign-ink">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-7 px-5 py-10 sm:px-8 sm:py-14">
           <h2 className="max-w-[20ch] font-display text-[clamp(3rem,6vw,6rem)] leading-[0.98] font-bold tracking-[-0.04em]">
             {copy.close}
           </h2>
           <Link
             href={route(lang, toolEditors[tool])}
-            className="inline-flex min-h-12 items-center gap-3 rounded-full bg-campaign px-6 py-3 font-semibold text-campaign-ink transition-transform active:scale-95 motion-reduce:transform-none"
+            className="inline-flex min-h-12 items-center gap-3 rounded-full bg-lime px-6 py-3 font-semibold text-campaign transition-[filter,transform] duration-150 hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:scale-95 motion-reduce:transform-none motion-reduce:transition-none"
           >
             {content.action}
             <ArrowUpRight size={18} aria-hidden="true" />

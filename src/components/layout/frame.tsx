@@ -82,7 +82,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
           {children}
         </ViewTransition>
       </div>
-      <footer data-frame-chrome className="border-t border-white/10 bg-[#213f29] text-white">
+      <footer data-frame-chrome className="border-t border-white/10 bg-campaign text-white">
         <div className="mx-auto grid w-full max-w-5xl grid-cols-1 justify-items-center gap-x-8 gap-y-7 px-5 py-8 min-[360px]:grid-cols-2 sm:grid-cols-2 sm:py-10 md:grid-cols-3 lg:grid-cols-[repeat(3,minmax(0,15rem))] lg:justify-center lg:gap-x-16">
           <section className="flex w-full max-w-60 min-w-0 flex-col gap-4 justify-self-start text-left min-[360px]:col-span-2 md:col-span-1 md:justify-self-center">
             <Link
