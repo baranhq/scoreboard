@@ -3,8 +3,13 @@ declare(strict_types=1);
 require __DIR__.'/../backend/security.php';
 require __DIR__.'/../backend/config.php';
 require __DIR__.'/../backend/admin.php';
+require __DIR__.'/../backend/analytics.php';
 require __DIR__.'/../backend/policy.php';
 function check(bool $value,string $name): void {if(!$value)throw new RuntimeException($name);}
+check(valid_analytics_payload(['type'=>'view','path'=>'/en/']),'page-view payload accepted');
+check(valid_analytics_payload(['type'=>'active','path'=>'/en/']),'active-time payload accepted');
+check(!valid_analytics_payload(['type'=>'click','path'=>'/en/','label'=>'create_scoreboard']),'interaction payload rejected');
+check(!valid_analytics_payload(['type'=>'view','path'=>'/en/','label'=>'unexpected']),'unexpected analytics fields rejected');
 check(normalise_admin_path('/admin')==='/admin','default admin path validation');check(normalise_admin_path('/custom-panel')==='/custom-panel','custom admin path validation');check(normalise_admin_path('/api')===null&&normalise_admin_path('/bg')===null&&normalise_admin_path('/bad/path')===null&&normalise_admin_path('/bad?path')===null,'reserved and malformed admin paths rejected');
 check(in_cidr('192.0.2.4','192.0.2.0/24'),'IPv4 CIDR');
 check(!in_cidr('192.0.3.4','192.0.2.0/24'),'outside CIDR');

@@ -68,7 +68,7 @@ For PHP/Apache shared hosting, keep the source checkout outside the document roo
 
 Existing Scoreboards keep their original `scoreboard` IndexedDB store and version 1/2 backup compatibility. New tables use a separate `scoreboard-studio` database and version 1 JSON documents. Import opens an independent copy. Untouched examples do not write to storage. Edits have a tab-session recovery draft; Save makes a durable library entry. Clearing browser data removes local saves; download backups before moving devices or domains. PNGs are rendered locally from the same SVG as the preview, normally at 2× resolution; exceptionally large graphics are scaled to stay within a 32-megapixel / 16,384px canvas budget.
 
-No new runtime dependencies, trackers or accounts are required. Existing AWStats, optional first-party analytics and consent-controlled Cloudflare Web Analytics disclosures remain in place. Self-hosters with privately published policy overrides must publish the updated EN/BG/TR local-storage paragraph themselves.
+No new runtime dependencies, trackers or accounts are required. Existing AWStats, optional first-party analytics and consent-controlled Cloudflare Web Analytics disclosures remain in place. Self-hosters with privately published policy overrides must publish the updated EN/BG/TR policy text themselves.
 
 ## Project files
 

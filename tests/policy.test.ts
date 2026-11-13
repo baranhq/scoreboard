@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { policyBlocks } from "../src/lib/policy-document.ts";
 
 test("all policy sections, including section 10, appear in every language", () => {
-  for (const lang of ["en", "bg", "tr"]) {
+  for (const lang of ["en", "bg", "tr"] as const) {
     const source = readFileSync(new URL(`../src/lib/privacy/${lang}.md`, import.meta.url), "utf8");
     const headings = policyBlocks(source).filter((block) => block.heading);
     assert.equal(headings.length, 14, lang);
@@ -13,6 +13,35 @@ test("all policy sections, including section 10, appear in every language", () =
       Array.from({ length: 14 }, (_, index) => index + 1),
       lang,
     );
+  }
+});
+
+test("published policy copies include the updated analytics disclosure in every language", () => {
+  const clickDisclosure = {
+    en: /does not collect button clicks, link clicks, or other interaction events as separate analytics events/i,
+    bg: /не събира кликвания върху бутони, връзки или други отделни действия като аналитични събития/i,
+    tr: /düğme ve bağlantı tıklamalarını veya diğer tekil etkileşimleri ayrı analiz olayları olarak toplamaz/i,
+  };
+  for (const lang of ["en", "bg", "tr"] as const) {
+    const published = JSON.parse(
+      readFileSync(new URL(`../public/policies/${lang}.json`, import.meta.url), "utf8"),
+    ) as { content: string; updatedAt: string };
+    assert.match(published.content, clickDisclosure[lang], lang);
+    assert.equal(published.updatedAt, "2026-11-13", lang);
+  }
+});
+
+test("published policies qualify cleanup timing by the hosting configuration", () => {
+  const cleanupTiming = {
+    en: /whether cleanup runs on schedule depends on hosting configuration/i,
+    bg: /дали почистването се изпълнява по график зависи от настройките на хостинга/i,
+    tr: /temizliğin düzenli çalışıp çalışmadığı hosting yapılandırmasına bağlıdır/i,
+  };
+  for (const lang of ["en", "bg", "tr"] as const) {
+    const published = JSON.parse(
+      readFileSync(new URL(`../public/policies/${lang}.json`, import.meta.url), "utf8"),
+    ) as { content: string };
+    assert.match(published.content, cleanupTiming[lang], lang);
   }
 });
 

@@ -59,7 +59,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
       }
     >
       <div
-        className="grid grid-cols-3 gap-1 rounded-xl border border-white/20 bg-white/[0.035] p-1"
+        className={`grid grid-cols-3 gap-1 rounded-xl border p-1 ${themes ? "border-forest/20 bg-surface" : "border-white/20 bg-white/[0.035]"}`}
         role="group"
         aria-label={t.tools}
       >
@@ -72,7 +72,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
               pause();
               setActive(index);
             }}
-            className={`flex min-h-12 min-w-0 items-center justify-center rounded-lg px-1.5 py-2 text-center font-display text-xs leading-tight font-semibold transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-lime active:brightness-90 motion-reduce:transition-none sm:min-h-14 sm:px-3 sm:text-lg lg:text-xl ${active === index ? "bg-action text-on-action" : "text-white/85 hover:bg-white/[0.07]"}`}
+            className={`flex min-h-12 min-w-0 items-center justify-center rounded-lg px-1.5 py-2 text-center font-display text-xs leading-tight font-semibold transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-lime active:brightness-90 motion-reduce:transition-none sm:min-h-14 sm:px-3 sm:text-lg lg:text-xl ${active === index ? "bg-action text-on-action" : themes ? "text-ink/80 hover:bg-forest/5" : "text-white/85 hover:bg-white/[0.07]"}`}
           >
             {t[item]}
           </button>

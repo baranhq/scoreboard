@@ -4,6 +4,11 @@ import type { ToolTheme } from "./tool-themes.ts";
 export function applyToolTheme(board: Board, theme: ToolTheme): Board {
   return {
     ...board,
+    teams: board.teams.map((team) => ({
+      ...team,
+      color: undefined,
+      textColor: undefined,
+    })),
     themeId: theme.id,
     accent: theme.accent,
     background: theme.background,
