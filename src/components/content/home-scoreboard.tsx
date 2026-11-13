@@ -193,7 +193,7 @@ export function HomeScoreboard({
         />
         <div className="relative min-h-0 flex-1">
           <div
-            className={`${teamGridClass(count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : compact ? "auto-rows-fr sm:auto-rows-auto" : ""} h-full min-h-0 gap-2 sm:gap-3`}
+            className={`${teamGridClass(compact && count >= 4 && count <= 6 ? 2 : count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : compact ? "auto-rows-fr sm:auto-rows-auto" : ""} h-full min-h-0 gap-2 sm:gap-3`}
           >
             {teamNames.slice(0, count).map((name, index) => (
               <TeamPanel
