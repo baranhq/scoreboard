@@ -85,7 +85,7 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
                 compact
                 theme={isScoreboard ? demoTheme : undefined}
                 readOnly
-                showPreviewLabel={!isScoreboard}
+                showHeader={false}
                 fillPreview={!isScoreboard}
                 showReadOnlyControls
                 showResultControls={false}
