@@ -20,6 +20,7 @@ import { CanvasRatioSelect } from "./canvas-controls";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
 import { DailyGithubStarNotice } from "./daily-github-star-notice";
+import { foreground, readableText } from "@/lib/colors";
 
 export const inputClass =
   "min-h-11 w-full min-w-0 rounded-md border border-forest/25 bg-surface px-3 py-2 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
@@ -66,6 +67,13 @@ export function EditorShell({
       : previewScale === "fit"
         ? "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-full [&>svg]:!max-h-full [&>svg]:!w-full [&>svg]:!max-w-full"
         : "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-auto [&>svg]:!max-h-[92%] [&>svg]:!w-auto [&>svg]:!max-w-[92%] lg:[&>svg]:!max-h-[78%] lg:[&>svg]:!max-w-[78%]";
+  const fullscreenOnDark = fullscreen && foreground(doc.style.background) === "#ffffff";
+  const fullscreenStyle: CSSProperties = {
+    background: doc.style.gradient
+      ? `linear-gradient(135deg, ${doc.style.background}, ${doc.style.backgroundEnd || doc.style.accent})`
+      : doc.style.background,
+    color: readableText(doc.style.background, doc.style.textColor),
+  };
   const previewParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
   const bracketMatches = doc.kind === "bracket" ? bracketRounds(doc) : [];
@@ -289,6 +297,7 @@ export function EditorShell({
             ref={preview}
             aria-label={t.preview}
             className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-[min(60dvh,42rem)] lg:h-[min(64dvh,46rem)]"}`}
+            style={fullscreen ? fullscreenStyle : undefined}
           >
             <div className="mb-2 grid min-w-0 shrink-0 gap-2 xl:grid-cols-[minmax(10rem,0.7fr)_minmax(0,1.3fr)] xl:items-center">
               <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
@@ -301,24 +310,32 @@ export function EditorShell({
                   changeCanvas={(canvas) => state.change({ ...doc, canvas })}
                   lang={lang}
                   disabled={state.busy}
+                  onDark={fullscreenOnDark}
                 />
                 <Button
+                  onDark={fullscreenOnDark}
                   aria-pressed={previewScale === "fit"}
                   onClick={() => setPreviewScale("fit")}
                 >
                   {t.fit}
                 </Button>
                 <Button
+                  onDark={fullscreenOnDark}
                   aria-pressed={previewScale === "full"}
                   onClick={() => setPreviewScale("full")}
                 >
                   {t.actual}
                 </Button>
-                <Button aria-pressed={fullscreen} onClick={() => void toggleFullscreen()}>
+                <Button
+                  onDark={fullscreenOnDark}
+                  aria-pressed={fullscreen}
+                  onClick={() => void toggleFullscreen()}
+                >
                   <Expand aria-hidden="true" size={16} />
                   {t.fullscreen}
                 </Button>
                 <Button
+                  onDark={fullscreenOnDark}
                   aria-pressed={previewOnly}
                   className="!hidden lg:!inline-flex"
                   onClick={() => setPreviewOnly((current) => !current)}
@@ -329,7 +346,7 @@ export function EditorShell({
             </div>
             <div
               ref={previewViewport}
-              className="min-h-0 flex-1 overflow-auto overscroll-contain rounded-lg border border-forest/20 bg-forest/5 p-2 focus-visible:outline-offset-0 sm:p-4"
+              className={`min-h-0 flex-1 overflow-auto overscroll-contain rounded-lg border p-2 focus-visible:outline-offset-0 sm:p-4 ${fullscreen ? "border-transparent bg-transparent" : "border-forest/20 bg-forest/5"}`}
               tabIndex={0}
               aria-label={t.scrollHint}
             >

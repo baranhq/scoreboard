@@ -2,7 +2,7 @@
 import { CircleAlert, Pin, Save, Share2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { BoardIcon } from "./board-icon";
-import { foreground, validColor } from "@/lib/colors";
+import { foreground, readableText, validColor } from "@/lib/colors";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Lang, Messages } from "@/lib/i18n";
@@ -667,6 +667,9 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                 style={
                   {
                     "--board-background": board.background || "transparent",
+                    color: board.background
+                      ? readableText(board.background, board.textColor)
+                      : undefined,
                     ...(board.canvas
                       ? {
                           aspectRatio: `${board.canvas.width} / ${board.canvas.height}`,

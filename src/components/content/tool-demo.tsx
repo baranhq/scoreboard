@@ -75,7 +75,7 @@ export function ToolDemo({
     JSON.stringify(theme ?? null),
   ].join(":");
 
-  if (tool === "scoreboard" && compact && !useScoreboardPreview)
+  if (tool === "scoreboard" && !useScoreboardPreview)
     return (
       <HomeScoreboard
         lang={lang}

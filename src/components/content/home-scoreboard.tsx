@@ -73,6 +73,7 @@ export function HomeScoreboard({
 }) {
   const container = useRef<HTMLElement | null>(null);
   const [full, setFull] = useState(false);
+  const presentationFull = full || readOnly;
   const [fullscreenError, setFullscreenError] = useState(false);
   useEffect(() => {
     const sync = () => setFull(document.fullscreenElement === container.current);
@@ -180,7 +181,7 @@ export function HomeScoreboard({
           timer={timer}
           t={messages[lang]}
           change={setTimer}
-          full={false}
+          full={presentationFull}
           controlsVisible={false}
           textScale={100}
           showControls={false}
@@ -220,7 +221,7 @@ export function HomeScoreboard({
                 fitCompactGrid={compact && count >= 4}
                 index={index}
                 count={count}
-                full={full}
+                full={presentationFull}
                 t={messages[lang]}
                 change={(amount) => {
                   pause();
