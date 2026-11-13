@@ -84,12 +84,14 @@ try:
     assert request(admin_url(), {'action': 'login', 'csrf': csrf, 'username': 'integration-test', 'password': 'wrong'})[0] == 401
     status, html, _ = request(admin_url(), {'action': 'login', 'csrf': csrf, 'username': 'integration-test', 'password': password})
     assert status == 200 and 'Recorded visits' in html and 'Administration' in html
+    assert 'Button clicks' not in html
     csrf = token(html)
     assert request(admin_url('?from=02.11.2026&to=02.11.2026'))[0] == 200
     assert request(admin_url('?from=31.02.2026&to=02.11.2026'))[0] == 400
     assert request(admin_url(), {'action': 'logout', 'csrf[]': 'bad'})[0] == 403
-    for view in ['activity', 'pages', 'clicks', 'privacy', 'settings']:
+    for view in ['activity', 'pages', 'privacy', 'settings']:
         assert request(admin_url('?view=' + view))[0] == 200, view
+    assert request(admin_url('?view=clicks'))[0] == 404, 'click analytics view must be removed'
     assert request(admin_url('?view=activity&period%5B%5D=day'))[0] == 400
     assert request(admin_url('?view=%3Cscript%3E'))[0] == 404
     assert request(admin_url(), {'action': 'save_policy', 'csrf': 'bad'})[0] == 403
@@ -105,7 +107,10 @@ try:
     assert request('/api/index.php?action=event', {'type': 'view', 'path': '/en/'}, True)[0] == 403
     visits_before=re.search(r'Recorded visits</dt><dd[^>]*>([0-9]+)',request(admin_url())[1])[1]
     assert request('/api/index.php?action=consent', {'usage': True, 'cloud': False}, True)[0] == 200
+    assert request('/api/index.php?action=event', {'type': 'click', 'path': '/en/', 'label': 'create_scoreboard'}, True)[0] == 400
+    assert request('/api/index.php?action=event', {'type': 'interaction', 'path': '/en/'}, True)[0] == 400
     assert request('/api/index.php?action=event', {'type': 'view', 'path': '/en/'}, True)[0] == 200
+    assert request('/api/index.php?action=event', {'type': 'active', 'path': '/en/'}, True)[0] == 200
     assert re.search(r'Recorded visits</dt><dd[^>]*>([0-9]+)',request(admin_url())[1])[1] == visits_before
     admin_cookie=next(c.value for c in jar if c.name=='score_admin')
     for cookie in jar:

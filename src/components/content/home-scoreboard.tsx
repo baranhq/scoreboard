@@ -59,6 +59,7 @@ export function HomeScoreboard({
   teamCount,
   showReadOnlyControls = false,
   allowManualEdit = true,
+  showFullscreenControl = true,
 }: {
   lang: Lang;
   theme?: ToolTheme;
@@ -72,6 +73,7 @@ export function HomeScoreboard({
   teamCount?: number;
   showReadOnlyControls?: boolean;
   allowManualEdit?: boolean;
+  showFullscreenControl?: boolean;
 }) {
   const container = useRef<HTMLElement | null>(null);
   const [full, setFull] = useState(false);
@@ -263,7 +265,7 @@ export function HomeScoreboard({
           </label>
         )}
       </div>
-      {!readOnly && (
+      {!readOnly && showFullscreenControl && (
         <div data-demo-setup className="flex justify-end px-4 py-2">
           <button
             type="button"

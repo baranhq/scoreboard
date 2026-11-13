@@ -219,9 +219,9 @@ const en = {
   moreInformation: "More information",
   usage: "Site usage analytics",
   usageSummary:
-    "Measures visits, page views and limited page paths, predefined button actions and estimated active time.",
+    "Measures visits, page views, limited public page paths and estimated active time. It does not record button clicks, link clicks or individual interactions as analytics events.",
   usageText:
-    "This site's own analytics records visits and page views, limited public page paths, predefined actions (making a scoreboard, entering fullscreen, exporting or importing a backup), and estimated active time. Records are linked to a random browser token stored as a hash and kept on the hosting server for up to one year. Scoreboard names, team names, scores and field contents are not included.",
+    "This site's own analytics records visits and page views, limited public page paths and estimated active time. It does not record button clicks, link clicks or individual interactions as analytics events. Keyboard, pointer and scroll signals are used only to estimate active time; individual interactions are not stored or sent. Records are linked to a random browser token stored as a hash and kept on the hosting server for up to one year. Scoreboard names, team names, scores and field contents are not included.",
   cloud: "Cloudflare Web Analytics",
   cloudSummary: "Loads Cloudflare Web Analytics.",
   cloudText: "Check Cloudflare's privacy policy for details about how it handles data.",
@@ -461,9 +461,9 @@ const bg: Messages = {
   moreInformation: "Повече информация",
   usage: "Анализ на използването на сайта",
   usageSummary:
-    "Измерва посещения, преглеждания и ограничени пътища на страници, предварително определени действия с бутони и приблизително активно време.",
+    "Измерва посещения, преглеждания на страници, ограничен набор от публични пътища и приблизително активно време. Не записва кликвания по бутони, връзки или отделни действия като аналитични събития.",
   usageText:
-    "Собствените анализи на сайта записват посещения и преглеждания на страници, ограничени публични пътища на страниците, предварително определени действия (създаване на табло, отваряне на цял екран, експортиране или импортиране на резервно копие) и приблизително активно време. Записите се свързват със случаен токен на браузъра, съхраняван като хеш, и се пазят на хостинг сървъра до една година. Имената на таблата и отборите, резултатите и съдържанието на полетата не се включват.",
+    "Собствените анализи на сайта записват посещения, преглеждания на страници, ограничен набор от публични пътища и приблизително активно време. Не записват кликвания по бутони, връзки или отделни действия като аналитични събития. Сигнали от клавиатурата, показалеца и превъртането се използват само за оценка на активното време; отделните действия не се съхраняват или изпращат. Записите се свързват със случаен токен на браузъра, съхраняван като хеш, и се пазят на хостинг сървъра до една година. Имената на таблата и отборите, резултатите и съдържанието на полетата не се включват.",
   cloud: "Cloudflare Web Analytics",
   cloudSummary: "Зарежда Cloudflare Web Analytics.",
   cloudText:
@@ -705,9 +705,9 @@ const tr: Messages = {
   moreInformation: "Daha fazla bilgi",
   usage: "Site kullanım analizi",
   usageSummary:
-    "Ziyaretleri, sayfa görüntülemelerini ve sınırlı sayfa yollarını, önceden belirlenmiş düğme işlemlerini ve tahmini etkin süreyi ölçer.",
+    "Ziyaretleri, sayfa görüntülemelerini, sınırlı herkese açık sayfa yollarını ve tahmini etkin süreyi ölçer. Düğme ve bağlantı tıklamalarını veya tekil etkileşimleri analiz olayı olarak kaydetmez.",
   usageText:
-    "Sitenin kendi analiz sistemi ziyaretleri, sayfa görüntüleme zamanlarını, sınırlı herkese açık sayfa yollarını, önceden belirlenmiş işlemleri (skor tabelası oluşturma, tam ekrana geçme, yedek dışa veya içe aktarma) ve tahmini etkin süreyi kaydeder. Kayıtlar, hash olarak saklanan rastgele bir tarayıcı belirteciyle ilişkilendirilir ve barındırma sunucusunda en fazla bir yıl tutulur. Skor tabelası adları, takım adları, skorlar ve alan içerikleri kaydedilmez.",
+    "Sitenin kendi analiz sistemi ziyaretleri, sayfa görüntüleme zamanlarını, sınırlı herkese açık sayfa yollarını ve tahmini etkin süreyi kaydeder. Düğme ve bağlantı tıklamalarını veya tekil etkileşimleri analiz olayı olarak kaydetmez. Klavye, işaretçi ve kaydırma sinyalleri yalnızca etkin süreyi tahmin etmek için kullanılır; tekil etkileşimler saklanmaz veya gönderilmez. Kayıtlar, hash olarak saklanan rastgele bir tarayıcı belirteciyle ilişkilendirilir ve barındırma sunucusunda en fazla bir yıl tutulur. Skor tabelası adları, takım adları, skorlar ve alan içerikleri kaydedilmez.",
   cloud: "Cloudflare Web Analytics",
   cloudSummary: "Cloudflare Web Analytics yüklenir.",
   cloudText:

@@ -115,6 +115,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
               compact
               autoplay={false}
               showHeader={false}
+              showFullscreenControl={false}
             />
           </div>
           <div className="mt-5 border-y border-forest/25 py-6">

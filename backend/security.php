@@ -63,6 +63,7 @@ function authorized(): bool {return ($_SESSION['admin'] ?? false) === true && ($
 function cookie_token(): ?string { $v = $_COOKIE['score_preferences'] ?? ''; return is_string($v) && preg_match('/^[a-f0-9]{64}$/D', $v) ? $v : null; }
 function cookie_hash(): ?string {$token = cookie_token(); return $token === null ? null : hash('sha256', $token);}
 function cleanup(PDO $db): void {
+    // Keep expiring action-event rows collected by older versions without writing new ones.
     $db->exec('DELETE FROM events WHERE occurred_at <= UTC_TIMESTAMP() - INTERVAL 365 DAY');
     $db->exec('DELETE FROM pageviews WHERE occurred_at <= UTC_TIMESTAMP() - INTERVAL 365 DAY');
     $db->exec('DELETE FROM visits WHERE started_at <= UTC_TIMESTAMP() - INTERVAL 365 DAY');
