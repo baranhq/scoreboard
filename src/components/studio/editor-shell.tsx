@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, Download, Expand, FilePlus2, Save, Undo2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, Expand, FilePlus2, Save, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/ui";
 import { ColorControl, accentColors } from "./color-control";
 import { ThemeLibrary } from "./theme-library";
 import { toolThemes } from "@/lib/tool-themes";
 import { Graphic } from "./graphic";
-import { bracketRounds, setMatchResult } from "@/lib/brackets";
+import { bracketRounds, hasDependentResults, setMatchResult } from "@/lib/brackets";
 import type { StudioDocument } from "@/lib/studio";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
@@ -56,6 +56,7 @@ export function EditorShell({
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("content");
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
   const [activePosition, setActivePosition] = useState<CSSProperties | null>(null);
+  const [actionLeft, setActionLeft] = useState<number | null>(null);
   const previewInput = useRef<HTMLInputElement>(null);
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
   const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
@@ -67,9 +68,14 @@ export function EditorShell({
         : "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-auto [&>svg]:!max-h-[92%] [&>svg]:!w-auto [&>svg]:!max-w-[92%] lg:[&>svg]:!max-h-[78%] lg:[&>svg]:!max-w-[78%]";
   const previewParticipant =
     activeField?.kind === "bracket-participant" ? activeField.participantId : null;
+  const bracketMatches = doc.kind === "bracket" ? bracketRounds(doc) : [];
+  const selectedBracketMatch =
+    activeField?.kind === "bracket-participant" && activeField.matchId
+      ? bracketMatches.flat().find((match) => match.id === activeField.matchId)
+      : undefined;
   const advanceMatch =
     doc.kind === "bracket" && previewParticipant
-      ? bracketRounds(doc)
+      ? bracketMatches
           .flat()
           .find(
             (match) =>
@@ -78,6 +84,28 @@ export function EditorShell({
               match.players.includes(previewParticipant),
           )
       : undefined;
+  const moveBackMatch = (() => {
+    if (doc.kind !== "bracket" || !previewParticipant || !selectedBracketMatch) return undefined;
+
+    if (
+      selectedBracketMatch.winner === previewParticipant &&
+      doc.results[selectedBracketMatch.id]?.winner === previewParticipant
+    )
+      return selectedBracketMatch;
+
+    const matchIndex = /^(\d+)-(\d+)$/.exec(selectedBracketMatch.id);
+    if (!matchIndex) return undefined;
+
+    const round = Number(matchIndex[1]);
+    const index = Number(matchIndex[2]);
+    if (round === 0) return undefined;
+
+    const previousMatch = bracketMatches[round - 1]?.[Math.floor(index / 2)];
+    return previousMatch?.winner === previewParticipant &&
+      doc.results[previousMatch.id]?.winner === previewParticipant
+      ? previousMatch
+      : undefined;
+  })();
 
   useEffect(() => {
     if (activeField) previewInput.current?.focus();
@@ -89,6 +117,7 @@ export function EditorShell({
     const targetRect = target.getBoundingClientRect();
     const canvasRect = canvas.getBoundingClientRect();
     const fontSize = Number.parseFloat(getComputedStyle(target).fontSize);
+    setActionLeft(Math.min(targetRect.left - canvasRect.left, Math.max(0, canvasRect.width - 280)));
     setActivePosition({
       left: targetRect.left - canvasRect.left,
       top: targetRect.top - canvasRect.top + Math.max(0, (targetRect.height - 44) / 2),
@@ -352,31 +381,67 @@ export function EditorShell({
                     }}
                   />
                 )}
-                {doc.kind === "bracket" && advanceMatch && previewParticipant && activePosition && (
-                  <Button
-                    primary
-                    disabled={state.busy}
-                    className="absolute z-10 !min-h-9 !px-2 !py-1 !text-xs"
-                    style={{
-                      left: activePosition.left,
-                      top: Number(activePosition.top) + Number(activePosition.height) + 4,
-                    }}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => {
-                      state.change(
-                        setMatchResult(
-                          doc,
-                          advanceMatch.id,
-                          previewParticipant,
-                          advanceMatch.scores,
-                        ),
-                      );
-                      setActiveField(null);
-                    }}
-                  >
-                    {t.chooseWinner}
-                  </Button>
-                )}
+                {doc.kind === "bracket" &&
+                  previewParticipant &&
+                  activePosition &&
+                  (advanceMatch || moveBackMatch) && (
+                    <div
+                      className="absolute z-10 flex max-w-[calc(100%-1rem)] flex-wrap gap-1"
+                      style={{
+                        left: actionLeft ?? activePosition.left,
+                        top: Number(activePosition.top) + Number(activePosition.height) + 4,
+                      }}
+                    >
+                      {advanceMatch && (
+                        <Button
+                          primary
+                          disabled={state.busy}
+                          className="!min-h-9 !px-2 !py-1 !text-xs"
+                          onPointerDown={(event) => event.preventDefault()}
+                          onClick={() => {
+                            state.change(
+                              setMatchResult(
+                                doc,
+                                advanceMatch.id,
+                                previewParticipant,
+                                advanceMatch.scores,
+                              ),
+                            );
+                            setActiveField(null);
+                          }}
+                        >
+                          <ArrowRight aria-hidden="true" size={14} />
+                          {t.chooseWinner}
+                        </Button>
+                      )}
+                      {moveBackMatch && (
+                        <Button
+                          disabled={state.busy}
+                          className="!min-h-9 !px-2 !py-1 !text-xs"
+                          onPointerDown={(event) => event.preventDefault()}
+                          onClick={() => {
+                            void (async () => {
+                              if (hasDependentResults(doc, moveBackMatch.id)) {
+                                const choice = await state.confirm(t.confirmClearResults, {
+                                  cancelLabel: t.stay,
+                                  confirmLabel: t.continue,
+                                });
+                                if (choice !== "confirm") return;
+                              }
+
+                              state.change(
+                                setMatchResult(doc, moveBackMatch.id, null, moveBackMatch.scores),
+                              );
+                              setActiveField(null);
+                            })();
+                          }}
+                        >
+                          <Undo2 aria-hidden="true" size={14} />
+                          {t.moveBack}
+                        </Button>
+                      )}
+                    </div>
+                  )}
               </div>
             </div>
           </section>
