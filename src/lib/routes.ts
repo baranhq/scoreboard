@@ -85,7 +85,8 @@ export function pageForPath(path: string): PageKey | undefined {
   if (normalizedPath === "/scoreboard") return "scoreboard";
   for (const lang of ["bg", "tr", "en"] as const) {
     for (const page of Object.keys(slugs.en) as PageKey[]) {
-      const currentPath = route(lang, page).replace(/\/+$/, "") || "/";
+      const currentPath =
+        (page === "home" ? homeRoute(lang) : route(lang, page)).replace(/\/+$/, "") || "/";
       const legacySlug = legacyToolSlugs[lang][page];
       const legacyPath = legacySlug ? `/${lang}/${legacySlug}` : undefined;
       if (normalizedPath === currentPath || normalizedPath === legacyPath) return page;
