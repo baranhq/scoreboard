@@ -52,7 +52,7 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           </div>
         </div>
       </section>
-      <section className="bg-forest/5" aria-labelledby="theme-showcase-title">
+      <section className="bg-paper" aria-labelledby="theme-showcase-title">
         <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
           <header className="mb-8 grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
             <h2

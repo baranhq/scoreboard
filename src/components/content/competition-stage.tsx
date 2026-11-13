@@ -59,7 +59,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
       }
     >
       <div
-        className="relative grid grid-cols-3 border-y border-current/20"
+        className="grid grid-cols-3 gap-1 rounded-xl border border-white/20 bg-white/[0.035] p-1"
         role="group"
         aria-label={t.tools}
       >
@@ -72,7 +72,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
               pause();
               setActive(index);
             }}
-            className={`min-h-14 min-w-0 px-1 py-3 font-display text-sm font-semibold transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-lime active:brightness-90 motion-reduce:transition-none sm:min-h-16 sm:text-xl ${active === index ? "bg-action text-on-action" : "hover:bg-current/10"}`}
+            className={`flex min-h-12 min-w-0 items-center justify-center rounded-lg px-1.5 py-2 text-center font-display text-xs leading-tight font-semibold transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-lime active:brightness-90 motion-reduce:transition-none sm:min-h-14 sm:px-3 sm:text-lg lg:text-xl ${active === index ? "bg-action text-on-action" : "text-white/85 hover:bg-white/[0.07]"}`}
           >
             {t[item]}
           </button>

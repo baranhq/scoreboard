@@ -177,7 +177,10 @@ export function ProductThemeShowcase({
           </Button>
         </div>
       </div>
-      <div className="h-[30rem] min-w-0 overflow-hidden rounded-xl border border-forest/20 sm:h-[31rem]">
+      <div
+        className="h-[30rem] min-w-0 overflow-hidden rounded-xl border border-forest/20 sm:h-[31rem]"
+        style={{ backgroundColor: colors.background }}
+      >
         <ToolDemo
           tool={tool}
           lang={lang}
