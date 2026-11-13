@@ -211,6 +211,7 @@ export function ScoreboardPreview({
   compact = false,
   readOnly = false,
   autoplay = true,
+  showHeader = true,
   showPlaybackControls = true,
 }: {
   copy: LandingContent["preview"];
@@ -218,6 +219,7 @@ export function ScoreboardPreview({
   compact?: boolean;
   readOnly?: boolean;
   autoplay?: boolean;
+  showHeader?: boolean;
   showPlaybackControls?: boolean;
 }) {
   const previewRef = useRef<HTMLElement>(null);
@@ -429,22 +431,24 @@ export function ScoreboardPreview({
           data-demo-stage="0"
           className={`relative flex min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 text-ink shadow-sm motion-safe:animate-[surface-enter_280ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none sm:p-3 ${compact ? "h-full max-h-full" : "h-[min(calc(72svh-4rem),31rem)] max-h-[min(calc(72svh-4rem),31rem)] md:h-auto md:max-h-[calc(100svh-12rem-1px)]"}`}
         >
-          <PreviewToolbar
-            copy={copy}
-            labels={labels}
-            playing={!playbackPaused}
-            showPlaybackControls={showPlaybackControls && !readOnly}
-            onToggle={() => {
-              if (playbackPaused) {
-                manuallyPausedRef.current = false;
-                setManuallyPaused(false);
-                setMotionPreferenceOverridden(true);
-              } else {
-                pausePlayback();
-              }
-            }}
-            onReset={resetDemo}
-          />
+          {showHeader && (
+            <PreviewToolbar
+              copy={copy}
+              labels={labels}
+              playing={!playbackPaused}
+              showPlaybackControls={showPlaybackControls && !readOnly}
+              onToggle={() => {
+                if (playbackPaused) {
+                  manuallyPausedRef.current = false;
+                  setManuallyPaused(false);
+                  setMotionPreferenceOverridden(true);
+                } else {
+                  pausePlayback();
+                }
+              }}
+              onReset={resetDemo}
+            />
+          )}
           <div aria-hidden="true" inert>
             <PreviewTimer state={state} labels={labels} />
           </div>

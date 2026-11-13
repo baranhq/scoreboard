@@ -52,6 +52,7 @@ export function HomeScoreboard({
   expanded = false,
   autoplay = true,
   compact = false,
+  showHeader = true,
   readOnly = false,
   showPlaybackControls = true,
   controlledPlayback = false,
@@ -64,6 +65,7 @@ export function HomeScoreboard({
   expanded?: boolean;
   autoplay?: boolean;
   compact?: boolean;
+  showHeader?: boolean;
   readOnly?: boolean;
   showPlaybackControls?: boolean;
   controlledPlayback?: boolean;
@@ -163,17 +165,19 @@ export function HomeScoreboard({
         } as CSSProperties
       }
     >
-      <header className="flex items-center justify-between border-b border-white/15 px-4 py-2 sm:px-6">
-        <span className="text-sm font-semibold">{t.eventName}</span>
-        {showPlaybackControls && (
-          <DemoPlaybackControls
-            playing={playing}
-            onToggle={toggle}
-            onReset={resetPlayback}
-            labels={{ play: t.startTimer, pause: t.pauseTimer, reset: t.resetDemo }}
-          />
-        )}
-      </header>
+      {showHeader && (
+        <header className="flex items-center justify-between border-b border-white/15 px-4 py-2 sm:px-6">
+          <span className="text-sm font-semibold">{t.eventName}</span>
+          {showPlaybackControls && (
+            <DemoPlaybackControls
+              playing={playing}
+              onToggle={toggle}
+              onReset={resetPlayback}
+              labels={{ play: t.startTimer, pause: t.pauseTimer, reset: t.resetDemo }}
+            />
+          )}
+        </header>
+      )}
       <div
         className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "pt-1 pb-4 sm:px-5 sm:pb-5" : "py-7 sm:px-7 sm:py-4"}`}
       >
