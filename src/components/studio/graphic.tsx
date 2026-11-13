@@ -379,6 +379,7 @@ export function BracketGraphic({
       <rect
         width={outputWidth}
         height={outputHeight}
+        rx={16}
         fill={board.style.gradient ? `url(#${gradientId})` : board.style.background}
         className="motion-safe:transition-[fill] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
       />
