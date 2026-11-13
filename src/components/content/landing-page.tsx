@@ -171,7 +171,7 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
           </div>
         </div>
       </section>
-      <section className="border-t border-white/10 bg-campaign text-campaign-ink">
+      <section className="border-t border-white/10 bg-action text-on-action">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
           <h2 className="font-display text-[clamp(3rem,7.5vw,7rem)] leading-[0.95] font-bold tracking-[-0.04em] whitespace-pre-line">
             {copy.close}
