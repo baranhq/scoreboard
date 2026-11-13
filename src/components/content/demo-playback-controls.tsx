@@ -5,12 +5,14 @@ export function DemoPlaybackControls({
   labels,
   onToggle,
   onReset,
+  showReset = true,
   onDark = false,
 }: {
   playing: boolean;
   labels: { play: string; pause: string; reset: string };
   onToggle: () => void;
   onReset: () => void;
+  showReset?: boolean;
   onDark?: boolean;
 }) {
   const color = onDark ? "text-white hover:bg-white/10" : "text-ink hover:bg-forest/10";
@@ -27,15 +29,17 @@ export function DemoPlaybackControls({
       >
         {playing ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
       </button>
-      <button
-        type="button"
-        aria-label={labels.reset}
-        title={labels.reset}
-        onClick={onReset}
-        className={`inline-flex size-11 items-center justify-center rounded-lg transition-colors motion-reduce:transition-none ${color}`}
-      >
-        <RotateCcw size={16} aria-hidden="true" />
-      </button>
+      {showReset && (
+        <button
+          type="button"
+          aria-label={labels.reset}
+          title={labels.reset}
+          onClick={onReset}
+          className={`inline-flex size-11 items-center justify-center rounded-lg transition-colors motion-reduce:transition-none ${color}`}
+        >
+          <RotateCcw size={16} aria-hidden="true" />
+        </button>
+      )}
     </div>
   );
 }
