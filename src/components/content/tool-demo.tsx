@@ -308,7 +308,7 @@ function StudioToolDemo({
       ref={attachRef}
       aria-label={t[tool]}
       style={
-        compact
+        compact && !barePreview
           ? ({
               "--color-surface": document.style.background,
               "--color-paper": document.style.background,
