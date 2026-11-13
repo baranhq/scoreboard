@@ -99,7 +99,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 tool={tool}
                 lang={lang}
                 compact
-                showPreviewLabel={tool !== "scoreboard"}
+                showHeader={false}
                 widePreview={widePreview}
                 fillPreview={tool !== "scoreboard"}
                 autoplay={playing}

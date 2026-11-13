@@ -32,6 +32,7 @@ export function ToolDemo({
   expanded = false,
   autoplay = true,
   hideHeading = false,
+  showHeader = true,
   showPreviewLabel = false,
   fillPreview = false,
   readOnly = false,
@@ -52,6 +53,7 @@ export function ToolDemo({
   expanded?: boolean;
   autoplay?: boolean;
   hideHeading?: boolean;
+  showHeader?: boolean;
   showPreviewLabel?: boolean;
   fillPreview?: boolean;
   readOnly?: boolean;
@@ -83,6 +85,7 @@ export function ToolDemo({
         expanded={expanded}
         autoplay={autoplay}
         compact
+        showHeader={showHeader}
         readOnly={readOnly}
         showPlaybackControls={showPlaybackControls}
         controlledPlayback={controlledPlayback}
@@ -107,6 +110,7 @@ export function ToolDemo({
         compact={compact}
         readOnly={readOnly}
         autoplay={autoplay}
+        showHeader={showHeader}
         showPlaybackControls={showPlaybackControls}
       />
     );
@@ -122,6 +126,7 @@ export function ToolDemo({
       expanded={expanded}
       autoplay={autoplay}
       hideHeading={hideHeading}
+      showHeader={showHeader}
       showPreviewLabel={showPreviewLabel}
       fillPreview={fillPreview}
       showPlaybackControls={showPlaybackControls}
@@ -143,6 +148,7 @@ function StudioToolDemo({
   expanded,
   autoplay,
   hideHeading,
+  showHeader,
   showPreviewLabel,
   fillPreview,
   showPlaybackControls,
@@ -159,6 +165,7 @@ function StudioToolDemo({
   expanded: boolean;
   autoplay: boolean;
   hideHeading: boolean;
+  showHeader: boolean;
   showPreviewLabel: boolean;
   fillPreview: boolean;
   showPlaybackControls: boolean;
@@ -321,48 +328,50 @@ function StudioToolDemo({
       }
       className={`flex min-w-0 flex-col overflow-hidden ${barePreview ? "bg-transparent" : "bg-surface"} text-ink ${frameClass}`}
     >
-      <header
-        className={`flex items-center justify-between gap-3 py-2.5 ${barePreview ? "" : "border-b border-forest/15 px-3 sm:px-4"}`}
-      >
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span className="truncate text-sm font-semibold">
-            {showPreviewLabel ? t.preview : t[tool]}
-          </span>
-        </div>
-        {(showPlaybackControls || showFullscreenControl) && (
-          <div className="flex shrink-0 items-center gap-1">
-            {showFullscreenControl && (
-              <button
-                ref={fullscreenButton}
-                type="button"
-                aria-label={fullscreen ? labels.exit : labels.fullscreen}
-                aria-pressed={fullscreen}
-                title={fullscreen ? labels.exit : labels.fullscreen}
-                onClick={toggleFullscreen}
-                className="inline-flex size-11 items-center justify-center rounded-lg text-ink transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action motion-reduce:transition-none"
-              >
-                {fullscreen ? (
-                  <Minimize2 size={16} aria-hidden="true" />
-                ) : (
-                  <Expand size={16} aria-hidden="true" />
-                )}
-              </button>
-            )}
-            {showPlaybackControls && (
-              <DemoPlaybackControls
-                playing={playing}
-                labels={{
-                  play: labels.playPreview,
-                  pause: labels.pausePreview,
-                  reset: t.resetDemo,
-                }}
-                onToggle={togglePlayback}
-                onReset={resetPlayback}
-              />
-            )}
+      {showHeader && (
+        <header
+          className={`flex items-center justify-between gap-3 py-2.5 ${barePreview ? "" : "border-b border-forest/15 px-3 sm:px-4"}`}
+        >
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="truncate text-sm font-semibold">
+              {showPreviewLabel ? t.preview : t[tool]}
+            </span>
           </div>
-        )}
-      </header>
+          {(showPlaybackControls || showFullscreenControl) && (
+            <div className="flex shrink-0 items-center gap-1">
+              {showFullscreenControl && (
+                <button
+                  ref={fullscreenButton}
+                  type="button"
+                  aria-label={fullscreen ? labels.exit : labels.fullscreen}
+                  aria-pressed={fullscreen}
+                  title={fullscreen ? labels.exit : labels.fullscreen}
+                  onClick={toggleFullscreen}
+                  className="inline-flex size-11 items-center justify-center rounded-lg text-ink transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action motion-reduce:transition-none"
+                >
+                  {fullscreen ? (
+                    <Minimize2 size={16} aria-hidden="true" />
+                  ) : (
+                    <Expand size={16} aria-hidden="true" />
+                  )}
+                </button>
+              )}
+              {showPlaybackControls && (
+                <DemoPlaybackControls
+                  playing={playing}
+                  labels={{
+                    play: labels.playPreview,
+                    pause: labels.pausePreview,
+                    reset: t.resetDemo,
+                  }}
+                  onToggle={togglePlayback}
+                  onReset={resetPlayback}
+                />
+              )}
+            </div>
+          )}
+        </header>
+      )}
 
       <div
         className={`min-w-0 gap-3 ${compact ? `flex flex-col ${bareCompactPreview ? "flex-none overflow-visible p-0 sm:min-h-0 sm:flex-1 sm:overflow-hidden" : `min-h-0 flex-1 overflow-hidden ${barePreview ? "p-0" : "p-3 sm:p-4"}`}` : "grid items-start p-3 sm:p-4 lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
