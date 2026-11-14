@@ -463,7 +463,7 @@ export function BracketGraphic({
                     className="motion-safe:transition-[fill,fill-opacity] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
                   />
                   <Lines
-                    text={id ? name(id) : node.pending ? labels.pending : labels.noOpponent}
+                    text={id ? name(id) : node.pending ? labels.pending : labels.bye}
                     x={12}
                     y={i * rowHeight + 25}
                     width={196 / 16}

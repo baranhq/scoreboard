@@ -36,7 +36,7 @@ The platform upgrade adds a separate `scoreboard-studio` IndexedDB database for 
 5. Verify that production runs the analytics cleanup task hourly, including during low-traffic periods, and monitors failures. Application queries exclude records older than 365 days, but physical deletion depends on scheduled cleanup. Also verify backup-restoration procedures purge restored optional analytics and consent records before service reopens.
 6. The app does not ask a visitor's age or verify parent/guardian authority. For consent-based processing involving children under 14, confirm how valid parental/guardian consent is obtained for the actual audience and classroom use; the notice itself is not a consent mechanism.
 7. Identify the email provider and its applicable processing locations and retention arrangements if available.
-8. Check whether a private policy file configured through `POLICY_PATH` overrides the checked-in generated policy files in production, and publish the updated text to the active policy source when deploying.
+8. The public PHP route reads the private policy file configured through `POLICY_PATH` before the checked-in generated policy. After changing policy source text, publish all three languages through the authenticated editor and verify the dates and rendered content; uploading a new build alone does not replace an existing private copy.
 
 ## Ongoing operational checks
 
