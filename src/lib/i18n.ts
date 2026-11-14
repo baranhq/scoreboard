@@ -151,7 +151,7 @@ const en = {
   notFoundDescription:
     "The address may have changed. Your saved scoreboards remain in this browser.",
   notFoundHome: "Return to the scoreboard",
-  saved: "My Tables",
+  saved: "My boards",
   savedShort: "Saved",
   create: "Build a scoreboard",
   newScoreboard: "New scoreboard",

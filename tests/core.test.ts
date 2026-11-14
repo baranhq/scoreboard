@@ -30,6 +30,7 @@ import { encodeGame, decodeGame, shareUrl } from "../src/lib/sharing.ts";
 import { writeBoards, loadBoards, loadOrCreateBoard } from "../src/store/database.ts";
 import {
   homeRoute,
+  isApplicationPath,
   localizedAlternates,
   pageForPath,
   route,
@@ -153,6 +154,11 @@ test("scoreboard routes stay localized while the root aliases remain useful", ()
   assert.equal(pageForPath("/scoreboard"), "scoreboard");
   assert.equal(pageForPath("/bg/scoreboard/"), "scoreboard");
   assert.equal(translatedPath("/scoreboard/", "tr"), "/tr/skor-tahtasi/");
+  assert.equal(isApplicationPath("/en/scoreboard/", "en"), true);
+  assert.equal(isApplicationPath("/tr/siralama/duzenle/", "tr"), true);
+  assert.equal(isApplicationPath("/bg/zapazeni-igri/", "bg"), true);
+  assert.equal(isApplicationPath("/tr/turnuva-semalari/", "tr"), false);
+  assert.equal(isApplicationPath("/en/", "en"), false);
 
   const homeAlternates = localizedAlternates("https://scoreboard.baranhq.com", "home");
   assert.equal(homeAlternates.en, "https://scoreboard.baranhq.com/");
@@ -367,13 +373,17 @@ test("invalid multi-board writes do not partially restore projects", async () =>
 
 test("corrupt stored scoreboards are rejected without deleting the stored record", async () => {
   const db = await new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open("scoreboard", 1);
+    const request = indexedDB.open("scoreboard");
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
   await new Promise<void>((resolve, reject) => {
-    const transaction = db.transaction("boards", "readwrite");
-    transaction.objectStore("boards").put({ id: "corrupt-record", teams: "not a list" });
+    const transaction = db.transaction("projects", "readwrite");
+    transaction.objectStore("projects").put({
+      id: "corrupt-record",
+      type: "scoreboard",
+      data: { id: "corrupt-record", teams: "not a list" },
+    });
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error);
     transaction.onabort = () => reject(transaction.error);
@@ -383,16 +393,20 @@ test("corrupt stored scoreboards are rejected without deleting the stored record
   await assert.rejects(loadBoards());
 
   const verify = await new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open("scoreboard", 1);
+    const request = indexedDB.open("scoreboard");
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
   await new Promise<void>((resolve, reject) => {
-    const transaction = verify.transaction("boards", "readwrite");
-    const store = transaction.objectStore("boards");
+    const transaction = verify.transaction("projects", "readwrite");
+    const store = transaction.objectStore("projects");
     const request = store.get("corrupt-record");
     request.onsuccess = () => {
-      assert.deepEqual(request.result, { id: "corrupt-record", teams: "not a list" });
+      assert.deepEqual(request.result, {
+        id: "corrupt-record",
+        type: "scoreboard",
+        data: { id: "corrupt-record", teams: "not a list" },
+      });
       store.delete("corrupt-record");
     };
     transaction.oncomplete = () => resolve();
