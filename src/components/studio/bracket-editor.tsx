@@ -227,7 +227,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
               <div className="flex shrink-0 items-center gap-1">
                 <button
                   type="button"
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-forest/20 text-sm opacity-100 hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 motion-safe:transition-[background-color,opacity] motion-safe:duration-150 motion-reduce:transition-none [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-forest/20 text-sm opacity-100 hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 motion-safe:transition-[background-color,opacity] motion-safe:duration-150 motion-reduce:transition-none"
                   disabled={i === 0}
                   aria-label={`${t.up} ${i + 1}`}
                   onClick={() => {
@@ -240,7 +240,7 @@ export function BracketEditor({ lang }: { lang: Lang }) {
                 </button>
                 <button
                   type="button"
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-forest/20 text-sm opacity-100 hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 motion-safe:transition-[background-color,opacity] motion-safe:duration-150 motion-reduce:transition-none [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-forest/20 text-sm opacity-100 hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 motion-safe:transition-[background-color,opacity] motion-safe:duration-150 motion-reduce:transition-none"
                   disabled={i === board.participants.length - 1}
                   aria-label={`${t.down} ${i + 1}`}
                   onClick={() => {

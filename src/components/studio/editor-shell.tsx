@@ -531,6 +531,7 @@ export function ThemeControls({
     <div className="space-y-5">
       <ThemeLibrary
         lang={lang}
+        previewKind={doc.kind}
         value={{ ...toolThemes[0], ...doc.style, id: undefined }}
         change={applyTheme}
       />

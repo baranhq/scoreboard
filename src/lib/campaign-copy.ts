@@ -2,7 +2,8 @@ import type { Lang } from "./i18n";
 export const campaignCopy = {
   en: {
     intro:
-      "Keep scores up to date, follow the standings and guide winners through tournament brackets. Set up the display and share the result.",
+      "Track live scores, keep standings up to date and follow a tournament to the final. Choose a theme and share the result.",
+    allTools: "View all tools",
     headline: "Keep score.\nKeep playing.",
     design: "Give the scoreboard\nyour own look.",
     workflow: "Ready before the first point.",
@@ -38,8 +39,9 @@ export const campaignCopy = {
   },
   bg: {
     intro:
-      "Следете резултата, подреждайте класирането и вижте как победителите стигат до финала. Настройте изгледа и споделете резултата.",
-    headline: "Следете резултата.\nИграйте нататък.",
+      "Следете резултата на живо, обновявайте класирането и проследявайте турнирната схема до финала. Изберете тема и споделете резултата.",
+    allTools: "Вижте всички инструменти",
+    headline: "Следете резултата.\nПродължете играта.",
     design: "Настройте таблото\nспоред играта.",
     workflow: "Всичко е готово преди първата точка.",
     steps: [
@@ -74,7 +76,8 @@ export const campaignCopy = {
   },
   tr: {
     intro:
-      "Skorları takip edin, sıralamayı görün ve turnuva şemasında kazananları finale taşıyın. Görünümü düzenleyip sonucu paylaşın.",
+      "Skorları canlı takip edin, sıralamayı güncel tutun ve turnuva şemasını finale kadar izleyin. Tema seçip sonucu paylaşın.",
+    allTools: "Tüm araçları görün",
     headline: "Skoru takip edin.\nOyuna devam edin.",
     design: "Skor tabelasını\noyuna göre düzenleyin.",
     workflow: "Oyun başlamadan her şey hazır.",

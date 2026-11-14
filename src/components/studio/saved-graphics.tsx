@@ -87,20 +87,6 @@ export function SavedGraphics({ lang }: { lang: Lang }) {
       className="mb-7 border-b border-forest/20 pb-6"
       aria-label={`${t.leaderboard} & ${t.bracket}`}
     >
-      <div className="mb-3 flex flex-wrap gap-2">
-        <Link
-          className="inline-flex min-h-11 items-center rounded-lg bg-action px-4 text-base font-semibold text-on-action"
-          href={route(lang, "leaderboardEditor")}
-        >
-          {t.leaderAction}
-        </Link>
-        <Link
-          className="inline-flex min-h-11 items-center rounded-lg border border-forest/25 px-4 text-base font-semibold"
-          href={route(lang, "bracketEditor")}
-        >
-          {t.bracketAction}
-        </Link>
-      </div>
       {status && (
         <p role="status" className="py-3 text-sm">
           {status}
