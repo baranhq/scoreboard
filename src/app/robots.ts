@@ -3,15 +3,9 @@ import { indexable, siteOrigin } from "@/lib/site";
 
 export const dynamic = "force-static";
 
-const adminPath = process.env.ADMIN_PATH?.trim() || "/admin";
-if (
-  !/^\/[a-z0-9][a-z0-9_-]{0,63}$/.test(adminPath) ||
-  ["/api", "/bg", "/en", "/tr"].includes(adminPath)
-)
-  throw new Error("ADMIN_PATH must be one available URL segment.");
-const privatePaths = [
-  ...new Set(["/admin", "/admin/", "/api/", "/baranhq_admin", adminPath, `${adminPath}/`]),
-];
+// Keep the configurable admin URL out of this public file. Admin responses are
+// noindex, and server-side authentication protects access.
+const privatePaths = ["/api/"];
 
 export default function robots(): MetadataRoute.Robots {
   return {

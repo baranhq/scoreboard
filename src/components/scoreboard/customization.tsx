@@ -268,6 +268,7 @@ export function Customization({
           <div>
             <ThemeLibrary
               lang={lang}
+              previewKind="scoreboard"
               value={{
                 ...toolThemes[0],
                 id: board.themeId,

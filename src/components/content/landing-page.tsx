@@ -68,7 +68,7 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
               </span>
               <span className="text-white/70">{t.local}</span>
             </p>
-            <h1 className="max-w-[13ch] font-display text-[clamp(3rem,6.4vw,6.25rem)] leading-[0.9] font-bold tracking-[-0.05em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
+            <h1 className="max-w-[16ch] font-display text-[clamp(3rem,5.2vw,5.25rem)] leading-[0.9] font-bold tracking-[-0.05em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
               {copy.headline}
             </h1>
             <p className="mt-5 max-w-[40ch] text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:mt-6">
@@ -84,9 +84,9 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
               </Link>
               <a
                 href="#tools"
-                className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold"
+                className="inline-flex min-h-12 items-center gap-2 border border-white/35 px-5 py-3 text-sm font-semibold text-campaign-ink transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime motion-reduce:transition-none"
               >
-                {t.explore}
+                {copy.allTools}
                 <ArrowDown size={16} aria-hidden="true" />
               </a>
             </div>

@@ -58,7 +58,7 @@ export function Modal({
   variant?: "default" | "privacy";
   closeLabel: string;
   closeDisabled?: boolean;
-  size?: "default" | "confirmation" | "wide";
+  size?: "default" | "confirmation" | "wide" | "spreadsheet";
   footerActions?: ModalAction[];
   footerLayout?: "default" | "confirmation";
   onAction?: (id: string) => void;
@@ -92,6 +92,10 @@ export function Modal({
   };
   const confirmationHasSecondaryAction =
     footerLayout === "confirmation" && (footerActions?.length ?? 0) > 2;
+  const sizeClass =
+    size === "spreadsheet"
+      ? "max-h-[88dvh] w-[min(92vw,80rem)]"
+      : `max-h-[90dvh] ${size === "wide" ? "w-[min(94vw,56rem)]" : size === "confirmation" ? "w-[min(94vw,34rem)]" : variant === "privacy" ? "w-[min(94vw,44rem)]" : "w-[min(94vw,28rem)]"}`;
   const finishClose = () => {
     if (timer.current !== undefined) window.clearTimeout(timer.current);
     closeRef.current();
@@ -110,7 +114,7 @@ export function Modal({
         if (closing && e.target === e.currentTarget) finishClose();
       }}
       aria-labelledby={titleId}
-      className={`m-auto flex max-h-[90dvh] ${size === "wide" ? "w-[min(94vw,56rem)]" : size === "confirmation" ? "w-[min(94vw,34rem)]" : variant === "privacy" ? "w-[min(94vw,44rem)]" : "w-[min(94vw,28rem)]"} bg-surface text-ink ${variant === "privacy" ? "backdrop:bg-black/50 sm:p-9" : "backdrop:bg-[#102116]/60 sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 p-4 shadow-lg transition-colors duration-150 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_160ms_ease-out_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
+      className={`m-auto flex ${sizeClass} bg-surface text-ink ${variant === "privacy" ? "backdrop:bg-black/50 sm:p-9" : "backdrop:bg-[#102116]/60 sm:p-6"} flex-col overflow-hidden rounded-xl border border-forest/20 p-4 shadow-lg transition-colors duration-150 motion-reduce:transition-none ${closing ? "motion-safe:animate-[dismiss_160ms_ease-out_forwards] motion-reduce:animate-none" : "motion-safe:animate-[appear_180ms_ease-out]"}`}
     >
       <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <h2 id={titleId} className="min-w-0 pt-1 font-display text-xl font-bold tracking-tight">

@@ -150,14 +150,32 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
         <div className="mb-4 grid gap-3 border-b border-forest/20 pb-3 sm:mb-5 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:pb-4">
           <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{t.saved}</h1>
           <div className="grid gap-2 sm:flex">
-            <Button
-              primary
-              className="w-full justify-center !px-2 whitespace-nowrap sm:w-auto sm:!px-4"
-              disabled={!ready || busy}
-              onClick={() => void create()}
+            <Dropdown
+              label={
+                <>
+                  {t.newProject}
+                  <ChevronDown aria-hidden="true" className="h-4 w-4" />
+                </>
+              }
+              ariaLabel={t.newProject}
+              triggerClassName="w-full justify-center bg-action text-on-action hover:bg-action/90 sm:w-auto"
             >
-              ＋ {t.newScoreboard}
-            </Button>
+              <MenuItem disabled={!ready || busy} onClick={() => void create()}>
+                {t.newScoreboard}
+              </MenuItem>
+              <Link
+                href={route(lang, "leaderboardEditor")}
+                className="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-base transition-colors hover:bg-forest/8"
+              >
+                {studioCopy[lang].leaderAction}
+              </Link>
+              <Link
+                href={route(lang, "bracketEditor")}
+                className="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-base transition-colors hover:bg-forest/8"
+              >
+                {studioCopy[lang].bracketAction}
+              </Link>
+            </Dropdown>
             <Dropdown
               label={
                 <>
@@ -226,10 +244,7 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
           <p className="py-8">{t.loading}</p>
         ) : !boards.length ? (
           <div className="border-y border-forest/20 py-6">
-            <p className="mb-4 text-base">{t.emptyText}</p>
-            <Button primary onClick={() => void create()}>
-              {t.create}
-            </Button>
+            <p className="text-base">{t.emptyText}</p>
           </div>
         ) : (
           <>

@@ -1,8 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronDown, Menu } from "lucide-react";
-import { Fragment } from "react";
+import { ArrowUpRight, ChevronDown, FolderOpen, Menu } from "lucide-react";
 import { Dropdown } from "@/components/ui/dropdown";
 import type { Lang } from "@/lib/i18n";
 import { homeRoute, route } from "@/lib/routes";
@@ -17,14 +16,15 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
     { href: route(lang, "bracketEditor"), label: t.bracket },
   ];
   const actionDestinations = [
-    { href: route(lang, "scoreboard"), label: t.makeScoreboard },
-    { href: route(lang, "leaderboardEditor"), label: t.makeLeaderboard },
-    { href: route(lang, "bracketEditor"), label: t.makeBracket },
+    { href: route(lang, "scoreboard"), label: t.openScoreboard },
+    { href: route(lang, "leaderboardEditor"), label: t.openLeaderboards },
+    { href: route(lang, "bracketEditor"), label: t.openBrackets },
   ];
+  const savedDestination = { href: route(lang, "saved"), label: t.saved };
   const applicationLinks = [
     { href: homeRoute(lang), label: t.home },
     ...toolDestinations,
-    { href: route(lang, "saved"), label: t.saved },
+    savedDestination,
   ];
   const discoveryLinks = [
     { href: homeRoute(lang), label: t.home },
@@ -38,18 +38,46 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
   const isEditor =
     pathname === "/scoreboard" ||
     toolDestinations.some((tool) => normalize(tool.href) === pathname);
-  const links = inApplication ? (isEditor ? toolDestinations : applicationLinks) : discoveryLinks;
+  const links = inApplication
+    ? isEditor
+      ? [...toolDestinations, savedDestination]
+      : applicationLinks
+    : discoveryLinks;
   const showAction =
     !inApplication &&
     (pathname === normalize(homeRoute(lang)) ||
       (["scoreboardIntro", "leaderboards", "brackets"] as const).some(
         (page) => pathname === normalize(route(lang, page)),
       ));
-  const stateClass = (href: string) =>
+  const isCurrent = (href: string) =>
     pathname === normalize(href) ||
-    (pathname === "/scoreboard" && href === route(lang, "scoreboard"))
-      ? "bg-action/10 text-action"
-      : "hover:bg-forest/10";
+    (pathname === "/scoreboard" && href === route(lang, "scoreboard"));
+  const isSavedLink = (href: string) => normalize(href) === normalize(savedDestination.href);
+  const stateClass = (href: string) => {
+    if (isSavedLink(href)) {
+      return isCurrent(href)
+        ? "border border-action/40 bg-action/10 text-action"
+        : "border border-forest/25 bg-forest/5 hover:bg-forest/10";
+    }
+
+    return isCurrent(href) ? "bg-action/10 text-action" : "hover:bg-forest/10";
+  };
+  const renderMobileLink = (link: { href: string; label: string }, showArrow = false) => (
+    <Link
+      key={link.href}
+      href={link.href}
+      className={`flex min-h-12 items-center justify-between gap-3 rounded-lg px-3 py-2 text-base leading-snug font-semibold ${isSavedLink(link.href) ? "mt-2" : ""} ${stateClass(link.href)}`}
+      aria-current={isCurrent(link.href) ? "page" : undefined}
+    >
+      <span className="flex min-w-0 items-center gap-2">
+        {isSavedLink(link.href) && <FolderOpen size={16} aria-hidden="true" />}
+        {link.label}
+      </span>
+      {showArrow && (
+        <ArrowUpRight size={16} aria-hidden="true" className="shrink-0 text-forest/70" />
+      )}
+    </Link>
+  );
   return (
     <>
       <div className="hidden items-center gap-0.5 lg:flex">
@@ -57,14 +85,10 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
           <Link
             key={link.href}
             href={link.href}
-            className={`inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none ${stateClass(link.href)}`}
-            aria-current={
-              pathname === normalize(link.href) ||
-              (pathname === "/scoreboard" && link.href === route(lang, "scoreboard"))
-                ? "page"
-                : undefined
-            }
+            className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold whitespace-nowrap transition-colors motion-reduce:transition-none ${isSavedLink(link.href) ? "ml-1" : ""} ${stateClass(link.href)}`}
+            aria-current={isCurrent(link.href) ? "page" : undefined}
           >
+            {isSavedLink(link.href) && <FolderOpen size={16} aria-hidden="true" />}
             {link.label}
           </Link>
         ))}
@@ -105,39 +129,29 @@ export function ToolNavigation({ lang }: { lang: Lang }) {
           }
           triggerClassName="!gap-1 !px-2 sm:!px-3"
         >
-          {links.map((link, index) => (
-            <Fragment key={link.href}>
-              {!inApplication && index === 1 && (
-                <p className="px-3 pt-2 pb-1 text-sm font-semibold text-ink/65">{t.tools}</p>
-              )}
-              <Link
-                href={link.href}
-                className={`flex min-h-12 items-center rounded-lg px-3 py-2 text-base font-semibold ${stateClass(link.href)}`}
-                aria-current={
-                  pathname === normalize(link.href) ||
-                  (pathname === "/scoreboard" && link.href === route(lang, "scoreboard"))
-                    ? "page"
-                    : undefined
-                }
-              >
-                {link.label}
-              </Link>
-            </Fragment>
-          ))}
-          {showAction && (
-            <>
-              <p className="px-3 pt-2 pb-1 text-sm font-semibold text-ink/65">{t.makeA}</p>
-              {actionDestinations.map((tool) => (
-                <Link
-                  key={tool.href}
-                  href={tool.href}
-                  className="flex min-h-12 items-center rounded-lg px-3 py-2 text-base font-semibold hover:bg-forest/10"
-                >
-                  {tool.label}
-                </Link>
-              ))}
-            </>
-          )}
+          <nav aria-label={t.menu} className="grid gap-1">
+            {inApplication ? (
+              links.map((link) => renderMobileLink(link))
+            ) : (
+              <>
+                {renderMobileLink(discoveryLinks[0])}
+                <section className="mt-2 border-t border-forest/20 pt-2">
+                  <h2 className="px-3 py-2 text-sm font-semibold text-ink/65">{t.explore}</h2>
+                  <div className="grid gap-0.5">
+                    {discoveryLinks.slice(1).map((link) => renderMobileLink(link))}
+                  </div>
+                </section>
+                {showAction && (
+                  <section className="mt-2 border-t border-forest/20 pt-2">
+                    <h2 className="px-3 py-2 text-sm font-semibold text-ink/65">{t.chooseTool}</h2>
+                    <div className="grid gap-0.5">
+                      {actionDestinations.map((link) => renderMobileLink(link, true))}
+                    </div>
+                  </section>
+                )}
+              </>
+            )}
+          </nav>
         </Dropdown>
       </div>
     </>

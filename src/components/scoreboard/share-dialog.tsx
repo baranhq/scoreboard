@@ -127,12 +127,13 @@ export function ShareDialog({
             <>
               <label className="grid gap-2 text-base">
                 {t.share}
-                <input
+                <textarea
                   aria-label={t.share}
                   readOnly
+                  rows={3}
                   value={url}
                   onFocus={(e) => e.target.select()}
-                  className="min-h-12 w-full rounded-lg border border-forest/25 bg-paper px-3"
+                  className="max-h-32 min-h-24 w-full min-w-0 resize-y overflow-auto rounded-lg border border-forest/25 bg-paper px-3 py-2 text-sm leading-5 break-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
                 />
               </label>
               <div className="mt-3 flex flex-wrap items-center gap-3">
