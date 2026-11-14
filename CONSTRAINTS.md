@@ -3,7 +3,7 @@
 The upgrade keeps Next.js static export, React, TypeScript, Tailwind and the optional PHP/MySQL backend. No new runtime dependencies or remote services are needed.
 
 - Existing Scoreboard IndexedDB records, backup formats, sharing fragments and `/scoreboard/` URLs remain compatible.
-- New graphics use separate, versioned browser storage. Examples never overwrite saved work. Storage and export failures must be visible.
+- Saved scoreboards, leaderboards and tournament brackets share the versioned `scoreboard` IndexedDB library. Migration leaves existing legacy records in place; storage and export failures must be visible.
 - Brackets support 2–64 participants; leaderboards support 1–100 rows and 1–10 columns. Limits keep editing and image export practical on ordinary devices.
 - User input renders as text. Colours, document versions, counts and relationships are validated when reading storage.
 - EN/BG/TR interfaces and public metadata stay equivalent. Editors and saved work are noindex; public introductions are indexable only in an indexable build.

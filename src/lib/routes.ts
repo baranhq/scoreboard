@@ -96,6 +96,18 @@ export function pageForPath(path: string): PageKey | undefined {
   const alias = /^\/(bg|tr|en)\/(scoreboards|privacy|licenses)$/.exec(normalizedPath);
   return alias ? (alias[2] === "scoreboards" ? "saved" : (alias[2] as PageKey)) : undefined;
 }
+
+export function isApplicationPath(path: string, lang: Lang): boolean {
+  const page = pageForPath(path);
+  return (
+    page === "scoreboard" ||
+    page === "saved" ||
+    page === "leaderboardEditor" ||
+    page === "bracketEditor" ||
+    path.replace(/\/$/, "") === route(lang, "scoreboard").replace(/\/$/, "")
+  );
+}
+
 export function translatedPath(path: string, lang: Lang): string {
   const page = pageForPath(path) || "home";
   return page === "home" ? homeRoute(lang) : route(lang, page);

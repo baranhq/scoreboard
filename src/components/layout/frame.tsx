@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ViewTransition, type ReactNode } from "react";
 import { ToolNavigation } from "./tool-navigation";
+import { FrameLogoLink } from "./frame-logo-link";
 import { studioCopy } from "@/lib/studio-copy";
 import { brand, repo } from "@/lib/site";
 import { operator } from "@/lib/operator";
@@ -53,21 +54,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
             aria-label={t.home}
             className="mx-auto flex h-full max-w-[1600px] flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
           >
-            <Link
-              href={homeRoute(lang)}
-              aria-label={`${brand}: ${t.home}`}
-              className="inline-flex min-h-11 shrink-0 items-center rounded-lg"
-            >
-              <img
-                src="/wordmark-62157c899159.webp"
-                srcSet="/wordmark-128-492516610722.webp 128w, /wordmark-256-aaadf7f18229.webp 256w"
-                sizes="128px"
-                width="315"
-                height="83"
-                alt={brand}
-                className="h-auto w-24 sm:w-32 dark:brightness-0 dark:invert"
-              />
-            </Link>
+            <FrameLogoLink lang={lang} t={t} />
             <div className="flex min-w-0 items-center gap-0 sm:gap-1">
               <ToolNavigation lang={lang} />
               <ThemeToggle t={t} />

@@ -37,7 +37,7 @@ See [Cloudflare Web Analytics documentation](https://developers.cloudflare.com/w
 
 No public account or automatic public login is required. Scoreboard names, team names, scores, icons, appearance settings, timer settings and state, and related scoreboard information are stored locally in your browser's **IndexedDB** database named scoreboard. The Website does not intentionally upload this information to its application server or include it in either analytics system.
 
-Leaderboards and tournament brackets are saved only when you choose Save, in a separate browser IndexedDB database named **scoreboard-studio**. It holds titles, participant names, table values, manual rankings, match results and visual settings. PNG images and JSON backups are generated locally; the Website does not intentionally upload their contents. You can delete saved tables in My Tables. These local records remain until you delete them or the browser removes site data. Unsaved edits also have a recovery draft in this tab’s sessionStorage. A draft is removed after a successful save and normally disappears when the tab’s session ends. Save or download a backup to keep your work.
+Saved scoreboards, leaderboards and tournament brackets are stored locally in your browser's **IndexedDB** database named scoreboard. The library also stores folder assignments and favourites there. On first use after this update, previously saved records are copied from the earlier scoreboard and scoreboard-studio databases; those original records are left in place. Deleting a migrated project from My Boards removes its library copy; its original record remains in the earlier store until you clear this Website's browser data. Project titles, participant names, scores, table values, match results, timer data and visual settings remain on your device. PNG images and JSON backups are generated locally; the Website does not intentionally upload their contents. You can delete saved projects in My Boards. These local records remain until you delete them or the browser removes site data. Unsaved edits also have a recovery draft in this tab’s sessionStorage. A draft is removed after a successful save and normally disappears when the tab’s session ends. Save or download a backup to keep your work.
 
 You may export a JSON backup to a file on your device or import a backup locally. You are responsible for deciding where to keep or share those files.
 
@@ -57,7 +57,7 @@ This cookie is specific to this Website and is not shared with or reused by the 
 
 **score_admin cookie**: Authenticates the private administration session; this is **not** a visitor login. At most **one hour**; Secure, HttpOnly, and SameSite=Strict.
 
-**Browser IndexedDB and local preferences**: Stores scoreboards, selected scoreboard, language, theme, and dismissed language suggestion, generally until you delete site data or your browser removes it. Any GitHub-star reminder value saved by an earlier version is deleted locally when the Website's interface loads.
+**Browser IndexedDB and local preferences**: Stores saved scoreboards, leaderboards, tournament brackets, folders, favourites, the selected scoreboard, language, theme, and dismissed language suggestion, generally until you delete site data or your browser removes it. Any GitHub-star reminder value saved by an earlier version is deleted locally when the Website's interface loads.
 
 Cloudflare may also use security cookies where its protection features require them; their presence and lifetimes depend on the security feature. See [Cloudflare's cookie documentation](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/).
 
@@ -69,7 +69,7 @@ You can manage **Site usage analytics** and **Cloudflare Web Analytics** separat
 
 If you withdraw consent for Site usage analytics, the Website stops future collection under that choice and removes live analytics records linked to that browser's privacy token. If you disable Cloudflare Web Analytics, the Website stops new beacon loading and reloads the page to end the active integration; a request already in progress may finish. Withdrawal does not retroactively make previous lawful processing unlawful and does not automatically erase hosting logs, AWStats reports, Cloudflare network records, existing backups, or Cloudflare's previously processed analytics.
 
-Other open Website tabs refresh privacy preferences when focused and receive same-site change notifications. If a tab has already loaded the Cloudflare beacon, it reloads when it learns that the corresponding consent was withdrawn, ending that tab's active integration. Deleting the privacy cookie may prevent the Website from associating an earlier analytics record with your browser. Deleting that cookie does not delete the separately stored scoreboards in IndexedDB.
+Other open Website tabs refresh privacy preferences when focused and receive same-site change notifications. If a tab has already loaded the Cloudflare beacon, it reloads when it learns that the corresponding consent was withdrawn, ending that tab's active integration. Deleting the privacy cookie may prevent the Website from associating an earlier analytics record with your browser. Deleting that cookie does not delete the saved projects in IndexedDB.
 
 ## 6. Private administration, security, and messages
 

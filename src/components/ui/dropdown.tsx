@@ -131,6 +131,13 @@ export function Dropdown({
         ? createPortal(
             <div
               ref={panel}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && ref.current) {
+                  event.stopPropagation();
+                  ref.current.open = false;
+                  ref.current.querySelector("summary")?.focus();
+                }
+              }}
               onClick={(e) => {
                 if ((e.target as HTMLElement).closest("button,a") && ref.current)
                   ref.current.open = false;

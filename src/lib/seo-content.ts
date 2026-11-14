@@ -22,7 +22,7 @@ export const seoContent: Record<
       help: "Learn to set up a team scoreboard, change scores, use a countdown or stopwatch, present it on a projector, and save, back up or share a snapshot.",
       licenses:
         "Read the MIT licence for Baran’s Scoreboard and the required notices for third-party fonts, icons and software.",
-      saved: "Open the scoreboards you saved in this browser on this device.",
+      saved: "Open scoreboards, leaderboards and brackets saved in this browser.",
       scoreboard:
         "Add teams, update scores, use a timer or stopwatch, and show a free scoreboard full screen. No account is required.",
     },
@@ -38,7 +38,7 @@ export const seoContent: Record<
       help: "Научете как да настроите табло за отбори, да променяте резултата, да използвате обратно броене или хронометър и да запазвате, архивирате или споделяте моментно копие.",
       licenses:
         "Прочетете условията на MIT за Baran’s Scoreboard и лицензионните известия за шрифтовете, иконите и софтуера на трети страни.",
-      saved: "Отворете таблата, запазени в браузъра на това устройство.",
+      saved: "Отворете запазените в този браузър табла за резултати, класирания и турнирни схеми.",
       scoreboard:
         "Добавяйте отбори, променяйте резултата, използвайте таймер или хронометър и показвайте таблото на цял екран. Безплатно е и не изисква регистрация.",
     },
@@ -54,7 +54,8 @@ export const seoContent: Record<
       help: "Takım skor tabelasını ayarlamayı, skoru değiştirmeyi, geri sayım veya kronometre kullanmayı, tam ekranda göstermeyi ve sonuçları kaydedip yedeklemeyi öğrenin.",
       licenses:
         "Baran’s Scoreboard’un MIT Lisansı’nı ve üçüncü taraf yazılım, yazı tipi ve simgeler için gerekli lisans bildirimlerini inceleyin.",
-      saved: "Bu cihazdaki tarayıcıya kaydettiğiniz skor tabelalarını açın.",
+      saved:
+        "Bu tarayıcıya kaydettiğiniz puan tablolarını, sıralamaları ve turnuva şemalarını açın.",
       scoreboard:
         "Takım ekleyin, skoru güncelleyin, zamanlayıcı veya kronometre kullanın ve skor tabelasını tam ekranda gösterin. Ücretsizdir; hesap gerekmez.",
     },
