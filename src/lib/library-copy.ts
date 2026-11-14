@@ -69,7 +69,7 @@ const copy = {
     clearFilters: "Clear search and filters",
     clearSearch: "Clear search",
     replaceQuestion:
-      "Replace all local projects and folders with this backup? This cannot be undone.",
+      "Replace all projects and folders in this library with this backup? This cannot be undone.",
     emptyTitle: "Your project library is ready",
     emptyText:
       "Start with a scoreboard, leaderboard or tournament bracket. It will be saved in this browser.",
@@ -108,7 +108,7 @@ const copy = {
     mergeNote:
       "Existing projects stay. ID conflicts are imported as separate copies, and folders with the same name are combined.",
     replaceNote:
-      "This replaces every project and folder currently in this browser with the backup contents.",
+      "This replaces every project and folder in the library with the backup contents. Original copies left in older browser storage during migration remain until you clear this site’s browser data.",
     imported: "Backup imported.",
     importError: "This backup is invalid or too large. Your existing projects were kept.",
     exportError: "The backup could not be prepared. Check browser storage and try again.",
@@ -185,7 +185,7 @@ const copy = {
     clearFilters: "Изчисти търсенето и филтрите",
     clearSearch: "Изчисти търсенето",
     replaceQuestion:
-      "Да заменим ли всички таблици и папки в този браузър с това копие? Действието не може да се отмени.",
+      "Да заменим ли всички таблици и папки в библиотеката с това копие? Действието не може да се отмени.",
     emptyTitle: "Библиотеката ви е готова",
     emptyText:
       "Започнете с табло за резултати, класиране или турнирна схема. Таблицата ще се запази в този браузър.",
@@ -224,7 +224,7 @@ const copy = {
     mergeNote:
       "Сегашните таблици ще останат. При съвпадение на номера ще се добави копие, а папките с еднакви имена ще се обединят.",
     replaceNote:
-      "Това ще замени всички таблици и папки в този браузър със съдържанието на копието.",
+      "Това заменя всички таблици и папки в библиотеката със съдържанието на копието. Оригиналните копия, оставени в старото хранилище при миграцията, ще останат там, докато не изтриете данните на сайта в браузъра.",
     imported: "Копието е импортирано.",
     importError: "Копието е невалидно или твърде голямо. Сегашните таблици са запазени.",
     exportError: "Копието не можа да се подготви. Проверете мястото в браузъра и опитайте отново.",
@@ -299,7 +299,7 @@ const copy = {
     clearFilters: "Aramayı ve filtreleri temizle",
     clearSearch: "Aramayı temizle",
     replaceQuestion:
-      "Bu yedekle bu tarayıcıdaki tüm projeler ve klasörler değiştirilsin mi? Bu işlem geri alınamaz.",
+      "Bu yedekle kitaplıktaki tüm projeler ve klasörler değiştirilsin mi? Bu işlem geri alınamaz.",
     emptyTitle: "Proje kitaplığınız hazır",
     emptyText:
       "Bir skor tablosu, sıralama tablosu veya turnuva şemasıyla başlayın. Tablolar bu tarayıcıya kaydedilir.",
@@ -339,7 +339,7 @@ const copy = {
     mergeNote:
       "Mevcut tablolar korunur. Kimlik çakışmalarında ayrı bir kopya eklenir; aynı adlı klasörler birleştirilir.",
     replaceNote:
-      "Bu işlem, bu tarayıcıdaki tüm tabloları ve klasörleri yedekteki içerikle değiştirir.",
+      "Bu işlem kitaplıktaki tüm projeleri ve klasörleri yedekteki içerikle değiştirir. Taşıma sırasında eski tarayıcı depolarında bırakılan asıl kopyalar, bu sitenin verilerini temizleyene kadar orada kalır.",
     imported: "Yedek içe aktarıldı.",
     importError: "Yedek geçersiz veya çok büyük. Mevcut tablolarınız korundu.",
     exportError: "Yedek hazırlanamadı. Tarayıcı depolama alanını kontrol edip yeniden deneyin.",
