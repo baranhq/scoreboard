@@ -51,7 +51,7 @@ test("all policies disclose local preferences and Cloudflare beacon request proc
       consentBoundary:
         /application-managed analytics integrations[\s\S]*starts each one only after you save a separate choice[\s\S]*Cloudflare account settings can separately inject/i,
       storage:
-        /custom tool themes[\s\S]*browser's preferred languages[\s\S]*Accept-Language[\s\S]*date when the GitHub reminder was last shown/i,
+        /custom tool themes[\s\S]*date when the GitHub reminder was last shown[\s\S]*browser's preferred languages[\s\S]*Accept-Language/i,
       cloudflare:
         /Downloading the beacon script[\s\S]*source IP address[\s\S]*discards that address at the nearest Cloudflare data centre[\s\S]*does not store it in its core databases or logs/i,
       preferences:
@@ -61,7 +61,7 @@ test("all policies disclose local preferences and Cloudflare beacon request proc
       consentBoundary:
         /интеграции, управлявани от приложния код[\s\S]*стартира всяка от тях само след като запазите отделен избор[\s\S]*акаунта в Cloudflare могат отделно да добавят/i,
       storage:
-        /персонализирани теми за инструментите[\s\S]*предпочитаните езици на браузъра[\s\S]*Accept-Language[\s\S]*датата, на която е показано напомнянето за GitHub/i,
+        /персонализирани теми за инструментите[\s\S]*датата, на която е показано напомнянето за GitHub[\s\S]*предпочитаните езици на браузъра[\s\S]*Accept-Language/i,
       cloudflare:
         /Изтеглянето на скрипта[\s\S]*IP адреса на източника[\s\S]*отхвърля в най-близкия център за данни[\s\S]*основните бази данни или логове/i,
       preferences:
@@ -71,7 +71,7 @@ test("all policies disclose local preferences and Cloudflare beacon request proc
       consentBoundary:
         /uygulama koduyla yönetilen analiz entegrasyonları[\s\S]*ancak ilgili hizmet için ayrı tercihinizi kaydettiğinizde başlatır[\s\S]*Cloudflare hesap ayarları ayrıca/i,
       storage:
-        /kaydedilen özel araç temalarını ve adlarını[\s\S]*tarayıcının tercih edilen dillerini[\s\S]*Accept-Language[\s\S]*GitHub hatırlatmasının en son gösterildiği tarihi/i,
+        /kaydedilen özel araç temalarını ve adlarını[\s\S]*GitHub hatırlatmasının en son gösterildiği tarihi[\s\S]*tarayıcının tercih edilen dillerini[\s\S]*Accept-Language/i,
       cloudflare:
         /İşaretçi betiğinin indirilmesi[\s\S]*kaynak IP adresini[\s\S]*en yakın veri merkezinde sildiğini[\s\S]*ana veritabanlarında veya günlüklerinde saklamadığını/i,
       preferences:
