@@ -4,6 +4,10 @@ export { siteOrigin as origin } from "./site.ts";
 export function isLang(value: string): value is Lang {
   return languages.includes(value as Lang);
 }
+export function languageFromPath(pathname: string | null): Lang {
+  const segment = pathname?.split("/").filter(Boolean)[0] ?? "";
+  return isLang(segment) ? segment : "bg";
+}
 const en = {
   autoHideControls: "Automatically hide fullscreen controls",
   keepVisible: "Keep controls visible",
