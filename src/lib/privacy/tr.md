@@ -17,7 +17,7 @@ Web Sitesi kimliğinizi açıklamanızı veya hesap oluşturmanızı gerektirmes
 
 ## 2. İsteğe bağlı analiz hizmetleri — yalnızca tercihinizle
 
-**Her iki isteğe bağlı analiz sistemi de Web Sitesi'nde etkindir; ancak ilgili hizmete onay verene kadar tarayıcınız için veri toplama kapalıdır.** Gizlilik panelinde her bir hizmet için ayrı bir tercih bulunur. Birini, ikisini veya hiçbirini kabul etmeyebilirsiniz. Bu bölümde açıklanan işlemenin hukuki dayanağı, onayınızdır (GDPR madde 6(1)(a)).
+**Web Sitesi'nin uygulama koduyla yönetilen analiz entegrasyonları isteğe bağlıdır. Uygulama her birini ancak ilgili hizmet için ayrı tercihinizi kaydettiğinizde başlatır.** Birini, ikisini veya hiçbirini kabul etmeyebilirsiniz. Cloudflare hesap ayarları ayrıca bir analiz işaretçisi ekleyebilir; bu ayar gizlilik panelinden yönetilmez. Aşağıda açıklanan ve uygulama tarafından yönetilen işlemenin hukuki dayanağı onayınızdır (GDPR madde 6(1)(a)).
 
 **A. Baran's Scoreboard site kullanım analizi**
 
@@ -27,7 +27,7 @@ Bu bilgiler Web Sitesi'nin MySQL veritabanında saklanır ve korumalı yönetim 
 
 **B. Cloudflare Web Analytics**
 
-**Cloudflare Web Analytics** için ayrıca onay verdiğinizde Web Sitesi, Cloudflare'in analiz işaretçisini (beacon) manuel olarak yükler. Bu işaretçi; sayfa görüntülemelerini, gezinme ve performans bilgilerini, tarayıcı zamanlama ölçümleri ve Core Web Vitals dahil olmak üzere ölçer. Cloudflare raporlarında sayfa yolları, yönlendiren siteler, yaklaşık ülke, cihaz türü, tarayıcı ve işletim sistemi görüntülenebilir. Web Sitesi; puan tablosu içeriklerini, alanlara girilen metinleri veya tahmini aktif kullanım süresini bu işaretçiye bilerek göndermez.
+**Cloudflare Web Analytics** için ayrıca onay verdiğinizde Web Sitesi, Cloudflare'in analiz işaretçisini (beacon) manuel olarak yükler. Bu işaretçi; sayfa görüntülemelerini, gezinme ve performans bilgilerini, oluşturulan sayfa yükleme kimliği, tarayıcı zamanlama ölçümleri ve Core Web Vitals dahil olmak üzere ölçer. Cloudflare raporlarında sayfa yolları, yönlendiren siteler, yaklaşık ülke, cihaz türü, tarayıcı ve işletim sistemi görüntülenebilir. Web Sitesi; puan tablosu içeriklerini, alanlara girilen metinleri veya tahmini aktif kullanım süresini bu işaretçiye bilerek göndermez. İşaretçi betiğinin indirilmesi de 1. bölümde açıklanan şekilde Cloudflare'e bir istek gönderir. Cloudflare her işaretçi isteğiyle kaynak IP adresini olağan HTTP isteği işleme sürecinin parçası olarak alır. Cloudflare bu adresi en yakın veri merkezinde sildiğini ve ana veritabanlarında veya günlüklerinde saklamadığını belirtir. Ayrıca işaretçi betiğinin tarayıcı çerezlerine veya depolama alanına erişmediğini belirtir.
 
 Cloudflare'in belgelerine göre Web Analytics hizmeti, ziyaretçileri farklı müşterilerin web siteleri arasında bireysel olarak takip etmez ve URL sorgu parametrelerini kaydetmez. Bu hizmet, otomatik olarak gerçekleşen Cloudflare ağ üzerinden sunum ve güvenlik işlemlerinden ayrıdır.
 
@@ -53,11 +53,11 @@ Web Sitesi tarafından kontrol edilen şu öğeler kullanılır:
 
 Bu çerez yalnızca bu Web Sitesi'ne özgüdür; başka bir ana makinedeki ayrı portföy sitesiyle paylaşılmaz veya orada yeniden kullanılmaz.
 
-**Sunucu tarafındaki gizlilik tercihi kaydı**: Belirteçle ilişkili seçimleri tutar; belirteç veritabanında karma/hash biçiminde saklanır. En fazla **bir yıl**.
+**Sunucu tarafındaki gizlilik tercihi kaydı**: Belirteçle ilişkili seçimleri tutar; belirteç veritabanında karma/hash biçiminde saklanır. Tercihler son güncellemeden sonra en fazla **180 gün** etkin kalır. Bakım komutu, son güncellemeden **365 gün** sonra veritabanı kaydını siler; süresi dolan kayıtlar komut çalışana kadar depolamada kalabilir. Temizliğin düzenli çalışıp çalışmadığı hosting yapılandırmasına bağlıdır.
 
 **score_admin çerezi**: Özel yönetim oturumunun kimliğini doğrular; bu bir ziyaretçi girişi **değildir**. En fazla **bir saat**; Secure, HttpOnly ve SameSite=Strict.
 
-**Tarayıcı IndexedDB'si ve yerel tercihler**: Puan tablolarını, seçili puan tablosunu, dili, temayı ve kapatılan dil önerisini saklar; genellikle siz site verilerini silene veya tarayıcınız bunları kaldırana kadar. Önceki bir sürümün kaydettiği GitHub yıldız hatırlatıcısı değeri, Web Sitesi arayüzü yüklendiğinde yerel olarak silinir.
+**Tarayıcı depolaması ve yerel tercihler**: Puan tabloları ve kaydedilen sıralamalar ile turnuva şemaları IndexedDB'de tutulur. LocalStorage; seçili puan tablosunu, dili, tema ayarını, kaydedilen özel araç temalarını ve adlarını, dil önerisi tercihini ve GitHub hatırlatmasının en son gösterildiği tarihi saklar. Web Sitesi, dil önerisi sunmak için tarayıcının tercih edilen dillerini yerel olarak okur; sistem teması seçiliyken cihazın açık/koyu görünüm tercihini de yerel olarak okur. Uygulama bu değerleri ayrı veri alanları olarak göndermez. Tarayıcınız, olağan sayfa isteklerinin parçası olarak Cloudflare'e ve barındırma sağlayıcısına `Accept-Language` HTTP başlığını gönderebilir; bu başlığın günlüklere kaydedilip kaydedilmediği sağlayıcıların ayarlarına bağlıdır. Cihazın açık/koyu görünüm tercihi uygulama sunucusuna gönderilmez. Tarayıcıdaki bu veriler, siz site verilerini temizleyene veya tarayıcı silene kadar kalır. Önceki bir sürümden kalan eski hatırlatma değeri, Web Sitesi arayüzü yüklenirken silinir.
 
 Cloudflare de koruma özellikleri gerektirdiğinde güvenlik çerezleri kullanabilir; bunların bulunması ve kullanım süreleri ilgili güvenlik özelliğine bağlıdır. Bkz. [Cloudflare çerez belgeleri](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/).
 
@@ -89,7 +89,7 @@ Web Sitesi ziyaretçilerin kişisel verilerini **satmaz**, reklam amaçlı takip
 
 **Web Sitesi kullanım analizi:** **365 günden** eski ziyaretler ve sayfa görüntülemeleri yönetim sorgularında gösterilmez. Önceki sürümlerin topladığı işlem kayıtları artık yönetim raporlarında gösterilmez. Bakım komutu çalıştırıldığında 365 günden eski analiz kayıtlarını siler; süresi dolan kayıtlar komut başarıyla çalışana kadar depolamada kalabilir. Temizliğin düzenli çalışıp çalışmadığı hosting yapılandırmasına bağlıdır.
 
-**Gizlilik tercihleri:** tercih çerezi en fazla **180 gün**, sunucu tarafındaki kayıt ise en fazla **bir yıl** tutulur.
+**Gizlilik tercihleri:** tercih çerezi ve sunucu tarafındaki seçimler son güncellemeden sonra en fazla **180 gün** etkin kalır. Bakım komutu, son güncellemeden **365 gün** sonra veritabanı kaydını siler; süresi dolan kayıtlar komut çalışana kadar depolamada kalabilir. Temizliğin düzenli çalışıp çalışmadığı hosting yapılandırmasına bağlıdır.
 
 **Yönetici oturumları:** en fazla **bir saat**. Geçici hız sınırı kayıtları **15 dakikalık** pencere sonunda etkin olmaktan çıkar ve bakım komutu çalıştırıldığında silinir. Kayıtlar komut çalışana kadar depolamada kalabilir. Temizliğin düzenli çalışıp çalışmadığı hosting yapılandırmasına bağlıdır.
 
