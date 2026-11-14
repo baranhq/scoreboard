@@ -5,6 +5,7 @@ node_modules/
 !/.agents/
 !/.agents/**
 /.agents/skills/
+/.impeccable/
 !/.codex/
 !/.codex/**
 !/.github/
