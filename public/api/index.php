@@ -15,7 +15,11 @@ try {
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     $policyPath=is_string($path)?rtrim($path,'/').'/':'';
     $publicPolicy=array_search($policyPath,policy_paths(),true);
-    if($publicPolicy!==false&&$method==='GET')serve_policy($c,$publicPolicy);
+    if($publicPolicy===false&&$path==='/api/index.php'){
+        $rewritePolicy=$_GET['public_policy']??null;
+        if(is_string($rewritePolicy)&&isset(policy_paths()[$rewritePolicy]))$publicPolicy=$rewritePolicy;
+    }
+    if($publicPolicy!==false&&in_array($method,['GET','HEAD'],true))serve_policy($c,$publicPolicy);
     if (!$admin && $path !== '/api/index.php') {
         if (is_string($path) && preg_match('~^/[a-z0-9][a-z0-9_-]{0,63}/?$~D', $path)) {
             http_response_code(404);header('Content-Type: text/html; charset=UTF-8');

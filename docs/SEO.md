@@ -10,7 +10,11 @@ The homepage JSON-LD describes one stable `WebSite` and `WebApplication` entity 
 
 The new canonical introductions are `/[lang]/tools/scoreboard/`, `/[lang]/leaderboards/` and `/[lang]/brackets/` in EN/BG/TR. Each has localized copy, a working example, reciprocal alternates and WebApplication JSON-LD describing real features. The new `/[lang]/leaderboards/edit/` and `/[lang]/brackets/edit/` routes are noindex and omitted from the sitemap. Existing Scoreboard editor URLs remain indexable for compatibility. There are 24 canonical public sitemap entries.
 
-On 10 November 2026, live `/en/` returned HTTP 200, `index, follow`, a canonical pointing to `/`, and no `X-Robots-Tag`. Live robots.txt allowed public crawling. The previously reported noindex issue was not reproducible. The current build loader already defaults the official production origin to indexable while retaining an explicit opt-out. Do not remove the staging safeguard or claim an unobserved hosting/Google issue was fixed. Search Console history and selected canonicals still require owner access.
+On 14 November 2026, the live English, Bulgarian and Turkish landing and tool pages checked returned HTTP 200 with localized titles, self-canonicals, reciprocal hreflang links and server-rendered headings. The homepage and public product pages included their expected structured data. The sitemap had 24 unique canonical URLs, but all three listed privacy-policy routes returned HTTP 503 with `X-Robots-Tag: noindex, nofollow`; their policy JSON endpoints were available. This is a confirmed indexing defect: a sitemap URL that serves an error cannot be indexed as intended. The PHP route now carries an explicit internal rewrite marker and serves HEAD requests without a body; verify these pages return HTTP 200 after deployment.
+
+The live `robots.txt` exposed `/baranhq_admin`, a configurable private route. Generated robots rules no longer publish private paths. Admin and API responses retain their existing authentication and `noindex` controls; robots rules are not access controls. The production apex also returned HTTP 200 to plain HTTP without a redirect, creating a duplicate protocol URL. Cloudflare handled the request, so configure “Always Use HTTPS” or an equivalent edge redirect in the Cloudflare dashboard and verify HTTP redirects to the canonical HTTPS URL. Do not add an origin redirect without checking the proxy setup, since that can create a loop. The audit resolver could not resolve the `www` hostname, which is not enough to conclude that public DNS is absent. Check its DNS and redirect behaviour with the domain provider.
+
+The live checks could not establish Google or Bing indexing status: Search Console and Bing Webmaster Tools access was not available. Later production requests began receiving HTTP 403, so bot-challenge behaviour and the reason for the PHP 503 still need confirmation in Cloudflare and hosting logs after deployment. The current build loader defaults the official production origin to indexable while retaining an explicit opt-out. Do not remove the staging safeguard or claim an unobserved hosting/Google issue was fixed. Search Console history and selected canonicals still require owner access.
 
 Google's [AI guidance](https://developers.google.com/search/docs/appearance/ai-features) calls for the same crawlability and helpful content used for Search, without special AI files. The new introductions follow that approach. [Software-app markup](https://developers.google.com/search/docs/appearance/structured-data/software-app) includes no fabricated reviews or ratings and makes no promise of rich-result eligibility.
 
@@ -47,7 +51,7 @@ Where available, enable Brotli compression and use the normal Cloudflare static-
 
 ## Search and AI crawler access
 
-Indexable builds allow general crawlers and explicitly allow `OAI-SearchBot`. The existing `User-agent: *` rule also applies to GPTBot; this work leaves model-training crawler access unchanged. OpenAI documents OAI-SearchBot and GPTBot as independent controls. The robots file does not override Cloudflare/WAF challenges, and a crawler user-agent alone is not authentication. Use current official crawler details and published IP ranges when configuring verified-bot access.
+Indexable builds allow general crawlers and explicitly allow `OAI-SearchBot`. The existing `User-agent: *` rule also applies to GPTBot; this work leaves model-training crawler access unchanged. Private routes are not listed in robots.txt: their HTML or HTTP responses carry `noindex`, which crawlers must be allowed to fetch to see. OpenAI documents OAI-SearchBot and GPTBot as independent controls. The robots file does not override Cloudflare/WAF challenges, and a crawler user-agent alone is not authentication. Use current official crawler details and published IP ranges when configuring verified-bot access.
 
 No `llms.txt` is generated. There is no evidence that it improves search or recommendation eligibility; the product is represented in crawlable localized HTML, ordinary links, the sitemap and truthful structured data. AI services decide independently what to cite or recommend; there is no guaranteed inclusion mechanism.
 
@@ -62,7 +66,10 @@ The English README and the Bulgarian and Turkish README files are available in t
 - [Google: Localized versions of pages](https://developers.google.com/search/docs/specialty/international/localized-versions)
 - [Google: Sitemap overview](https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview)
 - [Google: Canonicalization](https://developers.google.com/search/docs/crawling-indexing/canonicalization)
+- [Google: Robots meta tag](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag)
 - [Google: Software app structured data](https://developers.google.com/search/docs/appearance/structured-data/software-app)
+- [Bing: Webmaster guidelines](https://www.bing.com/webmasters/help/webmaster-guidelines-30fba23a)
 - [Bing: IndexNow](https://www.bing.com/webmasters/help/indexnow-0z209wby)
+- [Cloudflare: Always Use HTTPS](https://developers.cloudflare.com/ssl/edge-certificates/additional-options/always-use-https/)
 - [OpenAI: Overview of crawlers](https://developers.openai.com/api/docs/bots)
 - [OpenAI: Publisher and developer FAQ](https://help.openai.com/en/articles/12627856-publishers-and-developers-faq)

@@ -123,5 +123,7 @@ function serve_policy(array $c,string $lang): never {
     $html=preg_replace_callback('~<details\b(?=[^>]*\bdata-topic-navigation="mobile")[^>]*>.*?</details>\s*<aside\b(?=[^>]*\bdata-topic-navigation="desktop")[^>]*>.*?</aside>~s',static fn()=>$topics,$html,1,$count);if($count!==1)throw new RuntimeException('Policy topics unavailable');
     $html=preg_replace_callback('~<script\b[^>]*\bid="policy-document"[^>]*>.*?</script>~s',static fn()=>'<script id="policy-document" type="application/json">'.$json.'</script>',$html,1,$count);if($count!==1)throw new RuntimeException('Policy data unavailable');
     $html=policy_metadata_html($html,$p);
-    header_remove('X-Robots-Tag');header('Content-Type: text/html; charset=UTF-8');header('Cache-Control: no-cache');echo $html;exit;
+    header_remove('X-Robots-Tag');header('Content-Type: text/html; charset=UTF-8');header('Cache-Control: no-cache');
+    if(($_SERVER['REQUEST_METHOD']??'GET')!=='HEAD')echo $html;
+    exit;
 }

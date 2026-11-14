@@ -6,7 +6,9 @@ RewriteEngine On
 # PHP is the only administrator implementation. The build replaces this marker
 # with the route configured by ADMIN_PATH; PHP independently validates the same value.
 # ADMIN_ROUTE_REWRITE
-RewriteRule ^(bg/poveritelnost|tr/gizlilik|en/privacy)/?$ api/index.php [L]
+RewriteRule ^bg/poveritelnost/?$ api/index.php?public_policy=bg [L]
+RewriteRule ^tr/gizlilik/?$ api/index.php?public_policy=tr [L]
+RewriteRule ^en/privacy/?$ api/index.php?public_policy=en [L]
 <IfModule mod_headers.c>
  Header always set X-Content-Type-Options "nosniff"
  Header always set Referrer-Policy "strict-origin-when-cross-origin"

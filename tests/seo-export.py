@@ -1,5 +1,6 @@
 """Check the generated static export; run after an indexable production build."""
 import json
+import re
 import sys
 import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
@@ -90,8 +91,18 @@ if not urls:
     raise SystemExit('SEO export checks require an indexable production build')
 origin = urlsplit(urls[0]).scheme + '://' + urlsplit(urls[0]).netloc
 robots = RobotFileParser()
-robots.parse((root / 'robots.txt').read_text(encoding='utf-8').splitlines())
+robots_text = (root / 'robots.txt').read_text(encoding='utf-8')
+robots.parse(robots_text.splitlines())
 check(origin + '/sitemap.xml' in (robots.site_maps() or []), 'robots.txt must name the sitemap')
+check('/baranhq_admin' not in robots_text, 'robots.txt must not reveal the private admin path')
+htaccess = (root / '.htaccess').read_text(encoding='utf-8')
+admin_route = re.search(r'(?m)^RewriteRule \^([a-z0-9][a-z0-9_-]{0,63})/\?\$ api/index\.php \[L\]$', htaccess)
+check(bool(admin_route), 'generated .htaccess must retain the configured admin route')
+if admin_route:
+    check(f'/{admin_route.group(1)}' not in robots_text, 'robots.txt must not reveal the configured admin route')
+for lang, slug in (('bg', 'poveritelnost'), ('tr', 'gizlilik'), ('en', 'privacy')):
+    rule = f'RewriteRule ^{lang}/{slug}/?$ api/index.php?public_policy={lang} [L]'
+    check(rule in htaccess, f'.htaccess must route the {lang} privacy page explicitly')
 
 slugs = {
     'bg': ('', 'tablo', 'pomosht', 'poveritelnost', 'licenzi', 'tablo-za-rezultati', 'klasatsii', 'turnirni-shemi'),
@@ -203,8 +214,8 @@ for path in root.rglob('index.html'):
     if origin + relative not in expected and origin + relative not in aliases:
         check('noindex' in Page(path).meta.get('robots', ''), f'{relative}: noncanonical/private page must be noindex')
 for agent in ('Googlebot', 'bingbot', 'OAI-SearchBot'):
-    for private in ('/admin/', '/api/'):
-        check(not robots.can_fetch(agent, origin + private), f'robots.txt must disallow {private} for {agent}')
+    for private in ('/admin/', '/api/', '/baranhq_admin/'):
+        check(robots.can_fetch(agent, origin + private), f'robots.txt must allow crawlers to see noindex at {private}')
 
 if errors:
     raise SystemExit('\n'.join(errors))
