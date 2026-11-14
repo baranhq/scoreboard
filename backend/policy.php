@@ -66,11 +66,11 @@ function policy_topics(array $p,string $lang): string {
     }
 
     $label=h($labels[$lang]);
-    $mobile='<details class="group mb-6 rounded-xl border border-forest/15 bg-surface p-3 lg:hidden print:hidden">'
+    $mobile='<details data-topic-navigation="mobile" class="group mb-6 rounded-xl border border-forest/15 bg-surface p-3 lg:hidden print:hidden">'
         .'<summary class="cursor-pointer border-b border-transparent px-3 pb-2 font-sans text-base font-semibold text-forest transition-[color,border-color] duration-150 group-open:border-forest/15 group-open:pb-3 hover:text-forest/80 motion-reduce:transition-none dark:text-[#8bd69a] dark:hover:text-white">'.$label.'</summary>'
         .'<nav aria-label="'.$label.'" class="pt-1">'.policy_topic_list($topics).'</nav>'
         .'</details>';
-    $desktop='<aside class="hidden h-fit overscroll-contain rounded-xl border border-forest/15 bg-surface p-3 lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto print:hidden">'
+    $desktop='<aside data-topic-navigation="desktop" class="hidden h-fit overscroll-contain rounded-xl border border-forest/15 bg-surface p-3 lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto print:hidden">'
         .'<nav aria-label="'.$label.'">'
         .'<p class="mb-2 border-b border-forest/15 px-3 pb-3 font-sans text-base font-semibold text-forest dark:text-[#8bd69a]">'.$label.'</p>'
         .policy_topic_list($topics)
@@ -120,7 +120,7 @@ function serve_policy(array $c,string $lang): never {
     $article=policy_article($p,$lang);$json=json_encode($p,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
     $html=preg_replace_callback('~<article\b[^>]*\bid="policy-content"[^>]*>.*?</article>~s',static fn()=>$article,$html,1,$count);if($count!==1)throw new RuntimeException('Policy template unavailable');
     $topics=policy_topics($p,$lang);
-    $html=preg_replace_callback('~<details\b[^>]*>.*?</details>\s*<aside\b[^>]*>.*?</aside>~s',static fn()=>$topics,$html,1,$count);if($count!==1)throw new RuntimeException('Policy topics unavailable');
+    $html=preg_replace_callback('~<details\b(?=[^>]*\bdata-topic-navigation="mobile")[^>]*>.*?</details>\s*<aside\b(?=[^>]*\bdata-topic-navigation="desktop")[^>]*>.*?</aside>~s',static fn()=>$topics,$html,1,$count);if($count!==1)throw new RuntimeException('Policy topics unavailable');
     $html=preg_replace_callback('~<script\b[^>]*\bid="policy-document"[^>]*>.*?</script>~s',static fn()=>'<script id="policy-document" type="application/json">'.$json.'</script>',$html,1,$count);if($count!==1)throw new RuntimeException('Policy data unavailable');
     $html=policy_metadata_html($html,$p);
     header_remove('X-Robots-Tag');header('Content-Type: text/html; charset=UTF-8');header('Cache-Control: no-cache');echo $html;exit;

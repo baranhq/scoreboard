@@ -21,13 +21,13 @@ These systems may receive or process IP addresses even though the Website does n
 
 **A. Baran's Scoreboard site usage analytics**
 
-When you consent to **Site usage analytics**, the Website records a randomly generated browser preference token (held as a hash on the server), visits and page-view times, limited public page paths, and estimated active time. It also records these predefined actions: making a scoreboard, entering fullscreen, exporting a backup, and importing a backup. A visit ends after 30 minutes of inactivity. Active time is estimated only while the page is visible, focused, and recently used.
+When you consent to **Site usage analytics**, the Website records a randomly generated browser preference token (held as a hash on the server), visits and page-view times, limited public page paths, and estimated active time. The Website does not collect button clicks, link clicks, or other interaction events as separate analytics events. Local keyboard, pointer, and scroll signals are used only to estimate recent activity for the active-time total; individual interactions are not stored or sent. A visit ends after 30 minutes of inactivity. Active time is estimated only while the page is visible, focused, and recently used.
 
-This information is stored in the Website's MySQL database and is accessible through the protected administration interface. Authenticated administrator visits are excluded from this analytics system. The system does not intentionally store IP addresses, IP-derived visitor IDs, browser fingerprints, precise location, URL query strings, field contents, scoreboard names, team names, scores, mouse recordings, or screen recordings. This statement concerns **the Website's own usage analytics only**; it does not describe hosting logs or Cloudflare's separate processing.
+This information is stored in the Website's MySQL database and is accessible through the protected administration interface. Authenticated administrator visits are excluded from this analytics system. The system does not intentionally store IP addresses, IP-derived visitor IDs, browser fingerprints, precise location, URL query strings, field contents, scoreboard names, team names, scores, mouse recordings, or screen recordings. Action-event records collected by earlier versions are no longer shown in dashboard reports; they may remain in storage until the maintenance cleanup command removes records older than 365 days. Whether that command runs on schedule depends on hosting configuration. This statement concerns **the Website's own usage analytics only**; it does not describe hosting logs or Cloudflare's separate processing.
 
 **B. Cloudflare Web Analytics**
 
-When you separately consent to **Cloudflare Web Analytics**, the Website manually loads Cloudflare's analytics beacon. It measures page views, navigation and performance information, including browser timing and Core Web Vitals. Cloudflare's reports can show page paths, referrers, approximate country, device type, browser, and operating system. The Website does not intentionally send scoreboard contents, text entered in fields, its custom analytics events, or estimated active time to this beacon.
+When you separately consent to **Cloudflare Web Analytics**, the Website manually loads Cloudflare's analytics beacon. It measures page views, navigation and performance information, including browser timing and Core Web Vitals. Cloudflare's reports can show page paths, referrers, approximate country, device type, browser, and operating system. The Website does not intentionally send scoreboard contents, text entered in fields, or estimated active time to this beacon.
 
 Cloudflare documents that its Web Analytics service does not track individual visitors across customers' websites and does not log URL query strings. This service is distinct from the Cloudflare network delivery and security processing that occurs automatically.
 
@@ -75,7 +75,7 @@ Other open Website tabs refresh privacy preferences when focused and receive sam
 
 The public Website has no registration or ordinary visitor sign-in. An authorized operator may sign in to the private administrator area. The operator configures an administrator password outside the public source repository. Authentication uses an administrator session cookie and security controls.
 
-To help limit login attempts and public API abuse, the Website temporarily processes connection IP addresses for rate-limiting. A keyed hash and counter are kept in a separate security table over a **15-minute** rate-limit window, with scheduled cleanup normally running hourly. The rate-limit table does not retain raw IP addresses, and those hashes are not used as visitor identifiers. Expired records may remain until delayed cleanup completes. Security processing is based on legitimate interests in preventing unauthorized access and keeping the service available.
+To help limit login attempts and public API abuse, the Website temporarily processes connection IP addresses for rate-limiting. A keyed hash and counter are kept in a separate security table over a **15-minute** rate-limit window and are removed when the maintenance command runs. Whether it runs on schedule depends on hosting configuration. The rate-limit table does not retain raw IP addresses, and those hashes are not used as visitor identifiers. Expired records may remain until the command runs successfully. Security processing is based on legitimate interests in preventing unauthorized access and keeping the service available.
 
 If you email **baran@baranhq.com**, your email address, message, attachments, and related correspondence metadata are processed to respond to your enquiry and, where necessary, preserve relevant records or handle a dispute. The legal basis is legitimate interests in handling communications and protecting legal rights, or another applicable lawful basis where required. The Website does not provide a contact form.
 
@@ -87,11 +87,11 @@ The Website does **not** sell visitor personal data, use advertising tracking, o
 
 ## 8. Retention
 
-**Website usage analytics:** Visits, page views, and predefined events older than **365 days** are excluded from administration queries. Scheduled cleanup deletes expired live records. Expired records may remain in storage until cleanup completes successfully.
+**Website usage analytics:** Visits and page views older than **365 days** are excluded from administration queries. Earlier action-event records are no longer shown in dashboard reports. The maintenance command deletes analytics records older than 365 days when it runs; expired records may remain in storage until it runs successfully. Whether cleanup runs on schedule depends on hosting configuration.
 
 **Privacy choices:** the preference cookie lasts up to **180 days**; its server-side record expires within **one year**.
 
-**Administrator sessions:** at most **one hour**. Temporary rate-limit records become inactive after a **15-minute** window and are removed by scheduled cleanup. Expired records may remain until cleanup completes.
+**Administrator sessions:** at most **one hour**. Temporary rate-limit records become inactive after a **15-minute** window and are removed when the maintenance command runs. Expired records may remain until then. Whether cleanup runs on schedule depends on hosting configuration.
 
 **Local scoreboards:** generally retained in your browser until you or the browser remove them; the server does not administer their retention.
 

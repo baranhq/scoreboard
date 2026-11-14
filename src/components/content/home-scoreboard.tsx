@@ -52,27 +52,32 @@ export function HomeScoreboard({
   expanded = false,
   autoplay = true,
   compact = false,
+  showHeader = true,
   readOnly = false,
   showPlaybackControls = true,
   controlledPlayback = false,
   teamCount,
   showReadOnlyControls = false,
   allowManualEdit = true,
+  showFullscreenControl = true,
 }: {
   lang: Lang;
   theme?: ToolTheme;
   expanded?: boolean;
   autoplay?: boolean;
   compact?: boolean;
+  showHeader?: boolean;
   readOnly?: boolean;
   showPlaybackControls?: boolean;
   controlledPlayback?: boolean;
   teamCount?: number;
   showReadOnlyControls?: boolean;
   allowManualEdit?: boolean;
+  showFullscreenControl?: boolean;
 }) {
   const container = useRef<HTMLElement | null>(null);
   const [full, setFull] = useState(false);
+  const presentationFull = full || readOnly;
   const [fullscreenError, setFullscreenError] = useState(false);
   useEffect(() => {
     const sync = () => setFull(document.fullscreenElement === container.current);
@@ -162,25 +167,27 @@ export function HomeScoreboard({
         } as CSSProperties
       }
     >
-      <header className="flex items-center justify-between border-b border-white/15 px-4 py-2 sm:px-6">
-        <span className="text-sm font-semibold">{t.eventName}</span>
-        {showPlaybackControls && (
-          <DemoPlaybackControls
-            playing={playing}
-            onToggle={toggle}
-            onReset={resetPlayback}
-            labels={{ play: t.startTimer, pause: t.pauseTimer, reset: t.resetDemo }}
-          />
-        )}
-      </header>
+      {showHeader && (
+        <header className="flex items-center justify-between border-b border-white/15 px-4 py-2 sm:px-6">
+          <span className="text-sm font-semibold">{t.eventName}</span>
+          {showPlaybackControls && (
+            <DemoPlaybackControls
+              playing={playing}
+              onToggle={toggle}
+              onReset={resetPlayback}
+              labels={{ play: t.startTimer, pause: t.pauseTimer, reset: t.resetDemo }}
+            />
+          )}
+        </header>
+      )}
       <div
-        className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "py-1 sm:px-5" : "py-7 sm:px-7 sm:py-4"}`}
+        className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "pt-1 pb-4 sm:px-5 sm:pb-5" : "py-7 sm:px-7 sm:py-4"}`}
       >
         <TimerDisplay
           timer={timer}
           t={messages[lang]}
           change={setTimer}
-          full={false}
+          full={presentationFull}
           controlsVisible={false}
           textScale={100}
           showControls={false}
@@ -188,7 +195,7 @@ export function HomeScoreboard({
         />
         <div className="relative min-h-0 flex-1">
           <div
-            className={`${teamGridClass(count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : compact ? "auto-rows-fr sm:auto-rows-auto" : ""} h-full min-h-0 gap-2 sm:gap-3`}
+            className={`${teamGridClass(compact && count >= 4 && count <= 6 ? 2 : count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : compact ? "auto-rows-fr sm:auto-rows-auto" : ""} h-full min-h-0 gap-2 sm:gap-3`}
           >
             {teamNames.slice(0, count).map((name, index) => (
               <TeamPanel
@@ -220,7 +227,7 @@ export function HomeScoreboard({
                 fitCompactGrid={compact && count >= 4}
                 index={index}
                 count={count}
-                full={full}
+                full={presentationFull}
                 t={messages[lang]}
                 change={(amount) => {
                   pause();
@@ -258,7 +265,7 @@ export function HomeScoreboard({
           </label>
         )}
       </div>
-      {!readOnly && (
+      {!readOnly && showFullscreenControl && (
         <div data-demo-setup className="flex justify-end px-4 py-2">
           <button
             type="button"

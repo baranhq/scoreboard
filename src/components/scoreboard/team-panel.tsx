@@ -68,7 +68,7 @@ export function TeamPanel({
         ? "text-[calc(min(11cqw,1.75rem)*var(--score-text-scale))]"
         : digits > 2
           ? "text-[calc(min(13cqw,2rem)*var(--score-text-scale))]"
-          : "text-[calc(min(16cqw,2.5rem)*var(--score-text-scale))]"
+          : "text-[calc(min(16cqw,2.5rem)*var(--score-text-scale))] min-[768px]:text-[calc(min(18cqw,3rem)*var(--score-text-scale))]"
     : digits > 6
       ? "text-[calc(13cqw*var(--score-text-scale))]"
       : digits > 4
@@ -141,17 +141,25 @@ export function TeamPanel({
           } as const
         )[teamPreset];
   const teamNameSize = fitCompactGrid
-    ? "text-[clamp(0.75rem,5cqw,1rem)]"
+    ? "text-[clamp(0.75rem,5cqw,1rem)] min-[768px]:text-[clamp(0.875rem,5.5cqw,1.125rem)]"
     : full
       ? fullNameSize
       : regularNameSize;
   const scoreButtonSize = fitCompactGrid
-    ? "h-8 w-9"
+    ? count <= 6
+      ? "h-8 w-9 min-[768px]:h-11 min-[768px]:w-11"
+      : "h-8 w-9"
     : full
       ? count > 6
         ? "h-8 w-10 sm:h-8 sm:w-10"
         : "h-12 w-14 sm:h-12 sm:w-20"
       : "h-11 w-12 sm:h-12 sm:w-20";
+  const scoreButtonIconSize =
+    fitCompactGrid && count <= 6
+      ? "h-4 w-4 min-[768px]:h-5 min-[768px]:w-5"
+      : fitCompactGrid || (full && count > 6)
+        ? "h-4 w-4"
+        : "h-6 w-6 sm:h-7 sm:w-7";
   const ScoreTag = full || !interactive || !allowManualEdit ? "div" : "button";
   useEffect(() => {
     const element = scoreValue.current;
@@ -241,13 +249,7 @@ export function TeamPanel({
             aria-label={`${t.decrement}: ${team.name}`}
             className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] text-3xl text-[var(--secondary-text)] focus-visible:outline-[var(--secondary-text)] disabled:cursor-default dark:border-[var(--button-border-dark)] dark:text-[var(--secondary-text-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${scoreButtonFeedback} ${!interactive ? "disabled:border-solid disabled:opacity-100" : "disabled:border-dashed"}`}
           >
-            <Minus
-              aria-hidden="true"
-              className={
-                fitCompactGrid || (full && count > 6) ? "h-4 w-4" : "h-6 w-6 sm:h-7 sm:w-7"
-              }
-              strokeWidth={2.3}
-            />
+            <Minus aria-hidden="true" className={scoreButtonIconSize} strokeWidth={2.3} />
           </button>
           <button
             aria-disabled={paused || !interactive}
@@ -259,13 +261,7 @@ export function TeamPanel({
             aria-label={`${t.increment}: ${team.name}`}
             className={`flex ${scoreButtonSize} ${paused ? "cursor-not-allowed" : ""} items-center justify-center rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] text-3xl text-[var(--button-text)] focus-visible:outline-[var(--secondary-text)] disabled:cursor-default dark:border-[var(--button-border-dark)] dark:bg-[var(--button-bg-dark)] dark:text-[var(--button-text-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${scoreButtonFeedback} ${!interactive ? "disabled:border-solid disabled:opacity-100" : "disabled:border-dashed"}`}
           >
-            <Plus
-              aria-hidden="true"
-              className={
-                fitCompactGrid || (full && count > 6) ? "h-4 w-4" : "h-6 w-6 sm:h-7 sm:w-7"
-              }
-              strokeWidth={2.3}
-            />
+            <Plus aria-hidden="true" className={scoreButtonIconSize} strokeWidth={2.3} />
           </button>
         </div>
       )}

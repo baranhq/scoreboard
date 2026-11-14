@@ -16,7 +16,7 @@ The repository can verify application behaviour, but not hosting-level settings,
 
 - Games, custom names, scores, colours, icons, timer state, imports and shared payloads stay in the browser. A person can deliberately share a URL snapshot or JSON file.
 - URL payloads use fragments, not query strings. The application removes incoming data fragments before its optional beacon can load. Share links are public to anyone who has them, not encrypted, and not live collaborative sessions.
-- First-party usage analytics accept only a fixed event allowlist and public page paths. Arbitrary strings, input contents, query strings and game content are rejected.
+- First-party usage analytics record consented visits, page views from a fixed public-path allowlist, and estimated active time. Interaction events and user-provided labels are no longer accepted or reported. Previously collected action-event rows remain until the maintenance command deletes rows older than 365 days; whether its schedule is active must be confirmed on the host. No production records are bulk-deleted by this change.
 - No visitor IP address or IP-derived visitor identifier is stored in application analytics. Trusted addresses are processed transiently for login protection. Security counters are separate from analytics records. Authenticated administrators are automatically excluded from first-party usage analytics.
 - Hosting logs, AWStats, Cloudflare delivery/security and email correspondence are separate from optional application analytics. Rejecting consent does not turn them off.
 - The consent cookie is site-specific, opaque, Secure and HttpOnly in production. Portfolio consent on a different host is not reused.
@@ -42,7 +42,7 @@ The platform upgrade adds a separate `scoreboard-studio` IndexedDB database for 
 
 1. Verify operator details and all three language versions before release.
 2. Test no consent, reject, separate opt-ins and withdrawal. Inspect requests, server acceptance and stored rows, rather than checkbox state alone.
-3. Ensure consented page paths and predefined event labels contain no user content. Confirm shared fragments do not reach custom analytics or the optional beacon.
+3. Confirm page-view paths remain limited to the public-path allowlist and shared fragments do not reach custom analytics or the optional beacon. No interaction events are collected by first-party analytics.
 4. Review child audience and guardian-consent arrangements before analytics use in classrooms.
 5. Confirm HTTPS, private storage permissions, authenticated administration, session expiry, CSRF rejection, login limits and cache bypasses.
 
@@ -52,4 +52,4 @@ Publishing a policy edit changes only text. It does not configure provider loggi
 
 Relevant primary references: [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng), [Bulgarian Personal Data Protection Act and Article 25c](https://cpdp.bg/en/legislation/personal-data-protection-act/), [Bulgarian Commission for Personal Data Protection](https://cpdp.bg/en/), [Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/), [Cloudflare Web Analytics retention documentation](https://developers.cloudflare.com/web-analytics/faq/).
 
-The consent review also used the [consolidated ePrivacy Directive, Article 5(3)](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02002L0058-20091219) and [EDPB Guidelines 05/2020 on consent](https://www.edpb.europa.eu/documents/guideline/guidelines-052020-on-consent-under-regulation-2016679_en). Direct retrieval of CPDP material was unavailable during this pass, so current Bulgarian-law interpretation remains an operator/legal-review item. No contractual terms were changed.
+The consent review also used the [consolidated ePrivacy Directive, Article 5(3)](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02002L0058-20091219), [EDPB Guidelines 05/2020 on consent](https://www.edpb.europa.eu/documents/guideline/guidelines-052020-on-consent-under-regulation-2016679_en), and the current [Bulgarian Personal Data Protection Act](https://cpdp.bg/en/legislation/personal-data-protection-act/), including its under-14 consent rule. The appropriate arrangements for the Website's actual audience and hosting providers still require operator confirmation; this engineering review is not a legal compliance guarantee. No contractual terms were changed.

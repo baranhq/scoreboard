@@ -32,14 +32,14 @@ export const landingContent: Record<Lang, LandingContent> = {
     hero: {
       title: "Free online scoreboard.",
       description:
-        "Keep score for games, sports and classroom activities. Add teams and start right away, with no account or payment needed.",
-      action: "Make a Scoreboard",
+        "Keep score during games, matches and classroom activities. Add your teams and get started, with no account or payment required.",
+      action: "Build a scoreboard",
       featuresLink: "See features",
       benefits: ["Free to use", "No registration", "Open source"],
     },
     preview: {
       accessibleDescription:
-        "Animated scoreboard example showing team names, scores, colors, settings and a countdown timer.",
+        "Animated scoreboard example showing team names, scores, colours, settings and a countdown timer.",
       boardName: "Friendly game",
       firstTeam: "Team 1",
       secondTeam: "Team 2",
@@ -55,10 +55,10 @@ export const landingContent: Record<Lang, LandingContent> = {
         },
         {
           title: "Set up your teams",
-          description: "Add teams, choose names and colors, then adjust the layout and text size.",
+          description: "Add teams, choose names and colours, then adjust the layout and text size.",
         },
         {
-          title: "Timer and fullscreen",
+          title: "Timer and full-screen display",
           description:
             "Choose a countdown or stopwatch, then show the score clearly on any screen.",
         },
@@ -74,11 +74,11 @@ export const landingContent: Record<Lang, LandingContent> = {
       items: [
         {
           title: "Open your scoreboard",
-          description: "Choose Make a Scoreboard to open a ready-to-use board.",
+          description: "Choose Build a scoreboard to open a ready-to-use board.",
         },
         {
           title: "Set up the teams",
-          description: "Change team names, add teams and choose colors.",
+          description: "Change team names, add teams and choose colours.",
         },
         {
           title: "Play and keep score",
@@ -87,7 +87,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       ],
     },
     useCases: {
-      title: "For the games and activities you already enjoy",
+      title: "For classrooms, matches and game nights",
       items: [
         {
           title: "Classrooms and quiz nights",
@@ -111,8 +111,8 @@ export const landingContent: Record<Lang, LandingContent> = {
     },
     finalCta: {
       title: "Ready to keep score?",
-      description: "Make a free scoreboard and get started in seconds.",
-      action: "Make a Scoreboard",
+      description: "Start a free scoreboard in seconds.",
+      action: "Build a scoreboard",
     },
   },
   bg: {
@@ -120,7 +120,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       title: "Безплатно онлайн табло за резултати.",
       description:
         "Следете резултата в игри, спортни срещи и занимания в клас. Добавете отбори и започнете веднага, без регистрация и такса.",
-      action: "Създайте табло",
+      action: "Започнете ново табло",
       featuresLink: "Разгледайте функциите",
       benefits: ["Безплатно", "Без регистрация", "Отворен код"],
     },
@@ -145,7 +145,7 @@ export const landingContent: Record<Lang, LandingContent> = {
           description: "Добавяйте отбори, задавайте имена и цветове и променяйте подредбата.",
         },
         {
-          title: "Таймер и цял екран",
+          title: "Таймер и режим на цял екран",
           description:
             "Изберете обратно броене или хронометър и покажете резултата ясно на всеки екран.",
         },
@@ -161,7 +161,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       items: [
         {
           title: "Отворете таблото",
-          description: "Изберете „Създайте табло“, за да отворите готово за игра табло.",
+          description: "Изберете „Започнете ново табло“, за да отворите табло, готово за игра.",
         },
         {
           title: "Настройте отборите",
@@ -199,8 +199,8 @@ export const landingContent: Record<Lang, LandingContent> = {
     },
     finalCta: {
       title: "Готови ли сте да следите резултата?",
-      description: "Създайте безплатно табло и започнете след секунди.",
-      action: "Създайте табло",
+      description: "Започнете с безплатно табло за секунди.",
+      action: "Започнете ново табло",
     },
   },
   tr: {
@@ -233,7 +233,7 @@ export const landingContent: Record<Lang, LandingContent> = {
           description: "Takım ekleyin, ad ve renk seçin; düzeni ve yazı boyutunu ayarlayın.",
         },
         {
-          title: "Zamanlayıcı ve tam ekran",
+          title: "Zamanlayıcı ve tam ekran görünüm",
           description: "Geri sayım veya kronometre seçin; skoru her ekranda rahatça gösterin.",
         },
         {
@@ -248,7 +248,7 @@ export const landingContent: Record<Lang, LandingContent> = {
       items: [
         {
           title: "Skor tabelasını açın",
-          description: "Skor tabelası hazırlayın seçeneğiyle kullanıma hazır bir tablo açın.",
+          description: "Ana sayfada skor tabelasını seçerek oyuna hazır bir tablo açın.",
         },
         {
           title: "Takımları düzenleyin",

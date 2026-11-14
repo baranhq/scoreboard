@@ -32,11 +32,13 @@ export function ToolDemo({
   expanded = false,
   autoplay = true,
   hideHeading = false,
+  showHeader = true,
   showPreviewLabel = false,
   fillPreview = false,
   readOnly = false,
   showPlaybackControls = true,
   showFullscreenControl = false,
+  showResetControl = true,
   showResultControls = true,
   controlledPlayback = false,
   showReadOnlyControls = false,
@@ -52,11 +54,13 @@ export function ToolDemo({
   expanded?: boolean;
   autoplay?: boolean;
   hideHeading?: boolean;
+  showHeader?: boolean;
   showPreviewLabel?: boolean;
   fillPreview?: boolean;
   readOnly?: boolean;
   showPlaybackControls?: boolean;
   showFullscreenControl?: boolean;
+  showResetControl?: boolean;
   showResultControls?: boolean;
   controlledPlayback?: boolean;
   showReadOnlyControls?: boolean;
@@ -75,7 +79,7 @@ export function ToolDemo({
     JSON.stringify(theme ?? null),
   ].join(":");
 
-  if (tool === "scoreboard" && compact && !useScoreboardPreview)
+  if (tool === "scoreboard" && !useScoreboardPreview)
     return (
       <HomeScoreboard
         lang={lang}
@@ -83,6 +87,7 @@ export function ToolDemo({
         expanded={expanded}
         autoplay={autoplay}
         compact
+        showHeader={showHeader}
         readOnly={readOnly}
         showPlaybackControls={showPlaybackControls}
         controlledPlayback={controlledPlayback}
@@ -107,6 +112,7 @@ export function ToolDemo({
         compact={compact}
         readOnly={readOnly}
         autoplay={autoplay}
+        showHeader={showHeader}
         showPlaybackControls={showPlaybackControls}
       />
     );
@@ -122,10 +128,12 @@ export function ToolDemo({
       expanded={expanded}
       autoplay={autoplay}
       hideHeading={hideHeading}
+      showHeader={showHeader}
       showPreviewLabel={showPreviewLabel}
       fillPreview={fillPreview}
       showPlaybackControls={showPlaybackControls}
       showFullscreenControl={showFullscreenControl}
+      showResetControl={showResetControl}
       readOnly={readOnly}
       showResultControls={showResultControls}
       controlledPlayback={controlledPlayback}
@@ -143,10 +151,12 @@ function StudioToolDemo({
   expanded,
   autoplay,
   hideHeading,
+  showHeader,
   showPreviewLabel,
   fillPreview,
   showPlaybackControls,
   showFullscreenControl,
+  showResetControl,
   readOnly,
   showResultControls,
   controlledPlayback,
@@ -159,10 +169,12 @@ function StudioToolDemo({
   expanded: boolean;
   autoplay: boolean;
   hideHeading: boolean;
+  showHeader: boolean;
   showPreviewLabel: boolean;
   fillPreview: boolean;
   showPlaybackControls: boolean;
   showFullscreenControl: boolean;
+  showResetControl: boolean;
   readOnly: boolean;
   showResultControls: boolean;
   controlledPlayback: boolean;
@@ -182,9 +194,9 @@ function StudioToolDemo({
           ...sample.style,
           titleVisible: false,
           subtitleVisible: false,
-          ...(widePreview && !expanded ? { density: "compact", roundGap: 400, matchGap: 28 } : {}),
+          ...(widePreview && !expanded ? { density: "compact", roundGap: 260, matchGap: 28 } : {}),
         };
-      } else sample.gridColumns = widePreview || expanded ? 2 : 1;
+      } else sample.gridColumns = expanded ? 2 : 1;
     }
     if (hideHeading)
       sample.style = { ...sample.style, titleVisible: false, subtitleVisible: false };
@@ -287,19 +299,14 @@ function StudioToolDemo({
           )
       : undefined;
   const labels = messages[lang];
-  const bareCompactPreview = barePreview && compact;
   const frameClass = fullscreen
     ? "fixed inset-0 z-[100] h-[100dvh] w-screen max-w-none rounded-none border-0 shadow-none"
     : compact
-      ? bareCompactPreview
-        ? "h-auto rounded-none sm:h-full"
-        : "h-full rounded-none"
+      ? "h-full rounded-none"
       : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]";
-  const graphicViewportClass = bareCompactPreview
-    ? "flex items-center justify-center sm:min-h-0 sm:flex-1 sm:overflow-hidden"
-    : compact
-      ? `flex min-h-0 flex-1 items-center justify-center ${fullscreen ? "overflow-auto" : "overflow-hidden"}`
-      : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto";
+  const graphicViewportClass = compact
+    ? `flex min-h-0 flex-1 items-center justify-center ${fullscreen ? "overflow-auto" : "overflow-hidden"}`
+    : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto";
   const graphicWidthClass =
     compact && (widePreview || fillPreview || fullscreen) ? "[&>svg]:!w-full" : "[&>svg]:!w-auto";
 
@@ -321,51 +328,54 @@ function StudioToolDemo({
       }
       className={`flex min-w-0 flex-col overflow-hidden ${barePreview ? "bg-transparent" : "bg-surface"} text-ink ${frameClass}`}
     >
-      <header
-        className={`flex items-center justify-between gap-3 py-2.5 ${barePreview ? "" : "border-b border-forest/15 px-3 sm:px-4"}`}
-      >
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span className="truncate text-sm font-semibold">
-            {showPreviewLabel ? t.preview : t[tool]}
-          </span>
-        </div>
-        {(showPlaybackControls || showFullscreenControl) && (
-          <div className="flex shrink-0 items-center gap-1">
-            {showFullscreenControl && (
-              <button
-                ref={fullscreenButton}
-                type="button"
-                aria-label={fullscreen ? labels.exit : labels.fullscreen}
-                aria-pressed={fullscreen}
-                title={fullscreen ? labels.exit : labels.fullscreen}
-                onClick={toggleFullscreen}
-                className="inline-flex size-11 items-center justify-center rounded-lg text-ink transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action motion-reduce:transition-none"
-              >
-                {fullscreen ? (
-                  <Minimize2 size={16} aria-hidden="true" />
-                ) : (
-                  <Expand size={16} aria-hidden="true" />
-                )}
-              </button>
-            )}
-            {showPlaybackControls && (
-              <DemoPlaybackControls
-                playing={playing}
-                labels={{
-                  play: labels.playPreview,
-                  pause: labels.pausePreview,
-                  reset: t.resetDemo,
-                }}
-                onToggle={togglePlayback}
-                onReset={resetPlayback}
-              />
-            )}
+      {showHeader && (
+        <header
+          className={`flex items-center justify-between gap-3 py-2.5 ${barePreview ? "" : "border-b border-forest/15 px-3 sm:px-4"}`}
+        >
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="truncate text-sm font-semibold">
+              {showPreviewLabel ? t.preview : t[tool]}
+            </span>
           </div>
-        )}
-      </header>
+          {(showPlaybackControls || showFullscreenControl) && (
+            <div className="flex shrink-0 items-center gap-1">
+              {showFullscreenControl && (
+                <button
+                  ref={fullscreenButton}
+                  type="button"
+                  aria-label={fullscreen ? labels.exit : labels.fullscreen}
+                  aria-pressed={fullscreen}
+                  title={fullscreen ? labels.exit : labels.fullscreen}
+                  onClick={toggleFullscreen}
+                  className="inline-flex size-11 items-center justify-center rounded-lg text-ink transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action motion-reduce:transition-none"
+                >
+                  {fullscreen ? (
+                    <Minimize2 size={16} aria-hidden="true" />
+                  ) : (
+                    <Expand size={16} aria-hidden="true" />
+                  )}
+                </button>
+              )}
+              {showPlaybackControls && (
+                <DemoPlaybackControls
+                  playing={playing}
+                  labels={{
+                    play: labels.playPreview,
+                    pause: labels.pausePreview,
+                    reset: t.resetDemo,
+                  }}
+                  onToggle={togglePlayback}
+                  onReset={resetPlayback}
+                  showReset={showResetControl}
+                />
+              )}
+            </div>
+          )}
+        </header>
+      )}
 
       <div
-        className={`min-w-0 gap-3 ${compact ? `flex flex-col ${bareCompactPreview ? "flex-none overflow-visible p-0 sm:min-h-0 sm:flex-1 sm:overflow-hidden" : `min-h-0 flex-1 overflow-hidden ${barePreview ? "p-0" : "p-3 sm:p-4"}`}` : "grid items-start p-3 sm:p-4 lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
+        className={`min-w-0 gap-3 ${compact ? `flex min-h-0 flex-1 flex-col overflow-hidden ${barePreview ? "p-0" : "p-3 sm:p-4"}` : "grid items-start p-3 sm:p-4 lg:grid-cols-[minmax(15rem,0.82fr)_minmax(0,1.18fr)]"}`}
         onFocusCapture={pause}
         onInputCapture={pause}
         onChangeCapture={pause}
@@ -388,10 +398,10 @@ function StudioToolDemo({
 
         <section
           aria-label={t.preview}
-          className={`min-w-0 ${compact ? (bareCompactPreview ? "sm:flex sm:min-h-0 sm:flex-1 sm:flex-col" : "flex min-h-0 flex-1 flex-col") : ""}`}
+          className={`min-w-0 ${compact ? "flex min-h-0 flex-1 flex-col" : ""}`}
         >
           <div
-            className={`${graphicViewportClass} overscroll-contain ${barePreview ? "bg-transparent" : "bg-paper"} [&>svg]:!block [&>svg]:!h-auto ${bareCompactPreview ? "sm:[&>svg]:!max-h-full" : "[&>svg]:!max-h-full"} ${graphicWidthClass} [&>svg]:!max-w-full`}
+            className={`${graphicViewportClass} overscroll-contain ${barePreview ? "bg-transparent" : "bg-paper"} [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${graphicWidthClass} [&>svg]:!max-w-full`}
           >
             <Graphic
               document={document}

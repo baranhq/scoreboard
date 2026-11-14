@@ -110,18 +110,20 @@ test("optional row separation survives document and custom-theme storage", () =>
   );
 });
 
-test("scoreboard themes update the canvas and preserve teams and their individual colours", () => {
+test("scoreboard themes override individual team colours and preserve team results", () => {
   const board = newBoard("Match 1", "Team");
   assert.equal(board.themeId, "classic-green");
   board.color = "#123456";
   board.teams[0].color = "#aabbcc";
+  board.teams[0].textColor = "#334455";
   const themed = applyToolTheme(board, toolThemes[1]);
 
   assert.equal(themed.background, toolThemes[1].background);
   assert.equal(themed.themeId, toolThemes[1].id);
   assert.equal(themed.color, undefined);
   assert.equal(themed.accent, toolThemes[1].accent);
-  assert.equal(themed.teams[0].color, "#aabbcc");
+  assert.equal(themed.teams[0].color, undefined);
+  assert.equal(themed.teams[0].textColor, undefined);
   assert.deepEqual(
     themed.teams.map((team) => [team.name, team.score]),
     board.teams.map((team) => [team.name, team.score]),
@@ -563,6 +565,14 @@ test("every supported bracket size resolves to one champion with each participan
     }
     assert.ok(bracketRounds(board).at(-1)![0].winner, `count ${count}`);
     assert.deepEqual(parseDocument(board), board);
+  }
+});
+
+test("leaderboard demos do not start with a highlighted row", () => {
+  for (const lang of ["en", "bg", "tr"] as const) {
+    const demo = studioDemo("leaderboard", lang);
+    if (demo.kind !== "leaderboard") throw new Error("Expected a leaderboard demo");
+    assert.ok(demo.rows.every((row) => !row.highlighted));
   }
 });
 

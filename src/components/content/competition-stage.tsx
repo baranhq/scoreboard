@@ -34,6 +34,8 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   const tool = tools[active];
   const demoTheme = toolThemes[1];
   const demoThemeLabel = themeLabels[lang][1];
+  const previewHeightClass =
+    "h-[clamp(17rem,40svh,24rem)] sm:h-[clamp(22rem,70svh,40rem)] lg:h-[clamp(22rem,60svh,36rem)]";
 
   useEffect(() => {
     const preview = previewRef.current;
@@ -70,7 +72,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
               pause();
               setActive(index);
             }}
-            className={`min-h-14 min-w-0 px-1 py-3 font-display text-sm font-semibold transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-lime active:brightness-90 motion-reduce:transition-none sm:min-h-16 sm:text-xl ${active === index ? "bg-action text-on-action" : "hover:bg-current/10"}`}
+            className={`min-h-14 min-w-0 px-1 py-3 font-display text-sm font-semibold transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-lime active:brightness-90 motion-reduce:transition-none sm:min-h-16 sm:text-xl ${active === index ? "bg-action text-on-action" : themes ? "text-ink/80 hover:bg-forest/5" : "text-white/85 hover:bg-white/[0.07]"}`}
           >
             {t[item]}
           </button>
@@ -91,15 +93,15 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
             <div
               ref={previewRef}
               key={tool}
-              className="mt-3 h-[clamp(17rem,40svh,24rem)] min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.025] motion-safe:animate-[surface-enter_360ms_cubic-bezier(0.22,1,0.36,1)_both] motion-reduce:animate-none sm:h-[clamp(18rem,40svh,25rem)] lg:mt-4 lg:h-[clamp(17rem,38svh,24rem)] lg:flex-none"
+              className={`mt-3 ${previewHeightClass} min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.025] motion-safe:animate-[surface-enter_360ms_cubic-bezier(0.22,1,0.36,1)_both] motion-reduce:animate-none lg:mt-4 lg:flex-none`}
             >
               <ToolDemo
                 tool={tool}
                 lang={lang}
                 compact
-                showPreviewLabel={tool !== "scoreboard"}
+                showHeader={false}
                 widePreview={widePreview}
-                fillPreview={tool === "bracket"}
+                fillPreview={tool !== "scoreboard"}
                 autoplay={playing}
                 readOnly
                 showReadOnlyControls
@@ -109,34 +111,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 controlledPlayback
               />
             </div>
-            <div className="mt-2 border-t border-white/15 pt-2">
-              <button
-                type="button"
-                aria-haspopup="dialog"
-                onClick={() => {
-                  pause();
-                  setThemePromptOpen(true);
-                }}
-                className="group inline-flex min-h-11 max-w-full items-center gap-2 rounded-md text-left text-sm text-white/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime motion-reduce:transition-none"
-              >
-                <span
-                  aria-hidden="true"
-                  className="size-3 shrink-0 rounded-full border border-white/30"
-                  style={{ backgroundColor: demoTheme.accent }}
-                />
-                <span className="min-w-0">
-                  {t.demoThemeLabel}:{" "}
-                  <strong className="font-semibold text-white">{demoThemeLabel}</strong>
-                </span>
-                <ArrowUpRight
-                  size={16}
-                  aria-hidden="true"
-                  className="shrink-0"
-                  style={{ color: demoTheme.accent }}
-                />
-              </button>
-            </div>
-            <div className="mt-1 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-white/15 pt-2 sm:mt-4 sm:pt-3">
               <Link
                 href={route(lang, editors[tool])}
                 className="inline-flex min-h-11 items-center gap-2 font-semibold"
@@ -155,6 +130,34 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
                 className="min-h-11 px-2 text-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime"
               >
                 {playing ? messages[lang].pausePreview : messages[lang].playPreview}
+              </button>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
+              <p className="flex min-w-0 items-center gap-2 text-sm text-white/70">
+                <span
+                  aria-hidden="true"
+                  className="size-3 shrink-0 rounded-full border border-white/30"
+                  style={{ backgroundColor: demoTheme.accent }}
+                />
+                <span>
+                  {t.demoThemeLabel}:{" "}
+                  <strong className="font-semibold text-white">{demoThemeLabel}</strong>
+                </span>
+              </p>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                onClick={() => {
+                  pause();
+                  setThemePromptOpen(true);
+                }}
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/[0.035] px-3 py-2 text-sm font-semibold text-lime transition-colors hover:bg-white/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime motion-reduce:transition-none"
+                style={{
+                  color: demoTheme.accent,
+                }}
+              >
+                {t.demoThemeAction}
+                <ArrowUpRight size={16} aria-hidden="true" />
               </button>
             </div>
             {themePromptOpen && (

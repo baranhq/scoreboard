@@ -35,6 +35,7 @@ import {
   route,
   translatedPath,
 } from "../src/lib/routes.ts";
+import { languageFromPath } from "../src/lib/i18n.ts";
 import { softwareSchema } from "../src/lib/seo-content.ts";
 import { shouldKeepFullscreenControlsVisible } from "../src/components/scoreboard/use-fullscreen-controls.ts";
 
@@ -148,6 +149,7 @@ test("scoreboard routes stay localized while the root aliases remain useful", ()
   assert.equal(route("en", "scoreboard"), "/en/scoreboard/");
   assert.equal(route("bg", "scoreboard"), "/bg/tablo/");
   assert.equal(route("tr", "scoreboard"), "/tr/skor-tahtasi/");
+  assert.equal(pageForPath("/"), "home");
   assert.equal(pageForPath("/scoreboard"), "scoreboard");
   assert.equal(pageForPath("/bg/scoreboard/"), "scoreboard");
   assert.equal(translatedPath("/scoreboard/", "tr"), "/tr/skor-tahtasi/");
@@ -161,6 +163,13 @@ test("scoreboard routes stay localized while the root aliases remain useful", ()
   const scoreboardAlternates = localizedAlternates("https://scoreboard.baranhq.com", "scoreboard");
   assert.equal(scoreboardAlternates.en, "https://scoreboard.baranhq.com/en/scoreboard/");
   assert.equal(scoreboardAlternates["x-default"], scoreboardAlternates.en);
+});
+test("not-found pages follow the URL locale and default to Bulgarian", () => {
+  assert.equal(languageFromPath("/en/not-found/"), "en");
+  assert.equal(languageFromPath("/tr/missing-page"), "tr");
+  assert.equal(languageFromPath("/bg/does-not-exist"), "bg");
+  assert.equal(languageFromPath("/missing-page"), "bg");
+  assert.equal(languageFromPath(null), "bg");
 });
 test("shared scoreboard snapshots link to the localized application route", () => {
   const board = newBoard("Friendly game", "Team");
