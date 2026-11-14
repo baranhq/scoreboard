@@ -12,6 +12,7 @@ import type { StudioDocument } from "@/lib/studio";
 import { studioCopy } from "@/lib/studio-copy";
 import type { Lang } from "@/lib/i18n";
 import { route } from "@/lib/routes";
+import { foreground, readableText } from "@/lib/colors";
 import { exportPng } from "@/lib/export-png";
 import type { useDocument } from "./use-document";
 import { previewFieldValue, updatePreviewField, type PreviewField } from "@/lib/studio-edit";
@@ -20,7 +21,6 @@ import { CanvasRatioSelect } from "./canvas-controls";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
 import { DailyGithubStarNotice } from "./daily-github-star-notice";
-import { foreground, readableText } from "@/lib/colors";
 
 export const inputClass =
   "min-h-11 w-full min-w-0 rounded-md border border-forest/25 bg-surface px-3 py-2 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
@@ -50,6 +50,7 @@ export function EditorShell({
   const previewCanvas = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
+  const [previewScale, setPreviewScale] = useState<"compact" | "fit" | "full">("compact");
   const [previewOnly, setPreviewOnly] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<"edit" | "preview">("edit");
   const [fullscreen, setFullscreen] = useState(false);
@@ -61,11 +62,15 @@ export function EditorShell({
   const activeValue = activeField ? previewFieldValue(doc, activeField) : "";
   const activeLabel = activeField ? previewFieldLabel(doc, activeField, t) : "";
   const previewCanvasClass =
-    "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-full [&>svg]:!max-h-full [&>svg]:!w-full [&>svg]:!max-w-full";
-  const fullscreenOnDark = fullscreen && foreground(doc.style.background) === "#ffffff";
+    previewScale === "full"
+      ? "relative w-max [&>svg]:!h-auto [&>svg]:!w-auto"
+      : previewScale === "fit"
+        ? "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-full [&>svg]:!max-h-full [&>svg]:!w-full [&>svg]:!max-w-full"
+        : "relative flex h-full min-h-full w-full items-center justify-center [&>svg]:!h-auto [&>svg]:!max-h-[92%] [&>svg]:!w-auto [&>svg]:!max-w-[92%] lg:[&>svg]:!max-h-[78%] lg:[&>svg]:!max-w-[78%]";
   const previewBackground = doc.style.gradient
     ? `linear-gradient(135deg, ${doc.style.background}, ${doc.style.backgroundEnd || doc.style.accent})`
     : doc.style.background;
+  const fullscreenOnDark = fullscreen && foreground(doc.style.background) === "#ffffff";
   const fullscreenStyle: CSSProperties = {
     background: previewBackground,
     color: readableText(doc.style.background, doc.style.textColor),
@@ -310,6 +315,20 @@ export function EditorShell({
                 />
                 <Button
                   onDark={fullscreenOnDark}
+                  aria-pressed={previewScale === "fit"}
+                  onClick={() => setPreviewScale("fit")}
+                >
+                  {t.fit}
+                </Button>
+                <Button
+                  onDark={fullscreenOnDark}
+                  aria-pressed={previewScale === "full"}
+                  onClick={() => setPreviewScale("full")}
+                >
+                  {t.actual}
+                </Button>
+                <Button
+                  onDark={fullscreenOnDark}
                   aria-pressed={fullscreen}
                   onClick={() => void toggleFullscreen()}
                 >
@@ -334,7 +353,7 @@ export function EditorShell({
                   ? "transparent"
                   : `color-mix(in srgb, ${doc.style.accent} 20%, transparent)`,
               }}
-              className={`min-h-0 flex-1 overflow-auto overscroll-contain rounded-lg border p-2 focus-visible:outline-offset-0 sm:p-4 ${fullscreen ? "border-transparent bg-transparent" : ""}`}
+              className={`min-h-0 flex-1 overflow-auto overscroll-contain rounded-lg border border-forest/20 p-2 focus-visible:outline-offset-0 sm:p-4 ${fullscreen ? "border-transparent bg-transparent" : ""}`}
               tabIndex={0}
               aria-label={t.scrollHint}
             >

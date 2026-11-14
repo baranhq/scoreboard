@@ -15,7 +15,7 @@ try {
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     $policyPath=is_string($path)?rtrim($path,'/').'/':'';
     $publicPolicy=array_search($policyPath,policy_paths(),true);
-    if($publicPolicy!==false&&$method==='GET')serve_policy($c,$publicPolicy);
+    if($publicPolicy!==false&&$method==='GET'){$stage='policy';serve_policy($c,$publicPolicy);}
     if (!$admin && $path !== '/api/index.php') {
         if (is_string($path) && preg_match('~^/[a-z0-9][a-z0-9_-]{0,63}/?$~D', $path)) {
             http_response_code(404);header('Content-Type: text/html; charset=UTF-8');
@@ -27,7 +27,7 @@ try {
     }
     if (!in_array($method,['GET','POST'],true)) fail(405);
     $action = $_GET['action'] ?? 'state';if(!is_string($action))$action='';
-    if(!$admin&&$method==='GET'&&$action==='policy'){$language=$_GET['lang']??'';if(!is_string($language))fail(400);json_response(policy_document($c,$language));}
+    if(!$admin&&$method==='GET'&&$action==='policy'){$language=$_GET['lang']??'';if(!is_string($language))fail(400);$stage='policy';json_response(policy_document($c,$language));}
     if (!$admin && $method === 'GET' && $action === 'state' && (!$c['origin'] || strlen($c['key']) < 32 || !$c['db_name'])) json_response(consent_state(['analytics'=>false,'cloud_token'=>''],null));
     if (!$c['origin'] || strlen($c['key']) < 32 || !$c['db_name']) throw new RuntimeException('Incomplete configuration');
     if ($method === 'POST') same_origin($c);
@@ -44,10 +44,15 @@ try {
     if ($action === 'event') record_event($db,$c,$data);
     // There is no public analytics-read API. All reads are inside the authenticated administrator page.
     fail(404);
-} catch (JsonException) {fail(400);} catch (Throwable) {
+} catch (JsonException) {
+    if(serve_static_policy_fallback())exit;
+    if($stage==='policy')fail(503);
+    fail(400);
+} catch (Throwable) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();
     // Log an error category only; never request bodies, IPs, credentials, or DB connection strings.
     error_log('Scoreboard backend request failed ('.$stage.')');
+    if(serve_static_policy_fallback())exit;
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && ((isset($admin) && $admin) || in_array(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), ['/admin', '/admin/'], true))) admin_unavailable();
     fail(503);
 }
