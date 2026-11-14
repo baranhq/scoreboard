@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { isLang, messages, type Lang } from "@/lib/i18n";
+import { languageFromPath, messages, type Lang } from "@/lib/i18n";
 
 const languageLinks: { lang: Lang; label: string }[] = [
   { lang: "en", label: "English" },
@@ -11,20 +10,10 @@ const languageLinks: { lang: Lang; label: string }[] = [
   { lang: "tr", label: "Türkçe" },
 ];
 
-function languageFromPath(pathname: string | null): Lang {
-  const segment = pathname?.split("/").filter(Boolean)[0] ?? "";
-  return isLang(segment) ? segment : "bg";
-}
-
 export default function NotFound() {
   const pathname = usePathname();
-  const [lang, setLang] = useState<Lang>("bg");
+  const lang = languageFromPath(pathname);
   const copy = messages[lang];
-
-  useEffect(() => {
-    const nextLanguage = languageFromPath(pathname);
-    setLang(nextLanguage);
-  }, [pathname]);
 
   return (
     <html lang={lang === "en" ? "en-GB" : lang} suppressHydrationWarning>
