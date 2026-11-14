@@ -119,7 +119,7 @@ No game names, teams, scores, imported backups or share payloads belong in eithe
 
 `POLICY_PATH` holds the current document for each language and up to 20 previous revisions. It must be writable by PHP and persist across updates. Publishing uses an authenticated, CSRF-protected action, validates the language and revision, escapes text, and atomically replaces the document. A stale editing window cannot silently overwrite a newer revision.
 
-On Apache, public privacy routes are rendered by PHP using the exported frontend template and the published document. The frontend receives the same initial document for hydration. If no policy has been published, the build's translated default is used. No HTML or executable scripts can be published through the editor's text format. Supported formatting is paragraphs, `##` headings and HTTPS/email links.
+On Apache, public privacy routes are rendered by PHP using the exported frontend template and the published document. The frontend receives the same initial document for hydration. PHP reads the private `POLICY_PATH` copy before the build's translated default, so publishing a new build does not replace an existing policy. If the private copy cannot be read, the public route falls back to the built static policy when available. Publish deliberate policy changes for each language and verify the rendered routes after deployment. No HTML or executable scripts can be published through the editor's text format. Supported formatting is paragraphs, `##` headings and HTTPS/email links.
 
 The ordinary Next.js development server previews the build defaults. Use the exported PHP preview to verify live policy publishing. Do not delete private policy files when uploading a new frontend build.
 
