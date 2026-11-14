@@ -17,7 +17,7 @@ These systems may receive or process IP addresses even though the Website does n
 
 ## 2. Optional analytics — only with your choice
 
-**Both optional analytics systems are enabled for the Website, but collection for your browser remains off until you consent to the corresponding service.** Each has its own choice in the privacy panel. You can accept either, both, or neither. The legal basis for the processing described in this section is your consent (Article 6(1)(a) GDPR).
+**The Website's application-managed analytics integrations are optional. The application starts each one only after you save a separate choice for that service.** You can accept either, both, or neither. Cloudflare account settings can separately inject an analytics beacon; that setting is not controlled by this privacy panel. The legal basis for the application-managed processing described below is your consent (Article 6(1)(a) GDPR).
 
 **A. Baran's Scoreboard site usage analytics**
 
@@ -27,7 +27,7 @@ This information is stored in the Website's MySQL database and is accessible thr
 
 **B. Cloudflare Web Analytics**
 
-When you separately consent to **Cloudflare Web Analytics**, the Website manually loads Cloudflare's analytics beacon. It measures page views, navigation and performance information, including browser timing and Core Web Vitals. Cloudflare's reports can show page paths, referrers, approximate country, device type, browser, and operating system. The Website does not intentionally send scoreboard contents, text entered in fields, or estimated active time to this beacon.
+When you separately consent to **Cloudflare Web Analytics**, the Website manually loads Cloudflare's analytics beacon. It measures page views, navigation and performance information, including a generated page-load ID, browser timing and Core Web Vitals. Cloudflare's reports can show page paths, referrers, approximate country, device type, browser, and operating system. The Website does not intentionally send scoreboard contents, text entered in fields, or estimated active time to this beacon. Downloading the beacon script also makes a request to Cloudflare, as described in section 1. Cloudflare receives the source IP address with each beacon request as part of normal HTTP handling. Cloudflare says it discards that address at the nearest Cloudflare data centre and does not store it in its core databases or logs. Cloudflare also says the beacon script does not access browser cookies or storage.
 
 Cloudflare documents that its Web Analytics service does not track individual visitors across customers' websites and does not log URL query strings. This service is distinct from the Cloudflare network delivery and security processing that occurs automatically.
 
@@ -53,11 +53,11 @@ The following Website-controlled items are used:
 
 This cookie is specific to this Website and is not shared with or reused by the separate portfolio site on another host.
 
-**Server-side privacy preference record**: Holds the choices associated with the token; the token is hashed in the database. No more than **one year**.
+**Server-side privacy preference record**: Holds the choices associated with the token; the token is hashed in the database. Choices remain active for up to **180 days** after the last update. The maintenance command deletes the database record after **365 days** from the last update; expired records may remain until the command runs. Whether cleanup runs on schedule depends on hosting configuration.
 
 **score_admin cookie**: Authenticates the private administration session; this is **not** a visitor login. At most **one hour**; Secure, HttpOnly, and SameSite=Strict.
 
-**Browser IndexedDB and local preferences**: Stores scoreboards, selected scoreboard, language, theme, and dismissed language suggestion, generally until you delete site data or your browser removes it. Any GitHub-star reminder value saved by an earlier version is deleted locally when the Website's interface loads.
+**Browser storage and local preferences**: IndexedDB stores scoreboards and saved leaderboard and bracket documents. Local storage keeps the selected scoreboard, chosen language, theme setting, saved custom tool themes and their names, language-suggestion preference, and the date when the GitHub reminder was last shown. The Website reads your browser's preferred languages locally to offer a language suggestion and, when the theme is set to system, reads the device's light/dark preference. The application does not submit those values as separate data fields. As part of ordinary page requests, your browser may send an `Accept-Language` header to Cloudflare and the hosting provider; whether that header is recorded in logs depends on their configuration. The device's light/dark preference is not sent to the application server. These browser values remain until you clear site data or the browser removes them. An obsolete reminder value from an earlier version is removed when the Website interface loads.
 
 Cloudflare may also use security cookies where its protection features require them; their presence and lifetimes depend on the security feature. See [Cloudflare's cookie documentation](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/).
 
@@ -89,7 +89,7 @@ The Website does **not** sell visitor personal data, use advertising tracking, o
 
 **Website usage analytics:** Visits and page views older than **365 days** are excluded from administration queries. Earlier action-event records are no longer shown in dashboard reports. The maintenance command deletes analytics records older than 365 days when it runs; expired records may remain in storage until it runs successfully. Whether cleanup runs on schedule depends on hosting configuration.
 
-**Privacy choices:** the preference cookie lasts up to **180 days**; its server-side record expires within **one year**.
+**Privacy choices:** the preference cookie and server-side choices remain active for up to **180 days** after the last update. The maintenance command deletes the database record after **365 days** from the last update; expired records may remain until it runs. Whether cleanup runs on schedule depends on hosting configuration.
 
 **Administrator sessions:** at most **one hour**. Temporary rate-limit records become inactive after a **15-minute** window and are removed when the maintenance command runs. Expired records may remain until then. Whether cleanup runs on schedule depends on hosting configuration.
 

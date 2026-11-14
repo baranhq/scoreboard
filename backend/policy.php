@@ -125,3 +125,21 @@ function serve_policy(array $c,string $lang): never {
     $html=policy_metadata_html($html,$p);
     header_remove('X-Robots-Tag');header('Content-Type: text/html; charset=UTF-8');header('Cache-Control: no-cache');echo $html;exit;
 }
+function serve_static_policy_fallback(): bool {
+    if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')return false;
+    $uri=parse_url($_SERVER['REQUEST_URI']??'',PHP_URL_PATH);
+    if(!is_string($uri))return false;
+    $path=rtrim($uri,'/').'/';
+    if(!in_array($path,policy_paths(),true))return false;
+    $root=realpath($_SERVER['DOCUMENT_ROOT']??'');
+    if($root===false)return false;
+    $file=realpath($root.$path.'index.html');
+    if($file===false||!is_file($file)||!str_starts_with($file,rtrim($root,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR))return false;
+    $html=@file_get_contents($file);
+    if($html===false)return false;
+    header_remove('X-Robots-Tag');
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Cache-Control: no-cache');
+    echo $html;
+    return true;
+}
