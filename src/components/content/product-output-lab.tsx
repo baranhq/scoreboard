@@ -26,13 +26,17 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
   const [timer, setTimer] = useState<GameTimer>({ ...defaultTimer, enabled: true, periodCount: 2 });
   const t = studioCopy[lang];
   const bracketPreviewWidth = view === 1 ? "min-w-[42rem]" : "mx-auto w-full min-w-0 sm:w-[42rem]";
+  const scoreboardPreviewHeight =
+    teamCount >= 4 && teamCount <= 6
+      ? "h-[clamp(28rem,58svh,38rem)] md:h-[clamp(34rem,66svh,44rem)]"
+      : "h-[clamp(28rem,58svh,38rem)]";
   const document = useMemo(() => {
     if (tool === "scoreboard") return null;
     const sample = studioDemo(tool, lang);
     if (sample.kind === "leaderboard")
       return {
         ...sample,
-        gridColumns: 2,
+        gridColumns: 1,
         style: { ...sample.style, ...defaultTheme },
       } satisfies Leaderboard;
     const board: Bracket = view === 2 ? resizeBracket(sample, 3) : sample;
@@ -100,7 +104,9 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
       ) : null}
       {tool === "scoreboard" ? (
         <>
-          <div className="h-[clamp(28rem,58svh,38rem)] min-w-0 overflow-hidden rounded-xl border border-forest/20">
+          <div
+            className={`${scoreboardPreviewHeight} min-w-0 overflow-hidden rounded-xl border border-forest/20`}
+          >
             <HomeScoreboard
               lang={lang}
               theme={defaultTheme}
@@ -108,6 +114,8 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
               allowManualEdit={false}
               compact
               autoplay={false}
+              showHeader={false}
+              showFullscreenControl={false}
             />
           </div>
           <div className="mt-5 border-y border-forest/25 py-6">

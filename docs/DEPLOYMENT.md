@@ -74,7 +74,7 @@ SCOREBOARD_ENV_FILE=/home/YOUR_ACCOUNT/scoreboard-private/.env php backend/manag
 SCOREBOARD_ENV_FILE=/home/YOUR_ACCOUNT/scoreboard-private/.env php backend/manage.php migrate
 ```
 
-The password-setup command uses a hidden prompt in an interactive Linux SSH terminal. It requires POSIX terminal support. `migrate` is repeatable: applied migrations are recorded in `schema_migrations`, and the initial migration preserves existing tables. Back up before upgrades. Keep migration source files in the source checkout; they are not exposed by the deployed website.
+The password-setup command uses a hidden prompt in an interactive Linux SSH terminal. It requires POSIX terminal support. `migrate` is repeatable: applied migration filenames are recorded in `schema_migrations`. Migration 001 creates the application tables; migration 002 leaves the retired `exclusions` table and any records in it untouched. Back up before upgrades. A previous build could have removed that legacy table, and this migration cannot restore data already deleted. Keep migration source files in the source checkout; they are not exposed by the deployed website.
 
 ## Hourly cleanup on shared hosting
 

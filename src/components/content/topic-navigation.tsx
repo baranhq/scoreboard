@@ -20,7 +20,10 @@ function TopicLinks({ topics }: { topics: Topic[] }) {
 export function TopicNavigation({ label, topics }: { label: string; topics: Topic[] }) {
   return (
     <>
-      <details className="group mb-6 rounded-xl border border-forest/15 bg-surface p-3 lg:hidden print:hidden">
+      <details
+        data-topic-navigation="mobile"
+        className="group mb-6 rounded-xl border border-forest/15 bg-surface p-3 lg:hidden print:hidden"
+      >
         <summary className="cursor-pointer border-b border-transparent px-3 pb-2 font-sans text-base font-semibold text-forest transition-[color,border-color] duration-150 group-open:border-forest/15 group-open:pb-3 hover:text-forest/80 motion-reduce:transition-none dark:text-[#8bd69a] dark:hover:text-white">
           {label}
         </summary>
@@ -28,7 +31,10 @@ export function TopicNavigation({ label, topics }: { label: string; topics: Topi
           <TopicLinks topics={topics} />
         </nav>
       </details>
-      <aside className="hidden h-fit overscroll-contain rounded-xl border border-forest/15 bg-surface p-3 lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto print:hidden">
+      <aside
+        data-topic-navigation="desktop"
+        className="hidden h-fit overscroll-contain rounded-xl border border-forest/15 bg-surface p-3 lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto print:hidden"
+      >
         <nav aria-label={label}>
           <p className="mb-2 border-b border-forest/15 px-3 pb-3 font-sans text-base font-semibold text-forest dark:text-[#8bd69a]">
             {label}

@@ -15,13 +15,13 @@ export const seoContent: Record<
   }
 > = {
   en: {
-    title: "Free Scoreboard, Leaderboards & Tournament Brackets",
+    title: "Free Scoreboards, Leaderboards & Tournament Brackets",
     description:
-      "Free online scoreboard, leaderboard and tournament bracket tools. Keep score, design rankings and export tournament graphics. No account needed.",
+      "Free online tools for scoreboards, leaderboards and tournament brackets. Keep score, organise standings and export tournament graphics. No account needed.",
     pageDescriptions: {
       help: "Learn to set up a team scoreboard, change scores, use a countdown or stopwatch, present it on a projector, and save, back up or share a snapshot.",
       licenses:
-        "Read the MIT terms for Baran’s Scoreboard and the licence notices required by its third-party fonts, icons and software.",
+        "Read the MIT licence for Baran’s Scoreboard and the required notices for third-party fonts, icons and software.",
       saved: "Open the scoreboards you saved in this browser on this device.",
       scoreboard:
         "Add teams, update scores, use a timer or stopwatch, and show a free scoreboard full screen. No account is required.",
@@ -33,7 +33,7 @@ export const seoContent: Record<
   bg: {
     title: "Безплатни табла, класации и турнирни схеми",
     description:
-      "Безплатни онлайн табла за резултати, класации и турнирни схеми. Следете играта, подреждайте участниците и изтегляйте готови графики. Без регистрация.",
+      "Безплатни онлайн табла за резултати, класации и турнирни схеми. Следете играта, подреждайте класирането и изтегляйте готови графики. Без регистрация.",
     pageDescriptions: {
       help: "Научете как да настроите табло за отбори, да променяте резултата, да използвате обратно броене или хронометър и да запазвате, архивирате или споделяте моментно копие.",
       licenses:
@@ -47,13 +47,13 @@ export const seoContent: Record<
     imageAlt: "Baran’s Scoreboard — онлайн табло за резултати за отбори и игри",
   },
   tr: {
-    title: "Ücretsiz Skor Tabelası, Sıralama Tablosu ve Turnuva Şeması",
+    title: "Ücretsiz çevrim içi skor tabelası, sıralama tablosu ve turnuva şeması",
     description:
-      "Skor tabelası, sıralama tablosu ve turnuva şeması hazırlamak için ücretsiz çevrim içi araçlar. Skoru takip edin, sıralamayı düzenleyin ve görsel indirin. Hesap gerekmez.",
+      "Skor tabelası, sıralama tablosu ve turnuva şeması için ücretsiz çevrim içi araçlar. Skorları takip edin, sıralamaları düzenleyin ve turnuva görsellerini indirin. Hesap gerekmez.",
     pageDescriptions: {
-      help: "Takım skor tabelasını ayarlamayı, skoru değiştirmeyi, geri sayım veya kronometre kullanmayı, tam ekranda göstermeyi ve sonuçları kaydetmeyi ya da yedeklemeyi öğrenin.",
+      help: "Takım skor tabelasını ayarlamayı, skoru değiştirmeyi, geri sayım veya kronometre kullanmayı, tam ekranda göstermeyi ve sonuçları kaydedip yedeklemeyi öğrenin.",
       licenses:
-        "Baran’s Scoreboard için MIT Lisansı koşullarını ve üçüncü taraf yazılım, yazı tipi ve simgelerin bildirimlerini inceleyin.",
+        "Baran’s Scoreboard’un MIT Lisansı’nı ve üçüncü taraf yazılım, yazı tipi ve simgeler için gerekli lisans bildirimlerini inceleyin.",
       saved: "Bu cihazdaki tarayıcıya kaydettiğiniz skor tabelalarını açın.",
       scoreboard:
         "Takım ekleyin, skoru güncelleyin, zamanlayıcı veya kronometre kullanın ve skor tabelasını tam ekranda gösterin. Ücretsizdir; hesap gerekmez.",

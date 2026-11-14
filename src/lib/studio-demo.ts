@@ -7,7 +7,7 @@ export function studioDemo(kind: StudioDocument["kind"], lang: Lang): StudioDocu
   const title = {
     en: ["Round 1 standings", "Tournament bracket"],
     bg: ["Класиране, кръг 1", "Турнирна схема"],
-    tr: ["Tur 1 sıralaması", "Turnuva tablosu"],
+    tr: ["1. tur sıralaması", "Turnuva şeması"],
   }[lang];
   if (kind === "leaderboard") {
     const board = newLeaderboard("demo-leaderboard");
@@ -22,7 +22,7 @@ export function studioDemo(kind: StudioDocument["kind"], lang: Lang): StudioDocu
     ].map((cells, index) => ({
       id: `row-${index}`,
       cells,
-      highlighted: index === 0,
+      highlighted: false,
     }));
     return board;
   }

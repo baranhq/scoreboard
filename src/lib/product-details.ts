@@ -19,15 +19,14 @@ type ProductLocale = {
 };
 export const productDetails: Record<Lang, ProductLocale> = {
   en: {
-    workflow: "From setup to showtime.",
-    useCases: "Make room for a little competition.",
-    questions: "A few useful answers.",
-    themeHint:
-      "These presets are available in the real editor. This example does not change your saved projects.",
+    workflow: "Set up the board and put it on screen.",
+    useCases: "For classrooms, matches and game nights.",
+    questions: "Answers to common questions.",
+    themeHint: "Try these themes in the editor. This preview will not change your saved projects.",
     products: {
       scoreboard: {
         capability: [
-          "Run the game. Keep the room with you.",
+          "Keep the game moving and the score in view.",
           "A clear result for everyone watching, with quick controls for the person keeping score.",
         ],
         stories: [
@@ -69,7 +68,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           "Multiplayer games",
         ],
         advanced: [
-          "One host. A whole room watching.",
+          "One person keeps score. Everyone can see it.",
           "Keyboard shortcuts, adjustable text sizes and fullscreen controls help you run a live session. Local saves keep your teams, scores and appearance together; shared links contain a snapshot, not a live broadcast.",
         ],
         faq: [
@@ -94,7 +93,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
       },
       leaderboard: {
         capability: [
-          "Give every result its place.",
+          "Turn results into a clear leaderboard.",
           "Start with an empty ranking and build the table your event actually needs.",
         ],
         stories: [
@@ -131,13 +130,13 @@ export const productDetails: Record<Lang, ProductLocale> = {
         ],
         uses: ["Tournament rankings", "School competitions", "Event standings", "Group challenges"],
         advanced: [
-          "From one list to a whole field.",
-          "Support up to 100 rows, ten data columns and three side-by-side display groups. Custom canvas dimensions control the export shape; row highlights, column widths and editable ranks keep the graphic useful for more than points alone.",
+          "Room for a full leaderboard.",
+          "Use up to 100 rows, ten data columns and a three-column display. Set custom canvas dimensions for export, highlight rows, adjust column widths and keep a manual order when points are not the only result.",
         ],
         faq: [
           [
-            "Will changing points automatically reorder my project?",
-            "No. The real editor preserves manual order when you edit values. Use the column sorting controls when you want to reorder the table. The landing-page demo sorts its sample results to show ranking changes.",
+            "Will the table reorder when I change a score?",
+            "No. The editor keeps your manual order when you change values. Use the column sorting controls when you want to reorder the table. The demo sorts its sample results to show how rankings change.",
           ],
           [
             "Can I add my own columns?",
@@ -152,7 +151,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Use Save to My Tables for a persistent browser-local project. The editor can recover an unsaved draft in the same tab, but a draft is not a replacement for saving or keeping a backup.",
           ],
         ],
-        close: "Put your results in the picture.",
+        close: "Share a clear view of the results.",
       },
       bracket: {
         capability: [
@@ -162,14 +161,14 @@ export const productDetails: Record<Lang, ProductLocale> = {
         stories: [
           [
             "Start with the people taking part.",
-            "Choose 2–64 participants, enter their names and arrange the initial order. Automatic byes handle a field that does not fill a power-of-two draw.",
+            "Choose 2–64 participants, enter their names and set the order. If someone has no opponent in the first round, they move on without playing.",
           ],
           [
             "A result becomes the next match.",
-            "Enter scores and choose a winner in Match results, or select a participant in the preview and use Advance. Eligible players move into the next round.",
+            "Enter scores and choose a winner in Match results, or select a participant in the preview and choose “Set as winner”. Eligible players move into the next round.",
           ],
           [
-            "See both sides of the story.",
+            "Choose how to display the bracket.",
             "Choose a single-sided or two-sided bracket. Full-size scrolling keeps large tournaments readable without shrinking every match into a miniature.",
           ],
         ],
@@ -204,11 +203,11 @@ export const productDetails: Record<Lang, ProductLocale> = {
         faq: [
           [
             "Which tournament format is supported?",
-            "The tool creates single-elimination knockout brackets for 2–64 participants. Single-sided and two-sided are presentation layouts; they do not change the competition format.",
+            "Set up a single-elimination bracket for 2–64 participants. The single-sided and two-sided options change only how the bracket is displayed, not the competition format.",
           ],
           [
             "What happens with an uneven participant count?",
-            "The bracket adds automatic byes where necessary. A bye advances its participant without requiring a played match.",
+            "If someone has no opponent in the first round, the bracket moves them to the next round without a match. It handles this automatically.",
           ],
           [
             "Can I correct an earlier winner?",
@@ -228,7 +227,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
     useCases: "За игри, класни стаи и турнири.",
     questions: "Полезни въпроси и отговори.",
     themeHint:
-      "Тези теми са налични и в редактора. Примерът няма да промени запазените ви проекти.",
+      "Можете да ползвате тези теми и в редактора. Прегледът не променя запазените ви проекти.",
     products: {
       scoreboard: {
         capability: [
@@ -280,11 +279,11 @@ export const productDetails: Record<Lang, ProductLocale> = {
         faq: [
           [
             "Къде се запазва таблото?",
-            "В този браузър чрез IndexedDB. Създайте JSON архив, преди да изчистите данните на сайта или да смените устройството.",
+            "В този браузър чрез IndexedDB. Изтеглете JSON архив, преди да изчистите данните на сайта или да смените устройството.",
           ],
           [
             "Споделената връзка обновява ли се?",
-            "Не. Връзката съдържа таблото към момента на създаването ѝ. По-късните промени не се синхронизират. Създайте нова връзка за актуалния резултат.",
+            "Не. Връзката показва таблото във вида му при споделянето. По-късните промени не се синхронизират. Споделете отново, за да изпратите актуалния резултат.",
           ],
           [
             "Мога ли да използвам таймер и няколко отбора?",
@@ -341,8 +340,8 @@ export const productDetails: Record<Lang, ProductLocale> = {
           "Групови предизвикателства",
         ],
         advanced: [
-          "От един списък до цялото състезание.",
-          "До 100 реда, десет колони с данни и три групи една до друга. Размерите на платното определят формата на експорта. Открояване, ширини на колони и редактируеми позиции позволяват повече от класиране по точки.",
+          "Подходяща и за дълги класирания.",
+          "Добавете до 100 реда, десет колони с данни и изберете изглед в три колони. Размерите на платното определят формата на експортираното изображение. Откроявайте редове, настройвайте ширината на колоните и запазвайте ръчния ред, когато класирането не зависи само от точките.",
         ],
         faq: [
           [
@@ -362,21 +361,21 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Използвайте Запазете в Моите таблици за постоянен локален проект. Незапазена чернова може да се възстанови в същия раздел, но не замества запазването или архива.",
           ],
         ],
-        close: "Покажете кой води.",
+        close: "Покажете ясно резултатите.",
       },
       bracket: {
         capability: [
           "Ясен път до финала.",
-          "Създайте елиминационно състезание, въведете резултатите и свържете следващия кръг с победителите.",
+          "Подгответе схема за елиминационен турнир, въведете резултатите и свържете следващия кръг с победителите.",
         ],
         stories: [
           [
             "Започнете с участниците.",
-            "Добавете от 2 до 64 участници и подредете началния списък. Когато е нужно, част от тях преминават автоматично напред без среща.",
+            "Добавете от 2 до 64 участници и подредете началния списък. Ако някой няма съперник в първия кръг, продължава напред без мач.",
           ],
           [
             "Резултатът води към следващата среща.",
-            "Въведете резултат и победител или изберете участник в прегледа и натиснете Продължете. Участниците преминават в следващия кръг.",
+            "Въведете резултат и победител или изберете участник в прегледа и натиснете „Обявете за победител“. Така той преминава в следващия кръг.",
           ],
           [
             "Изберете как да изглежда схемата.",
@@ -418,7 +417,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "Какво става при непълен брой участници?",
-            "Когато е нужно, схемата придвижва участник напред без изиграна среща.",
+            "Ако участник няма съперник в първия кръг, схемата го придвижва в следващия без мач.",
           ],
           [
             "Мога ли да коригирам по-ранен победител?",
@@ -429,16 +428,16 @@ export const productDetails: Record<Lang, ProductLocale> = {
             "Запазете в Моите таблици за отваряне в този браузър. PNG е готова графика, а JSON е редактируем архив. Изчистването на данните на браузъра може да премахне локалните проекти.",
           ],
         ],
-        close: "Продължете с победителя в следващия кръг.",
+        close: "Покажете как всеки кръг води към финала.",
       },
     },
   },
   tr: {
     workflow: "Kurulumdan gösterime.",
     useCases: "Okulda, sahada veya arkadaşlarınızla.",
-    questions: "Birkaç yararlı yanıt.",
+    questions: "Sık sorulan sorular.",
     themeHint:
-      "Bu temaları düzenleyicide de kullanabilirsiniz. Örnek, kayıtlı projelerinizi değiştirmez.",
+      "Bu temaları düzenleyicide de kullanabilirsiniz. Önizleme, kayıtlı projelerinizi değiştirmez.",
     products: {
       scoreboard: {
         capability: [
@@ -456,7 +455,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "Başka araca geçmeden süre tutun.",
-            "Geri sayım veya kronometre seçin, dönem etiketlerini ayarlayın ve seyirciler için tam ekranı kullanın.",
+            "Geri sayım veya kronometre seçin, maç bölümü etiketlerini ayarlayın ve seyirciler için tam ekranı kullanın.",
           ],
         ],
         themes: [
@@ -485,15 +484,15 @@ export const productDetails: Record<Lang, ProductLocale> = {
         faq: [
           [
             "Skor tabelam nerede saklanır?",
-            "Bu tarayıcıda IndexedDB ile saklanır. Site verilerini temizlemeden veya cihaz değiştirmeden önce JSON yedeği alın.",
+            "Bu tarayıcıda IndexedDB ile saklanır. Site verilerini temizlemeden veya cihaz değiştirmeden önce JSON yedeği indirin.",
           ],
           [
             "Paylaşılan bağlantı skorla birlikte güncellenir mi?",
-            "Hayır. Bağlantı oluşturulduğu andaki durumu içerir. Sonraki değişiklikler eşitlenmez; güncel sonucu paylaşmak için yeni bağlantı oluşturun.",
+            "Hayır. Bağlantı, paylaşıldığı andaki durumu gösterir. Sonraki değişiklikler eşitlenmez; güncel sonucu paylaşmak için yeni bir bağlantı gönderin.",
           ],
           [
             "Zamanlayıcı ve birden fazla takım kullanabilir miyim?",
-            "Evet. Takımlar ekleyin, geri sayım veya kronometre seçin, dönemleri ve ekranınıza uygun düzen ile yazı boyutlarını ayarlayın.",
+            "Evet. Takımlar ekleyin, geri sayım veya kronometre seçin, maç bölümlerini ve ekranınıza uygun düzen ile yazı boyutlarını ayarlayın.",
           ],
           [
             "Görünüm değişikliği skoru etkiler mi?",
@@ -546,17 +545,17 @@ export const productDetails: Record<Lang, ProductLocale> = {
           "Grup mücadeleleri",
         ],
         advanced: [
-          "Kalabalık turnuvalar için de uygun.",
-          "100 satır, on veri sütunu ve yan yana üç görünüm grubu desteklenir. Özel tuval boyutları dışa aktarımın şeklini belirler. Satır vurguları, sütun genişlikleri ve düzenlenebilir sıralar, puandan fazlasını göstermenizi sağlar.",
+          "Uzun sıralama tabloları için de uygun.",
+          "Tablo, 100 satıra, on veri sütununa ve üç sütunlu görünüme kadar genişletilebilir. Tuval boyutu dışa aktarılan görselin şeklini belirler. Satırları vurgulayabilir, sütun genişliklerini ayarlayabilir ve puan dışındaki sonuçları elle sıralayabilirsiniz.",
         ],
         faq: [
           [
-            "Puanları değiştirmek projeyi otomatik sıralar mı?",
-            "Hayır. Düzenleyicide değerleri değiştirmeniz, elle belirlediğiniz sırayı bozmaz. Sıralamayı değiştirmek için sütun sıralama düğmelerini kullanın. Bu sayfadaki örnek, sıralamanın nasıl değiştiğini göstermek için sonuçları otomatik sıralar.",
+            "Skoru değiştirince tablo otomatik sıralanır mı?",
+            "Hayır. Düzenleyicide değerleri değiştirmeniz, elle belirlediğiniz sırayı bozmaz. Yeniden sıralamak için sütun sıralama düğmelerini kullanın. Bu sayfadaki örnek, sıralamanın nasıl değiştiğini göstermek için sonuçları otomatik sıralar.",
           ],
           [
             "Kendi sütunlarımı ekleyebilir miyim?",
-            "Evet. En fazla on veri sütununun adını, genişliğini ve sırasını değiştirebilirsiniz.",
+            "Evet. En fazla on veri sütunu ekleyebilir; adlarını, genişliklerini ve sıralarını değiştirebilirsiniz.",
           ],
           [
             "Sıralamayı nasıl paylaşırım?",
@@ -577,11 +576,11 @@ export const productDetails: Record<Lang, ProductLocale> = {
         stories: [
           [
             "Katılımcı listesini hazırlayın.",
-            "2–64 katılımcı ekleyip adlarını ve başlangıç sırasını belirleyin. Katılımcı sayısı şemayı doldurmadığında bazıları maç yapmadan sonraki tura geçer.",
+            "2–64 katılımcı ekleyip adlarını ve sıralarını belirleyin. İlk turda rakibi olmayan katılımcı maç yapmadan ilerler.",
           ],
           [
             "Bir sonuç, sonraki maçı belirler.",
-            "Maç sonuçlarında skoru ve kazananı seçin veya önizlemede katılımcıyı seçip İlerlet'i kullanın. Uygun oyuncular sonraki tura geçer.",
+            "Maç sonuçlarında skoru ve kazananı seçin veya önizlemede katılımcıyı seçip “Kazanan olarak belirle” seçeneğini kullanın. Uygun oyuncular sonraki tura geçer.",
           ],
           [
             "Şemanın görünümünü seçin.",
@@ -603,7 +602,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "Sonucu saklayın",
-            "Turnuvayı Tablolarım'a kaydedin. Tabloyu paylaşmak veya düzenlemeye devam etmek için PNG ya da JSON yedeği alın.",
+            "Turnuva şemasını Tablolarım'a kaydedin. Paylaşmak için PNG, düzenlemeye devam etmek için JSON yedeği alın.",
           ],
         ],
         uses: ["Eleme yarışmaları", "Oyun turnuvaları", "Elemeli etkinlikler", "Sınıf finalleri"],
@@ -618,7 +617,7 @@ export const productDetails: Record<Lang, ProductLocale> = {
           ],
           [
             "Katılımcı sayısı tabloyu doldurmazsa ne olur?",
-            "Şema gerektiğinde bir katılımcıyı maç yapmadan sonraki tura geçirir.",
+            "İlk turda rakibi olmayan katılımcı maç yapmadan sonraki tura geçer. Şema bunu otomatik yapar.",
           ],
           [
             "Önceki bir kazananı düzeltebilir miyim?",

@@ -16,7 +16,6 @@ import {
 import { readJsonFile } from "@/lib/untrusted-json";
 import { foreground, validColor } from "@/lib/colors";
 import { loadBoards, writeBoards } from "@/store/database";
-import { track } from "@/lib/analytics";
 import { route } from "@/lib/routes";
 import { Button, Modal } from "../ui/ui";
 import { Pencil, Palette, Copy, Download, Trash2, ChevronDown, Share2 } from "lucide-react";
@@ -137,7 +136,6 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
     try {
       const b = newBoard(t.board, t.team);
       await writeBoards([b]);
-      track("create_scoreboard");
       router.push(`${route(lang, "scoreboard")}#board=${b.id}`);
     } catch {
       setMessage(t.storageError);
@@ -174,7 +172,6 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                 disabled={!boards.length}
                 onClick={() => {
                   download(boards);
-                  track("export_backup");
                 }}
               >
                 {t.export}
@@ -212,7 +209,6 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
               items.forEach((item) => enteringBoardIds.current.add(item.id));
               setBoards((all) => [...all, ...items]);
               setMessage(t.imported);
-              track("import_backup");
             } catch {
               setMessage(t.importError);
             } finally {
@@ -367,7 +363,6 @@ export function SavedBoards({ lang, t }: { lang: Lang; t: Messages }) {
                               className="mt-1"
                               onClick={() => {
                                 download([raw]);
-                                track("export_backup");
                               }}
                             >
                               <Download aria-hidden="true" className="h-4 w-4" />

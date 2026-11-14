@@ -2,25 +2,28 @@ import type { Lang } from "./i18n";
 export const campaignCopy = {
   en: {
     intro:
-      "Make scoreboards, leaderboards and tournament brackets. Shape the display, keep the action moving and share the result.",
-    headline: "Make every\nmoment count.",
-    design: "One competition.\nYour signature.",
+      "Keep scores up to date, follow the standings and guide winners through tournament brackets. Set up the display and share the result.",
+    headline: "Keep score.\nKeep playing.",
+    design: "Give the scoreboard\nyour own look.",
     workflow: "Ready before the first point.",
     steps: [
-      ["Choose your tool", "A live score, a ranking or a road to the final."],
-      ["Make it yours", "Add participants, enter results and choose your design."],
+      [
+        "Choose your tool",
+        "A scoreboard for live games, a leaderboard for standings or a bracket for knockout rounds.",
+      ],
+      ["Set it up", "Add teams or participants, enter results and choose a theme."],
       [
         "Present the result",
-        "Save your project. Use fullscreen, snapshot sharing or PNG export in the tools that support them.",
+        "Save your project, show it full screen, share a snapshot link or export a PNG where available.",
       ],
     ],
-    ownership: "Built to be yours.",
+    ownership: "Your game stays yours.",
     open: "Free to use. MIT licensed. No account required. Edit in your browser, save projects on this device, or host your own copy.",
-    close: "Your next game\nstarts here.",
+    close: "Ready for the\nnext game?",
     headlines: {
-      scoreboard: "Every point deserves\nthe spotlight.",
-      leaderboard: "Every position\ntells a story.",
-      bracket: "Every match\nleads somewhere.",
+      scoreboard: "Put the score where\neveryone can see it.",
+      leaderboard: "Show the standings\nat a glance.",
+      bracket: "Follow every match\nto the final.",
     },
     lab: {
       scoreboard: "One match. Or the whole room.",
@@ -30,30 +33,33 @@ export const campaignCopy = {
     views: {
       scoreboard: ["Two teams", "Three teams"],
       leaderboard: ["Standings", "Multiple columns"],
-      bracket: ["One side", "Two sides", "Automatic byes"],
+      bracket: ["One side", "Two sides", "Some players move on without a match"],
     },
   },
   bg: {
     intro:
-      "Създавайте табла за резултати, класации и турнирни схеми. Настройте изгледа, следете играта и споделете резултата.",
-    headline: "Всеки миг от играта\nима значение.",
-    design: "Едно състезание.\nВашият почерк.",
-    workflow: "Готови преди първата точка.",
+      "Следете резултата, подреждайте класирането и вижте как победителите стигат до финала. Настройте изгледа и споделете резултата.",
+    headline: "Следете резултата.\nИграйте нататък.",
+    design: "Настройте таблото\nспоред играта.",
+    workflow: "Всичко е готово преди първата точка.",
     steps: [
-      ["Изберете инструмент", "Резултат на живо, класиране или път към финала."],
-      ["Настройте го по свой вкус", "Добавете участници, въведете резултати и изберете визия."],
+      [
+        "Изберете инструмент",
+        "Табло за резултати на живо, класация или схема за елиминационен турнир.",
+      ],
+      ["Настройте таблото", "Добавете отбори или участници, въведете резултатите и изберете тема."],
       [
         "Представете резултата",
-        "Запазете проекта. Според инструмента можете да го покажете на цял екран, да споделите връзка към моментно копие или да изтеглите PNG.",
+        "Запазете проекта, покажете го на цял екран, споделете връзка към моментно копие или изтеглете PNG, когато е налично.",
       ],
     ],
-    ownership: "Създаден за вашия начин на игра.",
-    open: "Безплатен софтуер с лиценз MIT. Не е нужна регистрация. Редактирайте в браузъра, запазвайте проектите на това устройство или хоствайте собствено копие.",
-    close: "Следващата игра\nзапочва сега.",
+    ownership: "Играта остава при вас.",
+    open: "Безплатен софтуер с лиценз MIT. Не е нужна регистрация. Редактирайте в браузъра, запазвайте проектите на това устройство или ги хоствайте на собствен сървър.",
+    close: "Готови ли сте за\nследващата игра?",
     headlines: {
-      scoreboard: "Всеки резултат\nзаслужава да бъде видян.",
-      leaderboard: "Всяка позиция\nима значение.",
-      bracket: "Пътят към финала\nзапочва тук.",
+      scoreboard: "Покажете резултата\nна всички.",
+      leaderboard: "Ясно класиране\nза всички.",
+      bracket: "Проследете пътя\nдо финала.",
     },
     lab: {
       scoreboard: "За един мач или цяла зала.",
@@ -63,33 +69,36 @@ export const campaignCopy = {
     views: {
       scoreboard: ["Два отбора", "Три отбора"],
       leaderboard: ["Класиране", "Няколко колони"],
-      bracket: ["Едностранна схема", "Двустранна схема", "Автоматично преминаване напред"],
+      bracket: ["Едностранна схема", "Двустранна схема", "Някои участници продължават без мач"],
     },
   },
   tr: {
     intro:
-      "Skor tabelaları, sıralama tabloları ve turnuva şemaları hazırlayın. Görünümü kendinize göre düzenleyin, oyunu takip edin ve sonucu paylaşın.",
-    headline: "Her oyunda her anın\ntadını çıkarın.",
-    design: "Her yarışma\nsizin tarzınızda.",
+      "Skorları takip edin, sıralamayı görün ve turnuva şemasında kazananları finale taşıyın. Görünümü düzenleyip sonucu paylaşın.",
+    headline: "Skoru takip edin.\nOyuna devam edin.",
+    design: "Skor tabelasını\noyuna göre düzenleyin.",
     workflow: "Oyun başlamadan her şey hazır.",
     steps: [
-      ["İhtiyacınız olan aracı seçin", "Canlı skor, sıralama tablosu veya finale giden yol."],
       [
-        "Kendi tarzınıza göre düzenleyin",
-        "Katılımcıları ekleyin, sonuçları girin ve görünümü seçin.",
+        "İhtiyacınız olan aracı seçin",
+        "Canlı maçlar için skor tabelası, sıralama tablosu veya eleme turnuvası için şema.",
+      ],
+      [
+        "Aracınızı düzenleyin",
+        "Takımları veya katılımcıları ekleyin, sonuçları girin ve tema seçin.",
       ],
       [
         "Sonucu sunun",
-        "Projenizi kaydedin. Araca göre tam ekranda gösterin, anlık görüntü bağlantısı paylaşın veya PNG indirin.",
+        "Projenizi kaydedin, tam ekranda gösterin, anlık görüntü bağlantısı paylaşın veya varsa PNG olarak dışa aktarın.",
       ],
     ],
-    ownership: "Oyununuzu kendi tarzınızda yönetin.",
+    ownership: "Oyununuz sizde kalır.",
     open: "Ücretsiz ve MIT lisanslı yazılım. Hesap gerekmez. Tarayıcıda düzenleyin, projeleri bu cihaza kaydedin veya kendi sunucunuzda barındırın.",
-    close: "Sıradaki oyuna\nhazır olun.",
+    close: "Sıradaki oyuna\nhazır mısınız?",
     headlines: {
-      scoreboard: "Skoru herkes\nnet görsün.",
-      leaderboard: "Puanlar değiştikçe\nsıralama da değişir.",
-      bracket: "Finale giden yol\nburada şekillenir.",
+      scoreboard: "Skoru herkesin\ngörebileceği yerde tutun.",
+      leaderboard: "Sıralamayı\nbir bakışta gösterin.",
+      bracket: "Her maçı final aşamasına\nkadar takip edin.",
     },
     lab: {
       scoreboard: "Tek bir maç için de, tüm salon için de.",
@@ -99,7 +108,7 @@ export const campaignCopy = {
     views: {
       scoreboard: ["İki takım", "Üç takım"],
       leaderboard: ["Sıralama", "Birden çok sütun"],
-      bracket: ["Tek taraflı", "İki taraflı", "Otomatik maçsız geçiş"],
+      bracket: ["Tek taraflı", "İki taraflı", "Bazı oyuncular maç yapmadan ilerler"],
     },
   },
 } satisfies Record<Lang, unknown>;

@@ -562,7 +562,12 @@ export function Customization({
                       <path d="m4 6 4 4 4-4" />
                     </svg>
                   </summary>
-                  <div className="grid items-start gap-4 px-2 pt-3 sm:grid-cols-2">
+                  <div
+                    className={[
+                      "grid items-stretch gap-4 px-2 pt-3",
+                      board.timer.mode === "stopwatch" ? "sm:grid-cols-1" : "sm:grid-cols-2",
+                    ].join(" ")}
+                  >
                     {board.timer.mode !== "stopwatch" && (
                       <div className="grid content-start gap-2 rounded-xl border border-forest/15 bg-surface p-4">
                         <span className="font-semibold">{t.matchFormat}</span>

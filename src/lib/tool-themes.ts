@@ -129,7 +129,7 @@ const definitions: ThemeDefinition[] = [
   },
   {
     accent: "#353f39",
-    background: "#ffffff",
+    background: "#f7f8f1",
     textColor: "#111111",
     borderColor: "#d9dfd9",
     radius: 10,

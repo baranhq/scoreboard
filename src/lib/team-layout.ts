@@ -6,18 +6,23 @@ export function teamGridClass(
   _full: boolean,
   canvas?: { width: number; height: number },
 ): string {
+  const stackOnPortrait =
+    "[@media(max-width:767px)_and_(orientation:portrait)]:!grid-cols-1 [@media(max-width:767px)_and_(orientation:portrait)]:auto-rows-fr";
+  const portraitCanvas = canvas && canvas.width <= canvas.height;
+
   if (_full) {
+    if (portraitCanvas) return "grid auto-rows-fr grid-cols-1";
     const columns =
       count <= 1
         ? "grid-cols-1"
         : count === 2
           ? "grid-cols-2"
           : "grid-cols-2 min-[720px]:grid-cols-3";
-    return `grid auto-rows-fr ${columns}`;
+    return `grid auto-rows-fr ${columns} ${!canvas && count > 1 ? stackOnPortrait : ""}`;
   }
 
   if (layout === "auto") {
-    if (canvas && canvas.width / canvas.height < 0.8) return "grid grid-cols-1";
+    if (portraitCanvas) return "grid grid-cols-1";
     const columns =
       count <= 1
         ? "grid-cols-1"
@@ -30,7 +35,7 @@ export function teamGridClass(
               : count <= 9
                 ? "grid-cols-2 lg:grid-cols-3"
                 : "grid-cols-2 overflow-auto auto-rows-[minmax(14rem,1fr)] lg:grid-cols-4";
-    return `grid ${columns}`;
+    return `grid ${columns} ${!canvas && count > 1 ? stackOnPortrait : ""}`;
   }
   return layout === "horizontal"
     ? "grid grid-flow-col auto-cols-[minmax(18rem,1fr)] overflow-x-auto"

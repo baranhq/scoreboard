@@ -2,7 +2,7 @@
 import { CircleAlert, Pin, Save, Share2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { BoardIcon } from "./board-icon";
-import { foreground, validColor } from "@/lib/colors";
+import { foreground, readableText, validColor } from "@/lib/colors";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Lang, Messages } from "@/lib/i18n";
@@ -17,7 +17,6 @@ import { teamGridClass } from "@/lib/team-layout";
 import { loadBoards, loadOrCreateBoard, writeBoards } from "@/store/database";
 import { Button, Modal } from "../ui/ui";
 import { TeamPanel } from "./team-panel";
-import { track } from "@/lib/analytics";
 import { getToolTheme, toolThemes } from "@/lib/tool-themes";
 import { applyToolTheme } from "@/lib/board-theme";
 import { exportElementPng } from "@/lib/export-png";
@@ -351,7 +350,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
       changeFullscreen(false);
     } else {
       changeFullscreen(true);
-      track("enter_fullscreen");
       await display.current?.requestFullscreen?.().catch(() => {});
     }
   }, [full, changeFullscreen]);
@@ -420,7 +418,6 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
     selectedId.current = b.id;
     setId(b.id);
     persist([b]);
-    track("create_scoreboard");
   };
   return (
     <div
@@ -667,6 +664,9 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                 style={
                   {
                     "--board-background": board.background || "transparent",
+                    color: board.background
+                      ? readableText(board.background, board.textColor)
+                      : undefined,
                     ...(board.canvas
                       ? {
                           aspectRatio: `${board.canvas.width} / ${board.canvas.height}`,

@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Lang, Messages } from "@/lib/i18n";
 import { pageForPath, route } from "@/lib/routes";
-import { events } from "@/lib/analytics";
 import {
   createPrivacySession,
   disabledPrivacyState,
@@ -136,7 +135,7 @@ export function PrivacyControls({
     let lastActivity = Date.now();
     let lastTick = Date.now();
     let activeSinceTick = false;
-    const send = (data: { type: "view" | "click" | "active"; label?: string }) => {
+    const send = (data: { type: "view" | "active" }) => {
       if (!stateRef.current.usage) return;
       void fetch("/api/index.php?action=event", {
         method: "POST",
@@ -161,11 +160,6 @@ export function PrivacyControls({
       lastActivity = Date.now();
       activeSinceTick = true;
     };
-    const click = (event: Event) => {
-      const label = (event as CustomEvent).detail;
-      if (events.includes(label)) send({ type: "click", label });
-    };
-    window.addEventListener("scoreboard-event", click);
     window.addEventListener("keydown", activity);
     window.addEventListener("pointerdown", activity);
     window.addEventListener("scroll", activity, { passive: true });
@@ -184,7 +178,6 @@ export function PrivacyControls({
     }, 15000);
     return () => {
       clearInterval(timer);
-      window.removeEventListener("scoreboard-event", click);
       window.removeEventListener("keydown", activity);
       window.removeEventListener("pointerdown", activity);
       window.removeEventListener("scroll", activity);

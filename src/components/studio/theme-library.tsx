@@ -150,6 +150,13 @@ export function ThemeLibrary({
             copy={t}
             change={(background) => change({ ...value, background })}
           />
+          <ColorControl
+            label={t.textColour}
+            value={value.textColor}
+            colors={accentColors}
+            copy={t}
+            change={(textColor) => change({ ...value, textColor })}
+          />
         </div>
         <section className="space-y-3 border-t border-forest/15 pt-3">
           <h3 className="font-semibold">{t.myThemes}</h3>
@@ -196,13 +203,6 @@ export function ThemeLibrary({
               />
             )}
             <div className="grid gap-3 sm:grid-cols-2">
-              <ColorControl
-                label={t.textColour}
-                value={value.textColor}
-                colors={accentColors}
-                copy={t}
-                change={(textColor) => change({ ...value, textColor })}
-              />
               <ColorControl
                 label={t.borderColour}
                 value={value.borderColor}
