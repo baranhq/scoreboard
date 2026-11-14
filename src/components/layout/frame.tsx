@@ -51,7 +51,7 @@ export function Frame({ lang, t, children }: { lang: Lang; t: Messages; children
         <ScrollingHeader>
           <nav
             aria-label={t.home}
-            className="mx-auto flex h-full max-w-7xl flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
+            className="mx-auto flex h-full max-w-[1600px] flex-nowrap items-center justify-between gap-1 px-2 py-1 sm:px-6"
           >
             <Link
               href={homeRoute(lang)}
