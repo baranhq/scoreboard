@@ -11,6 +11,13 @@ import { studioCopy } from "../src/lib/studio-copy.ts";
 
 const locales = ["en", "bg", "tr"] as const;
 
+test("spreadsheet popup actions have labels in every supported language", () => {
+  for (const locale of locales) {
+    assert.ok(studioCopy[locale].openSpreadsheet.trim());
+    assert.ok(studioCopy[locale].closeSpreadsheet.trim());
+  }
+});
+
 function strings(value: unknown): string[] {
   if (typeof value === "string") return [value];
   if (Array.isArray(value)) return value.flatMap(strings);

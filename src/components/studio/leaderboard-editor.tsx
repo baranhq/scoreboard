@@ -5,7 +5,6 @@ import {
   ArrowRight,
   ArrowUp,
   Expand,
-  Minimize2,
   Minus,
   Pencil,
   Plus,
@@ -64,61 +63,17 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
   const state = useDocument(initial, t);
   const board = state.document as Leaderboard;
   const { list: rowList, capture: captureRows } = useListMotion<HTMLTableSectionElement>();
-  const spreadsheetRef = useRef<HTMLElement>(null);
   const [sortColumn, setSortColumn] = useState("1");
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
-  const [nativeFullscreen, setNativeFullscreen] = useState(false);
-  const [fallbackFullscreen, setFallbackFullscreen] = useState(false);
-  const spreadsheetFullscreen = nativeFullscreen || fallbackFullscreen;
+  const [spreadsheetOpen, setSpreadsheetOpen] = useState(false);
+  const spreadsheetWasOpen = useRef(false);
   const editingRow = board.rows.find((row) => row.id === editingRowId);
 
-  const toggleSpreadsheetFullscreen = async () => {
-    const target = spreadsheetRef.current;
-    if (!target) return;
-
-    if (fallbackFullscreen) {
-      setFallbackFullscreen(false);
-      return;
-    }
-
-    if (document.fullscreenElement === target) {
-      try {
-        await document.exitFullscreen();
-      } catch {
-        setFallbackFullscreen(true);
-      }
-      return;
-    }
-
-    try {
-      if (!target.requestFullscreen) throw new Error("Fullscreen is unavailable");
-      await target.requestFullscreen();
-    } catch {
-      setFallbackFullscreen(true);
-    }
-  };
-
   useEffect(() => {
-    const syncFullscreen = () =>
-      setNativeFullscreen(document.fullscreenElement === spreadsheetRef.current);
-    document.addEventListener("fullscreenchange", syncFullscreen);
-    return () => document.removeEventListener("fullscreenchange", syncFullscreen);
-  }, []);
-
-  useEffect(() => {
-    if (!fallbackFullscreen) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setFallbackFullscreen(false);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [fallbackFullscreen]);
+    if (spreadsheetWasOpen.current && !spreadsheetOpen)
+      document.getElementById("leaderboard-spreadsheet-open")?.focus();
+    spreadsheetWasOpen.current = spreadsheetOpen;
+  }, [spreadsheetOpen]);
 
   const changeCell = (rowId: string, column: number, value: string) =>
     state.change(updateLeaderboardCell(board, rowId, column, value, Number(sortColumn)));
@@ -127,6 +82,453 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
       captureRows();
     state.change(recalculateLeaderboardTotal({ ...board, rows }));
   };
+  const renderSpreadsheet = (expanded: boolean) => (
+    <section
+      id="leaderboard-spreadsheet-panel"
+      className={
+        expanded
+          ? "flex h-[min(62dvh,46rem)] min-h-[10rem] min-w-0 flex-col gap-3"
+          : "min-w-0 space-y-3"
+      }
+    >
+      <label className={`grid gap-1 text-sm font-semibold ${expanded ? "hidden" : ""}`}>
+        {t.title}
+        <input
+          className={inputClass}
+          maxLength={200}
+          value={board.title}
+          onChange={(event) => state.change({ ...board, title: event.target.value })}
+        />
+      </label>
+      <label className={`grid gap-1 text-sm font-semibold ${expanded ? "hidden" : ""}`}>
+        {t.subtitle}
+        <input
+          className={inputClass}
+          maxLength={200}
+          value={board.subtitle}
+          onChange={(event) => state.change({ ...board, subtitle: event.target.value })}
+        />
+      </label>
+      <div
+        className={`flex shrink-0 flex-wrap items-center justify-between gap-2 ${expanded ? "border-b border-forest/20 pb-2" : "border-t border-forest/20 pt-4"}`}
+      >
+        <h2 className={expanded ? "sr-only" : "text-lg font-semibold"}>
+          {t.rows} & {t.columns}
+        </h2>
+        <div className="flex items-center gap-2">
+          <span className="text-sm tabular-nums">
+            {board.rows.length}/100 · {board.columns.length}/10
+          </span>
+          {!expanded && (
+            <Button
+              id="leaderboard-spreadsheet-open"
+              type="button"
+              aria-label={t.openSpreadsheet}
+              aria-haspopup="dialog"
+              aria-controls="leaderboard-spreadsheet-panel"
+              title={t.openSpreadsheet}
+              onClick={() => setSpreadsheetOpen(true)}
+              className="!min-h-11 !min-w-11 !px-2 sm:!px-3"
+            >
+              <Expand aria-hidden="true" size={16} />
+              <span>{t.openSpreadsheet}</span>
+            </Button>
+          )}
+        </div>
+      </div>
+      <div className="flex shrink-0 flex-wrap gap-2">
+        <Button
+          disabled={board.rows.length >= 100}
+          onClick={() => {
+            const teamColumn = Math.max(0, board.columns.indexOf(t.team));
+            const pointsColumn = Math.max(
+              teamColumn === 0 ? 1 : 0,
+              board.columns.indexOf(t.points),
+            );
+            const name = nextAvailableName(
+              t.team,
+              board.rows.map((row) => row.cells[teamColumn] || ""),
+            );
+            setRows([
+              ...board.rows,
+              {
+                id: crypto.randomUUID(),
+                cells: board.columns.map((_, index) =>
+                  index === teamColumn ? name : index === pointsColumn ? "0" : "",
+                ),
+                highlighted: false,
+              },
+            ]);
+          }}
+        >
+          <Plus size={16} />
+          {t.addRow}
+        </Button>
+        <Button
+          disabled={board.columns.length >= 10}
+          onClick={() =>
+            state.change(addLeaderboardColumn(board, `${t.column} ${board.columns.length + 1}`))
+          }
+        >
+          <Plus size={16} />
+          {t.addColumn}
+        </Button>
+      </div>
+      <details className="shrink-0 rounded-lg border border-forest/20 bg-forest/5 px-3">
+        <summary className="min-h-11 cursor-pointer py-3 text-sm font-semibold text-forest">
+          {t.totalPoints}
+        </summary>
+        <div className="grid gap-3 border-t border-forest/15 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,0.7fr)] sm:items-end">
+          <p className="text-sm leading-5 text-ink/75">
+            {board.totalColumn === undefined ? t.totalPointsHint : t.calculatedTotalHint}
+          </p>
+          <label className="grid gap-1 text-sm font-semibold">
+            {t.totalColumnLabel}
+            <Select
+              label={t.totalColumnLabel}
+              triggerClassName={`${inputClass} !bg-surface`}
+              value={String(board.totalColumn ?? "")}
+              change={(value) =>
+                state.change(
+                  setLeaderboardTotalColumn(board, value === "" ? undefined : Number(value)),
+                )
+              }
+              options={[
+                { value: "", label: t.noCalculatedTotal },
+                ...board.columns.map((column, index) => ({
+                  value: String(index),
+                  label: column || `${t.column} ${index + 1}`,
+                  disabled: index === 0,
+                })),
+              ]}
+            />
+          </label>
+        </div>
+      </details>
+      {board.rows.length === 0 && (
+        <p className={`text-sm leading-5 text-ink/75 ${expanded ? "shrink-0" : ""}`}>
+          {t.emptyLeaderboard}
+        </p>
+      )}
+      <div
+        data-editor-table
+        tabIndex={0}
+        aria-label={`${t.rows} & ${t.columns}`}
+        className={`max-w-full [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25 ${expanded ? "min-h-0 flex-1" : ""}`}
+      >
+        <table className="w-max min-w-full border-collapse text-sm sm:text-base">
+          <thead className="sticky top-0 z-10 bg-paper">
+            <tr>
+              <th scope="col" className="p-2 text-sm">
+                #
+              </th>
+              {board.columns.map((column, i) => (
+                <th
+                  scope="col"
+                  key={i}
+                  className="min-w-28 border-l border-forest/15 p-1.5 sm:min-w-36 sm:p-2"
+                >
+                  <input
+                    aria-label={`${t.column} ${i + 1}`}
+                    className={inputClass}
+                    maxLength={80}
+                    value={column}
+                    onChange={(e) =>
+                      state.change({
+                        ...board,
+                        columns: board.columns.map((c, j) => (j === i ? e.target.value : c)),
+                      })
+                    }
+                  />
+                  <details className="mt-1">
+                    <summary className="cursor-pointer py-2 text-xs font-medium text-action">
+                      {board.totalColumn === i ? t.totalPoints : t.editing}
+                    </summary>
+                    <label className="grid gap-1 py-2 text-xs font-medium">
+                      {t.width}
+                      <input
+                        type="number"
+                        min="80"
+                        max="800"
+                        value={board.columnWidths?.[i] ?? (i === 0 ? 300 : 160)}
+                        className={inputClass}
+                        onChange={(e) => {
+                          const width = Number(e.target.value);
+                          if (width >= 80 && width <= 800)
+                            state.change({
+                              ...board,
+                              columnWidths: board.columns.map((_, index) =>
+                                index === i
+                                  ? width
+                                  : (board.columnWidths?.[index] ?? (index === 0 ? 300 : 160)),
+                              ),
+                            });
+                        }}
+                      />
+                    </label>
+                    <div className="flex flex-wrap gap-1">
+                      <IconButton
+                        label={`${t.left}: ${column}`}
+                        disabled={i === 0 || board.totalColumn === i}
+                        onClick={() => state.change(moveLeaderboardColumn(board, i, i - 1))}
+                      >
+                        <ArrowLeft size={14} />
+                      </IconButton>
+                      <IconButton
+                        label={`${t.right}: ${column}`}
+                        disabled={i === board.columns.length - 1 || board.totalColumn === i}
+                        onClick={() => state.change(moveLeaderboardColumn(board, i, i + 1))}
+                      >
+                        <ArrowRight size={14} />
+                      </IconButton>
+                      <IconButton
+                        label={`${t.sortAsc}: ${column}`}
+                        disabled={board.totalColumn !== undefined}
+                        onClick={() =>
+                          state.change({ ...board, rows: sortRows(board.rows, i, "asc") })
+                        }
+                      >
+                        <ArrowUp size={14} />
+                      </IconButton>
+                      <IconButton
+                        label={`${t.sortDesc}: ${column}`}
+                        disabled={board.totalColumn !== undefined}
+                        onClick={() =>
+                          state.change({ ...board, rows: sortRows(board.rows, i, "desc") })
+                        }
+                      >
+                        <ArrowDown size={14} />
+                      </IconButton>
+                      <IconButton
+                        label={`${t.remove}: ${column}`}
+                        disabled={board.columns.length <= 1}
+                        onClick={() => state.change(removeColumn(board, i))}
+                      >
+                        <Trash2 size={14} />
+                      </IconButton>
+                    </div>
+                  </details>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody ref={rowList}>
+            {board.rows.map((row, index) => (
+              <tr
+                key={row.id}
+                data-motion-item={row.id}
+                className={row.highlighted ? "bg-forest/10" : ""}
+              >
+                <th scope="row" className="min-w-28 border-t border-forest/15 p-1.5 text-sm sm:p-2">
+                  <div className="flex items-center justify-center gap-1">
+                    <input
+                      aria-label={`${t.position} ${index + 1}`}
+                      className={`${inputClass} !w-14 px-1.5 text-center tabular-nums sm:!w-20 sm:px-3`}
+                      maxLength={6}
+                      placeholder={String(index + 1)}
+                      value={
+                        board.totalColumn === undefined ? row.position || "" : String(index + 1)
+                      }
+                      readOnly={board.totalColumn !== undefined}
+                      aria-readonly={board.totalColumn !== undefined || undefined}
+                      title={board.totalColumn !== undefined ? t.calculatedRankHint : undefined}
+                      onChange={(e) =>
+                        state.change({
+                          ...board,
+                          rows: board.rows.map((r) =>
+                            r.id === row.id ? { ...r, position: e.target.value } : r,
+                          ),
+                        })
+                      }
+                    />
+                    <button
+                      type="button"
+                      aria-label={`${t.editing}: ${row.cells[0] || `${t.rows} ${index + 1}`}`}
+                      title={t.editing}
+                      onClick={() => setEditingRowId(row.id)}
+                      className="inline-flex min-h-11 min-w-9 shrink-0 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                    >
+                      <Pencil aria-hidden="true" size={15} />
+                    </button>
+                  </div>
+                  <details className="mt-1">
+                    <summary className="cursor-pointer py-2 text-xs font-medium text-action">
+                      {t.advanced}
+                    </summary>
+                    <div className="grid grid-cols-2 gap-1">
+                      <IconButton
+                        label={`${t.up} ${index + 1}`}
+                        disabled={index === 0 || board.totalColumn !== undefined}
+                        onClick={() => setRows(moveItem(board.rows, index, index - 1))}
+                      >
+                        <ArrowUp size={14} />
+                      </IconButton>
+                      <IconButton
+                        label={`${t.down} ${index + 1}`}
+                        disabled={
+                          index === board.rows.length - 1 || board.totalColumn !== undefined
+                        }
+                        onClick={() => setRows(moveItem(board.rows, index, index + 1))}
+                      >
+                        <ArrowDown size={14} />
+                      </IconButton>
+                      <IconButton
+                        label={`${t.highlight} ${index + 1}`}
+                        pressed={row.highlighted}
+                        onClick={() =>
+                          state.change({
+                            ...board,
+                            rows: board.rows.map((r) =>
+                              r.id === row.id ? { ...r, highlighted: !r.highlighted } : r,
+                            ),
+                          })
+                        }
+                      >
+                        <Star size={14} fill={row.highlighted ? "currentColor" : "none"} />
+                      </IconButton>
+                      <IconButton
+                        label={`${t.remove} ${index + 1}`}
+                        onClick={() => setRows(board.rows.filter((r) => r.id !== row.id))}
+                      >
+                        <Trash2 size={14} />
+                      </IconButton>
+                    </div>
+                    <ColorControl
+                      label={t.background}
+                      value={row.color || board.style.accent}
+                      colors={accentColors}
+                      copy={t}
+                      change={(color) =>
+                        state.change({
+                          ...board,
+                          rows: board.rows.map((item) =>
+                            item.id === row.id ? { ...item, color } : item,
+                          ),
+                        })
+                      }
+                    />
+                  </details>
+                </th>
+                {row.cells.map((cell, column) => {
+                  const isTotal = column === board.totalColumn;
+                  const numericValue = Number(cell);
+                  const numeric = cell.trim() !== "" && Number.isFinite(numericValue);
+                  const adjust = (amount: number) =>
+                    changeCell(row.id, column, String(numericValue + amount));
+                  const label = `${t.rows} ${index + 1}, ${board.columns[column]}`;
+
+                  return (
+                    <td key={column} className="border-t border-l border-forest/15 p-2">
+                      <div className="flex min-w-0 items-center gap-1">
+                        {numeric && column > 0 && !isTotal && (
+                          <button
+                            type="button"
+                            aria-label={`${t.decreasePoints}: ${label}`}
+                            title={t.decreasePoints}
+                            onClick={() => adjust(-1)}
+                            className="inline-flex min-h-10 min-w-9 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none sm:min-h-11 sm:min-w-10"
+                          >
+                            <Minus aria-hidden="true" size={15} />
+                          </button>
+                        )}
+                        <input
+                          aria-label={label}
+                          maxLength={200}
+                          inputMode={numeric && column > 0 ? "decimal" : undefined}
+                          value={cell}
+                          readOnly={isTotal}
+                          aria-readonly={isTotal || undefined}
+                          title={isTotal ? t.calculatedTotalHint : undefined}
+                          className={`${inputClass} min-w-20 flex-1 px-2 sm:min-w-28 sm:px-3 ${numeric && column > 0 ? "text-center tabular-nums" : ""} ${isTotal ? "bg-forest/5 font-semibold" : ""}`}
+                          onChange={(event) => changeCell(row.id, column, event.target.value)}
+                          onKeyDown={(event) => {
+                            if (!numeric || column === 0 || isTotal) return;
+                            if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                              event.preventDefault();
+                              adjust(event.key === "ArrowUp" ? 1 : -1);
+                            }
+                          }}
+                        />
+                        {numeric && column > 0 && !isTotal && (
+                          <button
+                            type="button"
+                            aria-label={`${t.increasePoints}: ${label}`}
+                            title={t.increasePoints}
+                            onClick={() => adjust(1)}
+                            className="inline-flex min-h-10 min-w-9 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none sm:min-h-11 sm:min-w-10"
+                          >
+                            <Plus aria-hidden="true" size={15} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {editingRow && (
+        <Modal
+          title={`${t.editing}: ${editingRow.cells[0] || t.rows}`}
+          close={() => setEditingRowId(null)}
+          closeLabel={t.close}
+          size="wide"
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm font-semibold">
+              {t.position}
+              <input
+                className={inputClass}
+                maxLength={6}
+                value={
+                  board.totalColumn === undefined
+                    ? editingRow.position || ""
+                    : String(board.rows.findIndex((row) => row.id === editingRow.id) + 1)
+                }
+                readOnly={board.totalColumn !== undefined}
+                aria-readonly={board.totalColumn !== undefined || undefined}
+                onChange={(event) =>
+                  state.change({
+                    ...board,
+                    rows: board.rows.map((row) =>
+                      row.id === editingRow.id ? { ...row, position: event.target.value } : row,
+                    ),
+                  })
+                }
+              />
+            </label>
+            {board.columns.map((column, index) => (
+              <label key={index} className="grid gap-1 text-sm font-semibold">
+                {column || `${t.column} ${index + 1}`}
+                <input
+                  className={inputClass}
+                  maxLength={200}
+                  value={editingRow.cells[index] || ""}
+                  readOnly={index === board.totalColumn}
+                  aria-readonly={index === board.totalColumn || undefined}
+                  title={index === board.totalColumn ? t.calculatedTotalHint : undefined}
+                  onChange={(event) => {
+                    state.change(
+                      updateLeaderboardCell(
+                        board,
+                        editingRow.id,
+                        index,
+                        event.target.value,
+                        Number(sortColumn),
+                      ),
+                    );
+                  }}
+                />
+              </label>
+            ))}
+          </div>
+        </Modal>
+      )}
+    </section>
+  );
+
   return (
     <EditorShell
       lang={lang}
@@ -222,460 +624,17 @@ export function LeaderboardEditor({ lang }: { lang: Lang }) {
         </div>
       }
     >
-      <section
-        ref={spreadsheetRef}
-        id="leaderboard-spreadsheet-panel"
-        className={
-          spreadsheetFullscreen
-            ? "fixed inset-0 z-[100] flex h-dvh w-screen flex-col gap-3 overflow-hidden bg-paper px-3 pt-[calc(0.75rem_+_env(safe-area-inset-top,0px))] pb-[calc(0.75rem_+_env(safe-area-inset-bottom,0px))] sm:px-5"
-            : "min-w-0 space-y-3"
-        }
-      >
-        <label
-          className={`grid gap-1 text-sm font-semibold ${spreadsheetFullscreen ? "hidden" : ""}`}
+      {!spreadsheetOpen && renderSpreadsheet(false)}
+      {spreadsheetOpen && (
+        <Modal
+          title={`${t.rows} & ${t.columns}`}
+          close={() => setSpreadsheetOpen(false)}
+          closeLabel={t.closeSpreadsheet}
+          size="spreadsheet"
         >
-          {t.title}
-          <input
-            className={inputClass}
-            maxLength={200}
-            value={board.title}
-            onChange={(event) => state.change({ ...board, title: event.target.value })}
-          />
-        </label>
-        <label
-          className={`grid gap-1 text-sm font-semibold ${spreadsheetFullscreen ? "hidden" : ""}`}
-        >
-          {t.subtitle}
-          <input
-            className={inputClass}
-            maxLength={200}
-            value={board.subtitle}
-            onChange={(event) => state.change({ ...board, subtitle: event.target.value })}
-          />
-        </label>
-        <div
-          className={`flex shrink-0 flex-wrap items-center justify-between gap-2 ${spreadsheetFullscreen ? "border-b border-forest/20 pb-2" : "border-t border-forest/20 pt-4"}`}
-        >
-          <h2 className="text-lg font-semibold">
-            {t.rows} & {t.columns}
-          </h2>
-          <div className="flex items-center gap-2">
-            <span className="text-sm tabular-nums">
-              {board.rows.length}/100 · {board.columns.length}/10
-            </span>
-            <Button
-              type="button"
-              aria-label={spreadsheetFullscreen ? t.exitFullscreen : t.fullscreen}
-              aria-expanded={spreadsheetFullscreen}
-              aria-controls="leaderboard-spreadsheet-panel"
-              onClick={() => void toggleSpreadsheetFullscreen()}
-              className="!min-h-11 !min-w-11 !px-2 sm:!px-3"
-            >
-              {spreadsheetFullscreen ? (
-                <Minimize2 aria-hidden="true" size={16} />
-              ) : (
-                <Expand aria-hidden="true" size={16} />
-              )}
-              <span className="hidden sm:inline">
-                {spreadsheetFullscreen ? t.exitFullscreen : t.fullscreen}
-              </span>
-            </Button>
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-wrap gap-2">
-          <Button
-            disabled={board.rows.length >= 100}
-            onClick={() => {
-              const teamColumn = Math.max(0, board.columns.indexOf(t.team));
-              const pointsColumn = Math.max(
-                teamColumn === 0 ? 1 : 0,
-                board.columns.indexOf(t.points),
-              );
-              const name = nextAvailableName(
-                t.team,
-                board.rows.map((row) => row.cells[teamColumn] || ""),
-              );
-              setRows([
-                ...board.rows,
-                {
-                  id: crypto.randomUUID(),
-                  cells: board.columns.map((_, index) =>
-                    index === teamColumn ? name : index === pointsColumn ? "0" : "",
-                  ),
-                  highlighted: false,
-                },
-              ]);
-            }}
-          >
-            <Plus size={16} />
-            {t.addRow}
-          </Button>
-          <Button
-            disabled={board.columns.length >= 10}
-            onClick={() =>
-              state.change(addLeaderboardColumn(board, `${t.column} ${board.columns.length + 1}`))
-            }
-          >
-            <Plus size={16} />
-            {t.addColumn}
-          </Button>
-        </div>
-        <details className="shrink-0 rounded-lg border border-forest/20 bg-forest/5 px-3">
-          <summary className="min-h-11 cursor-pointer py-3 text-sm font-semibold text-forest">
-            {t.totalPoints}
-          </summary>
-          <div className="grid gap-3 border-t border-forest/15 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,0.7fr)] sm:items-end">
-            <p className="text-sm leading-5 text-ink/75">
-              {board.totalColumn === undefined ? t.totalPointsHint : t.calculatedTotalHint}
-            </p>
-            <label className="grid gap-1 text-sm font-semibold">
-              {t.totalColumnLabel}
-              <Select
-                label={t.totalColumnLabel}
-                triggerClassName={`${inputClass} !bg-surface`}
-                value={String(board.totalColumn ?? "")}
-                change={(value) =>
-                  state.change(
-                    setLeaderboardTotalColumn(board, value === "" ? undefined : Number(value)),
-                  )
-                }
-                options={[
-                  { value: "", label: t.noCalculatedTotal },
-                  ...board.columns.map((column, index) => ({
-                    value: String(index),
-                    label: column || `${t.column} ${index + 1}`,
-                    disabled: index === 0,
-                  })),
-                ]}
-              />
-            </label>
-          </div>
-        </details>
-        {board.rows.length === 0 && (
-          <p className={`text-sm leading-5 text-ink/75 ${spreadsheetFullscreen ? "shrink-0" : ""}`}>
-            {t.emptyLeaderboard}
-          </p>
-        )}
-        <div
-          data-editor-table
-          tabIndex={0}
-          aria-label={`${t.rows} & ${t.columns}`}
-          className={`max-w-full [scrollbar-gutter:stable] overflow-auto overscroll-contain rounded-lg border border-forest/25 ${spreadsheetFullscreen ? "min-h-0 flex-1" : ""}`}
-        >
-          <table className="w-max min-w-full border-collapse text-sm sm:text-base">
-            <thead className="sticky top-0 z-10 bg-paper">
-              <tr>
-                <th scope="col" className="p-2 text-sm">
-                  #
-                </th>
-                {board.columns.map((column, i) => (
-                  <th
-                    scope="col"
-                    key={i}
-                    className="min-w-28 border-l border-forest/15 p-1.5 sm:min-w-36 sm:p-2"
-                  >
-                    <input
-                      aria-label={`${t.column} ${i + 1}`}
-                      className={inputClass}
-                      maxLength={80}
-                      value={column}
-                      onChange={(e) =>
-                        state.change({
-                          ...board,
-                          columns: board.columns.map((c, j) => (j === i ? e.target.value : c)),
-                        })
-                      }
-                    />
-                    <details className="mt-1">
-                      <summary className="cursor-pointer py-2 text-xs font-medium text-action">
-                        {board.totalColumn === i ? t.totalPoints : t.editing}
-                      </summary>
-                      <label className="grid gap-1 py-2 text-xs font-medium">
-                        {t.width}
-                        <input
-                          type="number"
-                          min="80"
-                          max="800"
-                          value={board.columnWidths?.[i] ?? (i === 0 ? 300 : 160)}
-                          className={inputClass}
-                          onChange={(e) => {
-                            const width = Number(e.target.value);
-                            if (width >= 80 && width <= 800)
-                              state.change({
-                                ...board,
-                                columnWidths: board.columns.map((_, index) =>
-                                  index === i
-                                    ? width
-                                    : (board.columnWidths?.[index] ?? (index === 0 ? 300 : 160)),
-                                ),
-                              });
-                          }}
-                        />
-                      </label>
-                      <div className="flex flex-wrap gap-1">
-                        <IconButton
-                          label={`${t.left}: ${column}`}
-                          disabled={i === 0 || board.totalColumn === i}
-                          onClick={() => state.change(moveLeaderboardColumn(board, i, i - 1))}
-                        >
-                          <ArrowLeft size={14} />
-                        </IconButton>
-                        <IconButton
-                          label={`${t.right}: ${column}`}
-                          disabled={i === board.columns.length - 1 || board.totalColumn === i}
-                          onClick={() => state.change(moveLeaderboardColumn(board, i, i + 1))}
-                        >
-                          <ArrowRight size={14} />
-                        </IconButton>
-                        <IconButton
-                          label={`${t.sortAsc}: ${column}`}
-                          disabled={board.totalColumn !== undefined}
-                          onClick={() =>
-                            state.change({ ...board, rows: sortRows(board.rows, i, "asc") })
-                          }
-                        >
-                          <ArrowUp size={14} />
-                        </IconButton>
-                        <IconButton
-                          label={`${t.sortDesc}: ${column}`}
-                          disabled={board.totalColumn !== undefined}
-                          onClick={() =>
-                            state.change({ ...board, rows: sortRows(board.rows, i, "desc") })
-                          }
-                        >
-                          <ArrowDown size={14} />
-                        </IconButton>
-                        <IconButton
-                          label={`${t.remove}: ${column}`}
-                          disabled={board.columns.length <= 1}
-                          onClick={() => state.change(removeColumn(board, i))}
-                        >
-                          <Trash2 size={14} />
-                        </IconButton>
-                      </div>
-                    </details>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody ref={rowList}>
-              {board.rows.map((row, index) => (
-                <tr
-                  key={row.id}
-                  data-motion-item={row.id}
-                  className={row.highlighted ? "bg-forest/10" : ""}
-                >
-                  <th
-                    scope="row"
-                    className="min-w-28 border-t border-forest/15 p-1.5 text-sm sm:p-2"
-                  >
-                    <div className="flex items-center justify-center gap-1">
-                      <input
-                        aria-label={`${t.position} ${index + 1}`}
-                        className={`${inputClass} !w-14 px-1.5 text-center tabular-nums sm:!w-20 sm:px-3`}
-                        maxLength={6}
-                        placeholder={String(index + 1)}
-                        value={
-                          board.totalColumn === undefined ? row.position || "" : String(index + 1)
-                        }
-                        readOnly={board.totalColumn !== undefined}
-                        aria-readonly={board.totalColumn !== undefined || undefined}
-                        title={board.totalColumn !== undefined ? t.calculatedRankHint : undefined}
-                        onChange={(e) =>
-                          state.change({
-                            ...board,
-                            rows: board.rows.map((r) =>
-                              r.id === row.id ? { ...r, position: e.target.value } : r,
-                            ),
-                          })
-                        }
-                      />
-                      <button
-                        type="button"
-                        aria-label={`${t.editing}: ${row.cells[0] || `${t.rows} ${index + 1}`}`}
-                        title={t.editing}
-                        onClick={() => setEditingRowId(row.id)}
-                        className="inline-flex min-h-11 min-w-9 shrink-0 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-                      >
-                        <Pencil aria-hidden="true" size={15} />
-                      </button>
-                    </div>
-                    <details className="mt-1">
-                      <summary className="cursor-pointer py-2 text-xs font-medium text-action">
-                        {t.advanced}
-                      </summary>
-                      <div className="grid grid-cols-2 gap-1">
-                        <IconButton
-                          label={`${t.up} ${index + 1}`}
-                          disabled={index === 0 || board.totalColumn !== undefined}
-                          onClick={() => setRows(moveItem(board.rows, index, index - 1))}
-                        >
-                          <ArrowUp size={14} />
-                        </IconButton>
-                        <IconButton
-                          label={`${t.down} ${index + 1}`}
-                          disabled={
-                            index === board.rows.length - 1 || board.totalColumn !== undefined
-                          }
-                          onClick={() => setRows(moveItem(board.rows, index, index + 1))}
-                        >
-                          <ArrowDown size={14} />
-                        </IconButton>
-                        <IconButton
-                          label={`${t.highlight} ${index + 1}`}
-                          pressed={row.highlighted}
-                          onClick={() =>
-                            state.change({
-                              ...board,
-                              rows: board.rows.map((r) =>
-                                r.id === row.id ? { ...r, highlighted: !r.highlighted } : r,
-                              ),
-                            })
-                          }
-                        >
-                          <Star size={14} fill={row.highlighted ? "currentColor" : "none"} />
-                        </IconButton>
-                        <IconButton
-                          label={`${t.remove} ${index + 1}`}
-                          onClick={() => setRows(board.rows.filter((r) => r.id !== row.id))}
-                        >
-                          <Trash2 size={14} />
-                        </IconButton>
-                      </div>
-                      <ColorControl
-                        label={t.background}
-                        value={row.color || board.style.accent}
-                        colors={accentColors}
-                        copy={t}
-                        change={(color) =>
-                          state.change({
-                            ...board,
-                            rows: board.rows.map((item) =>
-                              item.id === row.id ? { ...item, color } : item,
-                            ),
-                          })
-                        }
-                      />
-                    </details>
-                  </th>
-                  {row.cells.map((cell, column) => {
-                    const isTotal = column === board.totalColumn;
-                    const numericValue = Number(cell);
-                    const numeric = cell.trim() !== "" && Number.isFinite(numericValue);
-                    const adjust = (amount: number) =>
-                      changeCell(row.id, column, String(numericValue + amount));
-                    const label = `${t.rows} ${index + 1}, ${board.columns[column]}`;
-
-                    return (
-                      <td key={column} className="border-t border-l border-forest/15 p-2">
-                        <div className="flex min-w-0 items-center gap-1">
-                          {numeric && column > 0 && !isTotal && (
-                            <button
-                              type="button"
-                              aria-label={`${t.decreasePoints}: ${label}`}
-                              title={t.decreasePoints}
-                              onClick={() => adjust(-1)}
-                              className="inline-flex min-h-10 min-w-9 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none sm:min-h-11 sm:min-w-10"
-                            >
-                              <Minus aria-hidden="true" size={15} />
-                            </button>
-                          )}
-                          <input
-                            aria-label={label}
-                            maxLength={200}
-                            inputMode={numeric && column > 0 ? "decimal" : undefined}
-                            value={cell}
-                            readOnly={isTotal}
-                            aria-readonly={isTotal || undefined}
-                            title={isTotal ? t.calculatedTotalHint : undefined}
-                            className={`${inputClass} min-w-20 flex-1 px-2 sm:min-w-28 sm:px-3 ${numeric && column > 0 ? "text-center tabular-nums" : ""} ${isTotal ? "bg-forest/5 font-semibold" : ""}`}
-                            onChange={(event) => changeCell(row.id, column, event.target.value)}
-                            onKeyDown={(event) => {
-                              if (!numeric || column === 0 || isTotal) return;
-                              if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                                event.preventDefault();
-                                adjust(event.key === "ArrowUp" ? 1 : -1);
-                              }
-                            }}
-                          />
-                          {numeric && column > 0 && !isTotal && (
-                            <button
-                              type="button"
-                              aria-label={`${t.increasePoints}: ${label}`}
-                              title={t.increasePoints}
-                              onClick={() => adjust(1)}
-                              className="inline-flex min-h-10 min-w-9 items-center justify-center rounded-md border border-forest/20 text-forest hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none sm:min-h-11 sm:min-w-10"
-                            >
-                              <Plus aria-hidden="true" size={15} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {editingRow && (
-          <Modal
-            title={`${t.editing}: ${editingRow.cells[0] || t.rows}`}
-            close={() => setEditingRowId(null)}
-            closeLabel={t.close}
-            size="wide"
-          >
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="grid gap-1 text-sm font-semibold">
-                {t.position}
-                <input
-                  className={inputClass}
-                  maxLength={6}
-                  value={
-                    board.totalColumn === undefined
-                      ? editingRow.position || ""
-                      : String(board.rows.findIndex((row) => row.id === editingRow.id) + 1)
-                  }
-                  readOnly={board.totalColumn !== undefined}
-                  aria-readonly={board.totalColumn !== undefined || undefined}
-                  onChange={(event) =>
-                    state.change({
-                      ...board,
-                      rows: board.rows.map((row) =>
-                        row.id === editingRow.id ? { ...row, position: event.target.value } : row,
-                      ),
-                    })
-                  }
-                />
-              </label>
-              {board.columns.map((column, index) => (
-                <label key={index} className="grid gap-1 text-sm font-semibold">
-                  {column || `${t.column} ${index + 1}`}
-                  <input
-                    className={inputClass}
-                    maxLength={200}
-                    value={editingRow.cells[index] || ""}
-                    readOnly={index === board.totalColumn}
-                    aria-readonly={index === board.totalColumn || undefined}
-                    title={index === board.totalColumn ? t.calculatedTotalHint : undefined}
-                    onChange={(event) => {
-                      state.change(
-                        updateLeaderboardCell(
-                          board,
-                          editingRow.id,
-                          index,
-                          event.target.value,
-                          Number(sortColumn),
-                        ),
-                      );
-                    }}
-                  />
-                </label>
-              ))}
-            </div>
-          </Modal>
-        )}
-      </section>
+          {renderSpreadsheet(true)}
+        </Modal>
+      )}
     </EditorShell>
   );
 }
