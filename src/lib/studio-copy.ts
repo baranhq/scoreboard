@@ -783,3 +783,9 @@ const tr: Copy = {
 };
 export const studioCopy: Record<Lang, Copy> = { en, bg, tr };
 export type StudioCopy = Copy;
+  openSpreadsheet: "Expand spreadsheet",
+  closeSpreadsheet: "Close spreadsheet",
+  openSpreadsheet: "Разгъване на таблицата",
+  closeSpreadsheet: "Затворете таблицата",
+  openSpreadsheet: "Tabloyu büyüt",
+  closeSpreadsheet: "Tabloyu kapatın",
