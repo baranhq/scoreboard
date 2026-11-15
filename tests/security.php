@@ -74,6 +74,17 @@ check(str_contains($metadata,'name="twitter:description" content="Updated policy
 $_SERVER['DOCUMENT_ROOT']=sys_get_temp_dir();
 try{private_directory(sys_get_temp_dir().'/exposed-sessions');throw new LogicException('public storage accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'public storage denied');}
 $root=sys_get_temp_dir().'/scoreboard-security-'.bin2hex(random_bytes(8));$public=$root.'/public';$private=$root.'/private';mkdir($public,0700,true);mkdir($private,0700,true);
+$policyRoot=$root.'/policy-source-precedence';$policyPublic=$policyRoot.'/public';$policyPrivate=$policyRoot.'/private/policies';mkdir($policyPublic.'/policies',0700,true);mkdir($policyPrivate,0700,true);
+$builtPolicy=['title'=>'New source policy','content'=>"## Summary\n\nThe newer built-in policy.",'revision'=>0,'updatedAt'=>gmdate('Y-m-d',time()-86400)];
+$savedPolicy=['title'=>'Old saved policy','content'=>"## Summary\n\nThe older privately saved policy.",'revision'=>3,'updatedAt'=>'2000-01-01T00:00:00+00:00'];
+file_put_contents($policyPublic.'/policies/en.json',json_encode($builtPolicy,JSON_THROW_ON_ERROR));file_put_contents($policyPrivate.'/en.json',json_encode($savedPolicy,JSON_THROW_ON_ERROR));
+$_SERVER['DOCUMENT_ROOT']=$policyPublic;$policyConfig=['policy_path'=>$policyPrivate];$currentPolicy=policy_document($policyConfig,'en');
+check($currentPolicy['title']==='New source policy'&&$currentPolicy['revision']===4,'newer built policy supersedes older saved policy without resetting its revision');
+save_policy($policyConfig,'en','Republished policy',"## Summary\n\nThe administrator has published a newer policy after the source update.",$currentPolicy['revision']);
+$archivedSaved=json_decode(file_get_contents($policyPrivate.'/history/en-00000003.json'),true,16,JSON_THROW_ON_ERROR);$archivedBuilt=json_decode(file_get_contents($policyPrivate.'/history/en-00000004.json'),true,16,JSON_THROW_ON_ERROR);$publishedPolicy=policy_document($policyConfig,'en');
+check($archivedSaved['title']==='Old saved policy'&&$archivedBuilt['title']==='New source policy','publishing preserves both the superseded private policy and the effective built policy');
+check($publishedPolicy['title']==='Republished policy'&&$publishedPolicy['revision']===5,'new publication advances the effective policy revision');
+unlink($policyPrivate.'/history/en-00000003.json');unlink($policyPrivate.'/history/en-00000004.json');rmdir($policyPrivate.'/history');unlink($policyPrivate.'/publish.lock');unlink($policyPrivate.'/en.json');rmdir($policyPrivate);unlink($policyPublic.'/policies/en.json');rmdir($policyPublic.'/policies');rmdir($policyPublic);rmdir($policyRoot.'/private');rmdir($policyRoot);$_SERVER['DOCUMENT_ROOT']=sys_get_temp_dir();
 $env=$private.'/test.env';file_put_contents($env,"APP_ORIGIN=https://secure.example\nAPP_ALLOW_HTTP=true\nSESSION_PATH=$private/sessions\nPOLICY_PATH=$private/policies\nADMIN_PATH=/custom-panel\n");chmod($env,0600);
 $environmentNames=['SCOREBOARD_ENV_FILE','APP_ORIGIN','APP_ALLOW_HTTP','SESSION_PATH','POLICY_PATH','ADMIN_PATH'];$oldEnvironment=[];foreach($environmentNames as $name){$oldEnvironment[$name]=getenv($name);putenv($name);}
 $oldServerFile=$_SERVER['SCOREBOARD_ENV_FILE']??null;$oldRoot=$_SERVER['DOCUMENT_ROOT']??null;
@@ -113,9 +124,11 @@ function admin_route_response(string $path, string $documentRoot): array {
 [$body,$status]=admin_route_response('/baranhq_admin',$webRoot);check(str_ends_with($status,'503')&&str_contains($body,'Administration is temporarily unavailable')&&!str_contains($body,'Request unavailable'),'admin configuration failure renders safe HTML');
 mkdir($accountPrivate.'/policies',0700);
 mkdir($webRoot.'/en/privacy',0700,true);
-file_put_contents($accountPrivate.'/policies/en.json',json_encode(['title'=>'Privacy Policy','content'=>"## Summary\n\nA valid privacy policy for route rendering.",'revision'=>0,'updatedAt'=>'2026-11-13'],JSON_THROW_ON_ERROR));
+mkdir($webRoot.'/policies',0700,true);
+file_put_contents($accountPrivate.'/policies/en.json',json_encode(['title'=>'Privacy Policy','content'=>"## Summary\n\nAn older saved privacy policy.",'revision'=>3,'updatedAt'=>'2026-11-03T07:22:29+00:00'],JSON_THROW_ON_ERROR));
+file_put_contents($webRoot.'/policies/en.json',json_encode(['title'=>'Privacy Policy','content'=>"## Summary\n\nThe newer built-in policy for route rendering.",'revision'=>0,'updatedAt'=>'2026-11-14'],JSON_THROW_ON_ERROR));
 file_put_contents($webRoot.'/en/privacy/index.html','<!doctype html><html><head><title>Privacy</title></head><body><details><summary>Site menu</summary></details><details><summary>Language menu</summary></details><main><script id="policy-document" type="application/json">{"title":"Static policy"}</script><details data-topic-navigation="mobile"><summary>On this page</summary></details><aside data-topic-navigation="desktop"><nav>On this page</nav></aside><article id="policy-content"><p>Static policy</p></article></main></body></html>');
-[$body,$status]=admin_route_response('/en/privacy/',$webRoot);check(($status===''||str_ends_with($status,'200'))&&str_contains($body,'id="policy-document"')&&str_contains($body,'id="policy-content"')&&str_contains($body,'A valid privacy policy for route rendering.')&&!str_contains($body,'Request unavailable'),'public privacy route preserves its data and renders HTML with site navigation present');
+[$body,$status]=admin_route_response('/en/privacy/',$webRoot);check(($status===''||str_ends_with($status,'200'))&&str_contains($body,'id="policy-document"')&&str_contains($body,'id="policy-content"')&&str_contains($body,'The newer built-in policy for route rendering.')&&str_contains($body,'14.11.2026')&&!str_contains($body,'An older saved privacy policy.')&&!str_contains($body,'Request unavailable'),'public privacy route renders the latest policy version on direct requests');
 file_put_contents($accountPrivate.'/policies/en.json','{invalid policy JSON');
 [$body,$status]=admin_route_response('/en/privacy/',$webRoot);check(($status===''||str_ends_with($status,'200'))&&str_contains($body,'Static policy')&&!str_contains($body,'Request unavailable'),'privacy route serves its built policy if the private policy file is unavailable');
 unlink($webRoot.'/en/privacy/index.html');
@@ -126,7 +139,7 @@ file_put_contents($accountPrivate.'/policies/en.json',json_encode(['title'=>'Pri
 file_put_contents($accountEnv,"ADMIN_PATH=\n");
 [$body,$status]=admin_route_response('/admin',$webRoot);check(str_ends_with($status,'503')&&str_contains($body,'Administration is temporarily unavailable'),'empty admin path defaults to admin');
 chmod($accountEnv,0644);try{configuration();throw new LogicException('insecure discovered config accepted');}catch(RuntimeException $e){check(!$e instanceof LogicException,'discovered private config requires restrictive permissions');}
-unlink($webRoot.'/en/privacy/index.html');rmdir($webRoot.'/en/privacy');rmdir($webRoot.'/en');unlink($accountPrivate.'/policies/en.json');rmdir($accountPrivate.'/policies');unlink($accountEnv);rmdir($accountPrivate);rmdir($webRoot);rmdir($root.'/public_html');
+unlink($webRoot.'/en/privacy/index.html');rmdir($webRoot.'/en/privacy');rmdir($webRoot.'/en');unlink($webRoot.'/policies/en.json');rmdir($webRoot.'/policies');unlink($accountPrivate.'/policies/en.json');rmdir($accountPrivate.'/policies');unlink($accountEnv);rmdir($accountPrivate);rmdir($webRoot);rmdir($root.'/public_html');
 foreach($oldEnvironment as $name=>$value){if($value===false)putenv($name);else putenv($name.'='.$value);}
 if($oldServerFile===null)unset($_SERVER['SCOREBOARD_ENV_FILE']);else $_SERVER['SCOREBOARD_ENV_FILE']=$oldServerFile;if($oldRoot===null)unset($_SERVER['DOCUMENT_ROOT']);else $_SERVER['DOCUMENT_ROOT']=$oldRoot;
 unlink($env);rmdir($private);rmdir($public);rmdir($root);
