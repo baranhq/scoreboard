@@ -24,7 +24,7 @@ import {
   canAddScoreboardTeam,
 } from "../src/lib/boards.ts";
 import { readJsonFile } from "../src/lib/untrusted-json.ts";
-import { teamGridClass } from "../src/lib/team-layout.ts";
+import { compactPreviewSizing, teamGridClass } from "../src/lib/team-layout.ts";
 import { parseAppearance } from "../src/lib/appearance.ts";
 import { encodeGame, decodeGame, shareUrl } from "../src/lib/sharing.ts";
 import { writeBoards, loadBoards, loadOrCreateBoard } from "../src/store/database.ts";
@@ -222,6 +222,14 @@ test("scoreboard limits added teams and reflows panels to fit fullscreen", () =>
   assert.match(teamGridClass(2, "auto", true), /grid-cols-2/);
   assert.match(teamGridClass(6, "auto", true), /min-\[720px\]:grid-cols-3/);
   assert.match(teamGridClass(4, "auto", false), /grid-cols-2/);
+});
+test("compact read-only scoreboard previews keep portrait team panels legible", () => {
+  assert.deepEqual(compactPreviewSizing(2, true), { fitCompactGrid: true, scoreScale: 56 });
+  assert.deepEqual(compactPreviewSizing(3, true), { fitCompactGrid: true, scoreScale: 72 });
+  assert.deepEqual(compactPreviewSizing(4, true), { fitCompactGrid: true, scoreScale: 72 });
+  assert.deepEqual(compactPreviewSizing(1, true), { fitCompactGrid: false, scoreScale: 72 });
+  assert.deepEqual(compactPreviewSizing(2, false), { fitCompactGrid: false, scoreScale: 56 });
+  assert.deepEqual(compactPreviewSizing(4, false), { fitCompactGrid: true, scoreScale: 72 });
 });
 test("scoreboard supports explicit vertical, horizontal, and grid arrangements", () => {
   assert.match(teamGridClass(3, "vertical", false), /grid-cols-1/);
