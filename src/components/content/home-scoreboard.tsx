@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { TeamPanel } from "@/components/scoreboard/team-panel";
 import { TimerDisplay } from "@/components/scoreboard/game-timer";
-import { teamGridClass } from "@/lib/team-layout";
+import { compactPreviewSizing, teamGridClass } from "@/lib/team-layout";
 import { defaults } from "@/lib/appearance";
 import { messages } from "@/lib/i18n";
 import { toolThemes, type ToolTheme } from "@/lib/tool-themes";
@@ -100,6 +100,7 @@ export function HomeScoreboard({
         ? 3
         : 2
       : Math.max(1, Math.min(MAX_SCOREBOARD_TEAMS, teamCount));
+  const compactSizing = compactPreviewSizing(count, readOnly);
   const [scores, setScores] = useState([12, 9, 0, 0, 0, 0]);
   const [timer, setTimer] = useState<GameTimer>(createDemoTimer);
   const step = useRef(0);
@@ -109,7 +110,7 @@ export function HomeScoreboard({
     setTimer(createDemoTimer());
     if (readOnly) setTeamNames(initialTeamNames);
     step.current = 0;
-  }, [initialTeamNames, readOnly]);
+  }, [initialTeamNames, readOnly, setScores]);
   const advance = useCallback(() => {
     step.current += 1;
     if (readOnly && step.current % 8 === 4)
@@ -123,7 +124,7 @@ export function HomeScoreboard({
         : (current) =>
             current.map((value, index) => value + (index === step.current % count ? 1 : 0)),
     );
-  }, [count, initialTeamNames, readOnly, t.demoRenamedTeam]);
+  }, [count, initialTeamNames, readOnly, setScores, t.demoRenamedTeam]);
   const {
     ref,
     playing,
@@ -211,7 +212,7 @@ export function HomeScoreboard({
                   ...defaults,
                   scoreSize: compact ? "medium" : "xlarge",
                   textScaleEnabled: compact,
-                  scoreScale: compact ? (count === 2 ? 56 : 72) : defaults.scoreScale,
+                  scoreScale: compact ? compactSizing.scoreScale : defaults.scoreScale,
                   teamScale: compact ? 86 : defaults.teamScale,
                   density: theme.density,
                   cornerRadius: theme.radius,
@@ -224,7 +225,7 @@ export function HomeScoreboard({
                 interactive={!readOnly}
                 allowManualEdit={allowManualEdit}
                 showControls={!readOnly || showReadOnlyControls}
-                fitCompactGrid={compact && count >= 4}
+                fitCompactGrid={compact && compactSizing.fitCompactGrid}
                 index={index}
                 count={count}
                 full={presentationFull}

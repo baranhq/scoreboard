@@ -52,7 +52,6 @@ export function EditorShell({
   const [exportError, setExportError] = useState("");
   const [previewScale, setPreviewScale] = useState<"compact" | "fit" | "full">("compact");
   const [previewOnly, setPreviewOnly] = useState(false);
-  const [mobilePanel, setMobilePanel] = useState<"edit" | "preview">("edit");
   const [fullscreen, setFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("content");
   const [activeField, setActiveField] = useState<PreviewField | null>(null);
@@ -267,37 +266,11 @@ export function EditorShell({
           </p>
         </header>
 
-        <div
-          className="mb-3 grid grid-cols-2 gap-1 rounded-lg bg-forest/5 p-1 lg:hidden"
-          role="group"
-          aria-label={t.workspaceTabs}
-        >
-          {(
-            [
-              ["edit", t.editing],
-              ["preview", t.preview],
-            ] as const
-          ).map(([panel, label]) => (
-            <button
-              key={panel}
-              type="button"
-              aria-pressed={mobilePanel === panel}
-              onClick={() => {
-                setPreviewOnly(false);
-                setMobilePanel(panel);
-              }}
-              className={`min-h-11 rounded-md px-3 text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none ${mobilePanel === panel ? "bg-surface text-forest shadow-sm" : "text-ink/70 hover:text-ink"}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <div className={`min-w-0 ${previewOnly ? "" : "grid grid-cols-1 gap-4"}`}>
+        <div className="grid min-w-0 grid-cols-1 gap-4">
           <section
             ref={preview}
             aria-label={t.preview}
-            className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${mobilePanel === "preview" || previewOnly ? "" : "hidden lg:flex"} ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-[min(60dvh,42rem)] lg:h-[min(64dvh,46rem)]"}`}
+            className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-[min(60dvh,42rem)] lg:h-[min(64dvh,46rem)]"}`}
             style={fullscreen ? fullscreenStyle : undefined}
           >
             <div className="mb-2 grid min-w-0 shrink-0 gap-2 xl:grid-cols-[minmax(10rem,0.7fr)_minmax(0,1.3fr)] xl:items-center">
@@ -470,22 +443,20 @@ export function EditorShell({
             </div>
           </section>
 
-          {!previewOnly && (
-            <aside
-              className={`flex min-w-0 flex-col rounded-xl border border-forest/20 bg-surface shadow-sm ${mobilePanel === "edit" ? "" : "hidden lg:flex"}`}
+          <aside
+            className={`flex min-w-0 flex-col rounded-xl border border-forest/20 bg-surface shadow-sm ${previewOnly ? "lg:hidden" : ""}`}
+          >
+            <WorkspaceTabs lang={lang} value={activeTab} change={setActiveTab} />
+            <fieldset
+              id="workspace-panel"
+              role="tabpanel"
+              aria-labelledby={`workspace-tab-${activeTab}`}
+              disabled={!state.ready || state.busy}
+              className="min-w-0 space-y-5 px-3 py-3 sm:px-4"
             >
-              <WorkspaceTabs lang={lang} value={activeTab} change={setActiveTab} />
-              <fieldset
-                id="workspace-panel"
-                role="tabpanel"
-                aria-labelledby={`workspace-tab-${activeTab}`}
-                disabled={!state.ready || state.busy}
-                className="min-w-0 space-y-5 px-3 py-3 sm:px-4"
-              >
-                {panels[activeTab]}
-              </fieldset>
-            </aside>
-          )}
+              {panels[activeTab]}
+            </fieldset>
+          </aside>
         </div>
       </main>
     </>

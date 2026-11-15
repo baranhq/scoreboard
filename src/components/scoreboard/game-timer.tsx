@@ -210,17 +210,17 @@ export function TimerDisplay({
     </div>
   );
   const compactClock = (
-    <div className="flex min-w-0 items-baseline justify-center gap-2 text-sm font-medium">
+    <div className="flex min-w-0 flex-col items-center justify-center text-center">
       {contextTimer}
       {(timer.periodCount || 1) > 1 && (
-        <span>
+        <span className="text-[calc(1rem*var(--display-text-scale))] font-medium">
           {t.period} {timer.period || 1}/{timer.periodCount}
         </span>
       )}
       <span
         role="timer"
         aria-label={t.timer}
-        className="font-display text-[calc(1.125rem*var(--display-text-scale))] font-bold tabular-nums"
+        className="font-display text-[calc(1.875rem*var(--display-text-scale))] font-bold tabular-nums"
       >
         {formatTime(remainingTime(timer, now), showHours)}
       </span>

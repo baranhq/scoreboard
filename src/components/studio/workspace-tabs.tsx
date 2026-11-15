@@ -22,9 +22,9 @@ export function WorkspaceTabs({
     ? ["content", "design", "settings", "timer", "export"]
     : ["content", "design", "settings", "export"];
   const tabListLayout = includeTimer
-    ? "flex overflow-x-auto overscroll-x-contain [scrollbar-width:thin] [scrollbar-color:rgba(40,91,53,0.35)_transparent] sm:grid sm:grid-cols-5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-forest/35 [&::-webkit-scrollbar-track]:bg-forest/5"
+    ? "grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5"
     : "grid grid-cols-4";
-  const tabWidth = includeTimer ? "min-w-[5.25rem] shrink-0 sm:min-w-0" : "min-w-0 break-words";
+  const tabWidth = "min-w-0 break-words";
   const tabLabels: Record<WorkspaceTab, string> = {
     content: labels.contentTab,
     design: labels.designTab,

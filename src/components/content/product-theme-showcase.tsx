@@ -38,6 +38,8 @@ export function ProductThemeShowcase({
   const [chosenTheme, setChosenTheme] = useState<number | null>(null);
   const theme = chosenTheme ?? (dark ? 1 : 3);
   const [stableLayout] = useState(() => {
+    if (tool === "bracket") return { density: "compact" as const, roundGap: 240, matchGap: 12 };
+
     const { density, roundGap, matchGap } = toolThemes[dark ? 1 : 3];
     return { density, roundGap, matchGap };
   });
@@ -60,6 +62,12 @@ export function ProductThemeShowcase({
     ...colors,
     ...(tool !== "scoreboard" ? stableLayout : {}),
   };
+  const previewHeightClass =
+    tool === "scoreboard"
+      ? "h-[clamp(26rem,54svh,30rem)] sm:h-[31rem]"
+      : tool === "leaderboard"
+        ? "h-[clamp(18rem,44vw,21rem)] sm:h-[31rem]"
+        : "h-[clamp(14rem,40vw,17rem)] sm:h-[31rem]";
   const setPreset = (index: number) => {
     setChosenTheme(index);
     setCustomColors(themeColors(toolThemes[index]));
@@ -178,7 +186,7 @@ export function ProductThemeShowcase({
         </div>
       </div>
       <div
-        className="h-[30rem] min-w-0 overflow-hidden rounded-xl border border-forest/20 sm:h-[31rem]"
+        className={`${previewHeightClass} min-w-0 overflow-hidden rounded-xl border border-forest/20`}
         style={{ backgroundColor: colors.background }}
       >
         <ToolDemo
@@ -187,7 +195,7 @@ export function ProductThemeShowcase({
           compact
           showHeader={false}
           autoplay={false}
-          fillPreview={tool === "bracket"}
+          fillPreview={tool !== "scoreboard"}
           readOnly
           showReadOnlyControls={tool === "scoreboard"}
           showPlaybackControls={false}
