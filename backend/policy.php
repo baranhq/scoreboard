@@ -1,13 +1,78 @@
 <?php
 declare(strict_types=1);
-function policy_paths(): array {return ['bg'=>'/bg/poveritelnost/','tr'=>'/tr/gizlilik/','en'=>'/en/privacy/'];}
-function policy_document(array $c,string $lang): array {
-    if(!isset(policy_paths()[$lang]))fail(404);
-    $file=$c['policy_path'].'/'.$lang.'.json';
-    if(!is_file($file))$file=rtrim($_SERVER['DOCUMENT_ROOT'],'/').'/policies/'.$lang.'.json';
-    $p=json_decode(file_get_contents($file),true,16,JSON_THROW_ON_ERROR);
-    if(!is_array($p)||!is_string($p['title']??null)||!is_string($p['content']??null))throw new RuntimeException('Policy unavailable');
-    return $p;
+function policy_paths(): array {
+    return ['bg'=>'/bg/poveritelnost/','tr'=>'/tr/gizlilik/','en'=>'/en/privacy/'];
+}
+function policy_read_document(string $file): ?array {
+    if (!is_file($file)) return null;
+    $contents = file_get_contents($file);
+    if ($contents === false) throw new RuntimeException('Policy unavailable');
+    $policy = json_decode($contents, true, 16, JSON_THROW_ON_ERROR);
+    if (!is_array($policy) || !is_string($policy['title'] ?? null) || !is_string($policy['content'] ?? null)) {
+        throw new RuntimeException('Policy unavailable');
+    }
+    return $policy;
+}
+function policy_revision(array $policy): int {
+    $revision = $policy['revision'] ?? null;
+    return is_int($revision) && $revision >= 0 ? $revision : 0;
+}
+function policy_updated_timestamp(array $policy): ?int {
+    $updatedAt = $policy['updatedAt'] ?? null;
+    if (!is_string($updatedAt)) return null;
+    try {
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/D', $updatedAt)) {
+            $date = DateTimeImmutable::createFromFormat('!Y-m-d', $updatedAt, new DateTimeZone('UTC'));
+            $errors = DateTimeImmutable::getLastErrors();
+            if (!$date || ($errors !== false && ($errors['warning_count'] || $errors['error_count']))) {
+                return null;
+            }
+        } elseif (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/D', $updatedAt)) {
+            $date = new DateTimeImmutable($updatedAt);
+        } else {
+            return null;
+        }
+        return $date->format('Y-m-d') === substr($updatedAt, 0, 10)
+            ? $date->getTimestamp()
+            : null;
+    } catch (Throwable) {
+        return null;
+    }
+}
+function policy_is_newer(array $candidate, array $current): bool {
+    $candidateTime = policy_updated_timestamp($candidate);
+    $currentTime = policy_updated_timestamp($current);
+    return $candidateTime !== null && ($currentTime === null || $candidateTime > $currentTime);
+}
+function archive_policy(array $policy, string $directory, string $lang): void {
+    $revision = policy_revision($policy);
+    $file = $directory.'/'.$lang.'-'.str_pad((string)$revision, 8, '0', STR_PAD_LEFT).'.json';
+    if (is_file($file)) {
+        if (policy_read_document($file) !== $policy) {
+            throw new RuntimeException('Policy history revision conflict');
+        }
+        return;
+    }
+    $contents = json_encode($policy, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    if (file_put_contents($file, $contents, LOCK_EX) === false || !chmod($file, 0600)) {
+        throw new RuntimeException('Policy history unavailable');
+    }
+}
+function policy_document(array $c, string $lang): array {
+    if (!isset(policy_paths()[$lang])) fail(404);
+    $privateFile = $c['policy_path'].'/'.$lang.'.json';
+    $builtFile = rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/policies/'.$lang.'.json';
+    $private = policy_read_document($privateFile);
+    $built = policy_read_document($builtFile);
+    if ($private === null) {
+        if ($built === null) throw new RuntimeException('Policy unavailable');
+        return $built;
+    }
+    if ($built === null || !policy_is_newer($built, $private)) return $private;
+
+    // Keep revisions monotonic while letting a newer deployed policy supersede a stale private copy.
+    $built['revision'] = max(policy_revision($private), policy_revision($built)) + 1;
+    return $built;
 }
 function policy_inline(string $text): string {
     $html='';$end=0;preg_match_all('~\[([^\]\n]+)\]\((https://[^\s)]+|mailto:[^\s)]+)\)|\*\*([^*\n]+)\*\*~u',$text,$matches,PREG_OFFSET_CAPTURE);
@@ -100,20 +165,56 @@ function policy_metadata_html(string $html,array $p): string {
     }
     return $html;
 }
-function save_policy(array $c,string $lang,string $title,string $content,int $revision): void {
-    if(!isset(policy_paths()[$lang])||strlen($title)<1||mb_strlen($title)>200||strlen($content)<50||mb_strlen($content)>100000)fail(400);
-    $directory=$c['policy_path'];if(!is_dir($directory)&&!mkdir($directory,0700,true)&&!is_dir($directory))throw new RuntimeException('Policy storage unavailable');
-    if(!is_dir($directory)||!is_writable($directory)||!chmod($directory,0700))throw new RuntimeException('Policy storage unavailable');
-    $lock=fopen($directory.'/publish.lock','c');if(!$lock||!flock($lock,LOCK_EX))throw new RuntimeException('Policy lock unavailable');if(!chmod($directory.'/publish.lock',0600))throw new RuntimeException('Policy lock unavailable');
-    try{
-        $old=policy_document($c,$lang);if((int)$old['revision']!==$revision)fail(409,'The policy changed in another window. Reload before saving.');
-        $p=['title'=>$title,'content'=>$content,'revision'=>$revision+1,'updatedAt'=>gmdate('c')];
-        $history=$directory.'/history';if(!is_dir($history)&&!mkdir($history,0700)&&!is_dir($history))throw new RuntimeException('Policy history unavailable');if(!is_writable($history)||!chmod($history,0700))throw new RuntimeException('Policy history unavailable');
-        $previous=$history.'/'.$lang.'-'.str_pad((string)$revision,8,'0',STR_PAD_LEFT).'.json';if(file_put_contents($previous,json_encode($old,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR))===false||!chmod($previous,0600))throw new RuntimeException('Policy history unavailable');
-        $temp=tempnam($directory,'policy-');if(!$temp)throw new RuntimeException('Policy write unavailable');
-        try{if(file_put_contents($temp,json_encode($p,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT|JSON_THROW_ON_ERROR))===false)throw new RuntimeException('Policy write unavailable');chmod($temp,0600);if(!rename($temp,$directory.'/'.$lang.'.json'))throw new RuntimeException('Policy publication unavailable');}finally{if(is_file($temp))unlink($temp);}
-        $files=glob($history.'/'.$lang.'-*.json');sort($files);while(count($files)>20)unlink(array_shift($files));
-    }finally{flock($lock,LOCK_UN);fclose($lock);}
+function save_policy(array $c, string $lang, string $title, string $content, int $revision): void {
+    if (!isset(policy_paths()[$lang]) || strlen($title) < 1 || mb_strlen($title) > 200 || strlen($content) < 50 || mb_strlen($content) > 100000) fail(400);
+    $directory = $c['policy_path'];
+    if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) {
+        throw new RuntimeException('Policy storage unavailable');
+    }
+    if (!is_dir($directory) || !is_writable($directory) || !chmod($directory, 0700)) {
+        throw new RuntimeException('Policy storage unavailable');
+    }
+    $lock = fopen($directory.'/publish.lock', 'c');
+    if (!$lock || !flock($lock, LOCK_EX)) throw new RuntimeException('Policy lock unavailable');
+    if (!chmod($directory.'/publish.lock', 0600)) throw new RuntimeException('Policy lock unavailable');
+    try {
+        $old = policy_document($c, $lang);
+        if (policy_revision($old) !== $revision) {
+            fail(409, 'The policy changed in another window. Reload before saving.');
+        }
+        $history = $directory.'/history';
+        if (!is_dir($history) && !mkdir($history, 0700) && !is_dir($history)) {
+            throw new RuntimeException('Policy history unavailable');
+        }
+        if (!is_writable($history) || !chmod($history, 0700)) {
+            throw new RuntimeException('Policy history unavailable');
+        }
+        $stored = policy_read_document($directory.'/'.$lang.'.json');
+        if ($stored !== null && policy_is_newer($old, $stored)) archive_policy($stored, $history, $lang);
+        archive_policy($old, $history, $lang);
+        $published = [
+            'title' => $title,
+            'content' => $content,
+            'revision' => policy_revision($old) + 1,
+            'updatedAt' => gmdate('c'),
+        ];
+        $temp = tempnam($directory, 'policy-');
+        if (!$temp) throw new RuntimeException('Policy write unavailable');
+        try {
+            $json = json_encode($published, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+            if (file_put_contents($temp, $json) === false) throw new RuntimeException('Policy write unavailable');
+            chmod($temp, 0600);
+            if (!rename($temp, $directory.'/'.$lang.'.json')) throw new RuntimeException('Policy publication unavailable');
+        } finally {
+            if (is_file($temp)) unlink($temp);
+        }
+        $files = glob($history.'/'.$lang.'-*.json');
+        sort($files);
+        while (count($files) > 20) unlink(array_shift($files));
+    } finally {
+        flock($lock, LOCK_UN);
+        fclose($lock);
+    }
 }
 function serve_policy(array $c,string $lang): never {
     $p=policy_document($c,$lang);$file=rtrim($_SERVER['DOCUMENT_ROOT'],'/').policy_paths()[$lang].'index.html';$html=file_get_contents($file);
