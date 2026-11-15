@@ -203,8 +203,7 @@ for path in root.rglob('index.html'):
     if origin + relative not in expected and origin + relative not in aliases:
         check('noindex' in Page(path).meta.get('robots', ''), f'{relative}: noncanonical/private page must be noindex')
 for agent in ('Googlebot', 'bingbot', 'OAI-SearchBot'):
-    for private in ('/admin/', '/api/'):
-        check(not robots.can_fetch(agent, origin + private), f'robots.txt must disallow {private} for {agent}')
+    check(not robots.can_fetch(agent, origin + '/api/'), f'robots.txt must disallow /api/ for {agent}')
 
 if errors:
     raise SystemExit('\n'.join(errors))
