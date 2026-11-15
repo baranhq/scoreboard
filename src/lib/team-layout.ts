@@ -1,5 +1,13 @@
 import type { Appearance } from "./appearance";
 
+export function compactPreviewSizing(count: number, readOnly: boolean) {
+  const fitCompactGrid = readOnly ? count >= 2 : count >= 4;
+  return {
+    fitCompactGrid,
+    scoreScale: count === 2 ? 56 : 72,
+  };
+}
+
 export function teamGridClass(
   count: number,
   layout: Appearance["layout"],

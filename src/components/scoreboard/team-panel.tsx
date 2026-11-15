@@ -140,26 +140,47 @@ export function TeamPanel({
             xlarge: "text-[calc(clamp(3rem,8vh,6.5rem)*var(--team-text-scale))]",
           } as const
         )[teamPreset];
-  const teamNameSize = fitCompactGrid
-    ? "text-[clamp(0.75rem,5cqw,1rem)] min-[768px]:text-[clamp(0.875rem,5.5cqw,1.125rem)]"
-    : full
-      ? fullNameSize
-      : regularNameSize;
+  const teamNameSize =
+    full && fitCompactGrid && count <= 3
+      ? `${fullNameSize} max-[767px]:text-[clamp(0.75rem,5cqw,1rem)]`
+      : fitCompactGrid
+        ? "text-[clamp(0.75rem,5cqw,1rem)] min-[768px]:text-[clamp(0.875rem,5.5cqw,1.125rem)]"
+        : full
+          ? fullNameSize
+          : regularNameSize;
+  const portraitScoreSize =
+    digits > 6
+      ? "max-[767px]:text-[calc(min(7cqw,1.125rem))]"
+      : digits > 4
+        ? "max-[767px]:text-[calc(min(8cqw,1.25rem))]"
+        : digits > 2
+          ? "max-[767px]:text-[calc(min(10cqw,1.5rem))]"
+          : "max-[767px]:text-[calc(min(12cqw,1.875rem))]";
+  const size =
+    full && fitCompactGrid && count <= 3
+      ? `${fullSize} ${portraitScoreSize}`
+      : full
+        ? fullSize
+        : regularSize;
   const scoreButtonSize = fitCompactGrid
-    ? count <= 6
-      ? "h-8 w-9 min-[768px]:h-11 min-[768px]:w-11"
-      : "h-8 w-9"
+    ? count <= 3
+      ? "h-11 w-12 sm:h-12 sm:w-20"
+      : count <= 6
+        ? "h-8 w-9 min-[768px]:h-11 min-[768px]:w-11"
+        : "h-8 w-9"
     : full
       ? count > 6
         ? "h-8 w-10 sm:h-8 sm:w-10"
         : "h-12 w-14 sm:h-12 sm:w-20"
       : "h-11 w-12 sm:h-12 sm:w-20";
   const scoreButtonIconSize =
-    fitCompactGrid && count <= 6
-      ? "h-4 w-4 min-[768px]:h-5 min-[768px]:w-5"
-      : fitCompactGrid || (full && count > 6)
-        ? "h-4 w-4"
-        : "h-6 w-6 sm:h-7 sm:w-7";
+    fitCompactGrid && count <= 3
+      ? "h-4 w-4 sm:h-6 sm:w-6 min-[768px]:h-7 min-[768px]:w-7"
+      : fitCompactGrid && count <= 6
+        ? "h-4 w-4 min-[768px]:h-5 min-[768px]:w-5"
+        : fitCompactGrid || (full && count > 6)
+          ? "h-4 w-4"
+          : "h-6 w-6 sm:h-7 sm:w-7";
   const ScoreTag = full || !interactive || !allowManualEdit ? "div" : "button";
   useEffect(() => {
     const element = scoreValue.current;
@@ -181,7 +202,6 @@ export function TeamPanel({
     );
     return () => animation.cancel();
   }, [team.score]);
-  const size = full ? fullSize : regularSize;
   return (
     <article
       data-scoreboard-team={team.id}
@@ -214,7 +234,7 @@ export function TeamPanel({
           "--team-text-scale": teamScale,
         } as CSSProperties
       }
-      className={`[container-type:inline-size] relative flex min-h-0 min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-2 text-[var(--team-fg)] transition-colors duration-150 focus-visible:outline-[var(--secondary-text)] motion-safe:animate-[appear_200ms_ease-out] motion-reduce:transition-none dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${className} ${fitCompactGrid ? "gap-0.5 py-1" : full ? (count > 6 ? "gap-1 py-1" : "gap-2 py-3") : appearance.density === "spacious" ? "py-6 sm:py-10" : "py-3 sm:py-4"}`}
+      className={`[container-type:inline-size] relative flex min-h-0 min-w-0 flex-col items-center justify-center rounded-xl bg-[var(--team-bg)] px-2 text-[var(--team-fg)] transition-colors duration-150 focus-visible:outline-[var(--secondary-text)] motion-safe:animate-[appear_200ms_ease-out] motion-reduce:transition-none dark:bg-[var(--team-bg-dark)] dark:text-[var(--team-fg-dark)] dark:focus-visible:outline-[var(--secondary-text-dark)] ${className} ${fitCompactGrid ? (count <= 3 ? "gap-0.5 py-1 sm:gap-2 sm:py-3" : "gap-0.5 py-1") : full ? (count > 6 ? "gap-1 py-1" : "gap-2 py-3") : appearance.density === "spacious" ? "py-6 sm:py-10" : "py-3 sm:py-4"}`}
     >
       <h3
         className={`max-w-full rounded px-2 py-1 text-center font-display font-semibold break-words ${teamNameSize}`}
