@@ -131,7 +131,7 @@ export function Modal({
       </div>
       {beforeScrollable && <div className="shrink-0">{beforeScrollable}</div>}
       <div
-        className={`min-h-0 flex-1 overflow-y-auto overscroll-contain ${beforeScrollable ? "mt-3" : ""}`}
+        className={`min-h-0 flex-auto overflow-y-auto overscroll-contain ${beforeScrollable ? "mt-3" : ""}`}
       >
         {children}
       </div>
