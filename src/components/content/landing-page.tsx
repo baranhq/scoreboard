@@ -9,7 +9,7 @@ import { route } from "@/lib/routes";
 import { repo } from "@/lib/site";
 
 export const primaryLinkClass =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-lime px-6 py-3 text-base font-semibold text-campaign transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[.98] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime motion-reduce:transition-none";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-lime px-6 py-3 text-base font-semibold text-campaign transition-[filter,transform] duration-150 ease-out hover:brightness-95 active:scale-[.98] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime motion-reduce:transition-none";
 
 export const toolPages = {
   scoreboard: "scoreboardIntro",
@@ -59,32 +59,29 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
   return (
     <main id="main" data-campaign="dark" data-landing-home>
       <section className="bg-campaign text-campaign-ink">
-        <div className="mx-auto grid max-w-[90rem] grid-cols-1 px-5 pt-7 pb-8 sm:px-8 lg:h-[calc(100svh-4rem)] lg:min-h-0 lg:grid-cols-[minmax(20rem,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-x-10 lg:px-10 lg:py-6">
+        <div className="mx-auto grid max-w-[90rem] grid-cols-1 px-5 pt-10 pb-10 sm:px-8 sm:pt-12 lg:min-h-[calc(100svh-4rem)] lg:grid-cols-[minmax(20rem,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-x-12 lg:px-10 lg:py-10">
           <div className="lg:flex lg:min-h-0 lg:flex-col lg:justify-center">
-            <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
+            <h1 className="max-w-[16ch] font-display text-[clamp(3rem,5.2vw,5.25rem)] leading-[0.98] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
+              {copy.headline}
+            </h1>
+            <p className="mt-6 max-w-[40ch] text-base leading-7 text-white/80 sm:text-lg sm:leading-8">
+              {copy.intro}
+            </p>
+            <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
               <span className="text-lime">{t.free}</span>
               <span aria-hidden="true" className="text-white/45">
                 ·
               </span>
               <span className="text-white/70">{t.local}</span>
             </p>
-            <h1 className="max-w-[16ch] font-display text-[clamp(3rem,5.2vw,5.25rem)] leading-[0.9] font-bold tracking-[-0.05em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
-              {copy.headline}
-            </h1>
-            <p className="mt-5 max-w-[40ch] text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:mt-6">
-              {copy.intro}
-            </p>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <Link
-                href={route(lang, toolEditors.scoreboard)}
-                className="inline-flex min-h-12 items-center gap-2 bg-lime px-5 py-3 font-semibold text-campaign transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:translate-y-0 motion-reduce:transform-none"
-              >
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <Link href={route(lang, toolEditors.scoreboard)} className={primaryLinkClass}>
                 {t.scoreAction}
                 <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
               <a
                 href="#tools"
-                className="inline-flex min-h-12 items-center gap-2 border border-white/35 px-5 py-3 text-sm font-semibold text-campaign-ink transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime motion-reduce:transition-none"
+                className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-white/25 px-5 py-3 text-sm font-semibold text-campaign-ink transition-colors duration-150 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime motion-reduce:transition-none"
               >
                 {copy.allTools}
                 <ArrowDown size={16} aria-hidden="true" />
@@ -105,7 +102,12 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
               className="grid gap-4 border-b border-forest/25 py-7 first:border-t lg:grid-cols-[0.8fr_1fr_13rem] lg:items-center lg:gap-8"
             >
               <h2 className="font-display text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-                {t[tool]}
+                <Link
+                  href={route(lang, toolPages[tool])}
+                  className="rounded-sm transition-colors duration-150 hover:text-action motion-reduce:transition-none"
+                >
+                  {t[tool]}
+                </Link>
               </h2>
               <p className="max-w-[48ch] leading-7 text-ink/75">{content.description}</p>
               <div className="flex flex-wrap items-center gap-4 lg:flex-col lg:items-start">
@@ -115,12 +117,6 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
                 >
                   {content.action}
                   <ArrowUpRight size={18} aria-hidden="true" />
-                </Link>
-                <Link
-                  href={route(lang, toolPages[tool])}
-                  className="inline-flex min-h-11 items-center text-sm underline underline-offset-4"
-                >
-                  {t[tool]}
                 </Link>
               </div>
               <span className="sr-only">{index + 1}</span>
@@ -173,16 +169,12 @@ export function LandingPage({ lang }: { lang: Lang; root?: boolean }) {
       </section>
       <section className="border-t border-white/10 bg-action text-on-action">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
-          <h2 className="font-display text-[clamp(3rem,7.5vw,7rem)] leading-[0.95] font-bold tracking-[-0.04em] whitespace-pre-line">
+          <h2 className="font-display text-[clamp(3rem,7.5vw,6rem)] leading-[1.02] font-bold tracking-[-0.04em] whitespace-pre-line">
             {copy.close}
           </h2>
           <div className="mt-8 flex flex-wrap gap-3">
             {(["scoreboard", "leaderboard", "bracket"] as const).map((tool) => (
-              <Link
-                key={tool}
-                href={route(lang, toolEditors[tool])}
-                className={`${primaryLinkClass} !rounded-none`}
-              >
+              <Link key={tool} href={route(lang, toolEditors[tool])} className={primaryLinkClass}>
                 {t[tool]}
                 <ArrowUpRight size={18} aria-hidden="true" />
               </Link>

@@ -150,6 +150,8 @@ test("scoreboard routes stay localized while the root aliases remain useful", ()
   assert.equal(route("bg", "scoreboard"), "/bg/tablo/");
   assert.equal(route("tr", "scoreboard"), "/tr/skor-tahtasi/");
   assert.equal(pageForPath("/"), "home");
+  assert.equal(pageForPath("/en"), "home");
+  assert.equal(pageForPath("/en/"), "home");
   assert.equal(pageForPath("/scoreboard"), "scoreboard");
   assert.equal(pageForPath("/bg/scoreboard/"), "scoreboard");
   assert.equal(translatedPath("/scoreboard/", "tr"), "/tr/skor-tahtasi/");

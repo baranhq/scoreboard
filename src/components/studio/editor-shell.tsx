@@ -272,7 +272,7 @@ export function EditorShell({
           <section
             ref={preview}
             aria-label={t.preview}
-            className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-forest/20 bg-paper p-2 shadow-sm sm:p-3 ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-[min(60dvh,42rem)] lg:h-[min(64dvh,46rem)]"}`}
+            className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-forest/15 bg-surface p-2 sm:p-3 ${fullscreen ? "h-dvh rounded-none border-0 p-4" : "h-[min(60dvh,42rem)] lg:h-[min(64dvh,46rem)]"}`}
             style={fullscreen ? fullscreenStyle : undefined}
           >
             <div className="mb-2 grid min-w-0 shrink-0 gap-2 xl:grid-cols-[minmax(10rem,0.7fr)_minmax(0,1.3fr)] xl:items-center">
@@ -452,7 +452,7 @@ export function EditorShell({
           </section>
 
           <aside
-            className={`flex min-w-0 flex-col rounded-xl border border-forest/20 bg-surface shadow-sm ${previewOnly ? "lg:hidden" : ""}`}
+            className={`flex min-w-0 flex-col rounded-xl border border-forest/15 bg-surface ${previewOnly ? "lg:hidden" : ""}`}
           >
             <WorkspaceTabs lang={lang} value={activeTab} change={setActiveTab} />
             <fieldset

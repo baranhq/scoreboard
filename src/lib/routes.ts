@@ -82,6 +82,7 @@ export function localizedAlternates(origin: string, page: PageKey): Record<strin
 }
 export function pageForPath(path: string): PageKey | undefined {
   const normalizedPath = path.replace(/\/+$/, "") || "/";
+  if (normalizedPath === "/en") return "home";
   if (normalizedPath === "/scoreboard") return "scoreboard";
   for (const lang of ["bg", "tr", "en"] as const) {
     for (const page of Object.keys(slugs.en) as PageKey[]) {

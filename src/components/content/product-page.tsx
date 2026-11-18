@@ -9,7 +9,7 @@ import { themeLabels, toolThemes } from "@/lib/tool-themes";
 import { route } from "@/lib/routes";
 import { siteOrigin, brand, repo } from "@/lib/site";
 import { ToolDemo, type Tool } from "./tool-demo";
-import { toolContent, toolEditors, toolPages } from "./landing-page";
+import { primaryLinkClass, toolContent, toolEditors, toolPages } from "./landing-page";
 export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
   const t = studioCopy[lang];
   const content = toolContent(lang, tool);
@@ -60,8 +60,7 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
               }
             >
               <div>
-                <p className="mb-3 font-display text-lg font-semibold text-lime">{t[tool]}</p>
-                <h1 className="max-w-[18ch] font-display text-[clamp(2.75rem,5vw,5rem)] leading-[0.94] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
+                <h1 className="max-w-[18ch] font-display text-[clamp(2.75rem,5vw,5rem)] leading-[1.02] font-bold tracking-[-0.04em] text-balance whitespace-pre-line motion-safe:animate-[text-enter_360ms_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
                   {campaignCopy[lang].headlines[tool]}
                 </h1>
               </div>
@@ -69,10 +68,7 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
                 <p className="mt-3 max-w-[45ch] text-base leading-6 text-white/80">
                   {content.description}
                 </p>
-                <Link
-                  href={route(lang, toolEditors[tool])}
-                  className="mt-4 inline-flex min-h-11 items-center gap-3 bg-lime px-5 py-2.5 font-semibold text-campaign transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:translate-y-0 motion-reduce:transform-none"
-                >
+                <Link href={route(lang, toolEditors[tool])} className={`mt-6 ${primaryLinkClass}`}>
                   {content.action}
                   <ArrowUpRight size={18} aria-hidden="true" />
                 </Link>

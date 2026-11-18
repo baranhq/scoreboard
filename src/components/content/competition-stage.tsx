@@ -27,9 +27,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   const advance = useCallback(() => setActive((index) => (index + 1) % tools.length), []);
   const reset = useCallback(() => setActive(0), []);
   const autoPlayByDefault = !themes;
-  const { ref, playing, toggle, pause } = useAutoDemo(advance, reset, 8400, autoPlayByDefault, {
-    allowReducedMotionAutoplay: autoPlayByDefault,
-  });
+  const { ref, playing, toggle, pause } = useAutoDemo(advance, reset, 8400, autoPlayByDefault);
   const t = studioCopy[lang];
   const tool = tools[active];
   const demoTheme = toolThemes[1];
@@ -63,7 +61,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
       }
     >
       <div
-        className="relative grid grid-cols-3 border-y border-current/20"
+        className={`relative grid grid-cols-3 gap-1 rounded-xl p-1 ring-1 ${themes ? "bg-forest/5 ring-forest/15" : "bg-white/5 ring-white/15"}`}
         role="group"
         aria-label={t.tools}
       >
@@ -76,7 +74,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
               pause();
               setActive(index);
             }}
-            className={`min-h-14 min-w-0 px-1 py-3 font-display text-sm font-semibold transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-lime active:brightness-90 motion-reduce:transition-none sm:min-h-16 sm:text-xl ${active === index ? "bg-action text-on-action" : themes ? "text-ink/80 hover:bg-forest/5" : "text-white/85 hover:bg-white/[0.07]"}`}
+            className={`min-h-11 min-w-0 rounded-lg px-1 py-2 font-display text-sm leading-snug font-semibold transition-colors duration-150 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] ${themes ? "focus-visible:outline-forest" : "focus-visible:outline-lime"} active:brightness-90 motion-reduce:transition-none sm:text-base ${active === index ? (themes ? "bg-action text-on-action" : "bg-lime text-campaign") : themes ? "text-ink/80 hover:bg-forest/5" : "text-white/85 hover:bg-white/[0.07]"}`}
           >
             {t[item]}
           </button>
@@ -97,7 +95,7 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
             <div
               ref={previewRef}
               key={tool}
-              className={`mt-3 ${previewHeightClass} min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.025] motion-safe:animate-[surface-enter_360ms_cubic-bezier(0.22,1,0.36,1)_both] motion-reduce:animate-none lg:mt-4 lg:flex-none`}
+              className={`mt-3 ${previewHeightClass} min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.025] lg:mt-4 lg:flex-none`}
             >
               <ToolDemo
                 tool={tool}
