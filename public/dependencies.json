@@ -41,19 +41,19 @@
   },
   {
     "name": "@next/env",
-    "version": "16.4.4",
+    "version": "16.4.6",
     "license": "MIT",
     "source": "https://github.com/vercel/next.js",
     "development": false,
-    "noticePath": "/licenses/next-env-16.4.4.json"
+    "noticePath": "/licenses/next-env-16.4.6.json"
   },
   {
     "name": "@next/swc-linux-x64-gnu",
-    "version": "16.4.4",
+    "version": "16.4.6",
     "license": "MIT",
     "source": "https://github.com/vercel/next.js",
     "development": false,
-    "noticePath": "/licenses/next-swc-linux-x64-gnu-16.4.4.json"
+    "noticePath": "/licenses/next-swc-linux-x64-gnu-16.4.6.json"
   },
   {
     "name": "@swc/helpers",
@@ -129,11 +129,11 @@
   },
   {
     "name": "next",
-    "version": "16.4.4",
+    "version": "16.4.6",
     "license": "MIT",
     "source": "vercel/next.js",
     "development": false,
-    "noticePath": "/licenses/next-16.4.4.json"
+    "noticePath": "/licenses/next-16.4.6.json"
   },
   {
     "name": "picocolors",
