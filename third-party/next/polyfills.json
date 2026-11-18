@@ -1,0 +1,21 @@
+{
+  "nextVersion": "16.4.6",
+  "source": "https://github.com/vercel/next.js/blob/v16.4.6/packages/next-polyfill-nomodule/package.json",
+  "polyfillSha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683",
+  "components": [
+    {
+      "name": "core-js",
+      "version": "3.38.1",
+      "license": "MIT",
+      "source": "https://github.com/zloirock/core-js/blob/v3.38.1/LICENSE",
+      "noticeFile": "third-party/next/core-js-3.38.1-LICENSE.txt"
+    },
+    {
+      "name": "whatwg-fetch",
+      "version": "3.0.0",
+      "license": "MIT",
+      "source": "https://github.com/github/fetch/blob/v3.0.0/LICENSE",
+      "noticeFile": "third-party/next/whatwg-fetch-3.0.0-LICENSE.txt"
+    }
+  ]
+}

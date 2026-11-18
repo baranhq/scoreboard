@@ -1,13 +1,24 @@
+import { createHash } from "node:crypto";
 import {
-  readFileSync,
-  writeFileSync,
-  readdirSync,
   existsSync,
   mkdirSync,
+  readFileSync,
+  readdirSync,
   unlinkSync,
+  writeFileSync,
 } from "node:fs";
 import path from "node:path";
-const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+
+const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
+const lockText = readFileSync("package-lock.json", "utf8");
+const lock = JSON.parse(lockText);
+const manifestPath = ".next/client-license-modules.json";
+if (!existsSync(manifestPath))
+  throw new Error("Run npm run build to collect browser modules first.");
+const manifest = readJson(manifestPath);
+if (manifest.lockHash !== createHash("sha256").update(lockText).digest("hex"))
+  throw new Error("Browser licence inventory is stale. Run npm run build.");
+
 const allowed = new Set([
   "MIT",
   "ISC",
@@ -21,283 +32,231 @@ const allowed = new Set([
   "0BSD",
   "CC0-1.0",
   "BlueOak-1.0.0",
-  "(MIT OR Apache-2.0)",
 ]);
-const rows = [];
-const notices = [];
-const projectNotices = new Map();
-const runtimeRows = [
-  {
-    name: "PHP Docker runtime",
-    version: "8.4.27",
-    license: "PHP-3.01",
-    source: "https://github.com/php/php-src/tree/php-8.4.27",
-    noticePath: "/licenses/php-docker-runtime-8.4.27.json",
-  },
-];
-const runtimeNotices = [
-  {
-    name: "PHP Docker runtime — PHP License 3.01",
-    source: "https://raw.githubusercontent.com/php/php-src/php-8.4.27/LICENSE",
-    text: `--------------------------------------------------------------------
-                  The PHP License, version 3.01
-Copyright (c) 1999 - 2024 The PHP Group. All rights reserved.
---------------------------------------------------------------------
-
-Redistribution and use in source and binary forms, with or without
-modification, is permitted provided that the following conditions
-are met:
-  1. Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-
-  2. Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in
-     the documentation and/or other materials provided with the
-     distribution.
-  3. The name "PHP" must not be used to endorse or promote products
-     derived from this software without prior written permission. For
-     written permission, please contact group@php.net.
-
-  4. Products derived from this software may not be called "PHP", nor
-     may "PHP" appear in their name, without prior written permission
-     from group@php.net.  You may indicate that your software works in
-     conjunction with PHP by saying "Foo for PHP" instead of calling
-     it "PHP Foo" or "phpfoo"
-  5. The PHP Group may publish revised and/or new versions of the
-     license from time to time. Each version will be given a
-     distinguishing version number.
-     Once covered code has been published under a particular version
-     of the license, you may always continue to use it under the terms
-     of that version. You may also choose to use such covered code
-     under the terms of any subsequent version of the license
-     published by the PHP Group. No one other than the PHP Group has
-     the right to modify the terms applicable to covered code created
-     under this License.
-  6. Redistributions of any form whatsoever must retain the following
-     acknowledgment:
-     "This product includes PHP software, freely available from
-     <http://www.php.net/software/>".
-THIS SOFTWARE IS PROVIDED BY THE PHP DEVELOPMENT TEAM \`\`AS IS'' AND
-ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE PHP
-DEVELOPMENT TEAM OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-OF THE POSSIBILITY OF SUCH DAMAGE.
---------------------------------------------------------------------
-
-This software consists of voluntary contributions made by many
-individuals on behalf of the PHP Group.
-
-The PHP Group can be contacted via Email at group@php.net.
-
-For more information on the PHP Group and the PHP project,
-please see <http://www.php.net>.
-
-PHP includes the Zend Engine, freely available at
-<http://www.zend.com>.
-`,
-  },
-];
-function collect(directory, label, recursive = false) {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (entry.name === "node_modules") continue;
-    const file = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      if (recursive) collect(file, label, true);
-      continue;
-    }
-    if (/^(licen[cs]e|copying|notice)([._-].*)?$/i.test(entry.name)) {
-      const content = readFileSync(file, "utf8");
-      if (content.includes("\u0000")) throw new Error(`Non-text notice: ${file}`);
-      notices.push({
-        name: `${label} — ${path.relative(directory, file)}`,
-        source: file,
-        text: content,
-      });
-    }
-  }
+function checkLicense(name, license) {
+  const identifiers = license?.replace(/[()]/g, "").split(/\s+(?:AND|OR)\s+/);
+  if (!identifiers?.length || identifiers.some((id) => !allowed.has(id)))
+    throw new Error(`Review licence for ${name}: ${license}`);
 }
-const mitTerms = readFileSync("node_modules/prettier/LICENSE", "utf8")
-  .split(/\r?\n\r?\n/)
-  .slice(1)
-  .join("\n\n")
-  .trim();
-function fallbackNotice(pkg, directory, source) {
-  const readme = existsSync(path.join(directory, "README.md"))
-    ? readFileSync(path.join(directory, "README.md"), "utf8")
-    : "";
-  const section = (marker) => {
-    const start = readme.indexOf(marker);
-    if (start < 0) throw new Error(`Missing license section: ${pkg.name}`);
-    return readme.slice(start).trim();
-  };
-  const notice = (text, licenseSource = source) => [
-    { name: `${pkg.name}@${pkg.version}`, source: licenseSource, text },
-  ];
-  switch (pkg.name) {
-    case "@humanfs/types":
-      return notice(
-        readFileSync("node_modules/typescript/LICENSE.txt", "utf8"),
-        "https://www.apache.org/licenses/LICENSE-2.0.txt",
-      );
-    case "@types/json5":
-      return notice(
-        `Copyright (c) Jason Swearingen\n\n${mitTerms}`,
-        "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/json5",
-      );
-    case "@unrs/resolver-binding-linux-x64-gnu":
-      return notice(readFileSync("node_modules/unrs-resolver/LICENSE", "utf8"));
-    case "eslint-config-next":
-      return notice(readFileSync("node_modules/next/license.md", "utf8"));
-    case "esrecurse":
-      return notice(section("### License"));
-    case "imurmurhash":
-      return notice(section("License (MIT)"));
-    case "language-subtag-registry":
-      return notice(
-        section("## Credits and collaboration ##"),
-        "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
-      );
-    case "language-tags":
-      return notice(`Copyright (c) 2013, Matthew Caruana Galizia\n\n${mitTerms}`);
-    case "natural-compare":
-      return notice(`Copyright (c) 2012-2015 Lauri Rooden <lauri@rooden.ee>\n\n${mitTerms}`);
-    case "stable-hash":
-      return notice(`Copyright (c) Shu Ding\n\n${mitTerms}`);
-    default:
-      return [];
-  }
+function packageDirectory(resource) {
+  const normalized = resource.replaceAll("\\", "/");
+  const start = normalized.lastIndexOf("node_modules/");
+  if (start < 0 || normalized.includes("../")) throw new Error(`Invalid module: ${resource}`);
+  const parts = normalized.slice(start + 13).split("/");
+  const name = parts.slice(0, parts[0].startsWith("@") ? 2 : 1).join("/");
+  return normalized.slice(0, start + 13) + name;
 }
-for (const [directory, item] of Object.entries(lock.packages)) {
-  if (!directory || !existsSync(`${directory}/package.json`)) continue;
-  const pkg = JSON.parse(readFileSync(`${directory}/package.json`, "utf8"));
-  const license = pkg.license || item.license;
-  if (!allowed.has(license)) throw new Error(`Review license for ${pkg.name}: ${license}`);
-  const source =
-    typeof pkg.repository === "string"
-      ? pkg.repository
-      : pkg.repository?.url || pkg.homepage || `https://www.npmjs.com/package/${pkg.name}`;
-  const before = notices.length;
-  collect(directory, `${pkg.name}@${pkg.version}`);
-  if (notices.length === before) notices.push(...fallbackNotice(pkg, directory, source));
-  if (notices.length === before && pkg.name.startsWith("@img/sharp-libvips-")) {
-    notices.push({
-      name: `${pkg.name}@${pkg.version} — optional build-only native binary (not distributed in out or Docker runtime)`,
-      source: `${directory}/README.md`,
-      text:
-        readFileSync(`${directory}/README.md`, "utf8") +
-        "\nSource for the prebuilt bundle: https://github.com/lovell/sharp-libvips/tree/v" +
-        pkg.version +
-        "\nThis optional build-host tool is not included in the deployed static application. Redistribution of its native binaries requires compliance with every bundled library license, including LGPL source/relinking requirements. Obtain originals with notices from the upstream distribution; do not copy node_modules into the website or runtime image.\n",
-    });
-  }
-  if (notices.length === before && pkg.name.startsWith("@next/"))
-    notices.push({
-      name: `${pkg.name}@${pkg.version}`,
-      source: "node_modules/next/license.md",
-      text: readFileSync("node_modules/next/license.md", "utf8"),
-    });
-  if (notices.length === before && pkg.name === "client-only")
-    notices.push({
-      name: "client-only (React marker package)",
-      source: "node_modules/react/LICENSE",
-      text: readFileSync("node_modules/react/LICENSE", "utf8"),
-    });
-  if (notices.length === before) throw new Error(`Missing license text: ${pkg.name}`);
-  projectNotices.set(`${pkg.name}@${pkg.version}`, notices.slice(before));
-  rows.push({
-    name: pkg.name,
-    version: pkg.version,
-    license,
-    source: source.replace(/^git\+/, "").replace(/\.git$/, ""),
-    development: !!item.dev,
+function sourceUrl(pkg, name) {
+  const repository = typeof pkg.repository === "string" ? pkg.repository : pkg.repository?.url;
+  const source = (repository || pkg.homepage || "")
+    .replace(/^git\+/, "")
+    .replace(/^git:\/\//, "https://")
+    .replace(/\.git$/, "");
+  if (source.startsWith("https://")) return source;
+  if (/^[\w.-]+\/[\w.-]+$/.test(source)) return `https://github.com/${source}`;
+  return `https://www.npmjs.com/package/${name}`;
+}
+function collect(directory, label) {
+  const files = readdirSync(directory).filter((file) =>
+    /^(licen[cs]e|copying|notice)([._-].*)?$/i.test(file),
+  );
+  if (!files.length) throw new Error(`Missing original licence text: ${directory}`);
+  return files.sort().map((file) => {
+    const source = path.posix.join(directory, file);
+    const text = readFileSync(source, "utf8");
+    if (!text.trim() || text.includes("\u0000")) throw new Error(`Invalid notice: ${source}`);
+    return { name: `${label} — ${file}`, source, text };
   });
 }
-// Next includes vendored tools; preserve their original notices as well.
-const compiledStart = notices.length;
-collect("node_modules/next/dist/compiled", "Next.js vendored software", true);
-const next = rows.find((row) => row.name === "next");
-if (next) projectNotices.get(`${next.name}@${next.version}`).push(...notices.slice(compiledStart));
-mkdirSync("public/licenses", { recursive: true });
-const deployedRows = rows
-  .filter((row) => !row.development)
-  .sort((a, b) => a.name.localeCompare(b.name));
-const deployedFiles = new Set(
-  deployedRows.map(
-    (row) => `${row.name.replace("@", "").replaceAll("/", "-")}-${row.version}.json`,
-  ),
-);
-deployedFiles.add("php-docker-runtime-8.4.27.json");
-for (const file of readdirSync("public/licenses")) {
-  if (file.endsWith(".json") && !deployedFiles.has(file)) {
-    unlinkSync(path.join("public/licenses", file));
+
+const browserDirectories = new Set(manifest.resources.map(packageDirectory));
+// Fonts, Tailwind's base CSS and the legacy polyfill are copied rather than imported as JS modules.
+for (const directory of [
+  "node_modules/@fontsource/inter",
+  "node_modules/@fontsource/inter-tight",
+  "node_modules/object-assign",
+  "node_modules/tailwindcss",
+])
+  browserDirectories.add(directory);
+
+const rows = [];
+const browserRows = [];
+const noticesByPackage = new Map();
+for (const [directory, item] of Object.entries(lock.packages)) {
+  if (!directory) continue;
+  const pkgPath = `${directory}/package.json`;
+  const pkg = existsSync(pkgPath) ? readJson(pkgPath) : {};
+  const name = pkg.name || directory.slice(directory.lastIndexOf("node_modules/") + 13);
+  const version = item.version;
+  if (pkg.version && pkg.version !== version)
+    throw new Error(`Installed version differs from lockfile: ${name}`);
+  const license = name === "lucide-react" ? "ISC AND MIT" : pkg.license || item.license;
+  checkLicense(name, license);
+  const row = {
+    name,
+    version,
+    license,
+    source: sourceUrl(pkg, name),
+    browser: browserDirectories.has(directory),
+  };
+  rows.push(row);
+  if (row.browser) {
+    if (!pkg.name) throw new Error(`Browser dependency is not installed: ${directory}`);
+    noticesByPackage.set(`${name}@${version}`, collect(directory, `${name}@${version}`));
+    browserRows.push(row);
+    browserDirectories.delete(directory);
   }
 }
-for (const row of deployedRows) {
+if (browserDirectories.size)
+  throw new Error(
+    `Browser modules are missing from lockfile: ${[...browserDirectories].join(", ")}`,
+  );
+
+const next = browserRows.find((row) => row.name === "next");
+if (!next) throw new Error("Next.js is missing from the browser inventory.");
+const bundledDirectories = new Set();
+for (const resource of manifest.resources) {
+  const match = /^node_modules\/next\/dist\/compiled\/((?:@[^/]+\/)?[^/]+)/.exec(resource);
+  if (match) bundledDirectories.add(`node_modules/next/dist/compiled/${match[1]}`);
+}
+// Webpack's generated runtime is emitted without a module.resource of its own.
+bundledDirectories.add("node_modules/next/dist/compiled/webpack");
+const nextNotices = noticesByPackage.get(`next@${next.version}`);
+for (const directory of [...bundledDirectories].sort())
+  nextNotices.push(
+    ...collect(directory, `Next.js bundled ${directory.split("dist/compiled/")[1]}`),
+  );
+
+const polyfills = readJson("third-party/next/polyfills.json");
+const polyfillFile = "node_modules/next/dist/build/polyfills/polyfill-nomodule.js";
+if (
+  createHash("sha256").update(readFileSync(polyfillFile)).digest("hex") !== polyfills.polyfillSha256
+)
+  throw new Error(
+    "Next.js legacy polyfill changed. Review its upstream dependencies and licence notices.",
+  );
+if (browserRows.find((row) => row.name === "object-assign")?.version !== "4.1.1")
+  throw new Error("Review the object-assign version bundled in Next.js's legacy polyfill.");
+for (const component of polyfills.components) {
+  checkLicense(component.name, component.license);
+  const row = {
+    name: component.name,
+    version: component.version,
+    license: component.license,
+    source: component.source,
+    browser: true,
+  };
+  const text = readFileSync(component.noticeFile, "utf8");
+  if (!text.trim()) throw new Error(`Missing polyfill notice: ${component.name}`);
+  noticesByPackage.set(`${row.name}@${row.version}`, [
+    { name: `${row.name}@${row.version} (Next.js legacy polyfill)`, source: row.source, text },
+  ]);
+  rows.push(row);
+  browserRows.push(row);
+}
+
+browserRows.sort((a, b) => a.name.localeCompare(b.name));
+mkdirSync("public/licenses", { recursive: true });
+const generated = new Map();
+const publicRows = [];
+for (const row of browserRows) {
   const file = `${row.name.replace("@", "").replaceAll("/", "-")}-${row.version}.json`;
-  row.noticePath = "/licenses/" + file;
-  writeFileSync(
-    "public/licenses/" + file,
+  row.noticePath = `/licenses/${file}`;
+  const disclosure = { ...row };
+  delete disclosure.browser;
+  publicRows.push(disclosure);
+  generated.set(
+    `public/licenses/${file}`,
     JSON.stringify(
-      {
-        name: row.name,
-        version: row.version,
-        license: row.license,
-        source: row.source,
-        notices: projectNotices.get(`${row.name}@${row.version}`),
-      },
+      { ...disclosure, notices: noticesByPackage.get(`${row.name}@${row.version}`) },
       null,
       2,
     ) + "\n",
   );
 }
-for (const runtime of runtimeRows) {
-  const notice = runtimeNotices.filter((item) => item.name.startsWith(runtime.name));
-  writeFileSync(
-    `public${runtime.noticePath}`,
-    JSON.stringify({ ...runtime, notices: notice }, null, 2) + "\n",
-  );
+const notices = [
+  ...new Map(
+    browserRows
+      .flatMap((row) => noticesByPackage.get(`${row.name}@${row.version}`))
+      .map((notice) => [notice.source, notice]),
+  ).values(),
+];
+const noticeGroups = new Map();
+for (const notice of notices) {
+  const group = noticeGroups.get(notice.text) || { names: [], sources: [], text: notice.text };
+  group.names.push(notice.name);
+  group.sources.push(notice.source);
+  noticeGroups.set(notice.text, group);
 }
-const allNotices = [...notices, ...runtimeNotices];
-const unique = [...new Map(allNotices.map((n) => [n.source, n])).values()];
-const allRows = [...rows.sort((a, b) => a.name.localeCompare(b.name)), ...runtimeRows];
-const overview =
-  "# Third-party licenses\n\nOriginal Baran's Scoreboard application code: MIT, Copyright (c) 2026 Baran Ahmedov. See [LICENSE](LICENSE). Third-party components retain their own licenses and copyright notices. MIT permits commercial use and redistribution while retaining its notices; it does not require visible interface attribution.\n\nThis inventory is generated from the installed npm lockfile and lists the pinned PHP Docker runtime separately. Optional platform packages in the lockfile may vary by build machine. Regenerate with `npm ci && npm run licenses` on the distribution builder. Full verbatim license and copyright notices, including vendored Next.js notices and the PHP runtime notice, are in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) and deployed at `/THIRD-PARTY-NOTICES.txt`. The favicon at public/icon.png and wordmark at public/wordmark.png were supplied by the project owner for this MIT-licensed project. The original social preview image is an MIT-licensed application asset. Inter and Inter Tight static font subsets retain OFL-1.1; they are bundled with the app and are not sold separately. No remote fonts, photos, or unlicensed stock assets are used. Apache, MySQL/MariaDB, Node.js and optional Docker are separately installed runtimes; their upstream distributions carry their own notices. Docker service images retain their upstream licenses. Cloudflare is optional external performance analytics, not a required software dependency.\n\n| Package | Version | License | Upstream |\n| --- | --- | --- | --- |\n" +
-  allRows.map((r) => `| ${r.name} | ${r.version} | ${r.license} | ${r.source} |`).join("\n") +
-  "\n";
-writeFileSync(
+const full =
+  [...noticeGroups.values()]
+    .map(
+      (group) =>
+        `${"=".repeat(72)}\n${group.names.join("; ")}\n${group.sources.join("\n")}\n${"=".repeat(72)}\n${group.text}`,
+    )
+    .join("\n\n") + "\n";
+generated.set("THIRD-PARTY-NOTICES.txt", full);
+generated.set("public/THIRD-PARTY-NOTICES.txt", full);
+generated.set("public/dependencies.json", JSON.stringify(publicRows, null, 2) + "\n");
+
+const inventory = [
+  ...new Map(rows.map((row) => [`${row.name}@${row.version}`, row])).values(),
+].sort((a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version));
+generated.set(
   "LICENSES.md",
-  overview +
-    "\n## CI actions\n\nThese build-only actions are referenced, not bundled into the website. Both use MIT: [actions/checkout](https://github.com/actions/checkout/blob/d23441a48e516b6c34aea4fa41551a30e30af803/LICENSE) at `d23441a48e516b6c34aea4fa41551a30e30af803` and [actions/setup-node](https://github.com/actions/setup-node/blob/249970729cb0ef3589644e2896645e5dc5ba9c38/LICENSE) at `249970729cb0ef3589644e2896645e5dc5ba9c38`. Their upstream distributions retain their notices.\n",
+  `# Third-party licenses
+
+Original Baran's Scoreboard application code: MIT, Copyright (c) 2026 Baran Ahmedov. See [LICENSE](LICENSE). Third-party components retain their own licences and copyright notices; this inventory does not relicense them.
+
+## Distributed browser code and assets
+
+[THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) and its identical public copy contain the original notices for the emitted browser modules, copied fonts, and Next.js's legacy polyfills. The production Webpack build records the emitted module resources before pages are rendered; **npm run licenses** regenerates from that manifest and rejects a changed lockfile or polyfill. Native image tooling, server libraries, type definitions and build-only dependencies are not presented as browser distributions. No network licence lookup is needed during builds.
+
+Inter and Inter Tight are copied byte-for-byte from Fontsource's OFL-1.1 files. Their copyright and OFL text travel with the website; using them in raster graphics does not require a font credit on those graphics. Lucide's complete licence file includes both its ISC terms and the Feather-derived icons' MIT terms. Tailwind's MIT notice covers the base styles copied into the emitted CSS. MIT, ISC, BSD and Apache notices must accompany relevant redistributed code; none requires a promotional footer. Apache NOTICE files must also be retained where supplied. The existing project credit and MIT footer are presentation choices, not additional third-party licence conditions.
+
+The owner confirmed that the Baran's Scoreboard wordmark and S favicon are original artwork they designed. The WebP wordmarks and product-view images are repository assets; no stock-image or template provider is referenced. The social preview remains covered by the existing project licence. System fallback fonts are not distributed. The optional Cloudflare analytics beacon is loaded from the provider after consent, not copied into this repository or the static export; no Cloudflare software licence text is bundled here.
+
+## Dependency inventory
+
+This table audits every package entry in package-lock.json, including optional packages for other platforms, deduplicated by name and version. “Not browser-delivered” is an inventory classification, not a claim that a dependency has no licence. Installing a tool does not itself redistribute that tool in the website. Redistributing node_modules or a build-tool image requires a separate inventory of those artifacts and their bundled libraries, including any LGPL source/relinking obligations.
+
+| Package | Version | License | Distribution | Upstream |
+| --- | --- | --- | --- | --- |
+${inventory.map((row) => `| ${row.name} | ${row.version} | ${row.license} | ${row.browser ? "Browser / copied asset" : "Not browser-delivered"} | ${row.source} |`).join("\n")}
+
+## Docker and separately installed services
+
+The following are primary components, not blanket licences for entire container images. Dockerfile and compose.yaml reference upstream images; the repository does not contain their binaries. Running a service is different from conveying an image to someone else. Commercial use of these components is permitted under their respective terms, and their use as separate services does not relicense the application under the GPL.
+
+| Image/component | Role | Primary licence and source |
+| --- | --- | --- |
+| node:24-bookworm-slim | Build stage only; Node and node_modules are not copied into the runtime | [Node.js MIT and bundled notices](https://github.com/nodejs/node/blob/v24.x/LICENSE); Debian packages have separate terms |
+| php:8.4.27-apache-bookworm | Runtime base | [PHP-3.01](https://github.com/php/php-src/blob/php-8.4.27/LICENSE), [Zend-2.0](https://github.com/php/php-src/blob/php-8.4.27/Zend/LICENSE), [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) and the base image's library/package licences |
+| mbstring / libmbfl | Built from the PHP source archive | [LGPL-2.1](https://github.com/php/php-src/blob/php-8.4.27/ext/mbstring/libmbfl/LICENSE); preserve corresponding source and relinking rights when redistributing binaries |
+| libonig-dev / Oniguruma | Runtime image package and mbstring dependency | [BSD-2-Clause](https://github.com/kkos/oniguruma/blob/master/COPYING); retain the installed package copyright files |
+| mariadb:11.4 | Separate database service | [GPL-2.0](https://github.com/MariaDB/server/blob/11.4/COPYING); source obligations apply when conveying binaries, not merely communicating with the server |
+| caddy:2-alpine | Optional separate HTTPS proxy | [Apache-2.0](https://github.com/caddyserver/caddy/blob/master/LICENSE); preserve notices for Caddy, its compiled modules and Alpine packages if redistributing the image |
+
+The PHP image retains /usr/src/php.tar.xz, including its original licence files and bundled-library source; the application Dockerfile checks that the archive remains present. Debian package notices under /usr/share/doc are not removed. Caddy and MariaDB are fetched as separate upstream images, so their licence texts do not belong in the standalone website notice download. See [SELF_HOSTING.md](SELF_HOSTING.md#redistributing-container-images) before publishing images. Mutable image tags do not establish an exact image-wide software inventory.
+
+## CI actions
+
+The referenced build-only actions are not copied into the website: [actions/checkout](https://github.com/actions/checkout/blob/d23441a48e516b6c34aea4fa41551a30e30af803/LICENSE) and [actions/setup-node](https://github.com/actions/setup-node/blob/249970729cb0ef3589644e2896645e5dc5ba9c38/LICENSE) are MIT-licensed. Their own distributions retain their notices.
+`,
 );
-const full = unique
-  .map((n) => `${"=".repeat(72)}\n${n.name}\n${n.source}\n${"=".repeat(72)}\n${n.text}`)
-  .join("\n\n");
-writeFileSync("THIRD-PARTY-NOTICES.txt", full + "\n");
-mkdirSync("public", { recursive: true });
-const deployedNotices = [
-  ...deployedRows.flatMap((row) => projectNotices.get(`${row.name}@${row.version}`) || []),
-  ...runtimeNotices,
-];
-const deployedUnique = [
-  ...new Map(deployedNotices.map((notice) => [notice.source, notice])).values(),
-];
-writeFileSync(
-  "public/THIRD-PARTY-NOTICES.txt",
-  deployedUnique
-    .map((n) => `${"=".repeat(72)}\n${n.name}\n${n.source}\n${"=".repeat(72)}\n${n.text}`)
-    .join("\n\n") + "\n",
+
+const stale = readdirSync("public/licenses").filter(
+  (file) => file.endsWith(".json") && !generated.has(`public/licenses/${file}`),
 );
-writeFileSync(
-  "public/dependencies.json",
-  JSON.stringify([...deployedRows, ...runtimeRows], null, 2) + "\n",
-);
+if (process.argv.includes("--check")) {
+  for (const [file, text] of generated)
+    if (!existsSync(file) || readFileSync(file, "utf8") !== text)
+      throw new Error(`Outdated licence output: ${file}`);
+  if (stale.length) throw new Error(`Unexpected notice files: ${stale.join(", ")}`);
+} else {
+  for (const [file, text] of generated) writeFileSync(file, text);
+  for (const file of stale) unlinkSync(path.join("public/licenses", file));
+}
 console.log(
-  `Preserved ${unique.length} notices for ${rows.length} npm packages; deployed ${deployedRows.length} app packages and ${runtimeRows.length} runtime.`,
+  `Verified ${Object.keys(lock.packages).length - 1} locked packages; ${browserRows.length} browser components, ${notices.length} original notices.`,
 );

@@ -3,6 +3,7 @@
   "version": "0.28.0",
   "license": "MIT",
   "source": "https://github.com/react/react",
+  "noticePath": "/licenses/scheduler-0.28.0.json",
   "notices": [
     {
       "name": "scheduler@0.28.0 — LICENSE",

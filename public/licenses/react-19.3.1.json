@@ -3,6 +3,7 @@
   "version": "19.3.1",
   "license": "MIT",
   "source": "https://github.com/react/react",
+  "noticePath": "/licenses/react-19.3.1.json",
   "notices": [
     {
       "name": "react@19.3.1 — LICENSE",

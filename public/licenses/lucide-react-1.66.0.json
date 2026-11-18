@@ -1,8 +1,9 @@
 {
   "name": "lucide-react",
   "version": "1.66.0",
-  "license": "ISC",
+  "license": "ISC AND MIT",
   "source": "https://github.com/lucide-icons/lucide",
+  "noticePath": "/licenses/lucide-react-1.66.0.json",
   "notices": [
     {
       "name": "lucide-react@1.66.0 — LICENSE",
