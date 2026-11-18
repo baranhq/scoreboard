@@ -16,9 +16,9 @@ export function ProductPage({ lang, tool }: { lang: Lang; tool: Tool }) {
   const isScoreboard = tool === "scoreboard";
   const demoTheme = toolThemes[1];
   const previewFrameClass = isScoreboard
-    ? "h-[clamp(24rem,46svh,35rem)] lg:min-h-0"
+    ? "h-[22rem] sm:h-[clamp(24rem,46svh,35rem)] lg:min-h-0"
     : tool === "leaderboard"
-      ? "h-[25rem] rounded-2xl border border-white/15 bg-white/[0.035] p-2 sm:h-[32rem] sm:p-3 lg:h-[min(72svh,44rem)]"
+      ? "h-[21rem] rounded-2xl border border-white/15 bg-white/[0.035] p-2 sm:h-[32rem] sm:p-3 lg:h-[min(72svh,44rem)]"
       : "h-[24rem] rounded-2xl border border-white/15 bg-white/[0.035] p-2 sm:h-[30rem] sm:p-3 lg:h-[min(70svh,44rem)]";
   const heroLayoutClass = isScoreboard
     ? "flex flex-col py-5 lg:h-[calc(100svh-4rem)] lg:overflow-hidden lg:py-3"

@@ -25,11 +25,14 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
   const [showLimit, setShowLimit] = useState(false);
   const [timer, setTimer] = useState<GameTimer>({ ...defaultTimer, enabled: true, periodCount: 2 });
   const t = studioCopy[lang];
-  const bracketPreviewWidth = view === 1 ? "min-w-[42rem]" : "mx-auto w-full min-w-0 sm:w-[42rem]";
+  const bracketPreviewWidth =
+    view === 1 ? "min-w-[42rem]" : "mx-auto w-full min-w-[30rem] sm:w-[42rem]";
   const scoreboardPreviewHeight =
     teamCount >= 4 && teamCount <= 6
-      ? "h-[clamp(28rem,58svh,38rem)] md:h-[clamp(34rem,66svh,44rem)]"
-      : "h-[clamp(28rem,58svh,38rem)]";
+      ? "h-[36rem] md:h-[clamp(34rem,66svh,44rem)]"
+      : teamCount === 3
+        ? "h-[28rem] sm:h-[clamp(28rem,58svh,38rem)]"
+        : "h-[22rem] sm:h-[clamp(28rem,58svh,38rem)]";
   const document = useMemo(() => {
     if (tool === "scoreboard") return null;
     const sample = studioDemo(tool, lang);
@@ -125,7 +128,7 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
               change={setTimer}
               full={false}
               controlsVisible
-              textScale={1}
+              textScale={100}
             />
           </div>
         </>
@@ -133,8 +136,9 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
         document && (
           <div
             tabIndex={0}
+            role="region"
             aria-label={t.exploreGraphic}
-            className="overflow-auto overscroll-contain rounded-xl border border-forest/20 bg-forest/5 p-2 sm:p-4"
+            className="overflow-auto overscroll-x-contain rounded-xl border border-forest/20 bg-forest/5 p-2 sm:p-4"
           >
             <div
               className={
@@ -149,6 +153,11 @@ export function ProductOutputLab({ tool, lang }: { tool: Tool; lang: Lang }) {
             </div>
           </div>
         )
+      )}
+      {tool === "bracket" && (
+        <p className="mt-2 text-center text-xs leading-relaxed text-ink/70 sm:hidden">
+          {t.exploreGraphic}
+        </p>
       )}
     </div>
   );

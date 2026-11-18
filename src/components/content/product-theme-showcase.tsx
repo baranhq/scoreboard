@@ -64,10 +64,16 @@ export function ProductThemeShowcase({
   };
   const previewHeightClass =
     tool === "scoreboard"
-      ? "h-[clamp(26rem,54svh,30rem)] sm:h-[31rem]"
+      ? scoreTeamCount >= 4
+        ? "h-[36rem] sm:h-[31rem]"
+        : scoreTeamCount === 3
+          ? "h-[28rem] sm:h-[31rem]"
+          : "h-[22rem] sm:h-[31rem]"
       : tool === "leaderboard"
-        ? "h-[clamp(18rem,44vw,21rem)] sm:h-[31rem]"
-        : "h-[clamp(14rem,40vw,17rem)] sm:h-[31rem]";
+        ? expanded
+          ? "h-[22rem] sm:h-[31rem]"
+          : "h-[clamp(18rem,44vw,21rem)] sm:h-[31rem]"
+        : "h-[clamp(23rem,44vw,26rem)] sm:h-[31rem]";
   const setPreset = (index: number) => {
     setChosenTheme(index);
     setCustomColors(themeColors(toolThemes[index]));

@@ -95,7 +95,9 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
             ))}
           </ol>
           <figure className={`min-w-0 ${tool === "leaderboard" ? "lg:order-first" : ""}`}>
-            <div className="h-[28rem] min-w-0 overflow-hidden sm:h-[32rem]">
+            <div
+              className={`${tool === "bracket" ? "h-[24rem]" : "h-[22rem]"} min-w-0 overflow-hidden sm:h-[32rem]`}
+            >
               <ToolDemo
                 tool={tool}
                 lang={lang}

@@ -108,7 +108,7 @@ Use restrained, consistent rounding: roughly 6px for form controls, 8px for butt
 
 Primary buttons use the action colour and its accessible on-action text. Secondary buttons use a transparent background, a light border, and forest text. Inputs are labelled, full-width where appropriate, and use the current paper or surface colour. Preserve visible keyboard focus and disabled states.
 
-Public landing and product pages share the same 8px-rounded lime action. Keep demo selectors compact and grouped, and let visitors who prefer reduced motion start demonstrations themselves.
+Public landing and product pages share the same 8px-rounded lime action. Keep demo selectors compact and grouped, and let visitors who prefer reduced motion start demonstrations themselves. On phones, scoreboard demos place large scores beside touchable adjustment controls and grow to fit additional teams. Dense bracket and multi-column leaderboard demos scroll inside a keyboard-focusable preview with a visible scroll hint; keep the page itself within the viewport.
 
 ### Editors and previews
 
