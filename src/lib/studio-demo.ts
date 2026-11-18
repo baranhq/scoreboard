@@ -14,6 +14,7 @@ export function studioDemo(kind: StudioDocument["kind"], lang: Lang): StudioDocu
     board.title = title[0];
     board.subtitle = `${t.round} 1`;
     board.columns = [t.team, t.points];
+    board.columnWidths = [200, 128];
     board.rows = [
       [`${t.team} 1`, "42"],
       [`${t.team} 2`, "38"],

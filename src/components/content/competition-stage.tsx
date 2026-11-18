@@ -34,10 +34,10 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
   const demoThemeLabel = themeLabels[lang][1];
   const previewHeightClass =
     tool === "scoreboard"
-      ? "h-[clamp(21rem,46svh,27rem)] sm:h-[clamp(22rem,70svh,40rem)] lg:h-[clamp(22rem,60svh,36rem)]"
+      ? "h-[clamp(20rem,42svh,24rem)] sm:h-[clamp(22rem,70svh,40rem)] lg:h-[clamp(22rem,60svh,36rem)]"
       : tool === "leaderboard"
         ? "h-[clamp(16rem,34svh,21rem)] sm:h-[clamp(22rem,70svh,40rem)] lg:h-[clamp(22rem,60svh,36rem)]"
-        : "h-[clamp(13rem,29svh,17rem)] sm:h-[clamp(22rem,70svh,40rem)] lg:h-[clamp(22rem,60svh,36rem)]";
+        : "h-[clamp(23rem,44svh,26rem)] sm:h-[clamp(22rem,70svh,40rem)] lg:h-[clamp(22rem,60svh,36rem)]";
 
   useEffect(() => {
     const preview = previewRef.current;
@@ -94,6 +94,8 @@ export function CompetitionStage({ lang, themes = false }: { lang: Lang; themes?
           <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-none">
             <div
               ref={previewRef}
+              onPointerDownCapture={pause}
+              onKeyDownCapture={pause}
               key={tool}
               className={`mt-3 ${previewHeightClass} min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.025] lg:mt-4 lg:flex-none`}
             >

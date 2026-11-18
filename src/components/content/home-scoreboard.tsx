@@ -101,6 +101,14 @@ export function HomeScoreboard({
         : 2
       : Math.max(1, Math.min(MAX_SCOREBOARD_TEAMS, teamCount));
   const compactSizing = compactPreviewSizing(count, readOnly);
+  const demoGridClass =
+    count >= 4
+      ? "grid grid-cols-2"
+      : count === 3
+        ? "grid grid-cols-1 sm:grid-cols-3"
+        : count === 2
+          ? "grid grid-cols-1 sm:grid-cols-2"
+          : "grid grid-cols-1";
   const [scores, setScores] = useState([12, 9, 0, 0, 0, 0]);
   const [timer, setTimer] = useState<GameTimer>(createDemoTimer);
   const step = useRef(0);
@@ -133,7 +141,6 @@ export function HomeScoreboard({
     reset: resetPlayback,
   } = useAutoDemo(advance, reset, 1500, autoplay, {
     controlled: controlledPlayback,
-    allowReducedMotionAutoplay: autoplay && readOnly,
   });
 
   useEffect(() => {
@@ -182,7 +189,7 @@ export function HomeScoreboard({
         </header>
       )}
       <div
-        className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "pt-1 pb-4 sm:px-5 sm:pb-5" : "py-7 sm:px-7 sm:py-4"}`}
+        className={`flex min-h-0 flex-1 flex-col justify-center px-3 ${compact ? "pt-3 pb-4 sm:px-5 sm:pt-1 sm:pb-5" : "py-7 sm:px-7 sm:py-4"}`}
       >
         <TimerDisplay
           timer={timer}
@@ -196,11 +203,18 @@ export function HomeScoreboard({
         />
         <div className="relative min-h-0 flex-1">
           <div
-            className={`${teamGridClass(compact && count >= 4 && count <= 6 ? 2 : count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : compact ? "auto-rows-fr sm:auto-rows-auto" : ""} h-full min-h-0 gap-2 sm:gap-3`}
+            className={`${compact && !full ? demoGridClass : teamGridClass(count, "auto", full)} ${compact && count >= 4 ? "auto-rows-fr" : compact ? "auto-rows-fr sm:auto-rows-auto" : ""} h-full min-h-0 gap-2 sm:gap-3`}
           >
             {teamNames.slice(0, count).map((name, index) => (
               <TeamPanel
                 key={name}
+                className={
+                  compact && !full
+                    ? count <= 3
+                      ? "max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:gap-x-3 max-sm:gap-y-0 max-sm:px-4 max-sm:py-3 max-sm:[&_[data-fullscreen-control]]:gap-2 max-sm:[&_button[data-fullscreen-control]]:size-11 max-sm:[&>[data-export-static]]:row-start-2 max-sm:[&>[data-export-static]]:justify-start max-sm:[&>[data-export-static]]:text-5xl max-sm:[&>[data-fullscreen-control]]:col-start-2 max-sm:[&>[data-fullscreen-control]]:row-span-2 max-sm:[&>[data-fullscreen-control]]:row-start-1 max-sm:[&>h3]:justify-self-start max-sm:[&>h3]:px-0 max-sm:[&>h3]:text-left max-sm:[&>h3]:text-base"
+                      : "max-sm:[&_[data-fullscreen-control]]:gap-1 max-sm:[&_button[data-fullscreen-control]]:size-11 max-sm:[&>[data-export-static]]:text-4xl max-sm:[&>h3]:text-sm"
+                    : ""
+                }
                 team={{
                   id: `demo-${index}`,
                   name,
@@ -222,8 +236,8 @@ export function HomeScoreboard({
                   backgroundEnd: theme.backgroundEnd,
                 }}
                 controlsVisible
-                interactive={!readOnly}
-                allowManualEdit={allowManualEdit}
+                interactive={!readOnly || showReadOnlyControls}
+                allowManualEdit={!readOnly && allowManualEdit}
                 showControls={!readOnly || showReadOnlyControls}
                 fitCompactGrid={compact && compactSizing.fitCompactGrid}
                 index={index}

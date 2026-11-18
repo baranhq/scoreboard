@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { Expand, Minimize2 } from "lucide-react";
+import { Expand, Minimize2, MoveHorizontal } from "lucide-react";
 import { foreground } from "@/lib/colors";
 import { Graphic } from "@/components/studio/graphic";
 import { DemoPlaybackControls } from "@/components/content/demo-playback-controls";
@@ -226,7 +226,6 @@ function StudioToolDemo({
     reset: resetPlayback,
   } = useAutoDemo(advance, reset, 2900, autoplay, {
     controlled: controlledPlayback,
-    allowReducedMotionAutoplay: autoplay && readOnly,
   });
   const fullscreen = nativeFullscreen || fallbackFullscreen;
   const attachRef = useCallback(
@@ -304,6 +303,13 @@ function StudioToolDemo({
     : compact
       ? "h-full rounded-none"
       : "rounded-xl border border-forest/20 shadow-[0_18px_50px_-28px_rgba(17,40,32,0.42)]";
+  const mobileGraphicClass = compact
+    ? tool === "bracket"
+      ? "max-sm:justify-start max-sm:overflow-x-auto max-sm:[&>svg]:!h-auto max-sm:[&>svg]:!max-h-none max-sm:[&>svg]:!w-[30rem] max-sm:[&>svg]:!max-w-none max-sm:[&>svg]:shrink-0"
+      : expanded
+        ? "max-sm:justify-start max-sm:overflow-x-auto max-sm:[&>svg]:!max-h-none max-sm:[&>svg]:!w-[40rem] max-sm:[&>svg]:!max-w-none max-sm:[&>svg]:shrink-0"
+        : ""
+    : "";
   const graphicViewportClass = compact
     ? `flex min-h-0 flex-1 items-center justify-center ${fullscreen ? "overflow-auto" : "overflow-hidden"}`
     : "max-h-[min(68svh,30rem)] min-h-52 overflow-auto";
@@ -401,7 +407,10 @@ function StudioToolDemo({
           className={`min-w-0 ${compact ? "flex min-h-0 flex-1 flex-col" : ""}`}
         >
           <div
-            className={`${graphicViewportClass} overscroll-contain ${barePreview ? "bg-transparent" : "bg-paper"} [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${graphicWidthClass} [&>svg]:!max-w-full`}
+            tabIndex={compact && (tool === "bracket" || expanded) ? 0 : undefined}
+            role={compact && (tool === "bracket" || expanded) ? "region" : undefined}
+            aria-label={compact && (tool === "bracket" || expanded) ? t.preview : undefined}
+            className={`${graphicViewportClass} ${mobileGraphicClass} overscroll-x-contain focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-action ${barePreview ? "bg-transparent" : "bg-paper"} [&>svg]:!block [&>svg]:!h-auto [&>svg]:!max-h-full ${graphicWidthClass} [&>svg]:!max-w-full`}
           >
             <Graphic
               document={document}
@@ -416,6 +425,12 @@ function StudioToolDemo({
               }
             />
           </div>
+          {readOnly && compact && (tool === "bracket" || expanded) && (
+            <p className="mt-2 flex items-center justify-center gap-2 text-xs leading-relaxed text-ink/70 sm:hidden">
+              <MoveHorizontal size={16} aria-hidden="true" className="shrink-0" />
+              {t.exploreGraphic}
+            </p>
+          )}
           {!readOnly && (
             <p className="mt-2 text-xs leading-relaxed text-ink/70">
               {compact ? `${t.exploreGraphic} · ${t.clickToEdit}` : t.clickToEdit}
