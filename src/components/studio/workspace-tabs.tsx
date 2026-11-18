@@ -63,7 +63,7 @@ export function WorkspaceTabs({
             change(tabs[next]);
             buttons.current[next]?.focus();
           }}
-          className={`min-h-12 border-b-2 px-1 py-2 text-xs leading-tight font-semibold transition-colors duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest motion-reduce:transition-none sm:text-sm ${tabWidth} ${value === tab ? "border-action text-forest" : "border-transparent text-ink/70"}`}
+          className={`min-h-12 border-b-2 px-1 py-2 text-xs leading-tight font-semibold transition-colors duration-150 first:rounded-tl-xl last:rounded-tr-xl hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest motion-reduce:transition-none sm:text-sm ${tabWidth} ${value === tab ? "border-action bg-action/10 text-forest" : "border-transparent text-ink/70"}`}
         >
           {tabLabels[tab]}
         </button>
