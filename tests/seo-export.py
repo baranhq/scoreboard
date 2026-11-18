@@ -205,6 +205,17 @@ for path in root.rglob('index.html'):
 for agent in ('Googlebot', 'bingbot', 'OAI-SearchBot'):
     check(not robots.can_fetch(agent, origin + '/api/'), f'robots.txt must disallow /api/ for {agent}')
 
+not_found_path = root / '404.html'
+check(not_found_path.is_file(), 'Missing exported custom 404 page')
+if not_found_path.is_file():
+    not_found = Page(not_found_path)
+    check(not_found.text['h1'] == ['Page not found'], '404 page needs a readable heading before hydration')
+    check('noindex' in not_found.meta.get('robots', ''), '404 page must be noindex')
+    for target in ('/en/scoreboard/', '/en/scoreboards/'):
+        check(target in not_found.anchors, f'404 page missing recovery link {target}')
+    for target in not_found.anchors:
+        check(exported_file(target).is_file(), f'404 page has broken recovery link {target}')
+
 if errors:
     raise SystemExit('\n'.join(errors))
 print(f'SEO export checks passed: {len(pages)} canonical pages, reciprocal hreflang, metadata, '
