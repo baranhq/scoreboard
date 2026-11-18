@@ -51,9 +51,9 @@ This inventory is generated from the installed npm lockfile and lists the pinned
 | @jridgewell/trace-mapping | 0.3.31 | MIT | https://github.com/jridgewell/sourcemaps |
 | @keyv/bigmap | 1.3.1 | MIT | https://github.com/jaredwray/keyv |
 | @keyv/serialize | 1.1.1 | MIT | https://github.com/jaredwray/keyv |
-| @next/env | 16.4.4 | MIT | https://github.com/vercel/next.js |
-| @next/eslint-plugin-next | 16.4.4 | MIT | vercel/next.js |
-| @next/swc-linux-x64-gnu | 16.4.4 | MIT | https://github.com/vercel/next.js |
+| @next/env | 16.4.6 | MIT | https://github.com/vercel/next.js |
+| @next/eslint-plugin-next | 16.4.6 | MIT | vercel/next.js |
+| @next/swc-linux-x64-gnu | 16.4.6 | MIT | https://github.com/vercel/next.js |
 | @nodelib/fs.scandir | 2.1.5 | MIT | https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.scandir |
 | @nodelib/fs.stat | 2.0.5 | MIT | https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.stat |
 | @nodelib/fs.walk | 1.2.8 | MIT | https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.walk |
@@ -145,7 +145,7 @@ This inventory is generated from the installed npm lockfile and lists the pinned
 | escalade | 3.2.0 | MIT | lukeed/escalade |
 | escape-string-regexp | 4.0.0 | MIT | sindresorhus/escape-string-regexp |
 | eslint | 10.14.0 | MIT | eslint/eslint |
-| eslint-config-next | 16.4.4 | MIT | vercel/next.js |
+| eslint-config-next | 16.4.6 | MIT | vercel/next.js |
 | eslint-config-prettier | 10.1.8 | MIT | prettier/eslint-config-prettier |
 | eslint-import-resolver-node | 0.3.10 | MIT | https://github.com/import-js/eslint-plugin-import |
 | eslint-import-resolver-typescript | 3.10.1 | ISC | https://github.com/import-js/eslint-import-resolver-typescript |
@@ -265,7 +265,7 @@ This inventory is generated from the installed npm lockfile and lists the pinned
 | nanoid | 3.3.20 | MIT | ai/nanoid |
 | napi-postinstall | 0.3.8 | MIT | https://github.com/un-ts/napi-postinstall |
 | natural-compare | 1.4.0 | MIT | git://github.com/litejs/natural-compare-lite |
-| next | 16.4.4 | MIT | vercel/next.js |
+| next | 16.4.6 | MIT | vercel/next.js |
 | node-exports-info | 1.6.2 | MIT | https://github.com/inspect-js/node-exports-info |
 | node-releases | 2.0.63 | MIT | https://github.com/chicoxyzzy/node-releases |
 | object-assign | 4.1.1 | MIT | sindresorhus/object-assign |

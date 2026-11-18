@@ -537,7 +537,7 @@ third-party archives.
 
 
 ========================================================================
-next@16.4.4 — license.md
+next@16.4.6 — license.md
 node_modules/next/license.md
 ========================================================================
 The MIT License (MIT)

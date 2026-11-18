@@ -108,6 +108,8 @@ Use restrained, consistent rounding: roughly 6px for form controls, 8px for butt
 
 Primary buttons use the action colour and its accessible on-action text. Secondary buttons use a transparent background, a light border, and forest text. Inputs are labelled, full-width where appropriate, and use the current paper or surface colour. Preserve visible keyboard focus and disabled states.
 
+Public landing and product pages share the same 8px-rounded lime action. Keep demo selectors compact and grouped, and let visitors who prefer reduced motion start demonstrations themselves.
+
 ### Editors and previews
 
 Keep each product's familiar task visible. Place save and PNG export where people expect them, provide a clear path to the product introduction, and group appearance and graphic-format controls plainly. Keep Content, Design, Settings, and Export tabs in the editor panel. On narrow screens, place the preview above that panel in one scrollable flow instead of hiding either behind an Edit/Preview switch. Keep the preview-only control on wider screens. Start previews centered at a compact scale; offer Fit, full-size, and fullscreen views alongside the aspect-ratio selector. Keep saving explicit, preserve browser-local drafts, and show storage and export errors. Examples belong only in landing-page demonstrations.

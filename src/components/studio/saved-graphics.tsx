@@ -100,7 +100,10 @@ export function SavedGraphics({ lang }: { lang: Lang }) {
       )}
       <ul className="divide-y divide-forest/15">
         {documents.map((doc) => (
-          <li key={doc.id} className="flex flex-wrap items-center gap-3 py-4">
+          <li
+            key={doc.id}
+            className="flex flex-col items-stretch gap-3 py-4 sm:flex-row sm:items-center"
+          >
             <div className="min-w-0 flex-1">
               {renaming === doc.id ? (
                 <form
@@ -136,7 +139,7 @@ export function SavedGraphics({ lang }: { lang: Lang }) {
                 {t[doc.kind]} · {europeanDateTime(doc.updatedAt)}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
               {renaming !== doc.id && (
                 <>
                   <Button

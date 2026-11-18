@@ -13,13 +13,15 @@ const deviceShareSnapshot = () => typeof navigator.share === "function";
 const serverShareSnapshot = () => false;
 
 function copyWithDocumentCommand(value: string) {
+  const previousFocus = document.activeElement;
   const field = document.createElement("textarea");
   field.value = value;
   field.readOnly = true;
   field.tabIndex = -1;
   field.setAttribute("aria-hidden", "true");
   field.className = "fixed top-0 left-0 text-base opacity-0";
-  document.body.append(field);
+  // Content outside a modal dialog is inert, so the fallback must stay inside it.
+  (document.querySelector("dialog[open]") || document.body).append(field);
   field.focus();
   field.select();
   field.setSelectionRange(0, value.length);
@@ -28,6 +30,7 @@ function copyWithDocumentCommand(value: string) {
     if (!document.execCommand("copy")) throw new Error("Copy unavailable");
   } finally {
     field.remove();
+    if (previousFocus instanceof HTMLElement) previousFocus.focus();
   }
 }
 
@@ -97,11 +100,16 @@ export function ShareDialog({
               maxLength={200}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="min-h-12 rounded-lg border border-forest/25 bg-surface px-3"
+              className="min-h-12 w-full min-w-0 rounded-lg border border-forest/25 bg-surface px-3 text-base"
             />
           </label>
           <div className="mt-5 flex justify-end">
-            <Button primary disabled={busy || !name.trim()} type="submit">
+            <Button
+              primary
+              disabled={busy || !name.trim()}
+              type="submit"
+              className="w-full sm:w-auto"
+            >
               <Save aria-hidden="true" className="h-5 w-5" />
               {busy ? t.saving : t.saveBoardShort}
             </Button>
@@ -133,10 +141,10 @@ export function ShareDialog({
                   rows={3}
                   value={url}
                   onFocus={(e) => e.target.select()}
-                  className="max-h-32 min-h-24 w-full min-w-0 resize-y overflow-auto rounded-lg border border-forest/25 bg-paper px-3 py-2 text-sm leading-5 break-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                  className="max-h-32 min-h-24 w-full min-w-0 resize-y overflow-auto rounded-lg border border-forest/25 bg-paper px-3 py-2 text-base leading-6 break-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
                 />
               </label>
-              <div className="mt-3 flex flex-wrap items-center gap-3">
+              <div className="mt-3 grid gap-3 sm:flex sm:flex-wrap sm:items-center">
                 {deviceShareAvailable && (
                   <Button
                     type="button"

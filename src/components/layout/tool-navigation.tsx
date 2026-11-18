@@ -9,7 +9,8 @@ import { studioCopy } from "@/lib/studio-copy";
 export function ToolNavigation({ lang }: { lang: Lang }) {
   const t = studioCopy[lang];
   const normalize = (value: string) => value.replace(/\/$/, "") || "/";
-  const pathname = normalize(usePathname());
+  const currentPath = normalize(usePathname());
+  const pathname = currentPath === "/en" ? "/" : currentPath;
   const toolDestinations = [
     { href: route(lang, "scoreboard"), label: t.scoreboard },
     { href: route(lang, "leaderboardEditor"), label: t.leaderboard },

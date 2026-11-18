@@ -626,8 +626,7 @@ export function Scoreboard({ lang, t }: { lang: Lang; t: Messages }) {
                           <>
                             <Button onClick={() => setDialogMode("share")}>
                               <Share2 aria-hidden="true" className="h-5 w-5" />
-                              <span className="hidden sm:inline">{t.share}</span>
-                              <span className="sr-only sm:hidden">{t.share}</span>
+                              {t.share}
                             </Button>
                             <Button primary onClick={() => setDialogMode("save")}>
                               <Save aria-hidden="true" className="h-5 w-5" />

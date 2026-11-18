@@ -3,7 +3,7 @@ import { ArrowUpRight, ChevronDown } from "lucide-react";
 import type { Lang } from "@/lib/i18n";
 import { productDetails } from "@/lib/product-details";
 import { route } from "@/lib/routes";
-import { toolContent, toolEditors } from "./landing-page";
+import { primaryLinkClass, toolContent, toolEditors } from "./landing-page";
 import type { Tool } from "./tool-demo";
 import { ProductOutputLab } from "./product-output-lab";
 import { campaignCopy } from "@/lib/campaign-copy";
@@ -170,10 +170,7 @@ export function ProductDetails({ tool, lang }: { tool: Tool; lang: Lang }) {
           <h2 className="max-w-[20ch] font-display text-[clamp(3rem,6vw,6rem)] leading-[0.98] font-bold tracking-[-0.04em]">
             {copy.close}
           </h2>
-          <Link
-            href={route(lang, toolEditors[tool])}
-            className="inline-flex min-h-12 items-center gap-3 rounded-full bg-lime px-6 py-3 font-semibold text-campaign transition-[filter,transform] duration-150 hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime active:scale-95 motion-reduce:transform-none motion-reduce:transition-none"
-          >
+          <Link href={route(lang, toolEditors[tool])} className={primaryLinkClass}>
             {content.action}
             <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
