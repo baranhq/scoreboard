@@ -208,7 +208,7 @@ export function EditorShell({
               />
             </label>
           </div>
-          <div className="flex w-full items-center justify-end gap-1.5 sm:w-auto sm:gap-2">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:justify-end">
             <span
               role="status"
               className="mr-auto hidden max-w-56 text-xs leading-4 text-forest md:inline"
@@ -225,7 +225,7 @@ export function EditorShell({
               onClick={state.undo}
             >
               <Undo2 aria-hidden="true" size={16} />
-              <span className="hidden sm:inline">{t.undoEdit}</span>
+              <span className="min-w-0 text-sm leading-tight sm:text-base">{t.undoEdit}</span>
             </Button>
             <Button
               aria-label={t.newProject}
@@ -235,7 +235,7 @@ export function EditorShell({
               onClick={state.newProject}
             >
               <FilePlus2 aria-hidden="true" size={16} />
-              <span className="hidden sm:inline">{t.newProject}</span>
+              <span className="min-w-0 text-sm leading-tight sm:text-base">{t.newProject}</span>
             </Button>
             <Button
               aria-label={t.saveToTables}
@@ -245,7 +245,7 @@ export function EditorShell({
               onClick={() => void state.save()}
             >
               <Save aria-hidden="true" size={16} />
-              <span className="hidden sm:inline">{t.saveToTables}</span>
+              <span className="min-w-0 text-sm leading-tight sm:text-base">{t.saveToTables}</span>
             </Button>
             <Button
               primary
@@ -256,7 +256,9 @@ export function EditorShell({
               onClick={() => void exportImage()}
             >
               <Download aria-hidden="true" size={16} />
-              <span className="hidden sm:inline">{exporting ? t.exporting : t.export}</span>
+              <span className="min-w-0 text-sm leading-tight sm:text-base">
+                {exporting ? t.exporting : t.export}
+              </span>
             </Button>
           </div>
           <p role="status" className="w-full text-xs leading-4 text-forest md:hidden">
@@ -278,15 +280,19 @@ export function EditorShell({
                 <h2 className="text-base font-semibold">{t.preview}</h2>
                 {!fullscreen && <p className="text-sm text-ink/70">{t.clickToEdit}</p>}
               </div>
-              <div className="flex min-w-0 flex-wrap items-center justify-start gap-1 sm:gap-2 xl:justify-end">
-                <CanvasRatioSelect
-                  canvas={doc.canvas}
-                  changeCanvas={(canvas) => state.change({ ...doc, canvas })}
-                  lang={lang}
-                  disabled={state.busy}
-                  onDark={fullscreenOnDark}
-                />
+              <div className="grid min-w-0 grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-start xl:justify-end">
+                <div className="col-span-3 min-w-0 sm:col-span-1">
+                  <CanvasRatioSelect
+                    canvas={doc.canvas}
+                    changeCanvas={(canvas) => state.change({ ...doc, canvas })}
+                    lang={lang}
+                    disabled={state.busy}
+                    onDark={fullscreenOnDark}
+                    triggerClassName="!w-full sm:!w-56"
+                  />
+                </div>
                 <Button
+                  className="min-w-0 !px-2 !text-sm sm:!px-4 sm:!text-base"
                   onDark={fullscreenOnDark}
                   aria-pressed={previewScale === "fit"}
                   onClick={() => setPreviewScale("fit")}
@@ -294,6 +300,7 @@ export function EditorShell({
                   {t.fit}
                 </Button>
                 <Button
+                  className="min-w-0 !px-2 !text-sm sm:!px-4 sm:!text-base"
                   onDark={fullscreenOnDark}
                   aria-pressed={previewScale === "full"}
                   onClick={() => setPreviewScale("full")}
@@ -301,6 +308,7 @@ export function EditorShell({
                   {t.actual}
                 </Button>
                 <Button
+                  className="min-w-0 !gap-1 !px-2 !text-sm sm:!gap-2 sm:!px-4 sm:!text-base"
                   onDark={fullscreenOnDark}
                   aria-pressed={fullscreen}
                   onClick={() => void toggleFullscreen()}

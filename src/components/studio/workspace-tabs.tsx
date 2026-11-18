@@ -23,7 +23,7 @@ export function WorkspaceTabs({
     : ["content", "design", "settings", "export"];
   const tabListLayout = includeTimer
     ? "grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5"
-    : "grid grid-cols-4";
+    : "grid grid-cols-2 min-[360px]:grid-cols-4";
   const tabWidth = "min-w-0 break-words";
   const tabLabels: Record<WorkspaceTab, string> = {
     content: labels.contentTab,
@@ -37,7 +37,7 @@ export function WorkspaceTabs({
     <div
       role="tablist"
       aria-label={labels.workspaceTabs}
-      className={`min-w-0 border-b border-forest/20 ${tabListLayout}`}
+      className={`min-w-0 overflow-hidden rounded-t-xl border-b border-forest/20 ${tabListLayout}`}
     >
       {tabs.map((tab, index) => (
         <button
@@ -63,7 +63,7 @@ export function WorkspaceTabs({
             change(tabs[next]);
             buttons.current[next]?.focus();
           }}
-          className={`min-h-12 border-b-2 px-1 py-2 text-xs leading-tight font-semibold transition-colors duration-150 first:rounded-tl-xl last:rounded-tr-xl hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest motion-reduce:transition-none sm:text-sm ${tabWidth} ${value === tab ? "border-action bg-action/10 text-forest" : "border-transparent text-ink/70"}`}
+          className={`min-h-12 border-b-2 px-1 py-2 text-xs leading-tight font-semibold transition-colors duration-150 hover:bg-forest/5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest motion-reduce:transition-none sm:text-sm ${tabWidth} ${value === tab ? "border-action bg-action/10 text-forest" : "border-transparent text-ink/70"}`}
         >
           {tabLabels[tab]}
         </button>

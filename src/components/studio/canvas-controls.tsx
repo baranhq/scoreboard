@@ -64,12 +64,14 @@ export function CanvasRatioSelect({
   lang,
   disabled = false,
   onDark = false,
+  triggerClassName = "",
 }: {
   canvas?: CanvasSize;
   changeCanvas: (size?: CanvasSize) => void;
   lang: Lang;
   disabled?: boolean;
   onDark?: boolean;
+  triggerClassName?: string;
 }) {
   const t = studioCopy[lang];
   const options: Record<RatioChoice, readonly [string, CanvasSize]> = {
@@ -88,7 +90,7 @@ export function CanvasRatioSelect({
       ariaLabel={t.canvasSize}
       disabled={disabled}
       fitViewport
-      triggerClassName={`!min-h-11 !w-44 !justify-between !rounded-md !border !px-3 !text-sm ${onDark ? "!border-white/35 !bg-transparent !text-white" : "!border-forest/25 !bg-surface !text-ink"}`}
+      triggerClassName={`!min-h-11 !w-56 !justify-between !rounded-md !border !px-3 !text-sm ${onDark ? "!border-white/35 !bg-transparent !text-white" : "!border-forest/25 !bg-surface !text-ink"} ${triggerClassName}`}
       label={
         <>
           <RatioGlyph ratio={ratio} />
