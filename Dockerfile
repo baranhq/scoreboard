@@ -21,7 +21,8 @@ RUN a2enconf scoreboard
 COPY --from=frontend /build/out/ /var/www/html/
 COPY backend/ /opt/scoreboard/backend/
 COPY docker/entrypoint.sh /usr/local/bin/scoreboard-entrypoint
-RUN chmod 755 /usr/local/bin/scoreboard-entrypoint
+# The upstream archive supplies PHP/Zend notices and corresponding libmbfl source.
+RUN chmod 755 /usr/local/bin/scoreboard-entrypoint && test -s /usr/src/php.tar.xz
 ENV SESSION_PATH=/var/lib/scoreboard/sessions
 ENTRYPOINT ["scoreboard-entrypoint"]
 CMD ["apache2-foreground"]

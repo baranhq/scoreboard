@@ -11,7 +11,6 @@ console.log(
 const steps = [
   ["scripts/fonts.mjs"],
   ["scripts/social.mjs"],
-  ["scripts/licenses.mjs"],
   ["scripts/policies.mjs"],
   ["node_modules/next/dist/bin/next", "build", "--webpack"],
   ["scripts/package-backend.mjs"],

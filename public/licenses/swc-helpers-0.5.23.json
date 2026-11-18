@@ -3,6 +3,7 @@
   "version": "0.5.23",
   "license": "Apache-2.0",
   "source": "https://github.com/swc-project/swc",
+  "noticePath": "/licenses/swc-helpers-0.5.23.json",
   "notices": [
     {
       "name": "@swc/helpers@0.5.23 — LICENSE",

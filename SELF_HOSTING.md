@@ -125,3 +125,11 @@ For Apache shared hosting with the PHP admin backend, use the external private `
 - **Never run `docker compose down -v` for an update.** The `-v` option deletes persistent volumes.
 
 Optional first-party analytics and Cloudflare Web Analytics are off by default. Scoreboards do not depend on them, and the app does not require Cloudflare or another external service for its core features. See [Privacy notes](docs/PRIVACY.md) before enabling analytics.
+
+## Redistributing container images
+
+The static export includes its browser-code and font notices. PHP, Apache, MariaDB, Caddy, Node.js and operating-system packages have separate licences; they are not all covered by the application's MIT licence. Building or running the supplied Compose setup is different from distributing its images.
+
+Before publishing or giving someone an image, record its exact digest and installed packages, retain their copyright/licence files and satisfy any corresponding-source requirements. The PHP runtime includes `/usr/src/php.tar.xz`, containing PHP/Zend notices and libmbfl source; preserve that archive, the build scripts and Debian's `/usr/share/doc` copyright files. Do not replace required GPL/LGPL source access or relinking rights with a link to the project's MIT licence. MariaDB's GPL terms and Caddy's Apache terms also apply if you redistribute their separate images; retain notices for their dependencies and base packages.
+
+The licence inventory in [LICENSES.md](LICENSES.md) identifies these boundaries and upstream sources. Mutable tags such as `mariadb:11.4` and `caddy:2-alpine` can resolve to different binaries over time, so that inventory is not certification of a future container build. No Docker image binaries are included in this repository.
