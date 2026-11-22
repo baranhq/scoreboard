@@ -33,6 +33,7 @@ This is an engineering source note, not a compliance certification or legal opin
 6. Bulgarian PDPA Article 25c requires parental/guardian consent when processing based on consent for a child under 14 in connection with an information society service offered directly to them. The Website does not ask age or verify guardian authority. The policy discloses this; the notice itself does not obtain that consent.
 7. Assess localStorage/sessionStorage/IndexedDB use under Article 4a of Bulgaria's Electronic Commerce Act and ePrivacy rules. The current app stores user-selected settings and app data without an additional storage-consent gate. Do not infer that every item is exempt merely because it is first-party or does not leave the browser.
 8. Confirm the provider-specific transfer terms, destinations, processors and safeguards applicable to this account. Public provider documents do not establish which contracts or controls apply.
+9. Confirm whether the free Website falls within the Bulgarian Electronic Commerce Act's information-society-service scope. If it does, Article 4 requires public access to the provider's permanent address and, if different, activity address, alongside identity and correspondence details. The current notice gives the operator's name, country and email but no physical address; none was supplied, so do not invent or add one without confirmation.
 
 ## Policy source and publication
 
