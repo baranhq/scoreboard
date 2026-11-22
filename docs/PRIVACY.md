@@ -1,55 +1,41 @@
 # Privacy and deployment checks
 
-The checked-in notices under `src/lib/privacy` describe the supplied Baran's Scoreboard instance. On 2026-11-03, the operator confirmed that production uses Cloudflare as a reverse proxy and for network protection and traffic/security statistics; AWStats is enabled and its reports are actively used; and both first-party Site usage analytics and Cloudflare Web Analytics are enabled. Each optional analytics system collects per-visitor analytics only after its separate consent is given. Cloudflare network-level processing and hosting logs are independent of those choices.
+The checked-in notices under `src/lib/privacy` describe the supplied Baran's Scoreboard instance. Provider names in this internal note are used to identify the configured services; the published policy uses service categories as requested. The latest owner-supplied configuration identifies JetHost.bg shared hosting with cPanel, Cloudflare network delivery/security and Web Analytics, JetBackup 5 weekly incremental backups, and Tuta Mail.
 
-The repository can verify application behaviour, but not hosting-level settings, provider contracts, or scheduled jobs. The notices are not a compliance certification or a replacement for legal review. Self-hosters must adapt the three notices to their own identity, providers, services, users, retention and legal arrangements.
+This is an engineering source note, not a compliance certification or legal opinion. Self-hosters must adapt the notices to their own identity, services, providers, retention, users and legal arrangements.
 
 ## Confirmed production facts
 
-- The deployment uses shared hosting; the provider name and hosting region have not been supplied.
-- The hosting company provides AWStats, it is enabled, and the operator uses its reports. AWStats and hosting access logs are outside the website's analytics consent controls. The application does not assert that AWStats cannot be disabled.
-- Cloudflare reverse proxy, network protection and traffic/security statistics are active. Cloudflare Web Analytics is manually loaded after its separate consent; Cloudflare network-level processing happens regardless of that consent.
-- Both optional analytics capabilities are enabled in production, but their per-browser collection remains off until the visitor makes the corresponding choice. The application's repository defaults remain off.
-- The operator may make manual backups as needed. The hosting provider may also make automatic backups; frequency and retention have not been verified.
+- The Website uses shared hosting with cPanel from JetHost.bg. AWStats is enabled and generates traffic reports from hosting access logs.
+- The hosting backup service is JetBackup 5, configured for weekly incremental backups. Four recovery points were observed on 22 November 2026. The exact retention/expiry period, backup destination and access controls have not been confirmed.
+- Cloudflare is used for the reverse proxy, network delivery and security. The application has separate choices for first-party Site usage analytics and the Cloudflare Web Analytics beacon; both optional capabilities are enabled in production but start off until a choice is saved.
+- A live browser check from Bulgaria on 22 November 2026 found no Web Analytics beacon in the initial page DOM before a choice. Saving only the Web Analytics choice loaded the application beacon; withdrawing that choice removed it after page reload. This confirms the application-managed consent gate on the tested EU page. It does not confirm Cloudflare account-level automatic injection, other page responses or behaviour outside the EEA.
+- Tuta Mail is used for email correspondence. The actual account type, processing agreement and mailbox retention settings have not been verified.
 
 ## Processing boundaries
 
-- Games, custom names, scores, colours, icons, timer state, imports and shared payloads stay in the browser. A person can deliberately share a URL snapshot or JSON file.
-- URL payloads use fragments, not query strings. The application removes incoming data fragments before its optional beacon can load. Share links are public to anyone who has them, not encrypted, and not live collaborative sessions.
-- First-party usage analytics record consented visits, page views from a fixed public-path allowlist, and estimated active time. Interaction events and user-provided labels are no longer accepted or reported. Previously collected action-event rows remain until the maintenance command deletes rows older than 365 days; whether its schedule is active must be confirmed on the host. No production records are bulk-deleted by this change.
-- No visitor IP address or IP-derived visitor identifier is stored in application analytics. Trusted addresses are processed transiently for login protection. Security counters are separate from analytics records. Authenticated administrators are automatically excluded from first-party usage analytics.
-- Hosting logs, AWStats, Cloudflare delivery/security and email correspondence are separate from optional application analytics. Rejecting consent does not turn them off.
-- The consent cookie is site-specific, opaque, Secure and HttpOnly in production. Portfolio consent on a different host is not reused.
-- Usage consent withdrawal deletes the associated live analytics in a transaction. Analytics writes and consent changes lock the same preference record to prevent a late write from recreating withdrawn records.
-- Preference refreshes pause first-party collection while consent is checked; stale responses cannot restore an older choice. An already initialized Cloudflare beacon is ended by reloading the tab when refreshed consent is withdrawn or cannot be verified.
-- Cloudflare Web Analytics is manually loaded by the application after consent. The repository cannot verify whether a separate Cloudflare automatic beacon injection is disabled in production; inspect actual production responses and requests.
-- Timers, theme selection, device-language suggestions and interface nudges do not contact third-party services.
+- Cloudflare network delivery/security and hosting access logs operate independently of application analytics choices. Providers may receive connection IP addresses and request metadata; the site itself does not store raw visitor IP addresses in its analytics or rate-limit tables.
+- The public API rate limiter derives a purpose-specific keyed hash from the connection IP and stores a short-lived counter with a 15-minute expiry. Raw IPs are not stored in that application table. Expired counters are physically removed by maintenance; the production schedule has not been verified.
+- First-party analytics stores consented visit sessions, limited public page paths, page-view times and estimated active time. It does not accept new interaction events or user-entered labels. Older event rows may remain until cleanup removes rows older than 365 days. Analytics reporting excludes visits older than 365 days; actual physical deletion depends on the scheduled cleanup task.
+- The preference cookie and hashed choice record are used to retrieve and enforce a saved choice. Choices expire after 180 days; a maintenance task deletes stored choice records after 365 days from the last update.
+- Scoreboards, participant names, scores, imports, saved tables, and drafts remain in browser storage unless a user deliberately shares or exports them. Share snapshots use URL fragments and are removed before the application-controlled analytics beacon can load.
+- LocalStorage, IndexedDB and sessionStorage are not controlled by the analytics consent panel. Some storage supports user-requested features such as saving work; the ePrivacy/Bulgarian Electronic Commerce Act classification of each non-essential setting or reminder should be confirmed. The policy describes what is stored but does not obtain consent for terminal storage.
+- The Website has no public account or contact form. Private administration uses a separate one-hour session. Email enquiries can include message contents, attachments and correspondence metadata.
+- The application-managed Web Analytics beacon is consent-gated in the tested EU flow. Cloudflare's current RUM documentation describes automatic beacon injection in some configurations and excludes EEA/UK/Swiss traffic by default on free plans. The live EEA test showed no pre-choice beacon, but the account plan and network-side automatic-injection setting must still be confirmed.
 
-The platform upgrade adds a separate `scoreboard-studio` IndexedDB database for explicitly saved Leaderboards and Brackets. PNG and JSON generation are local. Edits keep a tab-session recovery draft in sessionStorage; successful saving removes that draft. No new server endpoint, identity, analytics event or remote service is introduced. The EN/BG/TR policies add the same factual paragraph about the stored fields, manual saving, deletion and backup/export behaviour. Existing server processing and provider disclosures remain unchanged. New tool paths are outside the existing first-party analytics allowlist; do not silently broaden it.
+## Open account and compliance checks
 
-## Unresolved deployment and compliance items for operator review
+1. Confirm the hosting account's access-log/AWStats fields, retention and deletion schedule.
+2. Confirm JetBackup's destination, the exact recovery-point rotation/expiry, who can access backups and when provider copies are removed. The policy states the observed schedule and that exact retention is unconfirmed.
+3. Confirm the Cloudflare plan, zone-level automatic RUM/beacon settings, actual response headers/cookies, data locations and transfer safeguards. A test from Bulgaria cannot establish behaviour for every region.
+4. Confirm the Tuta account type, applicable service agreement, email storage/retention settings and any processing/transfer terms that apply.
+5. Verify the production maintenance task removes analytics, preference and rate-limit records as expected. Source code defines 365-day cleanup for analytics/preferences and 15-minute expiry for counters, but the live schedule is an account setting.
+6. Bulgarian PDPA Article 25c requires parental/guardian consent when processing based on consent for a child under 14 in connection with an information society service offered directly to them. The Website does not ask age or verify guardian authority. The policy discloses this; the notice itself does not obtain that consent.
+7. Assess localStorage/sessionStorage/IndexedDB use under Article 4a of Bulgaria's Electronic Commerce Act and ePrivacy rules. The current app stores user-selected settings and app data without an additional storage-consent gate. Do not infer that every item is exempt merely because it is first-party or does not leave the browser.
+8. Confirm the provider-specific transfer terms, destinations, processors and safeguards applicable to this account. Public provider documents do not establish which contracts or controls apply.
 
-1. Identify the shared hosting provider, processing locations and sub-processors. Confirm retention/deletion criteria for raw access logs and AWStats reports, and which provider controls are available for those services.
-2. Confirm how operator-managed and hosting-provider backups are created, accessed and deleted. Do not add fixed schedules or expiry periods unless verified. Keep operator-managed copies reviewed and remove them when no longer necessary where the operator controls deletion.
-3. Confirm Cloudflare's applicable network/security log categories and retention periods, processing regions, account terms/DPA and any transfer safeguards. Verify that no automatic beacon bypasses the manual consent gate.
-4. Confirm international transfer arrangements for the hosting and Cloudflare services, including applicable regions, sub-processors and transfer mechanisms. Cloudflare's published DPA/SCCs do not by themselves establish which safeguards apply to this account.
-5. Verify that production runs the analytics cleanup task hourly, including during low-traffic periods, and monitors failures. Application queries exclude records older than 365 days, but physical deletion depends on scheduled cleanup. Also verify backup-restoration procedures purge restored optional analytics and consent records before service reopens.
-6. The app does not ask a visitor's age or verify parent/guardian authority. For consent-based processing involving children under 14, confirm how valid parental/guardian consent is obtained for the actual audience and classroom use; the notice itself is not a consent mechanism.
-7. Identify the email provider and its applicable processing locations and retention arrangements if available.
-8. The public PHP route reads the private policy file configured through `POLICY_PATH` before the checked-in generated policy. After changing policy source text, publish all three languages through the authenticated editor and verify the dates and rendered content; uploading a new build alone does not replace an existing private copy.
+## Policy source and publication
 
-## Ongoing operational checks
+The source notices are generated from `src/lib/privacy/{bg,tr,en}.md` by `scripts/policies.mjs` into `public/policies/*.json`. The PHP policy route selects a newer deployed policy over an older private copy by its `updatedAt` value. The source generator now dates this revision 22 November 2026; confirm the rendered policy route after deployment, especially if a private policy has a later date. No live policy text was changed from this workspace.
 
-1. Verify operator details and all three language versions before release.
-2. Test no consent, reject, separate opt-ins and withdrawal. Inspect requests, server acceptance and stored rows, rather than checkbox state alone.
-3. Confirm page-view paths remain limited to the public-path allowlist and shared fragments do not reach custom analytics or the optional beacon. No interaction events are collected by first-party analytics.
-4. Review child audience and guardian-consent arrangements before analytics use in classrooms.
-5. Confirm HTTPS, private storage permissions, authenticated administration, session expiry, CSRF rejection, login limits and cache bypasses.
-
-## Policy maintenance
-
-Publishing a policy edit changes only text. It does not configure provider logging, enable analytics, set retention, verify a transfer mechanism or change the hosting arrangements. Keep the public notices aligned with actual processing. The separate portfolio policy is not edited by this project.
-
-Relevant primary references: [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng), [Bulgarian Personal Data Protection Act and Article 25c](https://cpdp.bg/en/legislation/personal-data-protection-act/), [Bulgarian Commission for Personal Data Protection](https://cpdp.bg/en/), [Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/), [Cloudflare Web Analytics retention documentation](https://developers.cloudflare.com/web-analytics/faq/).
-
-The consent review also used the [consolidated ePrivacy Directive, Article 5(3)](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02002L0058-20091219), [EDPB Guidelines 05/2020 on consent](https://www.edpb.europa.eu/documents/guideline/guidelines-052020-on-consent-under-regulation-2016679_en), and the current [Bulgarian Personal Data Protection Act](https://cpdp.bg/en/legislation/personal-data-protection-act/), including its under-14 consent rule. The appropriate arrangements for the Website's actual audience and hosting providers still require operator confirmation; this engineering review is not a legal compliance guarantee. No contractual terms were changed.
+The policy was checked against the application code, the supplied configuration, and primary-source material recorded in [privacy-policy-source-review.md](privacy-policy-source-review.md). Publishing policy text does not configure providers, alter logging or backups, verify a transfer mechanism, or change application behaviour.
